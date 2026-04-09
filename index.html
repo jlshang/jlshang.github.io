@@ -35,8 +35,10 @@
       gap: 12px;
     }
     a.card {
-      display: block;
-      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 18px;
       border-radius: 14px;
       background: rgba(255, 255, 255, 0.85);
       border: 1px solid rgba(255, 255, 255, 0.9);
@@ -46,6 +48,33 @@
       font-weight: 600;
       font-size: 1.05rem;
       transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .card-icon {
+      flex-shrink: 0;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+    }
+    .card-icon svg {
+      width: 28px;
+      height: 28px;
+    }
+    a.card--zome .card-icon {
+      background: linear-gradient(145deg, #e8eeff 0%, #d4e0ff 100%);
+      color: #3d5a9e;
+    }
+    a.card--math .card-icon {
+      background: linear-gradient(145deg, #fff3d6 0%, #ffe8b8 100%);
+      color: #b86a00;
+    }
+    .card-text {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
     }
     a.card:hover {
       transform: translateY(-2px);
@@ -74,11 +103,33 @@
   <h1>目录</h1>
   <p class="sub">选择要打开的页面</p>
   <nav aria-label="Site pages">
-    <a class="card" href="zome.html">
-      教材同步拼
+    <a class="card card--zome" href="zome.html">
+      <span class="card-icon" aria-hidden="true">
+        <!-- Stacked blocks / spatial build — matches “拼” -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L4 6v8l8 4 8-4V6l-8-4z"/>
+          <path d="M4 6l8 4 8-4M12 10v8"/>
+          <path d="M12 10L8 8M12 10l4-2"/>
+        </svg>
+      </span>
+      <span class="card-text">
+        教材同步拼
+        <span class="path">zome.html</span>
+      </span>
     </a>
-    <a class="card" href="word_problems.html">
-      word_problems
+    <a class="card card--math" href="word_problems.html">
+      <span class="card-icon" aria-hidden="true">
+        <!-- Word problem / 应用题 -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <path d="M14 2v6h6M8 13h8M8 17h6"/>
+          <path d="M10 9h1M13 9h1"/>
+        </svg>
+      </span>
+      <span class="card-text">
+        word_problems
+        <span class="path">word_problems.html</span>
+      </span>
     </a>
   </nav>
   <footer>GitHub Pages</footer>

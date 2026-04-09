@@ -114,6 +114,48 @@ html,body{min-height:100%;background:#D8EFE4;display:flex;align-items:flex-start
 .chick-group{opacity:0;pointer-events:none;transition:opacity .4s ease;}
 .chick-group.visible{opacity:1;pointer-events:auto;}
 .chick-inner.bounce{animation:chickBounce .4s ease-in-out 3;}
+/* Step ①: only first blue block (q3bs0) + first brown chase line; not q3bs1/q3bs2 or q3blueSeg */
+#q3svg #q3bs0.ms-step1-deepen > line:first-of-type{
+  stroke:#153d7a !important;
+  stroke-width:11;
+  opacity:1;
+}
+#q3svg #q3bs0.ms-step1-deepen text{
+  fill:#0a2f5c;
+}
+#q3svg line.q3brownSeg.ms-step1-deepen{stroke:#5a3010 !important;}
+@keyframes msStep1DeepenPulse{
+  0%,100%{opacity:1;}
+  50%{opacity:0.35;}
+}
+/* Pulse only the first blue bar line, not the "75" label */
+#q3svg #q3bs0.ms-step1-deepen > line:first-of-type.ms-step1-pulse{
+  animation:msStep1DeepenPulse 1.15s ease-in-out infinite;
+}
+#q3svg line.q3brownSeg.ms-step1-pulse{
+  animation:msStep1DeepenPulse 1.15s ease-in-out infinite;
+}
+/* Step ② dashed rings: same radius as q3dotBlue/Brown (dr), slow blink until step is answered */
+#q3svg #q3step2Rings:not(.ms-step2-ring-flash){opacity:0;}
+#q3svg #q3step2Rings.ms-step2-ring-flash{
+  opacity:1;
+  animation:msStep2RingPulse 1.6s ease-in-out infinite;
+}
+@keyframes msStep2RingPulse{
+  0%,35%{opacity:1;}
+  50%{opacity:.12;}
+  65%,100%{opacity:1;}
+}
+/* Step ③: "? 天" under brown brace — breathe (scale) until this step is answered */
+@keyframes msStep3ChaseBreath{
+  0%,100%{transform:scale(1);}
+  50%{transform:scale(1.2);}
+}
+#q3svg #q3chaseDaysBreath.ms-step3-breath{
+  animation:msStep3ChaseBreath 1.2s ease-in-out infinite;
+  transform-origin:center;
+  transform-box:fill-box;
+}
 </style>
 </head>
 <body>
@@ -232,6 +274,10 @@ function ttsSpeak(txt, onend, onerror){
   txt=txt.trim();
   if(!txt){if(onend)onend();return;}
   ttsCancel();
+  // Keep step ① highlight+pulse while on that step (cleared on correct answer or when leaving step)
+  var _q=typeof QUESTIONS!=='undefined'?QUESTIONS[cQ]:null;
+  if(!(_q&&_q.isMultiStep&&typeof st!=='undefined'&&st.msStep===0))setMSStep1SegmentDeepen(false);
+  if(!(_q&&_q.isMultiStep&&typeof st!=='undefined'&&st.msStep===2))setMSStep3ChaseBreath(false);
   function clearPlayRetry(){
     if(_ttsPlayRetryRem){_ttsPlayRetryRem();_ttsPlayRetryRem=null;}
   }
@@ -288,6 +334,59 @@ function ttsSpeak(txt, onend, onerror){
 function ttsCancel(){
   if(_ttsPlayRetryRem){_ttsPlayRetryRem();_ttsPlayRetryRem=null;}
   if(_ttsAudio){_ttsAudio.pause();_ttsAudio=null;}
+}
+
+// Step ①: only first blue block (q3bs0) + first brown chase line; not 2nd/3rd blue blocks.
+function setMSStep1SegmentDeepen(active){
+  function setDeepenPulseLine(el, on){
+    if(!el)return;
+    ['ms-step1-deepen','ms-step1-pulse'].forEach(function(c){
+      if(on)el.classList.add(c);else el.classList.remove(c);
+    });
+  }
+  var g0=document.getElementById('q3bs0');
+  if(g0){
+    var ln0=g0.querySelector('line');
+    if(active){
+      g0.classList.add('ms-step1-deepen');
+      if(ln0)ln0.classList.add('ms-step1-pulse');
+    }else{
+      g0.classList.remove('ms-step1-deepen');
+      if(ln0)ln0.classList.remove('ms-step1-pulse');
+    }
+  }
+  ['q3bs1','q3bs2'].forEach(function(id){
+    var g=document.getElementById(id);
+    if(!g)return;
+    var ln=g.querySelector('line');
+    g.classList.remove('ms-step1-deepen');
+    if(ln)ln.classList.remove('ms-step1-pulse');
+  });
+  var svg=document.getElementById('q3svg');
+  if(!svg)return;
+  svg.querySelectorAll('line.q3blueSeg').forEach(function(el){
+    setDeepenPulseLine(el, false);
+  });
+  var brls=svg.querySelectorAll('line.q3brownSeg');
+  for(var j=0;j<brls.length;j++){
+    setDeepenPulseLine(brls[j], active&&j===0);
+  }
+}
+
+// Step ② dashed rings: same size as moving dots; blink until this step is answered (not tied to TTS end)
+function setMSStep2RingFlash(active){
+  var g=document.getElementById('q3step2Rings');
+  if(!g)return;
+  if(active)g.classList.add('ms-step2-ring-flash');
+  else g.classList.remove('ms-step2-ring-flash');
+}
+
+// Step ③: "? 天" label scale pulse until step 3 is answered correctly
+function setMSStep3ChaseBreath(active){
+  var g=document.getElementById('q3chaseDaysBreath');
+  if(!g)return;
+  if(active)g.classList.add('ms-step3-breath');
+  else g.classList.remove('ms-step3-breath');
 }
 
 // Resume auto-read after user reveals the waited segment
@@ -580,6 +679,13 @@ var QUESTIONS=[
         return out;
       }
       var meetX=bx+8*uw;
+      // Lower brown brace so it does not overlap the "120" label (y2+18) on the first segment
+      var chaseBraceDrop=14;
+      // Dashed rings: r=dr matches q3dotBlue / q3dotBrown; positions = 3-day head end + brown start
+      var step2Rings='<g id="q3step2Rings" style="pointer-events:none">'+
+        '<circle cx="'+(bx+3*uw)+'" cy="'+y1+'" r="'+dr+'" fill="none" stroke="#4A90D9" stroke-width="2" stroke-dasharray="4 3"/>'+
+        '<circle cx="'+bx+'" cy="'+y2+'" r="'+dr+'" fill="none" stroke="#8B5A2B" stroke-width="2" stroke-dasharray="4 3"/>'+
+        '</g>';
       return '<svg id="q3svg" viewBox="0 0 390 200" xmlns="http://www.w3.org/2000/svg">'+
         '<rect width="390" height="200" fill="#F8F4EE"/>'+
         horseIcon('q3horseBlue',28,y1+2,'#4A90D9','小马')+
@@ -594,15 +700,18 @@ var QUESTIONS=[
           '<text x="'+(bx+1.5*uw)+'" y="'+(y1+30)+'" text-anchor="middle" font-size="9" fill="#1A4080" font-family="Noto Sans SC,sans-serif">先走3天</text>'+
         '</g>'+
         '<g id="q3meetMark" style="opacity:0;transition:opacity .4s">'+
-          '<line x1="'+meetX+'" y1="'+(y1-20)+'" x2="'+meetX+'" y2="'+(y2+22)+'" stroke="#D94040" stroke-width="1.5" stroke-dasharray="3,3"/>'+
-          '<text x="'+meetX+'" y="'+(y2+34)+'" text-anchor="middle" font-size="10" fill="#D94040" font-family="Noto Sans SC,sans-serif" font-weight="700">追上！</text>'+
+          '<line x1="'+meetX+'" y1="'+(y1-12)+'" x2="'+meetX+'" y2="'+(y2+8)+'" stroke="#D94040" stroke-width="1.5" stroke-dasharray="3,3"/>'+
         '</g>'+
         '<g id="q3chaseBrace" style="opacity:0;transition:opacity .4s">'+
-          '<path d="M'+bx+','+(y2+12)+' L'+bx+','+(y2+18)+' L'+((bx+meetX)/2)+','+(y2+18)+' L'+((bx+meetX)/2)+','+(y2+22)+' L'+((bx+meetX)/2)+','+(y2+18)+' L'+meetX+','+(y2+18)+' L'+meetX+','+(y2+12)+'" fill="none" stroke="#8B5A2B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'+
-          '<text x="'+((bx+meetX)/2)+'" y="'+(y2+32)+'" text-anchor="middle" font-size="9" fill="#5A3010" font-family="Noto Sans SC,sans-serif">？天</text>'+
+          '<path d="M'+bx+','+(y2+12+chaseBraceDrop)+' L'+bx+','+(y2+18+chaseBraceDrop)+' L'+((bx+meetX)/2)+','+(y2+18+chaseBraceDrop)+' L'+((bx+meetX)/2)+','+(y2+22+chaseBraceDrop)+' L'+((bx+meetX)/2)+','+(y2+18+chaseBraceDrop)+' L'+meetX+','+(y2+18+chaseBraceDrop)+' L'+meetX+','+(y2+12+chaseBraceDrop)+'" fill="none" stroke="#8B5A2B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'+
+          '<g transform="translate('+((bx+meetX)/2)+','+(y2+32+chaseBraceDrop)+')">'+
+          '<g id="q3chaseDaysBreath">'+
+          '<text x="0" y="0" text-anchor="middle" dominant-baseline="central" font-size="9" fill="#5A3010" font-family="Noto Sans SC,sans-serif">？天</text>'+
+          '</g></g>'+
         '</g>'+
         '<circle id="q3dotBlue" cx="'+bx+'" cy="'+y1+'" r="'+dr+'" fill="#4A90D9" stroke="white" stroke-width="2" opacity="0"/>'+
         '<circle id="q3dotBrown" cx="'+bx+'" cy="'+y2+'" r="'+dr+'" fill="#8B5A2B" stroke="white" stroke-width="2" opacity="0"/>'+
+        step2Rings+
         '</svg>';
     },
     revealFn:function(group,s){
@@ -657,8 +766,10 @@ var QUESTIONS=[
         var bls=[],brs=[],blt=[],brt=[];
         for(var i=0;i<totalDays;i++){
           var bl=document.createElementNS('http://www.w3.org/2000/svg','line');
+          bl.setAttribute('class','q3blueSeg');
           bl.setAttribute('x1',blueStart+i*uw);bl.setAttribute('x2',blueStart+i*uw);bl.setAttribute('y1',y1);bl.setAttribute('y2',y1);bl.setAttribute('stroke','#4A90D9');bl.setAttribute('stroke-width',thickW);bl.setAttribute('stroke-linecap','butt');svg.insertBefore(bl,bd);bls.push(bl);
           var brl=document.createElementNS('http://www.w3.org/2000/svg','line');
+          brl.setAttribute('class','q3brownSeg');
           brl.setAttribute('x1',brownStart+i*uw2);brl.setAttribute('x2',brownStart+i*uw2);brl.setAttribute('y1',y2);brl.setAttribute('y2',y2);brl.setAttribute('stroke','#8B5A2B');brl.setAttribute('stroke-width',thickW);brl.setAttribute('stroke-linecap','butt');svg.insertBefore(brl,bd);brs.push(brl);
           var btick=document.createElementNS('http://www.w3.org/2000/svg','line');btick.setAttribute('x1',blueStart+(i+1)*uw);btick.setAttribute('x2',blueStart+(i+1)*uw);btick.setAttribute('y1',y1-7);btick.setAttribute('y2',y1+7);btick.setAttribute('stroke','white');btick.setAttribute('stroke-width','2.5');btick.setAttribute('opacity','0');svg.insertBefore(btick,bd);blt.push(btick);
           var brtick=document.createElementNS('http://www.w3.org/2000/svg','line');brtick.setAttribute('x1',brownStart+(i+1)*uw2);brtick.setAttribute('x2',brownStart+(i+1)*uw2);brtick.setAttribute('y1',y2-7);brtick.setAttribute('y2',y2+7);brtick.setAttribute('stroke','white');brtick.setAttribute('stroke-width','2.5');brtick.setAttribute('opacity','0');svg.insertBefore(brtick,bd);brt.push(brtick);
@@ -683,7 +794,22 @@ var QUESTIONS=[
             }
           };
         }
-        setTimeout(function(){requestAnimationFrame(function(ts){runDay(ts)(ts);});},300);
+        setTimeout(function(){
+          // Label 120 km/day on first brown segment when brown dot starts moving
+          var t120=document.createElementNS('http://www.w3.org/2000/svg','text');
+          t120.setAttribute('id','q3brownFirst120');
+          t120.setAttribute('x',String(brownStart+uw2/2));
+          // Below brown line (avoid overlap with blue "先走3天" brace)
+          t120.setAttribute('y',String(y2+18));
+          t120.setAttribute('text-anchor','middle');
+          t120.setAttribute('font-size','9');
+          t120.setAttribute('fill','#5A3010');
+          t120.setAttribute('font-family','Noto Sans SC,sans-serif');
+          t120.setAttribute('font-weight','700');
+          t120.textContent='120';
+          svg.insertBefore(t120,bd);
+          requestAnimationFrame(function(ts){runDay(ts)(ts);});
+        },300);
       }
     }
   },
@@ -760,15 +886,15 @@ var QUESTIONS=[
       // meet mark
       var meetX=bx+8*uw;
       var meetMark='<g id="q3meetMark" style="opacity:0;transition:opacity .4s">'+
-        '<line x1="'+meetX+'" y1="'+(y1-20)+'" x2="'+meetX+'" y2="'+(y2+22)+'" stroke="#D94040" stroke-width="1.5" stroke-dasharray="3,3"/>'+
-        '<text x="'+meetX+'" y="'+(y2+34)+'" text-anchor="middle" font-size="10" fill="#D94040" font-family="Noto Sans SC,sans-serif" font-weight="700">追上！</text>'+
+        '<line x1="'+meetX+'" y1="'+(y1-12)+'" x2="'+meetX+'" y2="'+(y2+8)+'" stroke="#D94040" stroke-width="1.5" stroke-dasharray="3,3"/>'+
         '</g>';
 
       // brown brace: from bx (origin) to meetX — represents total travel time of brown horse
       var chaseBraceX0=bx, chaseBraceX1=meetX;
+      var chaseBraceDrop=14;
       var chaseBrace='<g id="q3chaseBrace" style="opacity:0;transition:opacity .4s 0.2s">'+
-        '<path d="M'+chaseBraceX0+','+(y2+12)+' L'+chaseBraceX0+','+(y2+18)+' L'+((chaseBraceX0+chaseBraceX1)/2)+','+(y2+18)+' L'+((chaseBraceX0+chaseBraceX1)/2)+','+(y2+22)+' L'+((chaseBraceX0+chaseBraceX1)/2)+','+(y2+18)+' L'+chaseBraceX1+','+(y2+18)+' L'+chaseBraceX1+','+(y2+12)+'" fill="none" stroke="#8B5A2B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'+
-        '<text x="'+((chaseBraceX0+chaseBraceX1)/2)+'" y="'+(y2+32)+'" text-anchor="middle" font-size="9" fill="#5A3010" font-family="Noto Sans SC,sans-serif">？天</text>'+
+        '<path d="M'+chaseBraceX0+','+(y2+12+chaseBraceDrop)+' L'+chaseBraceX0+','+(y2+18+chaseBraceDrop)+' L'+((chaseBraceX0+chaseBraceX1)/2)+','+(y2+18+chaseBraceDrop)+' L'+((chaseBraceX0+chaseBraceX1)/2)+','+(y2+22+chaseBraceDrop)+' L'+((chaseBraceX0+chaseBraceX1)/2)+','+(y2+18+chaseBraceDrop)+' L'+chaseBraceX1+','+(y2+18+chaseBraceDrop)+' L'+chaseBraceX1+','+(y2+12+chaseBraceDrop)+'" fill="none" stroke="#8B5A2B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'+
+        '<text x="'+((chaseBraceX0+chaseBraceX1)/2)+'" y="'+(y2+32+chaseBraceDrop)+'" text-anchor="middle" font-size="9" fill="#5A3010" font-family="Noto Sans SC,sans-serif">？天</text>'+
         '</g>';
 
       // dots: blue starts at bx (origin), brown at bx
@@ -869,6 +995,7 @@ var QUESTIONS=[
         var blueLines=[], brownLines=[], blueLabels=[], brownLabels=[];
         for(var i=0;i<totalDays;i++){
           var bl=document.createElementNS('http://www.w3.org/2000/svg','line');
+          bl.setAttribute('class','q3blueSeg');
           bl.setAttribute('x1',blueStart+i*uw); bl.setAttribute('x2',blueStart+i*uw);
           bl.setAttribute('y1',y1); bl.setAttribute('y2',y1);
           bl.setAttribute('stroke','#4A90D9'); bl.setAttribute('stroke-width',thickW);
@@ -876,6 +1003,7 @@ var QUESTIONS=[
           svg.insertBefore(bl,bd); blueLines.push(bl);
 
           var brl=document.createElementNS('http://www.w3.org/2000/svg','line');
+          brl.setAttribute('class','q3brownSeg');
           brl.setAttribute('x1',brownStart+i*uw2); brl.setAttribute('x2',brownStart+i*uw2);
           brl.setAttribute('y1',y2); brl.setAttribute('y2',y2);
           brl.setAttribute('stroke','#8B5A2B'); brl.setAttribute('stroke-width',thickW);
@@ -921,7 +1049,21 @@ var QUESTIONS=[
             }
           };
         }
-        setTimeout(function(){requestAnimationFrame(function(ts){runDay(ts)(ts);});},300);
+        setTimeout(function(){
+          // Same 120 label on first brown segment when chase animation starts
+          var t120=document.createElementNS('http://www.w3.org/2000/svg','text');
+          t120.setAttribute('id','q3brownFirst120');
+          t120.setAttribute('x',String(brownStart+uw2/2));
+          t120.setAttribute('y',String(y2+18));
+          t120.setAttribute('text-anchor','middle');
+          t120.setAttribute('font-size','9');
+          t120.setAttribute('fill','#5A3010');
+          t120.setAttribute('font-family','Noto Sans SC,sans-serif');
+          t120.setAttribute('font-weight','700');
+          t120.textContent='120';
+          svg.insertBefore(t120,bd);
+          requestAnimationFrame(function(ts){runDay(ts)(ts);});
+        },300);
       }
     }
   },
@@ -1214,12 +1356,19 @@ function showMSQuestion(){
 
     ttsCancel();
     btn.classList.add('speaking');
+    var isStep1MS=q.isMultiStep&&st.msStep===0;
+    var isStep2MS=q.isMultiStep&&st.msStep===1;
+    var isStep3MS=q.isMultiStep&&st.msStep===2;
     function afterSpeech(){
       btn.classList.remove('speaking');
+      // Step① deepen+pulse stays until correct submit; step② rings keep blinking until answer
       if(ia)ia.classList.remove('locked');
       showBarAndOptions(bar,row);
     }
+    if(isStep2MS)setMSStep2RingFlash(true);
     ttsSpeak(readTxt, afterSpeech, afterSpeech);
+    if(isStep1MS)setTimeout(function(){setMSStep1SegmentDeepen(true);},0);
+    if(isStep3MS)setTimeout(function(){setMSStep3ChaseBreath(true);},0);
   },300);
 }
 
@@ -1250,7 +1399,18 @@ function speakStep(txt){
   ttsCancel();
   var btn=document.getElementById('stepSpeakerBtn');
   if(btn)btn.classList.add('speaking');
-  ttsSpeak(txt, function(){if(btn)btn.classList.remove('speaking');}, function(){if(btn)btn.classList.remove('speaking');});
+  var q=QUESTIONS[cQ];
+  var isStep1MS=q&&q.isMultiStep&&st.msStep===0;
+  var isStep2MS=q&&q.isMultiStep&&st.msStep===1;
+  var isStep3MS=q&&q.isMultiStep&&st.msStep===2;
+  function done(){
+    if(btn)btn.classList.remove('speaking');
+    // Step① deepen+pulse stays until correct answer; step② rings stay until submit
+  }
+  if(isStep2MS)setMSStep2RingFlash(true);
+  ttsSpeak(txt, done, done);
+  if(isStep1MS)setTimeout(function(){setMSStep1SegmentDeepen(true);},0);
+  if(isStep3MS)setTimeout(function(){setMSStep3ChaseBreath(true);},0);
 }
 
 function evaluateMS(){
@@ -1259,6 +1419,9 @@ function evaluateMS(){
   var ok=step.valid.some(function(seq){return seqMatch(st.placed,seq);});
   var fb=document.getElementById('feedback');
   if(ok){
+    if(q.isMultiStep&&st.msStep===0)setMSStep1SegmentDeepen(false);
+    if(q.isMultiStep&&st.msStep===1)setMSStep2RingFlash(false);
+    if(q.isMultiStep&&st.msStep===2)setMSStep3ChaseBreath(false);
     st.done=true;
     fb.textContent='✓ '+step.successText;fb.className='feedback show correct';
     sndCorrect();
