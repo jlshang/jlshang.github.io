@@ -1,0 +1,3593 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>教材同步拼 · 交互Demo（横屏）</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23f97316'/><text x='16' y='23' font-size='20' text-anchor='middle' fill='white'>拼</text></svg>">
+<script type="module" src="https://www.vzome.com/modules/vzome-viewer.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: radial-gradient(ellipse at center, #1a1040 0%, #060612 100%);
+  display: flex; justify-content: center; align-items: center;
+  min-height: 100vh;
+  font-family: 'ZCOOL KuaiLe', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  overflow: auto; padding: 20px;
+}
+
+.wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.hint { color: rgba(255,255,255,0.3); font-size: 11px; letter-spacing: 1px; }
+
+/* ── TABLET SHELL (landscape) ── */
+.tablet {
+  width: 960px; height: 540px;
+  border-radius: 22px; overflow: hidden; position: relative;
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.1),
+              0 24px 70px rgba(0,0,0,0.85),
+              inset 0 0 0 1px rgba(255,255,255,0.05);
+  background: #0d1b6e;
+  /* auto-scale to fit viewport */
+  transform-origin: top center;
+  flex-shrink: 0;
+}
+
+/* ── SCREEN BASE ── */
+.screen {
+  position: absolute; inset: 0;
+  display: none; flex-direction: column;
+  overflow: hidden;
+}
+.screen.active { display: flex; }
+
+/* ══════════════════════════════════════════
+   HOME SCREEN
+══════════════════════════════════════════ */
+#home {
+  background: linear-gradient(150deg, #fff5e6 0%, #fde8c0 50%, #fbd9a0 100%);
+  flex-direction: column;
+}
+
+/* ── top bar ── */
+.home-topbar {
+  height: 54px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 22px;
+}
+.home-user { display: flex; align-items: center; gap: 8px; }
+.user-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: linear-gradient(135deg,#fde68a,#f97316);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; border: 2px solid white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.user-name { font-size: 15px; font-weight: 700; color: #222; }
+
+/* Zometool banner — matches screenshot coloring */
+.zome-banner { display: flex; align-items: center; gap: 1px; line-height: 1; }
+.zb-arrow { font-size: 18px; color: #22c55e; margin-right: 3px; }
+.zb-zome  { font-size: 20px; font-weight: 900; color: #1e40af; font-style: italic; }
+.zb-tool  { font-size: 20px; font-weight: 900; color: #2563eb; font-style: italic; }
+.zb-star  { font-size: 16px; margin: 0 3px; }
+.zb-xin   { font-size: 18px; font-weight: 900; color: #f97316; }
+.zb-hang  { font-size: 18px; font-weight: 900; color: #dc2626; }
+.zb-ji    { font-size: 18px; font-weight: 900; color: #dc2626; }
+.zb-hua   { font-size: 18px; font-weight: 900; color: #dc2626; }
+.zb-tail  { font-size: 16px; color: #22c55e; margin-left: 3px; }
+
+/* scan button */
+.scan-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer;
+}
+.scan-box {
+  width: 30px; height: 30px; border: 2.5px solid #444; border-radius: 6px;
+  position: relative;
+}
+.scan-box::before {
+  content: ''; position: absolute; inset: 4px;
+  border: 2px solid #444; border-radius: 2px;
+}
+.scan-label { font-size: 11px; color: #444; font-weight: 600; }
+
+/* ── body: 3 columns ── */
+.home-body {
+  flex: none; height: 330px; display: flex; gap: 14px;
+  padding: 4px 18px 0; overflow: hidden; min-height: 0;
+}
+.col-label { font-size: 13px; font-weight: 800; color: #2d2d2d; margin-bottom: 8px; flex-shrink: 0; }
+
+/* ── LEFT column: 老师带你拼 ── */
+.home-col-left {
+  width: 350px; flex-shrink: 0;
+  display: flex; flex-direction: column;
+}
+.hero-main-card {
+  flex: 1; border-radius: 20px; overflow: hidden;
+  display: flex; flex-direction: column;
+  background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 30%, #a855f7 65%, #c084fc 85%, #e879f9 100%);
+  box-shadow: 0 8px 24px rgba(91,33,182,0.35);
+  position: relative; min-height: 0;
+}
+/* small decorative diamond top-left */
+.hero-main-card::after {
+  content: '◇'; position: absolute; font-size: 14px;
+  color: rgba(255,255,255,0.22); top: 12px; left: 16px; pointer-events: none;
+}
+.hero-top-area {
+  flex: 1; padding: 18px 18px 0; overflow: hidden;
+  display: flex; flex-direction: column;
+}
+.hero-main-title {
+  font-size: 22px; font-weight: 900; color: white;
+  line-height: 1.25; margin-bottom: 4px;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+.hero-main-sub {
+  font-size: 12px; color: rgba(255,255,255,0.88); margin-bottom: 0;
+}
+/* floating models area */
+.hero-models-area {
+  flex: 1; display: flex; align-items: center; justify-content: space-around;
+  padding: 6px 8px 0;
+}
+.hm-item {
+  display: flex; align-items: center; justify-content: center;
+  animation: hmFloat 3s ease-in-out infinite;
+}
+.hm-item:nth-child(2) { animation-delay: 1s; }
+.hm-item:nth-child(3) { animation-delay: 2s; }
+@keyframes hmFloat {
+  0%,100%{ transform: translateY(0) scale(1); }
+  50%{ transform: translateY(-6px) scale(1.04); }
+}
+/* SVG-style Zometool model placeholders */
+.zm-node {
+  width: 8px; height: 8px; border-radius: 50%; background: white;
+  position: absolute; box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+.zm-fig { position: relative; }
+.zm-star {
+  width: 54px; height: 54px;
+  background: conic-gradient(#ef4444 0deg,#f97316 60deg,#eab308 120deg,#22c55e 180deg,#3b82f6 240deg,#a855f7 300deg,#ef4444 360deg);
+  clip-path: polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
+}
+.zm-tower {
+  width: 36px; height: 54px;
+  background: linear-gradient(180deg,#fbbf24,#f97316);
+  clip-path: polygon(50% 0%,90% 20%,90% 80%,50% 100%,10% 80%,10% 20%);
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
+}
+.zm-crown {
+  width: 60px; height: 44px;
+  background: linear-gradient(135deg,#60a5fa,#3b82f6,#93c5fd);
+  clip-path: polygon(0% 100%,0% 40%,20% 0%,40% 40%,50% 10%,60% 40%,80% 0%,100% 40%,100% 100%);
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
+}
+
+/* hero footer */
+.hero-footer-area {
+  background: white; border-radius: 0 0 20px 20px;
+  padding: 10px 16px 12px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+}
+.hero-progress-wrap { flex: 1; }
+.hero-progress-label { font-size: 12px; color: #555; margin-bottom: 5px; font-weight: 500; }
+.hero-prog-track { height: 8px; background: #f0f0f0; border-radius: 4px; overflow: hidden; }
+.hero-prog-fill {
+  height: 100%; width: 100%;
+  background: linear-gradient(90deg, #4ade80, #16a34a);
+  border-radius: 4px;
+}
+.hero-play-btn {
+  background: linear-gradient(135deg, #f97316, #fb923c);
+  color: white; border: none; border-radius: 24px;
+  padding: 11px 26px; font-size: 15px; font-weight: 900;
+  cursor: pointer; white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(249,115,22,0.45);
+  letter-spacing: 0.5px;
+}
+
+/* ── MIDDLE column: 官方推荐 ── */
+.home-col-mid {
+  width: 188px; flex-shrink: 0;
+  display: flex; flex-direction: column;
+}
+.rec-list { flex: 1; display: flex; flex-direction: column; gap: 10px; min-height: 0; }
+.rec-card {
+  flex: 1; border-radius: 16px; overflow: hidden; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+  transition: transform 0.18s;
+}
+.rec-card:active { transform: scale(0.97); }
+/* ripple rings */
+.rec-card::before, .rec-card::after {
+  content: ''; position: absolute;
+  border-radius: 50%; border: 2px solid rgba(255,255,255,0.4);
+  pointer-events: none;
+}
+.rec-card::before { width: 70%; height: 70%; }
+.rec-card::after  { width: 92%; height: 92%; }
+.rec-model { font-size: 50px; position: relative; z-index: 1; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15)); }
+
+/* ── RIGHT column: 大家在拼 ── */
+.home-col-right {
+  flex: 1; display: flex; flex-direction: column; min-width: 0;
+}
+.works-grid {
+  flex: 1; display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 10px; min-height: 0;
+}
+.work-card {
+  background: #d4d0cb; border-radius: 14px;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  overflow: hidden; cursor: pointer; position: relative;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+/* work thumbnail placeholder */
+.work-thumb {
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg,#e2ddd8,#ccc9c3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px; opacity: 0.45;
+}
+/* user info strip at bottom */
+.work-info {
+  position: relative; z-index: 1;
+  background: rgba(255,255,255,0.92);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 5px 8px; border-top: 1px solid rgba(0,0,0,0.05);
+}
+.work-user-left { display: flex; align-items: center; gap: 5px; }
+.work-avatar {
+  width: 16px; height: 16px; border-radius: 50%;
+  background: linear-gradient(135deg,#e0e7ff,#c7d2fe);
+  border: 1px solid #a5b4fc; flex-shrink: 0;
+}
+.work-name { font-size: 10px; color: #444; font-weight: 600; max-width: 70px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.work-heart { font-size: 10px; color: #999; display: flex; align-items: center; gap: 2px; }
+.heart-icon { color: #f9a8d4; }
+
+/* ── bottom tab bar: 5 tabs ── */
+.home-tabbar {
+  height: 68px; flex-shrink: 0; margin-top: auto;
+  display: flex; justify-content: center; gap: 4px; padding: 0 40px; align-items: flex-end; padding-bottom: 12px;
+}
+.htab {
+  width: 64px; flex-shrink: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 3px; cursor: pointer; padding: 3px 0;
+}
+/* icon circle/square */
+.tab-ico {
+  width: 38px; height: 38px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 21px;
+}
+.tab-lbl { font-size: 10.5px; color: #999; font-weight: 500; }
+
+/* individual tab icon colors matching screenshot */
+.tab-ico-zx { background: linear-gradient(135deg,#ede9fe,#c4b5fd); }          /* 造型库 purple */
+.tab-ico-kc { background: linear-gradient(135deg,#fee2e2,#fca5a5); }          /* 课程中心 red */
+.tab-ico-jc { background: linear-gradient(135deg,#fb923c,#c2410c);  /* 教材同步拼 — 与内页橙色呼应 */
+  box-shadow: 0 2px 8px rgba(194,65,12,0.35); }
+.tab-ico-zp { background: linear-gradient(135deg,#dbeafe,#93c5fd); }          /* 作品圈 blue */
+.tab-ico-wo { background: linear-gradient(135deg,#fef9c3,#fde047); }          /* 我 yellow */
+.tab-lbl-jc { color: #c2410c; font-weight: 700; }
+
+/* ══════════════════════════════════════════
+   SHARED: TOP BAR
+══════════════════════════════════════════ */
+.top-bar {
+  height: 52px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px;
+}
+.back-btn {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(255,255,255,0.15); border: none;
+  color: white; font-size: 18px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.page-title { color: white; font-size: 16px; font-weight: 700; }
+.top-right { display: flex; align-items: center; gap: 10px; }
+
+/* Progress steps */
+.prog-bar {
+  display: flex; align-items: center; gap: 4px;
+  background: rgba(255,255,255,0.1); border-radius: 18px; padding: 4px 10px;
+}
+.pc {
+  width: 24px; height: 24px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: white;
+  background: rgba(255,255,255,0.18);
+}
+.pc.active { background: #6d28d9; }
+.pc.done { background: #22c55e; font-size: 10px; }
+.pl { width: 14px; height: 2px; background: rgba(255,255,255,0.15); }
+
+/* ══════════════════════════════════════════
+   DIRECTORY SCREEN
+══════════════════════════════════════════ */
+#directory {
+  background: linear-gradient(150deg, #3b0764 0%, #5b21b6 45%, #7c3aed 100%);
+  flex-direction: column;
+}
+
+.dir-top {
+  height: 56px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 22px;
+  background: rgba(0,0,0,0.2);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.claim-btn {
+  background: linear-gradient(135deg,#f97316,#ef4444);
+  color: white; border: none; border-radius: 16px;
+  padding: 8px 18px; font-size: 12px; font-weight: 700; cursor: pointer;
+  box-shadow: 0 3px 12px rgba(249,115,22,0.4);
+}
+
+.dir-body { flex: 1; overflow: hidden; display: flex; }
+
+/* Left: year tabs */
+.year-tabs {
+  width: 118px; flex-shrink: 0;
+  display: flex; flex-direction: column;
+  padding: 16px 0; gap: 2px;
+  background: rgba(0,0,0,0.18);
+  border-right: 1px solid rgba(255,255,255,0.1);
+}
+.ytab {
+  padding: 14px 18px; font-size: 15px; font-weight: 700;
+  color: rgba(255,255,255,0.5); cursor: pointer;
+  border-right: 3px solid transparent;
+  transition: all 0.2s; letter-spacing: 0.5px; line-height: 1.2;
+}
+.ytab:hover { color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.06); }
+.ytab.active {
+  color: white; border-right-color: #f97316;
+  background: rgba(249,115,22,0.15);
+  text-shadow: 0 0 12px rgba(249,115,22,0.4);
+}
+
+/* Right: cards area */
+.cards-area {
+  flex: 1; overflow-y: auto; padding: 16px 20px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.year-section { display: none; flex-direction: column; gap: 10px; }
+.year-section.visible { display: flex; }
+.section-title {
+  color: rgba(255,255,255,0.4); font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 1.2px;
+}
+/* 5 per row: 5×120 + 4×12 = 648px < (900-118-40)=742px ✓; 6×120+5×12=780 > 742 ✓ */
+.cards-grid { display: flex; flex-wrap: wrap; gap: 12px; justify-content: flex-start; }
+
+.k-card {
+  width: 120px; background: white;
+  border-radius: 12px; padding: 10px 6px 8px;
+  text-align: center; cursor: pointer; position: relative;
+  border: 2px solid transparent; transition: transform 0.2s, box-shadow 0.3s;
+}
+.k-card:active { transform: scale(0.95); }
+.k-card.done { border-color: #22c55e; }
+.k-card.current {
+  border-color: #f97316;
+  animation: pulse 2.2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(249,115,22,0); transform: scale(1); }
+  50% { box-shadow: 0 0 18px 4px rgba(249,115,22,0.5); transform: scale(1.04); }
+}
+.k-card.locked { opacity: 0.75; cursor: default; }
+.card-emoji { font-size: 26px; margin-bottom: 3px; }
+.card-name { font-size: 12px; font-weight: 700; color: #1a1a2e; margin-bottom: 1px; }
+.card-sub { font-size: 9px; color: #999; line-height: 1.2; }
+.check-badge {
+  position: absolute; bottom: 4px; right: 4px;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: #22c55e; color: white; font-size: 10px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+.lock-overlay {
+  position: absolute; inset: 0; border-radius: 10px;
+  background: rgba(20,5,50,0.48);
+  display: flex; align-items: center; justify-content: center; font-size: 20px;
+}
+
+/* ══════════════════════════════════════════
+   MODAL
+══════════════════════════════════════════ */
+.modal-bg {
+  position: absolute; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.55);
+  display: none; align-items: center; justify-content: center;
+}
+.modal-bg.active { display: flex; }
+.modal-card {
+  background: white; position: relative; border-radius: 20px;
+  padding: 28px 28px 22px; width: 340px; text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+.modal-title { font-size: 18px; font-weight: 800; color: #111; margin-bottom: 8px; }
+.modal-desc { font-size: 13px; color: #666; line-height: 1.6; margin-bottom: 20px; }
+.qr-box {
+  width: 80px; height: 80px; background: #f5f5f5; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: #999; margin: 0 auto 18px;
+}
+.btn-primary {
+  width: 100%; padding: 12px; border-radius: 24px; border: none;
+  background: linear-gradient(135deg,#f59e0b,#ef4444);
+  color: white; font-size: 14px; font-weight: 700; cursor: pointer; margin-bottom: 8px;
+}
+.btn-secondary {
+  width: 100%; padding: 8px; border: none; background: none;
+  color: #f59e0b; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+
+/* ══════════════════════════════════════════
+   LEARNING SCREEN  — LEFT/RIGHT SPLIT
+══════════════════════════════════════════ */
+#learning { background: #f0ebe0; }
+
+.split { flex: 1; display: flex; overflow: hidden; }
+
+/* Left panel */
+.panel-l {
+  width: 360px; flex-shrink: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 16px; border-right: 1px solid rgba(255,255,255,0.08);
+  perspective: 700px;
+}
+
+/* 3D cube */
+.scene { width: 180px; height: 180px; position: relative; transform-style: preserve-3d; }
+.cube {
+  width: 180px; height: 180px; position: absolute;
+  transform-style: preserve-3d;
+  animation: spinCube 14s linear infinite;
+}
+@keyframes spinCube {
+  0% { transform: rotateX(-20deg) rotateY(30deg); }
+  100% { transform: rotateX(-20deg) rotateY(390deg); }
+}
+.face {
+  position: absolute; width: 180px; height: 180px;
+  border: 3px solid #c084fc; background: rgba(192,132,252,0.06); transition: all 0.4s;
+}
+.face.f  { transform: translateZ(90px); }
+.face.ba { transform: translateZ(-90px) rotateY(180deg); }
+.face.l  { transform: translateX(-90px) rotateY(-90deg); }
+.face.r  { transform: translateX(90px) rotateY(90deg); }
+.face.t  { transform: translateY(-90px) rotateX(90deg); }
+.face.bo { transform: translateY(90px) rotateX(-90deg); }
+
+/* Right panel */
+.panel-r {
+  flex: 1; display: flex; flex-direction: column;
+  padding: 16px 20px; overflow-y: auto;
+}
+.panel-r-title {
+  color: rgba(255,255,255,0.55); font-size: 12px; font-weight: 600;
+  letter-spacing: 1px; text-transform: uppercase; margin-bottom: 14px;
+}
+.k-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.kbtn {
+  padding: 14px 8px; border-radius: 12px; border: 2px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.7);
+  font-size: 14px; font-weight: 700; cursor: pointer; text-align: center;
+  transition: all 0.25s;
+  animation: kbtnBreathe 2.5s ease-in-out infinite;
+}
+@keyframes kbtnBreathe {
+  0%,100%{ border-color:rgba(255,255,255,0.2); }
+  50%{ border-color:rgba(255,255,255,0.45); box-shadow:0 0 8px rgba(255,255,255,0.12); }
+}
+.kbtn.seen { border-color:#f59e0b; background:rgba(245,158,11,0.15); color:#fbbf24; animation:none; }
+.kbtn.sel  { border-color:white; background:white; color:#0d1b6e; animation:none; }
+
+.speaker-row {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,0.1); border: 1.5px solid rgba(255,255,255,0.2);
+  border-radius: 10px; padding: 5px 12px; color: white;
+  font-size: 13px; cursor: pointer; margin-bottom: 8px; width: fit-content;
+}
+.speaker-anim { animation: speakerPulse 0.7s ease infinite; }
+@keyframes speakerPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.3)} }
+
+.k-desc { color: rgba(255,255,255,0.88); font-size: 14px; line-height: 1.7; flex: 1; }
+
+.learn-footer {
+  height: 52px; flex-shrink: 0; display: flex; align-items: center;
+  justify-content: space-between; padding: 0 20px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.footer-hint { color: rgba(255,255,255,0.35); font-size: 12px; }
+.next-btn {
+  height: 38px; padding: 0 22px; border-radius: 19px;
+  background: linear-gradient(135deg,#f59e0b,#ef4444);
+  border: none; color: white; font-size: 13px; font-weight: 700; cursor: pointer;
+  box-shadow: 0 4px 14px rgba(245,158,11,0.35);
+}
+
+/* guide overlay — only covers left model panel */
+.guide-layer {
+  position: absolute;
+  top: 52px; left: 0; width: 360px; bottom: 52px;
+  z-index: 50;
+  background: rgba(0,0,0,0.45);
+  display: flex; align-items: flex-end;
+  padding: 0 0 40px 40px; cursor: pointer;
+  border-radius: 0;
+}
+.guide-finger { font-size: 36px; animation: fingerTap 1.4s ease-in-out infinite; }
+@keyframes fingerTap { 0%,100%{transform:scale(1) translateY(0)} 50%{transform:scale(1.15) translateY(-6px)} }
+.guide-tip {
+  background: rgba(0,0,0,0.8); color: white; font-size: 12px;
+  padding: 5px 12px; border-radius: 12px; margin-left: 8px;
+  display: inline-block; align-self: flex-end; margin-bottom: 6px;
+  white-space: nowrap;
+}
+
+/* ══════════════════════════════════════════
+   BUILDING SCREEN
+══════════════════════════════════════════ */
+#building { background: #f0ebe0; }
+
+/* PREP view */
+.prep-body {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 48px; padding: 20px;
+}
+.prep-info { display: flex; flex-direction: column; align-items: flex-start; gap: 20px; }
+.prep-title { color: white; font-size: 22px; font-weight: 800; }
+.prep-cards { display: flex; gap: 16px; }
+.prep-card {
+  background: rgba(255,255,255,0.08); border-radius: 14px; padding: 16px 18px; min-width: 140px;
+}
+.prep-card-ttl { font-size: 12px; font-weight: 700; margin-bottom: 12px; }
+.prep-card-ttl.green { color: #4ade80; }
+.prep-card-ttl.yellow { color: #fbbf24; }
+.rod-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.rod { height: 5px; border-radius: 3px; }
+.rod-lbl { color: rgba(255,255,255,0.75); font-size: 11px; white-space: nowrap; }
+.shape-preview { font-size: 52px; text-align: center; margin-top: 4px; }
+.start-btn {
+  background: linear-gradient(135deg,#f59e0b,#ef4444);
+  color: white; border: none; border-radius: 24px;
+  padding: 13px 36px; font-size: 15px; font-weight: 700; cursor: pointer;
+  box-shadow: 0 4px 16px rgba(245,158,11,0.3); align-self: flex-start;
+}
+
+/* STEP view */
+.step-body { flex: 1; display: flex; overflow: hidden; min-height: 0; }
+.step-vis-panel {
+  width: 340px; flex-shrink: 0; border-right: 1px solid rgba(255,255,255,0.08);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 16px;
+}
+.step-shape { font-size: 88px; line-height: 1; }
+.step-dots { display: flex; gap: 6px; }
+.sdot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.2); }
+.sdot.active { background: white; width: 22px; border-radius: 4px; }
+.sdot.done { background: #22c55e; }
+
+.step-info-panel {
+  flex: 1; display: flex; flex-direction: column; min-width: 0;
+  padding: 20px 24px 16px; justify-content: space-between;
+}
+.step-label { color: white; font-size: 17px; font-weight: 800; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.step-desc { color: rgba(255,255,255,0.7); font-size: 14px; line-height: 1.7; flex: 1; }
+.step-nav { display: flex; gap: 12px; margin-top: 16px; }
+.sn-btn {
+  flex: 1; padding: 11px; border-radius: 22px;
+  border: 2px solid rgba(255,255,255,0.25); background: transparent;
+  color: white; font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity 0.2s;
+}
+.sn-btn:disabled { opacity: 0.3; cursor: default; }
+.sn-btn.primary {
+  background: linear-gradient(135deg,#f59e0b,#ef4444); border-color: transparent;
+  box-shadow: 0 4px 12px rgba(245,158,11,0.3);
+}
+
+/* ══════════════════════════════════════════
+   EXPLORE SCREEN
+══════════════════════════════════════════ */
+#explore { background: #f0ebe0; }
+
+.explore-top {
+  height: 52px; flex-shrink: 0; background: white;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px; border-bottom: 1px solid #eee;
+}
+.ex-back { background: none; border: none; font-size: 22px; cursor: pointer; color: #444; }
+.ex-label { font-size: 14px; color: #444; font-weight: 600; }
+.ex-dots { display: flex; gap: 5px; align-items: center; }
+.edot { width: 9px; height: 9px; border-radius: 50%; background: #ddd; }
+.edot.done { background: #22c55e; }
+.edot.cur { background: #6d28d9; width: 22px; border-radius: 5px; }
+.ex-count { font-size: 12px; color: #888; }
+
+.explore-body { flex: 1; display: flex; overflow: hidden; }
+
+/* Left: model + question */
+.ex-left {
+  width: 340px; flex-shrink: 0; border-right: 1px solid #e0d9cc;
+  display: flex; flex-direction: column; background: white; padding: 24px 20px;
+}
+.ex-model { font-size: 80px; text-align: center; margin-bottom: 16px; }
+.q-row { display: flex; align-items: flex-start; gap: 8px; }
+.q-speaker { font-size: 20px; cursor: pointer; flex-shrink: 0; padding-top: 2px; }
+.q-text { font-size: 15px; font-weight: 700; color: #1a1a2e; line-height: 1.6; }
+
+/* Right: answers */
+.ex-right {
+  flex: 1; padding: 20px; display: flex; flex-direction: column;
+}
+.ans-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px; flex: 1;
+}
+.ans-card {
+  background: white; border-radius: 14px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  font-size: 13px; color: #444; cursor: pointer;
+  border: 2px solid transparent; transition: all 0.2s; position: relative; overflow: hidden;
+  min-height: 90px;
+}
+.ans-card:hover { border-color: #6d28d9; box-shadow: 0 4px 12px rgba(109,40,217,0.15); }
+.ans-card.correct { border-color: #22c55e; background: #f0fdf4; }
+.ans-card.wrong { border-color: #ef4444; background: #fef2f2; animation: shake 0.4s; }
+.ans-card.dim { opacity: 0.35; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-7px)} 75%{transform:translateX(7px)} }
+.ans-symbol { font-size: 42px; margin-bottom: 4px; }
+.ans-text { font-size: 16px; font-weight: 700; color: #333; }
+.ans-sublabel { font-size: 11px; color: #999; margin-top: 2px; }
+.ans-popup {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: rgba(109,40,217,0.93); color: white;
+  font-size: 11px; line-height: 1.4; padding: 7px 10px; text-align: center; display: none;
+}
+.ex-action { display: flex; justify-content: flex-end; padding-top: 12px; }
+.ex-next {
+  background: linear-gradient(135deg,#f97316,#ef4444);
+  color: white; border: none; border-radius: 22px;
+  padding: 10px 28px; font-size: 14px; font-weight: 700; cursor: pointer;
+  box-shadow: 0 4px 14px rgba(249,115,22,0.35);
+}
+
+/* ══════════════════════════════════════════
+   FEEDBACK SCREEN
+══════════════════════════════════════════ */
+#feedback { background: linear-gradient(135deg,#fff8ee 0%,#fde8c0 100%); }
+
+.confetti-layer {
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; overflow: hidden;
+}
+.cp {
+  position: absolute; width: 9px; height: 9px;
+  animation: fall linear forwards;
+}
+@keyframes fall {
+  0%  { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+  40% { opacity: 1; }
+  100%{ transform: translateY(560px) rotate(900deg); opacity: 0; }
+}
+.cp-rise {
+  position: absolute;
+  animation: cpRise ease-out forwards;
+}
+@keyframes cpRise {
+  0%  { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  65% { opacity: 0.9; }
+  100%{ transform: translate(var(--dx), var(--dy)) rotate(var(--rot)); opacity: 0; }
+}
+
+.fb-close {
+  position: absolute; top: 16px; left: 18px; z-index: 10;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(0,0,0,0.1); border: none; font-size: 16px;
+  cursor: pointer; color: #555; display: flex; align-items: center; justify-content: center;
+}
+
+.fb-body {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 56px;
+  padding: 30px 60px; z-index: 5;
+}
+.fb-left { display: flex; flex-direction: column; align-items: center; }
+.fb-model {
+  margin-bottom: 8px;
+  animation: popIn 0.6s cubic-bezier(0.175,0.885,0.32,1.275);
+  display: flex; align-items: center; justify-content: center;
+}
+@keyframes popIn {
+  0%{ transform:scale(0) rotate(-180deg); opacity:0; }
+  100%{ transform:scale(1) rotate(0deg); opacity:1; }
+}
+.fb-right { display: flex; flex-direction: column; gap: 8px; }
+.fb-title { font-size: 26px; font-weight: 800; color: #1a1a2e; margin-bottom: 4px; }
+.fb-sub { font-size: 14px; color: #888; margin-bottom: 22px; }
+.fb-achievements { margin-bottom: 28px; }
+.fb-item { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid rgba(0,0,0,0.07); }
+.fb-check {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: #22c55e; color: white; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 13px;
+}
+.fb-item-text { font-size: 15px; color: #333; }
+.done-btn {
+  background: linear-gradient(135deg,#f97316,#ef4444);
+  color: white; border: none; border-radius: 28px;
+  padding: 14px 52px; font-size: 17px; font-weight: 800; cursor: pointer;
+  box-shadow: 0 8px 24px rgba(249,115,22,0.4);
+  animation: popIn 0.5s 0.3s cubic-bezier(0.175,0.885,0.32,1.275) both;
+  align-self: flex-start;
+}
+
+/* ══════════════════════════════════════════
+   STAGE TOP BAR — 学/拼/练 flow
+══════════════════════════════════════════ */
+.stage-topbar {
+  height: 48px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 16px;
+  background: white;
+  border-bottom: 1px solid #e8e3d8;
+}
+.stage-topbar-left { display: flex; align-items: center; gap: 10px; }
+.stage-exit-btn {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: rgba(0,0,0,0.06); border: none;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: #374151; flex-shrink: 0;
+}
+.stage-flow { display: flex; align-items: center; gap: 6px; }
+.sf-item {
+  font-size: 13px; font-weight: 700;
+  color: rgba(0,0,0,0.28);
+  padding: 3px 10px; border-radius: 12px;
+}
+.sf-item.sf-active { background: #f97316; color: white; }
+.sf-item.sf-done { color: rgba(0,0,0,0.50); }
+.sf-dash { color: rgba(0,0,0,0.22); font-size: 12px; }
+.stage-course-name { font-size: 13px; color: rgba(255,255,255,0.35); font-weight: 600; }
+
+/* ══════════════════════════════════════════
+   LEARNING — new SVG cube layout
+══════════════════════════════════════════ */
+.learn-panel-l {
+  width: 350px; flex-shrink: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 14px 18px; gap: 12px;
+  border-right: 1px solid rgba(0,0,0,0.07);
+}
+.learn-cube-wrap {
+  width: 220px; height: 110px;
+  display: flex; align-items: center; justify-content: center;
+}
+.learn-desc-top {
+  font-size: 13px; color: #d97706; font-weight: 600;
+  text-align: center; min-height: 18px; line-height: 1.4;
+}
+.learn-svg-tabs {
+  display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+}
+.learn-tab {
+  padding: 6px 14px; border-radius: 16px;
+  font-size: 12px; font-weight: 700; cursor: pointer;
+  background: rgba(0,0,0,0.05);
+  border: 1.5px solid rgba(0,0,0,0.10);
+  color: rgba(0,0,0,0.45); transition: all 0.2s;
+}
+.learn-tab.active {
+  background: rgba(249,115,22,0.15); border-color: #f97316; color: #ea6400;
+}
+.learn-tab:hover { border-color: rgba(0,0,0,0.25); color: rgba(0,0,0,0.75); }
+.learn-panel-r {
+  flex: 1; display: flex; flex-direction: column;
+  padding: 16px 20px; gap: 12px; overflow-y: auto;
+}
+.learn-shape-title {
+  font-size: 28px; font-weight: 900; color: white; letter-spacing: 2px; line-height: 1;
+}
+.learn-def-tag {
+  display: inline-flex; padding: 5px 12px;
+  background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px; font-size: 12px; color: rgba(255,255,255,0.55); line-height: 1.4;
+  width: fit-content; max-width: 100%;
+}
+.learn-kc {
+  flex: 1; background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px; padding: 14px;
+  display: flex; flex-direction: column; gap: 10px; min-height: 0;
+}
+.learn-kc-desc {
+  font-size: 14px; color: rgba(255,255,255,0.85); line-height: 1.75; flex: 1;
+}
+.learn-kc-nums {
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.num-pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px; padding: 3px 10px;
+  font-size: 12px; font-weight: 800; color: #f97316;
+}
+.learn-audio-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.15);
+  border-radius: 20px; padding: 8px 16px;
+  color: rgba(255,255,255,0.75); font-size: 13px; font-weight: 600;
+  cursor: pointer; width: fit-content; transition: background 0.2s;
+}
+.learn-audio-btn:hover { background: rgba(255,255,255,0.14); }
+.learn-bottom { display: flex; align-items: center; justify-content: flex-end; padding-top: 4px; }
+
+/* ══════════════════════════════════════════
+   BUILDING — SVG step layout
+══════════════════════════════════════════ */
+.build-panel-l {
+  width: 350px; flex-shrink: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 20px 16px; gap: 16px;
+  border-right: 1px solid rgba(255,255,255,0.08);
+}
+.build-svg-area {
+  flex: 1; display: flex; flex-direction: column; justify-content: center;
+  padding: 18px 26px; gap: 16px; min-height: 0; overflow-y: auto;
+}
+.build2-desc {
+  font-size: 16px; line-height: 1.7; color: #3d2b0e; font-weight: 500; margin: 0;
+}
+.build2-tip {
+  background: #fef3c7; border-left: 4px solid #f59e0b;
+  border-radius: 10px; padding: 11px 16px;
+  font-size: 14px; line-height: 1.6; color: #78350f;
+}
+.build-step-dots { display: flex; gap: 7px; align-items: center; }
+.bsdot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: rgba(255,255,255,0.2); transition: all 0.25s;
+}
+.bsdot.active { background: #f97316; width: 22px; border-radius: 4px; }
+.bsdot.done { background: #22c55e; }
+.build-panel-r {
+  flex: 1; display: flex; flex-direction: column;
+  padding: 14px 18px; gap: 10px; overflow-y: auto;
+}
+.build-prog-wrap { display: flex; gap: 5px; }
+.bpbar {
+  flex: 1; height: 5px; border-radius: 3px;
+  background: rgba(255,255,255,0.15); transition: background 0.3s;
+}
+.bpbar.done { background: #22c55e; }
+.bpbar.cur { background: #f97316; }
+.build-step-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 20px; padding: 5px 14px;
+  font-size: 12px; font-weight: 800; color: rgba(255,255,255,0.8); width: fit-content;
+}
+.build-desc-row { display: flex; align-items: flex-start; gap: 10px; }
+.build-speak-btn {
+  flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%;
+  border: none; background: rgba(255,255,255,0.1); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 14px; margin-top: 2px;
+}
+.build-main-desc {
+  font-size: 14px; color: rgba(255,255,255,0.8); line-height: 1.7; flex: 1;
+}
+.build-tip-box {
+  background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.22);
+  border-radius: 10px; padding: 10px 12px;
+  display: flex; gap: 8px; align-items: flex-start;
+}
+.build-tip-text { font-size: 12px; color: rgba(255,255,255,0.7); line-height: 1.6; }
+.build-nav { display: flex; gap: 10px; padding-top: 6px; flex-shrink: 0; }
+.bnav-btn {
+  flex: 1; padding: 10px; border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.5); font-size: 13px; font-weight: 700; cursor: pointer;
+}
+.bnav-btn.primary {
+  border: none; background: linear-gradient(135deg,#f97316,#d97706);
+  color: white; box-shadow: 0 2px 8px rgba(249,115,22,0.3);
+}
+
+/* ══════════════════════════════════════════
+   EXPLORE/QUIZ — one question at a time
+══════════════════════════════════════════ */
+#explore { background: linear-gradient(135deg, #1e0a40 0%, #3b0f8a 55%, #5b21b6 100%); }
+.quiz-panel-l {
+  width: 350px; flex-shrink: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 20px 16px; gap: 14px;
+  border-right: 1px solid rgba(255,255,255,0.08);
+}
+.quiz-cube-mini { opacity: 0.75; }
+.quiz-progress-pill {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: rgba(255,255,255,0.45); font-weight: 600;
+}
+.qsdot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.2); }
+.qsdot.done { background: rgba(255,255,255,0.55); }
+.qsdot.cur { background: #f97316; width: 20px; border-radius: 4px; }
+.quiz-q-area {
+  display: flex; align-items: flex-start; gap: 8px; width: 100%;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 12px; padding: 12px;
+}
+.quiz-speaker-btn {
+  flex-shrink: 0; font-size: 17px; cursor: pointer;
+  background: none; border: none; color: rgba(255,255,255,0.6); padding-top: 2px;
+}
+.quiz-q-text {
+  font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.9); line-height: 1.6;
+}
+.quiz-panel-r {
+  flex: 1; display: flex; flex-direction: column; padding: 16px 18px; gap: 10px;
+}
+.quiz-opts-grid {
+  flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; min-height: 0;
+}
+.quiz-opt-card {
+  background: rgba(255,255,255,0.07); border: 1.5px solid rgba(255,255,255,0.14);
+  border-radius: 12px; display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.8);
+  cursor: pointer; text-align: center; padding: 12px; transition: all 0.2s; line-height: 1.4;
+}
+.quiz-opt-card:hover { border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.13); }
+.quiz-opt-card.correct { border-color: #22c55e; background: rgba(34,197,94,0.14); color: #4ade80; }
+.quiz-opt-card.wrong { border-color: #ef4444; background: rgba(239,68,68,0.12); color: #f87171; animation: shake 0.4s; }
+.quiz-opt-card.dim { opacity: 0.3; pointer-events: none; }
+.quiz-feedback-box {
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 10px; padding: 10px 14px;
+  font-size: 13px; color: rgba(255,255,255,0.7); line-height: 1.55;
+  display: none; flex-shrink: 0;
+}
+.quiz-feedback-box.correct-fb {
+  display: block; border-color: rgba(34,197,94,0.3);
+  background: rgba(34,197,94,0.07); color: #86efac;
+}
+.quiz-feedback-box.wrong-fb {
+  display: block; border-color: rgba(239,68,68,0.25);
+  background: rgba(239,68,68,0.06); color: #fca5a5;
+}
+.quiz-action-row {
+  display: flex; align-items: center; justify-content: flex-end; flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════════
+   LIGHT THEME — 所有页面统一暖奶油风格
+══════════════════════════════════════════ */
+
+/* ── DIRECTORY ── */
+#directory {
+  background: linear-gradient(150deg, #fff9f0 0%, #fef0d8 45%, #fde8c0 100%);
+}
+#directory .dir-top {
+  background: rgba(255,255,255,0.72);
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+  backdrop-filter: blur(8px);
+}
+#directory .year-tabs {
+  background: rgba(255,255,255,0.55);
+  border-right: 1px solid rgba(0,0,0,0.07);
+}
+#directory .ytab { color: rgba(0,0,0,0.4); }
+#directory .ytab:hover { color: rgba(0,0,0,0.7); background: rgba(0,0,0,0.04); }
+#directory .ytab.active {
+  color: #c2410c;
+  background: rgba(249,115,22,0.1);
+  border-right-color: #f97316;
+  text-shadow: none;
+}
+#directory .section-title { color: rgba(0,0,0,0.38); }
+#directory .lock-overlay { background: rgba(255,240,218,0.68); }
+
+/* ── STAGE TOPBAR (shared: learning / building / explore) ── */
+#learning .stage-topbar,
+#building .stage-topbar,
+#explore  .stage-topbar {
+  background: rgba(255,255,255,0.72);
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+  backdrop-filter: blur(10px);
+}
+#learning .stage-exit-btn,
+#building .stage-exit-btn,
+#explore  .stage-exit-btn { background: rgba(0,0,0,0.07); color: #666; }
+#learning .sf-item,
+#building .sf-item,
+#explore  .sf-item { color: rgba(0,0,0,0.3); }
+#learning .sf-item.sf-done,
+#building .sf-item.sf-done,
+#explore  .sf-item.sf-done { color: rgba(0,0,0,0.48); }
+#learning .sf-dash,
+#building .sf-dash,
+#explore  .sf-dash { color: rgba(0,0,0,0.2); }
+#learning .stage-course-name,
+#building .stage-course-name,
+#explore  .stage-course-name { color: rgba(0,0,0,0.38); }
+
+/* ── LEARNING ── */
+#learning {
+  background: linear-gradient(150deg, #fff9f0 0%, #fef0d8 45%, #fde8c0 100%);
+}
+#learning .learn-panel-l { border-right-color: rgba(0,0,0,0.07); }
+#learning .learn-desc-top { color: #d97706; }
+#learning .learn-tab {
+  background: rgba(0,0,0,0.05);
+  border-color: rgba(0,0,0,0.12);
+  color: rgba(0,0,0,0.48);
+  animation: none;
+}
+#learning .learn-tab:hover {
+  border-color: rgba(0,0,0,0.28);
+  color: rgba(0,0,0,0.72);
+  background: rgba(0,0,0,0.08);
+}
+#learning .learn-tab.active {
+  background: rgba(249,115,22,0.1);
+  border-color: #f97316;
+  color: #c2410c;
+}
+#learning .learn-shape-title { color: #1a1a2e; }
+#learning .learn-def-tag {
+  background: rgba(0,0,0,0.04);
+  border-color: rgba(0,0,0,0.09);
+  color: #666;
+}
+#learning .learn-kc {
+  background: rgba(255,255,255,0.82);
+  border-color: rgba(0,0,0,0.08);
+}
+#learning .learn-kc-desc { color: #333; }
+#learning .num-pill {
+  background: rgba(249,115,22,0.08);
+  border-color: rgba(249,115,22,0.22);
+}
+#learning .learn-audio-btn {
+  background: rgba(0,0,0,0.05);
+  border-color: rgba(0,0,0,0.1);
+  color: #555;
+}
+#learning .learn-audio-btn:hover { background: rgba(0,0,0,0.09); }
+#learning .learn-footer { border-top-color: rgba(0,0,0,0.07); }
+#learning .footer-hint { color: rgba(0,0,0,0.35); }
+
+/* ── BUILDING ── */
+#building {
+  background: #f0ebe0;
+}
+#building .build-panel-l { border-right-color: rgba(0,0,0,0.07); }
+#building .bsdot { background: rgba(0,0,0,0.16); }
+#building .bpbar { background: rgba(0,0,0,0.1); }
+#building .build-step-pill {
+  background: rgba(0,0,0,0.05);
+  border-color: rgba(0,0,0,0.1);
+  color: #444;
+}
+#building .build-speak-btn { background: rgba(0,0,0,0.06); color: #555; }
+#building .build-main-desc { color: #333; }
+#building .build-tip-text { color: #666; }
+#building .bnav-btn {
+  border-color: rgba(0,0,0,0.12);
+  background: rgba(0,0,0,0.04);
+  color: #666;
+}
+
+/* ── EXPLORE / QUIZ ── */
+#explore {
+  background: linear-gradient(150deg, #fff9f0 0%, #fef0d8 45%, #fde8c0 100%);
+}
+#explore .quiz-panel-l { border-right-color: rgba(0,0,0,0.07); }
+#explore .quiz-progress-pill { color: rgba(0,0,0,0.4); }
+#explore .qsdot { background: rgba(0,0,0,0.15); }
+#explore .qsdot.done { background: rgba(0,0,0,0.4); }
+#explore .quiz-q-area {
+  background: rgba(255,255,255,0.88);
+  border-color: rgba(0,0,0,0.08);
+}
+#explore .quiz-speaker-btn { color: #666; }
+#explore .quiz-q-text { color: #1a1a2e; }
+#explore .quiz-opt-card {
+  background: white;
+  border-color: rgba(0,0,0,0.1);
+  color: #333;
+}
+#explore .quiz-opt-card:hover { border-color: #6d28d9; background: #f5f3ff; }
+#explore .quiz-feedback-box {
+  background: rgba(0,0,0,0.03);
+  border-color: rgba(0,0,0,0.08);
+  color: #555;
+}
+#explore .quiz-feedback-box.correct-fb {
+  background: rgba(22,163,74,0.07);
+  border-color: rgba(22,163,74,0.25);
+  color: #15803d;
+}
+#explore .quiz-feedback-box.wrong-fb {
+  background: rgba(239,68,68,0.07);
+  border-color: rgba(239,68,68,0.22);
+  color: #dc2626;
+}
+
+/* ══════════════════════════════════════════
+   TOP-BOTTOM LAYOUT — 学/拼/练 横版上下结构
+══════════════════════════════════════════ */
+#learning .split,
+#building .split,
+#explore  .split {
+  flex-direction: column;
+}
+
+/* LEARNING — 上: 立方体+标签  下: 知识内容 */
+#learning .learn-panel-l {
+  width: 100%; height: 215px; flex-shrink: 0;
+  flex-direction: row; align-items: center;
+  justify-content: center; gap: 28px;
+  padding: 14px 40px;
+  border-right: none;
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+  background: rgba(255,255,255,0.42);
+}
+#learning .learn-cube-wrap { flex-shrink: 0; }
+.learn-tabs-col {
+  display: flex; flex-direction: column;
+  gap: 10px; align-items: flex-start;
+}
+#learning .learn-desc-top {
+  text-align: left; font-size: 13px;
+  padding: 5px 10px;
+  background: rgba(249,115,22,0.07);
+  border: 1px solid rgba(249,115,22,0.14);
+  border-radius: 8px; max-width: 230px;
+}
+#learning .learn-svg-tabs {
+  flex-direction: row; flex-wrap: wrap; gap: 8px;
+}
+#learning .learn-tab { padding: 6px 16px; }
+#learning .learn-panel-r {
+  flex: 1; min-height: 0;
+  display: flex; flex-direction: column;
+  padding: 12px 32px; gap: 8px; overflow-y: auto;
+}
+#learning .learn-bottom { padding-top: 0; }
+
+/* BUILDING — 上: 步骤图+指示点  下: 描述+提示+导航 */
+#building .build-panel-l {
+  width: 100%; height: 210px; flex-shrink: 0;
+  flex-direction: row; align-items: center;
+  justify-content: center; gap: 20px;
+  padding: 10px 36px;
+  border-right: none;
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+  background: rgba(255,255,255,0.42);
+}
+#building .build-svg-area {
+  flex: 1; display: flex;
+  align-items: center; justify-content: center;
+  max-width: 500px;
+}
+#building .build-step-dots {
+  flex-direction: column; gap: 9px;
+  align-items: center; flex-shrink: 0;
+}
+#building .bsdot { width: 8px !important; height: 8px !important; border-radius: 50% !important; }
+#building .bsdot.active {
+  background: #f97316 !important;
+  width: 8px !important; height: 24px !important; border-radius: 4px !important;
+}
+#building .build-panel-r {
+  flex: 1; min-height: 0;
+  display: flex; flex-direction: column;
+  padding: 10px 28px; gap: 7px; overflow-y: auto;
+}
+
+/* QUIZ — 上: mini立方体+题目  下: 选项+反馈+下一题 */
+#explore .quiz-panel-l {
+  width: 100%; height: 185px; flex-shrink: 0;
+  flex-direction: row; align-items: center;
+  gap: 16px; padding: 12px 24px;
+  border-right: none;
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+  background: rgba(255,255,255,0.42);
+}
+#explore .quiz-cube-mini { flex-shrink: 0; }
+#explore .quiz-progress-pill {
+  flex-shrink: 0; display: flex;
+  flex-direction: column; align-items: center; gap: 6px;
+}
+#explore .quiz-step-dots {
+  display: flex; flex-direction: column;
+  gap: 7px; align-items: center;
+}
+#explore .qsdot { width: 7px; height: 7px; }
+#explore .qsdot.cur {
+  width: 7px !important; height: 20px !important; border-radius: 4px !important;
+}
+#explore .quiz-q-area {
+  flex: 1; align-items: flex-start;
+  background: transparent; border: none; padding: 0;
+}
+#explore .quiz-q-text { font-size: 15px; line-height: 1.65; }
+#explore .quiz-panel-r {
+  flex: 1; min-height: 0;
+  display: flex; flex-direction: column;
+  padding: 10px 20px; gap: 8px;
+}
+#explore .quiz-opts-grid { min-height: 0; }
+
+/* ══════════════════════════════════════════
+   课次卡片三态系统
+   1. done  ─ 已完成（绿色 ✓）
+   2. current ─ 推荐打开（橙色脉冲 + 推荐标签）
+   3. available ─ 能打开（浅色可点击）
+══════════════════════════════════════════ */
+
+/* ── 已完成 (done) —— 保持原绿色样式 ── */
+.k-card.done {
+  border-color: #22c55e;
+  opacity: 1;
+}
+.k-card.done:hover {
+  transform: scale(1.03);
+  box-shadow: 0 4px 14px rgba(34,197,94,0.25);
+}
+
+/* ── 推荐打开 (current) —— 橙色脉冲 + 推荐标签 ── */
+.k-card.current {
+  border-color: #f97316;
+  cursor: pointer;
+  overflow: visible;   /* allow badge to overflow */
+}
+/* 推荐 badge above the card */
+.k-card.current::before {
+  content: '推荐';
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg,#f97316,#ef4444);
+  color: white;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 6px;
+  white-space: nowrap;
+  z-index: 10;
+  box-shadow: 0 2px 6px rgba(249,115,22,0.4);
+  letter-spacing: 0.5px;
+}
+
+/* ── 能打开 (available) —— 浅灰色边框，可点击 ── */
+.k-card.available {
+  border: 2px solid #d1d5db;
+  opacity: 0.82;
+  cursor: pointer;
+  transition: transform 0.18s, box-shadow 0.18s, opacity 0.18s, border-color 0.18s;
+}
+.k-card.available:hover {
+  border-color: #f97316;
+  opacity: 1;
+  transform: scale(1.03);
+  box-shadow: 0 4px 12px rgba(249,115,22,0.18);
+}
+.k-card.available:active { transform: scale(0.96); }
+/* Small "→" indicator bottom-right */
+.k-card.available::after {
+  content: '→';
+  position: absolute;
+  bottom: 4px;
+  right: 6px;
+  font-size: 10px;
+  color: #9ca3af;
+  font-weight: 700;
+  line-height: 1;
+}
+.k-card.available:hover::after {
+  color: #f97316;
+}
+
+/* ── 让卡片 overflow:visible 以显示推荐标签 ── */
+.cards-grid {
+  padding-top: 12px;   /* space for badge overflow */
+}
+
+#directory .back-btn {
+  background: rgba(0,0,0,0.07);
+  color: #333;
+  border: 1px solid rgba(0,0,0,0.1);
+}
+#directory .back-btn:hover { background: rgba(0,0,0,0.12); }
+#directory .page-title { color: #1a1a2e; }
+
+/* ══ LEARNING LAYOUT RESTRUCTURE ══════════════════════════════ */
+/* Top panel: cube only, centered, slightly shorter */
+#learning .learn-panel-l {
+  height: 185px;
+  justify-content: center;
+  gap: 0;
+}
+/* Bottom panel: tabs + desc-row + content */
+#learning .learn-panel-r {
+  padding: 10px 30px 10px 28px;
+  gap: 6px;
+}
+#learning .learn-shape-title {
+  font-size: 22px; font-weight: 900;
+  color: #1a1a2e; letter-spacing: 1px; line-height: 1.1;
+}
+#learning .learn-def-tag {
+  background: rgba(0,0,0,0.04);
+  border: 1px solid rgba(0,0,0,0.1);
+  color: rgba(0,0,0,0.5);
+  font-size: 11px; padding: 3px 10px;
+}
+/* Tabs in bottom panel */
+#learning .learn-svg-tabs {
+  flex-direction: row; flex-wrap: wrap; gap: 6px; margin: 2px 0;
+}
+#learning .learn-tab {
+  padding: 5px 12px; font-size: 11.5px;
+  background: rgba(0,0,0,0.04);
+  border: 1.5px solid rgba(0,0,0,0.12);
+  color: rgba(0,0,0,0.45);
+}
+#learning .learn-tab.active {
+  background: rgba(249,115,22,0.10);
+  border-color: #f97316; color: #c2410c;
+}
+#learning .learn-tab:hover {
+  border-color: #f97316; color: #c2410c;
+  background: rgba(249,115,22,0.07);
+}
+/* Speaker + desc-top row */
+.learn-desc-row {
+  display: flex; align-items: center; gap: 10px;
+  margin: 2px 0;
+}
+/* Audio button: icon-only, no background — matches quiz/build speak btns */
+.learn-audio-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; flex-shrink: 0; padding: 4px;
+  background: none; border: none;
+  border-radius: 50%; cursor: pointer;
+  transition: background 0.15s;
+}
+.learn-audio-btn:hover { background: rgba(249,115,22,0.10); }
+.learn-audio-btn svg { width: 20px; height: 20px; }
+/* desc-top chip */
+#learning .learn-desc-top {
+  font-size: 12.5px; color: #b45309; font-weight: 600;
+  text-align: left; line-height: 1.4;
+  padding: 4px 10px; flex: 1;
+  background: rgba(249,115,22,0.07);
+  border: 1px solid rgba(249,115,22,0.15);
+  border-radius: 8px;
+}
+/* kc-desc: no box, plain text */
+#learning .learn-kc-desc {
+  font-size: 13px; color: #444; line-height: 1.7;
+}
+/* num pills */
+#learning .num-pill {
+  background: rgba(0,0,0,0.04);
+  border: 1px solid rgba(0,0,0,0.10);
+  color: #c2410c;
+}
+#learning .learn-bottom { padding-top: 2px; }
+
+/* Banner moved to right of topbar, beside scan button */
+.home-topbar-right {
+  display: flex; align-items: center; gap: 14px;
+}
+
+/* 锁住课次卡片 */
+.k-card.locked {
+  border: 2px solid #e5e7eb; opacity: 0.62; cursor: pointer;
+  background: rgba(0,0,0,0.03);
+  transition: opacity 0.18s, border-color 0.18s;
+  position: relative;
+}
+.k-card.locked:hover { opacity: 0.85; border-color: #d1d5db; }
+.lock-icon {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  font-size: 22px; opacity: 0.35; pointer-events: none;
+}
+.k-card.locked .card-emoji { opacity: 0.25; }
+.k-card.locked .card-name  { color: #9ca3af; }
+.k-card.locked .card-sub   { color: #d1d5db; }
+
+/* ══ LEARNING SCREEN RESTRUCTURE v2 ══════════════════════════ */
+/* Top panel: flex column, title + cube + desc + tabs */
+#learning .learn-panel-l {
+  height: 285px; flex-direction: column;
+  align-items: center; justify-content: flex-start;
+  padding: 10px 24px 10px; gap: 0;
+  background: rgba(255,255,255,0.42);
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+  border-right: none; position: relative;
+}
+/* Title top-left */
+.learn-title-row {
+  width: 100%; font-size: 22px; font-weight: 900;
+  color: #1a1a2e; letter-spacing: 1px;
+  margin-bottom: 4px; line-height: 1;
+}
+/* Cube wrap bigger */
+#learning .learn-cube-wrap {
+  width: 270px; height: 135px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 6px;
+}
+/* Desc row in top panel */
+#learning .learn-desc-row {
+  width: 100%; display: flex; align-items: center;
+  gap: 8px; margin-bottom: 8px; min-height: 28px;
+}
+/* Tabs row in top panel */
+#learning .learn-svg-tabs {
+  width: 100%; display: flex; flex-direction: row;
+  gap: 7px; flex-wrap: nowrap; justify-content: flex-start;
+}
+#learning .learn-tab {
+  padding: 6px 14px; font-size: 12px; font-weight: 700;
+  border-radius: 16px; cursor: pointer;
+  background: rgba(0,0,0,0.04);
+  border: 1.5px solid rgba(0,0,0,0.12);
+  color: rgba(0,0,0,0.45);
+  transition: all 0.2s; position: relative;
+  flex-shrink: 0;
+}
+#learning .learn-tab.active {
+  background: rgba(249,115,22,0.12);
+  border-color: #f97316; color: #c2410c;
+}
+/* Visited state: small dot indicator */
+
+#learning .learn-tab.active.visited::after { background: #f97316; }
+#learning .learn-tab:hover {
+  border-color: #f97316; color: #c2410c;
+  background: rgba(249,115,22,0.07);
+}
+/* Bottom panel */
+#learning .learn-panel-r {
+  flex: 1; padding: 14px 28px; gap: 8px;
+  display: flex; flex-direction: column;
+  justify-content: center; min-height: 0;
+}
+/* def-tag on cream */
+#learning .learn-def-tag {
+  background: rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.1);
+  color: rgba(0,0,0,0.5); font-size: 11.5px;
+  padding: 3px 12px; border-radius: 20px;
+  width: fit-content;
+}
+/* kc-desc */
+#learning .learn-kc-desc { font-size: 13.5px; color: #333; line-height: 1.75; }
+/* Num pills */
+#learning .num-pill { background: rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.10); color: #c2410c; }
+/* Go-build button: 2 states */
+.next-btn-dim {
+  background: #e5e7eb; color: #9ca3af;
+  box-shadow: none; opacity: 0.75;
+}
+.next-btn-dim:hover { opacity: 0.9; }
+.next-btn-ready {
+  background: linear-gradient(135deg,#f97316,#ea580c);
+  color: white; box-shadow: 0 4px 14px rgba(249,115,22,0.4);
+  animation: kbtnBreathe 2.5s ease-in-out infinite;
+}
+#learning .learn-bottom { padding-top: 0; justify-content: flex-end; }
+/* desc-top chip */
+#learning .learn-desc-top {
+  font-size: 12.5px; color: #b45309; font-weight: 600;
+  text-align: left; line-height: 1.4;
+  padding: 4px 10px; flex: 1;
+  background: rgba(249,115,22,0.07);
+  border: 1px solid rgba(249,115,22,0.15);
+  border-radius: 8px;
+}
+
+.modal-btns { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
+
+/* ══ LEARNING v3 ═══════════════════════════════════════════════ */
+/* Top panel: taller, col layout */
+#learning .learn-panel-l {
+  height: 390px; flex-direction: column;
+  align-items: center; justify-content: flex-start;
+  padding: 12px 24px 10px; gap: 6px;
+  background: rgba(255,255,255,0.42);
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+  border-right: none; position: relative;
+}
+/* Title */
+.learn-title-row {
+  width: 100%; font-size: 22px; font-weight: 900;
+  color: #1a1a2e; letter-spacing: 1px; line-height: 1; flex-shrink: 0;
+}
+/* Cube bigger */
+#learning .learn-cube-wrap {
+  width: 320px; height: 160px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+/* Desc row: hidden until click, takes fixed height so layout stable */
+#learning .learn-desc-row {
+  width: 100%; display: flex; align-items: center;
+  gap: 8px; min-height: 34px; flex-shrink: 0;
+}
+/* Tabs: bigger, centered */
+#learning .learn-svg-tabs {
+  width: 100%; display: flex; flex-direction: row;
+  gap: 8px; justify-content: center; flex-wrap: nowrap; flex-shrink: 0;
+}
+#learning .learn-tab {
+  padding: 9px 20px; font-size: 13.5px; font-weight: 700;
+  border-radius: 22px; cursor: pointer;
+  background: rgba(0,0,0,0.04);
+  border: 1.5px solid rgba(0,0,0,0.12);
+  color: rgba(0,0,0,0.45);
+  transition: all 0.2s; flex-shrink: 0;
+  position: relative;
+}
+#learning .learn-tab.active {
+  background: rgba(249,115,22,0.14);
+  border-color: #f97316; color: #c2410c;
+}
+/* Visited: warm tint instead of dot */
+#learning .learn-tab.visited {
+  background: rgba(249,115,22,0.07);
+  border-color: rgba(249,115,22,0.35);
+  color: #b45309;
+}
+#learning .learn-tab.active.visited {
+  background: rgba(249,115,22,0.16);
+  border-color: #f97316; color: #c2410c;
+}
+/* visited underline removed */
+
+
+#learning .learn-tab:hover {
+  border-color: #f97316; color: #c2410c;
+}
+/* Desc chip */
+#learning .learn-desc-top {
+  font-size: 13px; color: #b45309; font-weight: 600;
+  text-align: left; line-height: 1.4;
+  padding: 5px 12px; flex: 1;
+  background: rgba(249,115,22,0.07);
+  border: 1px solid rgba(249,115,22,0.15);
+  border-radius: 8px;
+}
+/* Bottom panel: only button, right-aligned at bottom */
+#learning .learn-panel-r {
+  flex: 1; display: flex; flex-direction: row;
+  align-items: flex-end; justify-content: flex-end;
+  padding: 10px 20px 14px; min-height: 0;
+}
+/* next-btn sizing */
+#learning .next-btn {
+  padding: 12px 28px; font-size: 16px; font-weight: 800;
+  border-radius: 28px;
+}
+
+/* ══ LEARNING v4 TWEAKS ══════════════════════════════════════ */
+/* 1. Title: shift right+down toward cube */
+.learn-title-row {
+  padding-left: 28px; margin-top: 10px; margin-bottom: 0;
+}
+/* 3. Tabs: stronger clickable feel */
+#learning .learn-tab {
+  box-shadow: 0 2px 6px rgba(0,0,0,0.09);
+  transition: all 0.15s ease;
+}
+#learning .learn-tab:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 14px rgba(249,115,22,0.22);
+  border-color: #f97316; color: #c2410c;
+  background: rgba(249,115,22,0.09);
+}
+#learning .learn-tab:active { transform: scale(0.94); }
+
+/* Desc-row: no longer full-width, starts from tab position */
+#learning .learn-desc-row {
+  position: relative; width: 100%;
+  transition: opacity 0.3s, margin-left 0.25s ease;
+}
+
+/* 4. Fix go-build button: center text, move panel up */
+#learning .learn-panel-r {
+  flex: none !important; height: 80px;
+  display: flex; flex-direction: row;
+  align-items: center; justify-content: flex-end;
+  padding: 0 22px 10px;
+}
+#learning #learn-next-btn {
+  height: auto; display: inline-flex;
+  align-items: center; justify-content: center;
+  padding: 11px 30px; font-size: 15px; font-weight: 800;
+  border-radius: 28px;
+}
+
+/* ══ LEARNING v5 SIZE + CLEAN ══════════════════════════════ */
+/* Title bigger */
+.learn-title-row {
+  font-size: 26px !important; padding-left: 30px !important; margin-top: 12px !important;
+}
+/* Tabs bigger */
+#learning .learn-svg-tabs { gap: 10px; }
+#learning .learn-tab {
+  padding: 11px 22px !important; font-size: 15px !important; font-weight: 800 !important;
+  border-radius: 24px !important;
+}
+/* Visited: warm tint only, no dot/underline */
+#learning .learn-tab.visited {
+  background: rgba(249,115,22,0.09);
+  border-color: rgba(249,115,22,0.4);
+  color: #b45309;
+}
+#learning .learn-tab.active.visited {
+  background: rgba(249,115,22,0.16);
+  border-color: #f97316; color: #c2410c;
+}
+/* Speaker size — matches quiz/build buttons */
+.learn-audio-btn svg { width: 20px !important; height: 20px !important; }
+.learn-audio-btn { width: 32px !important; height: 32px !important; background: none !important; border: none !important; }
+/* Desc text bigger */
+#learning .learn-desc-top {
+  font-size: 15px !important; padding: 6px 14px !important; font-weight: 700 !important;
+}
+/* desc-row: no left-align forced, follows JS positioning */
+#learning .learn-desc-row { margin-left: 0; transition: opacity 0.3s, margin-left 0.2s; }
+
+/* ══ LEARNING v6: bigger everything ════════════════════════ */
+#learning .learn-tab {
+  padding: 13px 26px !important; font-size: 16.5px !important;
+}
+#learning .learn-desc-top {
+  font-size: 16px !important; padding: 7px 16px !important;
+}
+.learn-audio-btn { width: 32px !important; height: 32px !important; background: none !important; border: none !important; }
+.learn-audio-btn svg { width: 20px !important; height: 20px !important; }
+
+/* desc-top: single-line, auto width */
+#learning .learn-desc-top {
+  flex: none !important;
+  width: fit-content !important;
+  max-width: none !important;
+  white-space: nowrap !important;
+}
+/* desc-row: don't stretch, fit content */
+#learning .learn-desc-row {
+  width: fit-content !important;
+  align-items: center;
+}
+
+/* ═══════════════════════════════════════
+   PARTS PREP SCREEN (3.5)
+═══════════════════════════════════════ */
+#parts-prep { background: #f0ebe0; flex-direction: column; }
+
+
+.pp-topbar {
+  height: 48px; flex-shrink: 0;
+  display: flex; align-items: center;
+  padding: 0 16px;
+  background: white;
+  border-bottom: 1px solid #e8e3d8;
+}
+.pp-topbar-left { display: flex; align-items: center; gap: 14px; }
+
+.pp-content {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  padding: 0 40px;
+}
+.pp-arrow {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 42px; height: 42px; border-radius: 50%;
+  background: rgba(255,255,255,0.85); border: 1.5px solid #d4cfc6;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.08); z-index: 2;
+}
+.pp-arrow-l { left: 8px; }
+.pp-arrow-r { right: 8px; }
+
+.pp-center {
+  display: flex; flex-direction: column; align-items: center; gap: 20px;
+  width: 100%; max-width: 780px;
+}
+.pp-body {
+  display: flex; gap: 0; align-items: stretch;
+  background: white; border-radius: 16px;
+  padding: 22px 28px 18px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  width: 100%;
+}
+.pp-left { flex: 1; padding-right: 10px; }
+.pp-right { width: 240px; display: flex; flex-direction: column; }
+.pp-divider {
+  width: 1px; background: #f0ede6; margin: 0 2px; flex-shrink: 0;
+}
+.pp-section-title {
+  font-size: 15px; font-weight: 700; color: #1f2937;
+  padding-left: 10px; margin-bottom: 18px;
+}
+.pp-title-orange { border-left: 4px solid #f97316; }
+.pp-title-green  { border-left: 4px solid #22c55e; }
+.pp-parts-list { display: flex; flex-direction: column; gap: 18px; }
+.pp-part-row { display: flex; align-items: center; gap: 12px; }
+.pp-part-ico { width: 42px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.pp-part-name { font-size: 13px; color: #6b7280; width: 66px; flex-shrink: 0; }
+.pp-part-qty { font-size: 13px; color: #374151; width: 52px; flex-shrink: 0; }
+.pp-part-qty b { font-size: 19px; font-weight: 800; color: #1f2937; }
+.pp-target-wrap {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  background: #f8f5ef; border-radius: 12px; border: 1.5px solid #e8e3d8;
+  min-height: 150px;
+}
+.pp-footer { display: flex; justify-content: center; }
+.pp-ready-btn {
+  background: #f97316; color: #fff; border: none;
+  border-radius: 28px; padding: 11px 52px;
+  font-size: 16px; font-weight: 700; cursor: pointer;
+  box-shadow: 0 4px 14px rgba(249,115,22,0.30);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.pp-ready-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(249,115,22,0.42); }
+.pp-ready-btn:active { transform: translateY(0); }
+
+/* ═══════════════════════════════════════
+   BUILDING SCREEN v2
+═══════════════════════════════════════ */
+.build2-outer {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; height: 100%; position: relative;
+}
+.build2-arrow {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 46px; height: 46px; border-radius: 50%;
+  background: rgba(255,255,255,0.88); border: 1.5px solid #e5e7eb;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.10); z-index: 2;
+  transition: opacity 0.2s;
+}
+.build2-arrow-l { left: 10px; }
+.build2-arrow-r { right: 10px; }
+.build2-arrow.dimmed { opacity: 0.3; pointer-events: none; }
+.build2-card {
+  width: 500px; background: #fff; border-radius: 18px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  display: flex; flex-direction: column; overflow: hidden;
+  flex: 1; min-height: 0;
+}
+.build2-topbar {
+  display: flex; align-items: center; gap: 14px;
+  padding: 10px 18px 8px; border-bottom: 1px solid #f3f4f6; flex-shrink: 0;
+}
+.build2-step-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 22px 6px; flex-shrink: 0;
+}
+.build2-step-label {
+  font-size: 22px; font-weight: 800; color: #1f2937;
+}
+.build2-speak-btn {
+  background: none; border: none; cursor: pointer; padding: 4px;
+  display: flex; align-items: center; border-radius: 50%;
+  transition: background 0.15s;
+}
+.build2-speak-btn:hover { background: rgba(249,115,22,0.10); }
+.build2-img-area {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  background: #f8fafc; margin: 0 22px; border-radius: 14px;
+  border: 1.5px solid #eff0f2; overflow: hidden;
+}
+.build2-dots {
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px; padding: 10px 0 8px; flex-shrink: 0;
+}
+.b2dot {
+  width: 8px; height: 8px; border-radius: 50%; background: #d1d5db;
+  transition: all 0.25s;
+}
+.b2dot.done  { background: #6b7280; }
+.b2dot.active { width: 22px; border-radius: 5px; background: #1f2937; }
+.build2-nav {
+  display: flex; align-items: center; justify-content: center;
+  gap: 16px; padding: 0 22px 16px; flex-shrink: 0;
+}
+.build2-prev-btn {
+  background: #fff; color: #374151;
+  border: 2px solid #d1d5db; border-radius: 28px;
+  padding: 10px 36px; font-size: 15px; font-weight: 600; cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.build2-prev-btn:hover { border-color: #9ca3af; color: #1f2937; }
+.build2-prev-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.build2-next-btn {
+  background: #1f2937; color: #fff;
+  border: 2px solid #1f2937; border-radius: 28px;
+  padding: 10px 44px; font-size: 15px; font-weight: 700; cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+}
+.build2-next-btn:hover { background: #374151; transform: translateY(-1px); }
+.build2-next-btn.replay {
+  background: #1f2937; border-color: #1f2937;
+}
+@keyframes pulseBtn {
+  0%,100% { box-shadow: 0 0 0 0 rgba(249,115,22,0.4); }
+  50%      { box-shadow: 0 0 0 8px rgba(249,115,22,0); }
+}
+
+/* ── vZome viewer in parts-prep ─────────────────────────── */
+.pp-vzome-wrap {
+  padding: 0 !important;
+  overflow: hidden;
+  height: 200px;
+}
+.pp-vzome-wrap vzome-viewer {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* ── BUILDING SCREEN v2 ── */
+/* ═══════════════════════════════════════
+   BUILDING SCREEN v2
+═══════════════════════════════════════ */
+#building { background: #f0ebe0; flex-direction: column; }
+
+.build2-content {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: stretch; padding: 10px 20px 8px; gap: 10px;
+}
+.build-vzome-full {
+  flex: 1; min-height: 0; border-radius: 16px;
+  overflow: hidden; box-shadow: 0 2px 14px rgba(0,0,0,0.10);
+}
+.build-vzome-full vzome-viewer { width: 100%; height: 100%; display: block; }
+.build2-bottom-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0; gap: 12px; padding: 0 4px;
+}
+.build2-step-info {
+  display: flex; align-items: center; gap: 8px; min-width: 90px;
+}
+.build2-main-row {
+  display: flex; flex-direction: row; align-items: stretch;
+  gap: 14px; flex: 1; min-height: 0; width: 100%;
+  justify-content: center;
+}
+.build-vzome-panel {
+  width: 380px; flex-shrink: 0; display: flex;
+  flex-direction: column; gap: 6px;
+}
+.build-vzome-label {
+  font-size: 12px; font-weight: 600; color: #92400e;
+  text-align: center; opacity: 0.75; flex-shrink: 0;
+}
+vzome-viewer {
+  width: 100%; flex: 1; min-height: 0;
+  border-radius: 16px; overflow: hidden;
+  box-shadow: 0 2px 14px rgba(0,0,0,0.10);
+  display: block;
+}
+.build2-card {
+  width: 500px; background: #fff; border-radius: 18px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  display: flex; flex-direction: column; overflow: hidden;
+  flex: 1;
+}
+.build2-topbar {
+  display: flex; align-items: center; gap: 14px;
+  padding: 10px 18px 8px; border-bottom: 1px solid #f3f4f6; flex-shrink: 0;
+}
+.build2-step-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 22px 6px; flex-shrink: 0;
+}
+.build2-step-label {
+  font-size: 22px; font-weight: 800; color: #1f2937;
+}
+.build2-speak-btn {
+  background: none; border: none; cursor: pointer; padding: 4px;
+  display: flex; align-items: center; border-radius: 50%;
+  transition: background 0.15s;
+}
+.build2-speak-btn:hover { background: rgba(249,115,22,0.10); }
+.build2-img-area {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  background: #f8fafc; margin: 0 22px; border-radius: 14px;
+  border: 1.5px solid #eff0f2; overflow: hidden;
+}
+.build2-dots {
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px; padding: 10px 0 8px; flex-shrink: 0;
+}
+.b2dot {
+  width: 8px; height: 8px; border-radius: 50%; background: #d1d5db;
+  transition: all 0.25s;
+}
+.b2dot.done  { background: #6b7280; }
+.b2dot.active { width: 22px; border-radius: 5px; background: #1f2937; }
+.build2-nav {
+  display: flex; align-items: center; justify-content: center;
+  gap: 16px; padding: 0 22px 14px; flex-shrink: 0;
+}
+.build2-prev-btn {
+  background: #fff; color: #374151;
+  border: 2px solid #d1d5db; border-radius: 28px;
+  padding: 9px 34px; font-size: 15px; font-weight: 600; cursor: pointer;
+  transition: border-color 0.15s;
+}
+.build2-prev-btn:hover { border-color: #9ca3af; }
+.build2-prev-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.build2-next-btn {
+  background: #1f2937; color: #fff;
+  border: 2px solid #1f2937; border-radius: 28px;
+  padding: 9px 42px; font-size: 15px; font-weight: 700; cursor: pointer;
+  transition: background 0.15s;
+}
+.build2-next-btn:hover { background: #374151; }
+.build2-next-btn.replay {
+  background: #1f2937; border-color: #1f2937;
+}
+@keyframes pulseBtn {
+  0%,100% { box-shadow: 0 0 0 0 rgba(249,115,22,0.4); }
+  50%      { box-shadow: 0 0 0 8px rgba(249,115,22,0); }
+}
+
+/* ── Bottom section-switch row ── */
+.build-section-row {
+  width: 820px; display: flex; align-items: center;
+  justify-content: space-between; flex-shrink: 0;
+}
+.build-sec-left {
+  width: 42px; height: 42px; border-radius: 50%;
+  background: rgba(255,255,255,0.88); border: 1.5px solid #d4cfc6;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  color: #555; transition: border-color 0.15s;
+}
+.build-sec-left:hover { border-color: #9ca3af; }
+.build-sec-right {
+  height: 42px; padding: 0 28px; border-radius: 21px;
+  border: none; font-size: 15px; font-weight: 700; cursor: pointer;
+  transition: background 0.25s, box-shadow 0.25s;
+}
+.build-sec-right.done {
+  background: #f97316; color: #fff;
+  box-shadow: 0 4px 14px rgba(249,115,22,0.35);
+}
+.build-sec-right.not-done {
+  background: #d1d5db; color: #9ca3af;
+}
+
+/* ═══════════════════════════════════════
+   QUIZ v2
+═══════════════════════════════════════ */
+#explore {
+  background:
+    radial-gradient(circle at 8% 18%,  rgba(249,115,22,0.10) 0%, transparent 32%),
+    radial-gradient(circle at 92% 78%,  rgba(251,191,36,0.12) 0%, transparent 30%),
+    radial-gradient(circle at 78% 12%,  rgba(134,239,172,0.10) 0%, transparent 26%),
+    radial-gradient(circle at 22% 85%,  rgba(147,197,253,0.09) 0%, transparent 28%),
+    #f0ebe0;
+  flex-direction: column;
+}
+.quiz2-topbar-right { display: flex; align-items: center; gap: 14px; margin-left: auto; }
+.quiz2-prog-dots { display: flex; align-items: center; gap: 7px; }
+.q2dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(0,0,0,0.15); transition: all 0.3s; }
+.q2dot.done { background: #6b7280; }
+.q2dot.cur  { width: 22px; border-radius: 5px; background: #f97316; }
+.quiz2-skip-btn {
+  height: 28px; padding: 0 14px; border-radius: 14px;
+  background: rgba(0,0,0,0.07); border: none;
+  font-size: 13px; font-weight: 500; color: #6b7280; cursor: pointer;
+}
+.quiz2-content {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; padding: 14px 40px 12px; gap: 12px;
+}
+.quiz2-q-card {
+  width: 100%; max-width: 840px; flex-shrink: 0;
+  background: #fff; border-radius: 18px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07); padding: 14px 22px;
+}
+.quiz2-q-inner { display: flex; align-items: center; gap: 14px; }
+.quiz2-speak-btn {
+  flex-shrink: 0; background: none; border: none; cursor: pointer;
+  display: flex; align-items: center; padding: 2px;
+  transition: transform 0.15s;
+}
+.quiz2-speak-btn:active { transform: scale(1.2); }
+
+/* ── TTS breathing animation ── */
+@keyframes ttsBreath {
+  0%,100% { transform: scale(1);   opacity: 1;   }
+  50%      { transform: scale(1.32); opacity: 0.7; }
+}
+.tts-speaking {
+  animation: ttsBreath 0.85s ease-in-out infinite !important;
+}
+.quiz2-q-text { font-size: 19px; font-weight: 600; color: #4a3220; line-height: 1.45; flex: 1; }
+.quiz2-q-img { flex-shrink: 0; display: flex; align-items: center; }
+#quiz2-q-img-area {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 6px 0;
+}
+#quiz2-q-img-area.visible { display: flex; }
+.quiz2-content.grid-mode #quiz2-q-img-area { width: 520px; }
+.quiz2-opts-row.grid-2x2.img-opts-grid { grid-template-rows: 76px 76px; }
+.quiz2-opts-row.grid-2x2.img-opts-grid .quiz2-opt-card { padding: 4px 12px; gap: 4px; }
+.quiz2-opts-row { width: 100%; max-width: 840px; display: flex; gap: 14px; flex: 1; min-height: 0; }
+.quiz2-opts-row.grid-2x2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 64px 64px;
+  gap: 12px;
+  width: 520px; flex: none;
+}
+.quiz2-opts-row.grid-2x2 .quiz2-opt-card {
+  font-size: 22px; font-weight: 700;
+  padding: 0 20px; flex: none;
+}
+/* grid-mode: narrower q-card, rounder, shifted down */
+.quiz2-content.grid-mode {
+  justify-content: center; padding-top: 36px;
+}
+.quiz2-content.grid-mode .quiz2-q-card {
+  width: 520px;
+  border-radius: 40px;
+  padding: 14px 28px;
+  background: rgba(255,255,255,0.92);
+}
+.quiz2-opt-card {
+  flex: 1; background: rgba(255,255,255,0.92); border-radius: 16px;
+  border: 2.5px solid transparent;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 20px; font-weight: 700; color: #5c3d1e;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+  padding: 10px 6px; gap: 6px; user-select: none;
+}
+.quiz2-opt-card:active { transform: scale(0.97); }
+.quiz2-opt-card.selected { background: #eff6ff; border-color: #3b82f6; }
+.quiz2-opt-card.correct  { background: #f0fdf4; border-color: #22c55e; color: #166534; }
+.quiz2-opt-card.wrong    { background: #fff1f2; border-color: #f43f5e; color: #9f1239; }
+.quiz2-opt-card.dim      { opacity: 0.35; pointer-events: none; }
+.quiz2-opt-label { font-size: 14px; font-weight: 600; color: inherit; }
+.quiz2-q-text { font-size: 19px; font-weight: 600; color: #4a3220; line-height: 1.45; flex: 1; }
+.quiz2-footer {
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  width: 100%; max-width: 840px;
+}
+.quiz2-confirm-btn {
+  height: 46px; padding: 0 72px; border-radius: 23px;
+  border: none; font-size: 16px; font-weight: 700; cursor: pointer;
+  background: #d1d5db; color: #9ca3af;
+  transition: background 0.2s, box-shadow 0.2s, color 0.2s;
+}
+.quiz2-confirm-btn.active {
+  background: #f97316; color: #fff;
+  box-shadow: 0 4px 14px rgba(249,115,22,0.35);
+}
+.quiz2-confirm-btn.next-mode {
+  background: #f97316; color: #fff;
+  box-shadow: 0 4px 14px rgba(249,115,22,0.35);
+}
+.q2-confetti {
+  position: absolute; width: 9px; height: 9px; border-radius: 50%;
+  pointer-events: none; z-index: 20;
+  animation: q2Burst 0.7s ease-out forwards;
+}
+@keyframes q2Burst {
+  0%   { transform: translate(0,0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--dx),var(--dy)) scale(0.2); opacity: 0; }
+}
+.q2-confetti-rise {
+  position: absolute; width: 10px; height: 10px; border-radius: 50%;
+  pointer-events: none; z-index: 20;
+  animation: q2Rise 1.3s ease-out forwards;
+}
+@keyframes q2Rise {
+  0%   { transform: translate(0, 0) scale(1.2); opacity: 1; }
+  60%  { opacity: 0.85; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0.2); opacity: 0; }
+}
+
+/* ─── Feedback stars ─── */
+#feedback { background: #f0ebe0; flex-direction: column; }
+.fb2-body {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 22px;
+}
+.fb2-stars-row { display: flex; gap: 18px; align-items: center; animation: fb2In 0.5s ease-out; }
+@keyframes fb2In { 0%{transform:scale(0.4);opacity:0} 70%{transform:scale(1.1)} 100%{transform:scale(1);opacity:1} }
+.fb2-star { display: flex; }
+.fb2-msg { font-size: 20px; font-weight: 700; color: #374151; }
+.fb2-done-btn {
+  height: 46px; padding: 0 60px; border-radius: 23px;
+  background: #f97316; color: #fff;
+  border: none; font-size: 16px; font-weight: 700; cursor: pointer;
+  box-shadow: 0 4px 14px rgba(249,115,22,0.35);
+  transition: transform 0.15s;
+}
+.fb2-done-btn:hover { transform: translateY(-2px); }
+
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hint">📐 教材同步拼 · 横屏交互Demo · 点击「教材同步拼」开始体验</div>
+  <div class="tablet" id="app">
+
+  <!-- ══════════════════════════════
+       SCREEN 1 · HOME
+  ══════════════════════════════ -->
+  <div class="screen active" id="home">
+
+    <!-- Top bar -->
+    <div class="home-topbar">
+      <!-- Left: avatar + name -->
+      <div class="home-user">
+        <div class="user-avatar">🐻</div>
+        <span class="user-name">莫莫</span>
+      </div>
+      <!-- Right group: banner + scan -->
+      <div class="home-topbar-right">
+        <div class="zome-banner">
+          <span class="zb-arrow">✦</span>
+          <span class="zb-zome">Zome</span><span class="zb-tool">tool</span>
+          <span class="zb-star">✦</span>
+          <span class="zb-xin">新星</span>
+          <span class="zb-hang">启</span><span class="zb-ji">航</span><span class="zb-hua">计划</span>
+          <span class="zb-tail">✦</span>
+        </div>
+        <div class="scan-btn">
+          <div class="scan-box"></div>
+          <span class="scan-label">扫码</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Body: 3 columns -->
+    <div class="home-body">
+
+      <!-- LEFT column: 老师带你拼 -->
+      <div class="home-col-left">
+        <div class="col-label">老师带你拼！</div>
+        <div class="hero-main-card">
+          <!-- title + subtitle -->
+          <div class="hero-top-area">
+            <div class="hero-main-title">几何创意大师课L1</div>
+            <div class="hero-main-sub">双手构建你的想象世界</div>
+          </div>
+
+          <!-- footer: progress + play button -->
+          <div class="hero-footer-area">
+            <div class="hero-progress-wrap">
+              <div class="hero-progress-label">已完成 10/10 节课</div>
+              <div class="hero-prog-track"><div class="hero-prog-fill"></div></div>
+            </div>
+            <button class="hero-play-btn" onclick="startLearning()">立即开玩</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MIDDLE column: 官方推荐 -->
+      <div class="home-col-mid">
+        <div class="col-label">官方推荐 ▶</div>
+        <div class="rec-list">
+          <div class="rec-card" style="background:linear-gradient(135deg,#d1fae5 0%,#6ee7b7 60%,#34d399 100%)">
+            
+          </div>
+          <div class="rec-card" style="background:linear-gradient(135deg,#dbeafe 0%,#93c5fd 60%,#60a5fa 100%)">
+            
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT column: 大家在拼 -->
+      <div class="home-col-right">
+        <div class="col-label">大家在拼 ▶</div>
+        <div class="works-grid">
+          <!-- card 1 -->
+          <div class="work-card">
+            <div class="work-info">
+              <div class="work-user-left">
+                <div class="work-avatar"></div>
+                <span class="work-name">寿比南珊</span>
+              </div>
+              <span class="work-heart"><span class="heart-icon">♥</span> 0</span>
+            </div>
+          </div>
+          <!-- card 2 -->
+          <div class="work-card">
+            <div class="work-info">
+              <div class="work-user-left">
+                <div class="work-avatar"></div>
+                <span class="work-name">米兜</span>
+              </div>
+              <span class="work-heart"><span class="heart-icon">♥</span> 0</span>
+            </div>
+          </div>
+          <!-- card 3 -->
+          <div class="work-card">
+            <div class="work-info">
+              <div class="work-user-left">
+                <div class="work-avatar"></div>
+                <span class="work-name">康博博画家</span>
+              </div>
+              <span class="work-heart"><span class="heart-icon">♥</span> 1</span>
+            </div>
+          </div>
+          <!-- card 4 -->
+          <div class="work-card">
+            <div class="work-info">
+              <div class="work-user-left">
+                <div class="work-avatar"></div>
+                <span class="work-name">多边形小…</span>
+              </div>
+              <span class="work-heart"><span class="heart-icon">♥</span> 0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /home-body -->
+
+    <!-- Bottom tab bar: 造型库 | 课程中心 | 教材同步拼(NEW·active) | 作品圈 | 我 -->
+    <div class="home-tabbar">
+      <div class="htab">
+        <div class="tab-ico tab-ico-zx">🎨</div>
+        <span class="tab-lbl">造型库</span>
+      </div>
+      <div class="htab">
+        <div class="tab-ico tab-ico-kc">📚</div>
+        <span class="tab-lbl">课程中心</span>
+      </div>
+      <div class="htab" onclick="goTo('directory')">
+        <div class="tab-ico tab-ico-jc">📐</div>
+        <span class="tab-lbl tab-lbl-jc">教材同步拼</span>
+      </div>
+      <div class="htab">
+        <div class="tab-ico tab-ico-zp">🌐</div>
+        <span class="tab-lbl">作品圈</span>
+      </div>
+      <div class="htab">
+        <div class="tab-ico tab-ico-wo">👤</div>
+        <span class="tab-lbl">我</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════
+       SCREEN 2 · DIRECTORY
+  ══════════════════════════════ -->
+  <div class="screen" id="directory">
+    <div class="dir-top">
+      <div style="display:flex;align-items:center;gap:10px">
+        <button class="back-btn" onclick="goTo('home')">‹</button>
+        <span class="page-title">教材同步拼</span>
+      </div>
+      <button class="claim-btn" id="claim-btn" onclick="showModal('modal-unlock')" style="display:none">+ 领取课次</button>
+    </div>
+    <div class="dir-body">
+      <!-- Year tabs -->
+      <div class="year-tabs">
+        <div class="ytab active" onclick="switchYear(1)">一年级</div>
+        <div class="ytab" onclick="switchYear(2)">二年级</div>
+        <div class="ytab" onclick="switchYear(3)">三年级</div>
+        <div class="ytab" onclick="switchYear(4)">四年级</div>
+        <div class="ytab" onclick="switchYear(5)">五年级</div>
+        <div class="ytab" onclick="switchYear(6)">六年级</div>
+      </div>
+      <!-- Cards area -->
+      <div class="cards-area">
+
+        <!-- ── Year 1: 平面图形初探 (22 cards) ── -->
+        <div class="year-section visible" id="year1">
+          <div class="section-title">一年级 · 平面图形初探</div>
+          <div class="cards-grid">
+            <div class="k-card done"><div class="card-emoji">▬</div><div class="card-name">长方形</div><div class="card-sub">边与角认识</div><div class="check-badge">✓</div></div>
+            <div class="k-card done"><div class="card-emoji">△</div><div class="card-name">三角形</div><div class="card-sub">三边三角</div><div class="check-badge">✓</div></div>
+            <div class="k-card done"><div class="card-emoji">■</div><div class="card-name">正方形</div><div class="card-sub">四边相等</div><div class="check-badge">✓</div></div>
+            <div class="k-card current" onclick="startLearning()"><div class="card-emoji">⬛</div><div class="card-name">正方体</div><div class="card-sub">六面相等</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">◇</div><div class="card-name">菱形</div><div class="card-sub">斜对角线</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">○</div><div class="card-name">圆形</div><div class="card-sub">半径与圆心</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🥚</div><div class="card-name">椭圆形</div><div class="card-sub">两个焦点</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">▱</div><div class="card-name">平行四边形</div><div class="card-sub">平行对边</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">⏢</div><div class="card-name">梯形</div><div class="card-sub">上下底边</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">⭐</div><div class="card-name">五边形</div><div class="card-sub">五边五角</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">⬡</div><div class="card-name">六边形</div><div class="card-sub">蜂巢密铺</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🔷</div><div class="card-name">八边形</div><div class="card-sub">对称八角</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">📐</div><div class="card-name">直角三角</div><div class="card-sub">勾股定理</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🔻</div><div class="card-name">等边三角</div><div class="card-sub">三角相等</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🔺</div><div class="card-name">等腰三角</div><div class="card-sub">两边相等</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🥧</div><div class="card-name">扇形</div><div class="card-sub">圆心角</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">⭕</div><div class="card-name">环形</div><div class="card-sub">内外圆</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">✦</div><div class="card-name">星形</div><div class="card-sub">尖角星芒</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">✚</div><div class="card-name">十字形</div><div class="card-sub">十字对称</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">💗</div><div class="card-name">心形</div><div class="card-sub">对称曲线</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🟦</div><div class="card-name">圆角矩形</div><div class="card-sub">圆角边框</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🌙</div><div class="card-name">月牙形</div><div class="card-sub">弓形差值</div></div>
+          </div>
+        </div>
+
+        <!-- ── Year 2: 立体图形初探 (21 cards) ── -->
+        <div class="year-section" id="year2">
+          <div class="section-title">二年级 · 立体图形初探</div>
+          <div class="cards-grid">
+            <div class="k-card current" onclick="startLearning()"><div class="card-emoji">⬛</div><div class="card-name">正方体</div><div class="card-sub">六面相等</div></div>
+            <div class="k-card locked" onclick="showModal('modal-unlock')"><div class="card-emoji">📦<div class="lock-icon">🔒</div></div><div class="card-name">长方体</div><div class="card-sub">三组棱平行</div></div>
+            <div class="k-card locked" onclick="showModal('modal-unlock')"><div class="card-emoji">🥫<div class="lock-icon">🔒</div></div><div class="card-name">圆柱体</div><div class="card-sub">两个圆面</div></div>
+            <div class="k-card locked" onclick="showModal('modal-unlock')"><div class="card-emoji">🍦<div class="lock-icon">🔒</div></div><div class="card-name">圆锥体</div><div class="card-sub">一个顶点</div></div>
+            <div class="k-card locked" onclick="showModal('modal-unlock')"><div class="card-emoji">⚽<div class="lock-icon">🔒</div></div><div class="card-name">球体</div><div class="card-sub">各方向相等</div></div>
+            <div class="k-card locked" onclick="showModal('modal-unlock')"><div class="card-emoji">🔺<div class="lock-icon">🔒</div></div><div class="card-name">三棱柱</div><div class="card-sub">三角形底面</div></div>
+            <div class="k-card locked" onclick="showModal('modal-unlock')"><div class="card-emoji">▬<div class="lock-icon">🔒</div></div><div class="card-name">四棱柱</div><div class="card-sub">四边形底面</div></div>
+            <div class="k-card locked" onclick="showModal('modal-unlock')"><div class="card-emoji">🔻<div class="lock-icon">🔒</div></div><div class="card-name">三棱锥</div><div class="card-sub">四个三角面</div></div>
+            <div class="k-card locked" onclick="showModal('modal-unlock')"><div class="card-emoji">🔺<div class="lock-icon">🔒</div></div><div class="card-name">四棱锥</div><div class="card-sub">方形底+四三角</div></div>
+            <div class="k-card locked" onclick="showModal('modal-unlock')"><div class="card-emoji">⭐<div class="lock-icon">🔒</div></div><div class="card-name">五棱柱</div><div class="card-sub">五边形底面</div></div>
+            <div class="k-card locked" onclick="showModal('modal-unlock')"><div class="card-emoji">⬡<div class="lock-icon">🔒</div></div><div class="card-name">六棱柱</div><div class="card-sub">六边形底面</div></div>
+            <div class="k-card locked" onclick="showModal('modal-unlock')"><div class="card-emoji">💫<div class="lock-icon">🔒</div></div><div class="card-name">五棱锥</div><div class="card-sub">五角底面</div></div>
+            <div class="k-card locked" onclick="showModal('modal-unlock')"><div class="card-emoji">✦<div class="lock-icon">🔒</div></div><div class="card-name">六棱锥</div><div class="card-sub">六角底面</div></div>
+            <div class="k-card locked" onclick="showModal('modal-unlock')"><div class="card-emoji">🌓<div class="lock-icon">🔒</div></div><div class="card-name">半球体</div><div class="card-sub">半圆截面</div></div>
+            <div class="k-card locked" onclick="showModal('modal-unlock')"><div class="card-emoji">🎪<div class="lock-icon">🔒</div></div><div class="card-name">圆台</div><div class="card-sub">圆锥截面</div></div>
+            <div class="k-card locked" onclick="showModal('modal-unlock')"><div class="card-emoji">🏛️<div class="lock-icon">🔒</div></div><div class="card-name">方台</div><div class="card-sub">棱锥截面</div></div>
+            <div class="k-card locked" onclick="showModal('modal-unlock')"><div class="card-emoji">💎<div class="lock-icon">🔒</div></div><div class="card-name">双锥体</div><div class="card-sub">两锥对接</div></div>
+            <div class="k-card locked" onclick="showModal('modal-unlock')"><div class="card-emoji">🔄<div class="lock-icon">🔒</div></div><div class="card-name">斜棱柱</div><div class="card-sub">侧面倾斜</div></div>
+            <div class="k-card locked" onclick="showModal('modal-unlock')"><div class="card-emoji">🔷<div class="lock-icon">🔒</div></div><div class="card-name">斜棱锥</div><div class="card-sub">顶点偏移</div></div>
+            <div class="k-card locked" onclick="showModal('modal-unlock')"><div class="card-emoji">⬟<div class="lock-icon">🔒</div></div><div class="card-name">反棱柱</div><div class="card-sub">上下扭转</div></div>
+            <div class="k-card locked" onclick="showModal('modal-unlock')"><div class="card-emoji">🌀<div class="lock-icon">🔒</div></div><div class="card-name">螺旋柱</div><div class="card-sub">旋转上升</div></div>
+
+            <div class="k-card locked" onclick="showModal('modal-unlock')"><div class="card-emoji">🧊<div class="lock-icon">🔒</div></div><div class="card-name">棱台体</div><div class="card-sub">棱锥截面体</div></div>
+            <div class="k-card locked" onclick="showModal('modal-unlock')"><div class="card-emoji">🌀<div class="lock-icon">🔒</div></div><div class="card-name">旋转体</div><div class="card-sub">轴旋转曲面</div></div>
+            <div class="k-card locked" onclick="showModal('modal-unlock')"><div class="card-emoji">🔮<div class="lock-icon">🔒</div></div><div class="card-name">交叉多面体</div><div class="card-sub">星形多面体</div></div>
+            <div class="k-card locked" onclick="showModal('modal-unlock')"><div class="card-emoji">💠<div class="lock-icon">🔒</div></div><div class="card-name">凹多面体</div><div class="card-sub">内凹顶点</div></div>
+            <div class="k-card locked" onclick="showModal('modal-unlock')"><div class="card-emoji">🏛️<div class="lock-icon">🔒</div></div><div class="card-name">柱台</div><div class="card-sub">截头棱柱</div></div>
+            <div class="k-card locked" onclick="showModal('modal-unlock')"><div class="card-emoji">🔺<div class="lock-icon">🔒</div></div><div class="card-name">组合立体</div><div class="card-sub">多体拼接</div></div>
+            <div class="k-card locked" onclick="showModal('modal-unlock')"><div class="card-emoji">🏆<div class="lock-icon">🔒</div></div><div class="card-name">综合创作</div><div class="card-sub">立体设计挑战</div></div>
+          </div>
+        </div>
+
+        <!-- ── Year 3: 两组 ── -->
+        <div class="year-section" id="year3">
+          <div class="section-title">平面图形的认识</div>
+          <div class="cards-grid">
+            <div class="k-card done"><div class="card-emoji">△</div><div class="card-name">等边三角</div><div class="card-sub">三角全等</div><div class="check-badge">✓</div></div>
+            <div class="k-card done"><div class="card-emoji">■</div><div class="card-name">正方形</div><div class="card-sub">四边相等</div><div class="check-badge">✓</div></div>
+            <div class="k-card done"><div class="card-emoji">⭐</div><div class="card-name">正五边形</div><div class="card-sub">五角对称</div><div class="check-badge">✓</div></div>
+            <div class="k-card current" onclick="startLearning()"><div class="card-emoji">⬡</div><div class="card-name">正六边形</div><div class="card-sub">蜂巢角度</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🔷</div><div class="card-name">正七边形</div><div class="card-sub">内角计算</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🔷</div><div class="card-name">正八边形</div><div class="card-sub">对称轴8条</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🔷</div><div class="card-name">正十边形</div><div class="card-sub">内角求和</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">💠</div><div class="card-name">正十二边形</div><div class="card-sub">近似圆形</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">⬟</div><div class="card-name">凸多边形</div><div class="card-sub">内角都小于180°</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">⬟</div><div class="card-name">凹多边形</div><div class="card-sub">含钝角顶点</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">📏</div><div class="card-name">直角梯形</div><div class="card-sub">一个直角</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">📐</div><div class="card-name">等腰梯形</div><div class="card-sub">腰长相等</div></div>
+          </div>
+
+          <div class="section-title" style="margin-top:18px;">立体图形的认识</div>
+          <div class="cards-grid">
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🪁</div><div class="card-name">风筝形</div><div class="card-sub">两对等边</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">➡️</div><div class="card-name">箭头四边形</div><div class="card-sub">箭形凹多边形</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🟦</div><div class="card-name">圆角矩形</div><div class="card-sub">四角圆弧</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🌙</div><div class="card-name">半月形</div><div class="card-sub">两弧相差</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🏹</div><div class="card-name">弓形</div><div class="card-sub">弧与弦</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🍩</div><div class="card-name">环形扇</div><div class="card-sub">扇形差值</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🦋</div><div class="card-name">蝴蝶形</div><div class="card-sub">两个三角</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🍃</div><div class="card-name">叶形</div><div class="card-sub">双弧相交</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">✦</div><div class="card-name">六角星形</div><div class="card-sub">星形多边形</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🌐</div><div class="card-name">网格图形</div><div class="card-sub">坐标与图形</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🔶</div><div class="card-name">多边形面积</div><div class="card-sub">等积变换</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🏆</div><div class="card-name">综合创作</div><div class="card-sub">图形设计挑战</div></div>
+          </div>
+        </div>
+
+        <!-- ── Year 4: 空间想象力 (21 cards) ── -->
+        <div class="year-section" id="year4">
+          <div class="section-title">四年级 · 空间想象力</div>
+          <div class="cards-grid">
+            <div class="k-card done"><div class="card-emoji">✂️</div><div class="card-name">截面体</div><div class="card-sub">平面截立体</div><div class="check-badge">✓</div></div>
+            <div class="k-card current" onclick="startLearning()"><div class="card-emoji">📦</div><div class="card-name">展开图</div><div class="card-sub">立体展平图</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🔺</div><div class="card-name">棱台体</div><div class="card-sub">棱锥截面</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">💎</div><div class="card-name">多面体</div><div class="card-sub">多个平面围成</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🔺</div><div class="card-name">正四面体</div><div class="card-sub">4个等边三角</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">⬛</div><div class="card-name">正六面体</div><div class="card-sub">6个正方形面</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">💎</div><div class="card-name">正八面体</div><div class="card-sub">8个三角形面</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🔷</div><div class="card-name">正十二面体</div><div class="card-sub">12个五边形面</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🌐</div><div class="card-name">正二十面体</div><div class="card-sub">20个三角形面</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">⬛</div><div class="card-name">截角立方体</div><div class="card-sub">切除8个顶点</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">💎</div><div class="card-name">截角八面体</div><div class="card-sub">切除6个顶点</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">💠</div><div class="card-name">菱形十二面体</div><div class="card-sub">12个菱形面</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🔶</div><div class="card-name">菱形二十面体</div><div class="card-sub">20个菱形面</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🏛️</div><div class="card-name">柏拉图立体</div><div class="card-sub">5种正多面体</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">⚙️</div><div class="card-name">阿基米德体</div><div class="card-sub">半正多面体</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">💠</div><div class="card-name">半正多面体</div><div class="card-sub">多种正多边形</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🔷</div><div class="card-name">复合多面体</div><div class="card-sub">两个对偶体</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🧩</div><div class="card-name">空间填充体</div><div class="card-sub">无缝填满空间</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🔷</div><div class="card-name">密铺图案</div><div class="card-sub">平面周期填充</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🌀</div><div class="card-name">对称变换</div><div class="card-sub">旋转与反射</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">⭐</div><div class="card-name">星形多面体</div><div class="card-sub">内凹面结构</div></div>
+
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🌀</div><div class="card-name">旋转对称</div><div class="card-sub">旋转不变形</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🔷</div><div class="card-name">空间棱线</div><div class="card-sub">立体内对角线</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">💡</div><div class="card-name">射影几何</div><div class="card-sub">平行透视变换</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🎯</div><div class="card-name">截面分析</div><div class="card-sub">截面与投影</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🏆</div><div class="card-name">综合创作</div><div class="card-sub">空间创意挑战</div></div>
+          </div>
+        </div>
+
+        <!-- ── Year 5: 立体创意设计 (21 cards) ── -->
+        <div class="year-section" id="year5">
+          <div class="section-title">五年级 · 立体创意设计</div>
+          <div class="cards-grid">
+            <div class="k-card done"><div class="card-emoji">🏗️</div><div class="card-name">空间框架</div><div class="card-sub">结构受力分析</div><div class="check-badge">✓</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🔗</div><div class="card-name">悬链线</div><div class="card-sub">自然垂线</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🕸️</div><div class="card-name">张拉整体</div><div class="card-sub">拉力平衡</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">⚽</div><div class="card-name">富勒烯结构</div><div class="card-sub">碳60球形</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🍯</div><div class="card-name">蜂巢结构</div><div class="card-sub">六边形密铺</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">💎</div><div class="card-name">晶体结构</div><div class="card-sub">原子周期排列</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">∞</div><div class="card-name">莫比乌斯环</div><div class="card-sub">单面单边</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🌻</div><div class="card-name">黄金比例</div><div class="card-sub">1:1.618</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🌀</div><div class="card-name">斐波那契</div><div class="card-sub">螺旋增长</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">⭐</div><div class="card-name">对称群</div><div class="card-sub">变换不变性</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🌿</div><div class="card-name">分形几何</div><div class="card-sub">自相似结构</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🔄</div><div class="card-name">递归结构</div><div class="card-sub">无限嵌套</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🌀</div><div class="card-name">螺旋面</div><div class="card-sub">旋转曲面</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🔄</div><div class="card-name">旋转体</div><div class="card-sub">轴旋转截线</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🔷</div><div class="card-name">扭曲棱柱</div><div class="card-sub">反棱柱扭转</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🔲</div><div class="card-name">超立方体</div><div class="card-sub">四维立方体</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🌐</div><div class="card-name">镂空球体</div><div class="card-sub">内外两球壳</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">💎</div><div class="card-name">双圆锥</div><div class="card-sub">两锥顶对顶</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🌀</div><div class="card-name">正螺旋</div><div class="card-sub">等角螺线</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">📷</div><div class="card-name">投影变换</div><div class="card-sub">三视图画法</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">➡️</div><div class="card-name">空间向量</div><div class="card-sub">方向与大小</div></div>
+          </div>
+        </div>
+
+        <!-- ── Year 6: 综合创作挑战 (21 cards) ── -->
+        <div class="year-section" id="year6">
+          <div class="section-title">六年级 · 综合创作挑战</div>
+          <div class="cards-grid">
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🏛️</div><div class="card-name">建筑设计</div><div class="card-sub">几何美学</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🌉</div><div class="card-name">桥梁结构</div><div class="card-sub">受力三角形</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🏟️</div><div class="card-name">穹顶结构</div><div class="card-sub">测地线穹顶</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🕸️</div><div class="card-name">网格结构</div><div class="card-sub">空间桁架</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">⚽</div><div class="card-name">足球结构</div><div class="card-sub">五六边形拼</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">⚽</div><div class="card-name">巴基球</div><div class="card-sub">C60分子球</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🧬</div><div class="card-name">DNA螺旋</div><div class="card-sub">双螺旋结构</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🔷</div><div class="card-name">病毒结构</div><div class="card-sub">二十面体对称</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">💎</div><div class="card-name">晶格结构</div><div class="card-sub">体心立方</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🔬</div><div class="card-name">碳纳米管</div><div class="card-sub">石墨烯卷管</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🔷</div><div class="card-name">石墨烯</div><div class="card-sub">蜂巢碳层</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">💎</div><div class="card-name">钻石晶格</div><div class="card-sub">面心立方</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">⚗️</div><div class="card-name">超材料</div><div class="card-sub">负折射率</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">∞</div><div class="card-name">拓扑结构</div><div class="card-sub">连续形变</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🫙</div><div class="card-name">克莱因瓶</div><div class="card-sub">无边界曲面</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🔲</div><div class="card-name">四维空间</div><div class="card-sub">超立方投影</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🌿</div><div class="card-name">分形维度</div><div class="card-sub">非整数维数</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🌀</div><div class="card-name">混沌图形</div><div class="card-sub">奇异吸引子</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🌏</div><div class="card-name">曲面几何</div><div class="card-sub">高斯曲率</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🎨</div><div class="card-name">综合创作</div><div class="card-sub">自由创意</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🏆</div><div class="card-name">毕业作品</div><div class="card-sub">最终挑战</div></div>
+
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🌌</div><div class="card-name">高维空间</div><div class="card-sub">四维超立方</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🔮</div><div class="card-name">射影平面</div><div class="card-sub">无穷远点概念</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">⚡</div><div class="card-name">极小曲面</div><div class="card-sub">最小面积曲面</div></div>
+            <div class="k-card available" onclick="startLearning()"><div class="card-emoji">🌟</div><div class="card-name">终极挑战</div><div class="card-sub">创意无限大作</div></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Unlock modal -->
+    <div class="modal-bg" id="modal-unlock">
+      <div class="modal-card">
+        <button onclick="closeModal('modal-unlock')" style="position:absolute;top:10px;right:12px;background:none;border:none;font-size:18px;color:#999;cursor:pointer;line-height:1;">✕</button>
+        <div class="modal-title">如何领取课程</div>
+        <div class="modal-desc">请联系老师，扫描二维码即可<br>免费领取对应年级的课次内容</div>
+        <div class="qr-box">QR 码</div>
+        <button class="btn-primary" onclick="closeModal('modal-unlock')">点击前往领课</button>
+        <button class="btn-secondary" onclick="closeModal('modal-unlock')">稍后再说</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════
+       SCREEN 2.5 · COURSE DETAIL
+  ══════════════════════════════ -->
+    <!-- ══════════════════════════════
+       SCREEN 3 · LEARNING (学)
+  ══════════════════════════════ -->
+  <div class="screen" id="learning">
+    <!-- Stage top bar: 学—拼—练 -->
+    <div class="stage-topbar">
+      <div class="stage-topbar-left">
+        <button class="stage-exit-btn" onclick="goTo('directory')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+        <div class="stage-flow">
+          <span class="sf-item sf-active" id="sf-xue">学</span>
+          <span class="sf-dash">—</span>
+          <span class="sf-item" id="sf-pin">拼</span>
+          <span class="sf-dash">—</span>
+          <span class="sf-item" id="sf-lian">练</span>
+        </div>
+      </div>
+      
+    </div>
+
+    <div class="split">
+      <!-- Top: title + cube + desc (on click) + tabs -->
+      <div class="learn-panel-l">
+        <div class="learn-title-row">正方体</div>
+        <div class="learn-cube-wrap">
+          <svg id="learn-cube" width="320" height="160" viewBox="0 0 200 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- back face fills -->
+            <polygon id="face-back-top"    points="50,25 110,25 130,8 70,8"    fill="rgba(91,184,255,0.08)" stroke="none"/>
+            <polygon id="face-back-right"  points="110,25 130,8 130,68 110,85" fill="rgba(91,184,255,0.06)" stroke="none"/>
+            <polygon id="face-back-bottom" points="50,85 110,85 130,68 70,68"  fill="rgba(91,184,255,0.05)" stroke="none"/>
+            <!-- hidden edges dashed (3 edges meeting at back-bottom-left H(70,68)) -->
+            <line id="edge-h1" x1="70"  y1="8"  x2="70"  y2="68" stroke="rgba(160,100,0,0.45)" stroke-width="2" stroke-linecap="round" stroke-dasharray="5,3"/>
+            <line id="edge-h3" x1="70"  y1="68" x2="130" y2="68" stroke="rgba(160,100,0,0.45)" stroke-width="2" stroke-linecap="round" stroke-dasharray="5,3"/>
+            <line id="edge-h4" x1="50"  y1="85" x2="70"  y2="68" stroke="rgba(160,100,0,0.45)" stroke-width="2" stroke-linecap="round" stroke-dasharray="5,3"/>
+            <!-- visible edges -->
+            <line id="edge-1" x1="50"  y1="25" x2="110" y2="25" stroke="rgba(160,100,0,0.65)" stroke-width="2.5" stroke-linecap="round"/>
+            <line id="edge-2" x1="110" y1="25" x2="110" y2="85" stroke="rgba(160,100,0,0.65)" stroke-width="2.5" stroke-linecap="round"/>
+            <line id="edge-3" x1="110" y1="85" x2="50"  y2="85" stroke="rgba(160,100,0,0.65)" stroke-width="2.5" stroke-linecap="round"/>
+            <line id="edge-4" x1="50"  y1="85" x2="50"  y2="25" stroke="rgba(160,100,0,0.65)" stroke-width="2.5" stroke-linecap="round"/>
+            <line id="edge-5" x1="110" y1="25" x2="130" y2="8"  stroke="rgba(160,100,0,0.65)" stroke-width="2.5" stroke-linecap="round"/>
+            <line id="edge-6" x1="130" y1="8"  x2="130" y2="68" stroke="rgba(160,100,0,0.65)" stroke-width="2.5" stroke-linecap="round"/>
+            <line id="edge-7" x1="130" y1="68" x2="110" y2="85" stroke="rgba(160,100,0,0.65)" stroke-width="2.5" stroke-linecap="round"/>
+            <line id="edge-8" x1="50"  y1="25" x2="70"  y2="8"  stroke="rgba(160,100,0,0.65)" stroke-width="2.5" stroke-linecap="round"/>
+            <line id="edge-9" x1="70"  y1="8"  x2="130" y2="8"  stroke="rgba(160,100,0,0.65)" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- face highlights -->
+            <polygon id="face-front"  points="50,25 110,25 110,85 50,85"    fill="rgba(200,130,0,0.15)" stroke="none"/>
+            <polygon id="face-top2"   points="50,25 110,25 130,8 70,8"      fill="rgba(200,130,0,0.15)" stroke="none"/>
+            <polygon id="face-right2" points="110,25 130,8 130,68 110,85"   fill="rgba(200,130,0,0.15)" stroke="none"/>
+            <!-- vertices -->
+            <circle id="v1" cx="50"  cy="25" r="3"   fill="#b45309" opacity="0.6"/>
+            <circle id="v2" cx="110" cy="25" r="5"   fill="#b45309" opacity="0.9"/>
+            <circle id="v3" cx="110" cy="85" r="5"   fill="#b45309" opacity="0.9"/>
+            <circle id="v4" cx="50"  cy="85" r="5"   fill="#b45309" opacity="0.9"/>
+            <circle id="v5" cx="70"  cy="8"  r="2.8" fill="#92400e" opacity="0.5"/>
+            <circle id="v6" cx="130" cy="8"  r="2.8" fill="#92400e" opacity="0.5"/>
+            <circle id="v7" cx="130" cy="68" r="4.5" fill="#92400e" opacity="0.85"/>
+            <circle id="v8" cx="70"  cy="68" r="2.5" fill="#92400e" opacity="0.4"/>
+            <!-- labels -->
+            <text id="label-face"   x="80"  y="62" font-size="12" fill="#d97706" font-weight="800" opacity="1" text-anchor="middle">面</text>
+            <text id="label-edge"   x="116" y="50" font-size="12" fill="#166534" font-weight="800" opacity="0" text-anchor="start">棱</text>
+            <text id="label-vertex" x="140" y="17" font-size="12" fill="#c2410c" font-weight="800" opacity="0" text-anchor="start">顶点</text>
+          </svg>
+        </div>
+
+        <!-- desc-row: hidden until first tab click -->
+        <div class="learn-desc-row" id="learn-desc-row-wrap" style="opacity:0;pointer-events:none;transition:opacity 0.3s">
+          <button class="learn-audio-btn" id="learn-audio-btn" onclick="learnSpeak()" title="朗读"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="rgba(249,115,22,0.12)"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button>
+          <div class="learn-desc-top" id="learn-desc-top">每个面是完全相同的正方形</div>
+        </div>
+
+        <!-- bigger centered tabs -->
+        <div class="learn-svg-tabs" id="learn-svg-tabs">
+          <div class="learn-tab" data-type="all"    onclick="selectTab(this,'all')">正方体</div>
+          <div class="learn-tab" data-type="face"   onclick="selectTab(this,'face')">面</div>
+          <div class="learn-tab" data-type="edge"   onclick="selectTab(this,'edge')">棱</div>
+          <div class="learn-tab" data-type="vertex" onclick="selectTab(this,'vertex')">顶点</div>
+        </div>
+      </div>
+      <!-- Bottom: just the go-build button -->
+      <div class="learn-panel-r">
+        <button class="next-btn next-btn-dim" id="learn-next-btn" onclick="tryGoToBuilding()">去拼搭 ›</button>
+      </div>
+    </div>
+
+    <!-- 挽留弹窗 -->
+    <div class="modal-bg" id="modal-keep-learning">
+      <div class="modal-card" style="position:relative">
+        <button onclick="closeModal('modal-keep-learning')" style="position:absolute;top:10px;right:12px;background:none;border:none;font-size:18px;color:#999;cursor:pointer">✕</button>
+        <div class="modal-title">还有内容没有学完 📖</div>
+        <div class="modal-desc">建议把 <b>面、棱、顶点</b> 都点一遍再去拼搭，学完再拼效果更好哦！</div>
+        <div class="modal-btns">
+          <button class="btn-secondary" onclick="closeModal('modal-keep-learning')">继续学习</button>
+          <button class="btn-primary"   onclick="closeModal('modal-keep-learning');goToBuilding()">直接去拼搭</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- ══════════════════════════════
+       SCREEN 3.5 · PARTS PREP (零件准备)
+  ══════════════════════════════ -->
+  <div class="screen" id="parts-prep">
+    <!-- White topbar, same style as other screens -->
+    <div class="pp-topbar">
+      <div class="pp-topbar-left">
+        <button class="stage-exit-btn" onclick="goTo('directory')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div class="stage-flow">
+          <span class="sf-item sf-done">学</span>
+          <span class="sf-dash">—</span>
+          <span class="sf-item sf-active">拼</span>
+          <span class="sf-dash">—</span>
+          <span class="sf-item">练</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content area: two columns, centered on light background -->
+    <div class="pp-content">
+      <!-- Center content -->
+      <div class="pp-center">
+        <!-- Two-column body -->
+        <div class="pp-body">
+          <!-- Left: parts list -->
+          <div class="pp-left">
+            <div class="pp-section-title pp-title-orange">零件准备</div>
+            <div class="pp-parts-list">
+              <!-- Ball row -->
+              <div class="pp-part-row">
+                <div class="pp-part-ico">
+                  <svg width="24" height="24" viewBox="0 0 24 24">
+                    <defs><radialGradient id="ppbg" cx="35%" cy="30%" r="65%"><stop offset="0%" stop-color="#d1d5db"/><stop offset="100%" stop-color="#6b7280"/></radialGradient></defs>
+                    <circle cx="12" cy="12" r="10" fill="url(#ppbg)"/>
+                    <circle cx="9" cy="8" r="4" fill="rgba(255,255,255,0.32)"/>
+                  </svg>
+                </div>
+                <div class="pp-part-name">小球</div>
+                <div class="pp-part-qty"><b>8</b> 颗</div>
+              </div>
+              <!-- Blue medium rod row -->
+              <div class="pp-part-row">
+                <div class="pp-part-ico">
+                  <svg width="38" height="14" viewBox="0 0 38 14">
+                    <rect x="4" y="5" width="30" height="5" rx="2.5" fill="#3b82f6"/>
+                    <circle cx="7" cy="7.5" r="4" fill="#93c5fd"/>
+                    <circle cx="31" cy="7.5" r="4" fill="#93c5fd"/>
+                  </svg>
+                </div>
+                <div class="pp-part-name">蓝色中棍</div>
+                <div class="pp-part-qty"><b>12</b> 根</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Divider -->
+          <div class="pp-divider"></div>
+
+          <!-- Right: finished model -->
+          <div class="pp-right">
+            <div class="pp-section-title pp-title-green">拼搭目标</div>
+            <div class="pp-target-wrap pp-vzome-wrap">
+              <vzome-viewer
+                id="pp-vzome-viewer"
+                download="false"
+                src="https://raw.githubusercontent.com/jlshang/vzome/refs/heads/main/%E6%AD%A3%E6%96%B9%E4%BD%93.vZome"
+                style="width:100%;height:100%;display:block;border-radius:10px;">
+                <!-- fallback if vzome-viewer fails to load -->
+                <svg width="190" height="150" viewBox="0 0 200 160" fill="none" style="margin:auto;display:block;">
+                  <defs><radialGradient id="ppvg2" cx="35%" cy="30%" r="65%"><stop offset="0%" stop-color="#93c5fd"/><stop offset="100%" stop-color="#1d4ed8"/></radialGradient></defs>
+                  <polygon points="35,115 100,115 122,92 57,92" fill="rgba(59,130,246,0.09)"/>
+                  <polygon points="100,115 122,92 122,38 100,62" fill="rgba(59,130,246,0.07)"/>
+                  <polygon points="35,62 100,62 122,38 57,38" fill="rgba(59,130,246,0.12)"/>
+                  <line x1="35" y1="62" x2="35" y2="115" stroke="rgba(100,60,0,0.25)" stroke-width="2" stroke-dasharray="5,4"/>
+                  <line x1="35" y1="62" x2="100" y2="62" stroke="rgba(100,60,0,0.25)" stroke-width="2" stroke-dasharray="5,4"/>
+                  <line x1="35" y1="115" x2="100" y2="115" stroke="rgba(100,60,0,0.25)" stroke-width="2" stroke-dasharray="5,4"/>
+                  <line x1="100" y1="62" x2="100" y2="115" stroke="#3b82f6" stroke-width="3.5" stroke-linecap="round"/>
+                  <line x1="100" y1="62" x2="122" y2="38" stroke="#3b82f6" stroke-width="3.5" stroke-linecap="round"/>
+                  <line x1="100" y1="115" x2="122" y2="92" stroke="#3b82f6" stroke-width="3.5" stroke-linecap="round"/>
+                  <line x1="57" y1="38" x2="122" y2="38" stroke="#3b82f6" stroke-width="3.5" stroke-linecap="round"/>
+                  <line x1="122" y1="38" x2="122" y2="92" stroke="#3b82f6" stroke-width="3.5" stroke-linecap="round"/>
+                  <line x1="57" y1="38" x2="57" y2="92" stroke="#3b82f6" stroke-width="3.5" stroke-linecap="round"/>
+                  <line x1="57" y1="92" x2="122" y2="92" stroke="#3b82f6" stroke-width="3.5" stroke-linecap="round"/>
+                  <line x1="57" y1="92" x2="35" y2="115" stroke="#3b82f6" stroke-width="3.5" stroke-linecap="round"/>
+                  <line x1="35" y1="115" x2="100" y2="115" stroke="#3b82f6" stroke-width="3.5" stroke-linecap="round"/>
+                  <line x1="35" y1="62" x2="57" y2="38" stroke="#3b82f6" stroke-width="3.5" stroke-linecap="round"/>
+                  <circle cx="35" cy="62" r="5.5" fill="url(#ppvg2)"/><circle cx="35" cy="115" r="5.5" fill="url(#ppvg2)"/>
+                  <circle cx="100" cy="62" r="5.5" fill="url(#ppvg2)"/><circle cx="100" cy="115" r="5.5" fill="url(#ppvg2)"/>
+                  <circle cx="57" cy="38" r="5.5" fill="url(#ppvg2)"/><circle cx="57" cy="92" r="5.5" fill="url(#ppvg2)"/>
+                  <circle cx="122" cy="38" r="5.5" fill="url(#ppvg2)"/><circle cx="122" cy="92" r="5.5" fill="url(#ppvg2)"/>
+                </svg>
+              </vzome-viewer>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ready button -->
+        <div class="pp-footer">
+          <button class="pp-ready-btn" onclick="startBuilding()">开始拼搭</button>
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+
+<!-- ══════════════════════════════
+       SCREEN 4 · BUILDING (拼)
+  ══════════════════════════════ -->
+  <div class="screen" id="building">
+    <!-- White topbar — same style as all stage screens -->
+    <div class="pp-topbar">
+      <div class="pp-topbar-left">
+        <button class="stage-exit-btn" onclick="goTo('parts-prep')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div class="stage-flow">
+          <span class="sf-item sf-done">学</span>
+          <span class="sf-dash">—</span>
+          <span class="sf-item sf-active">拼</span>
+          <span class="sf-dash">—</span>
+          <span class="sf-item">练</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content area -->
+    <div class="build2-content">
+      <!-- Step label + speaker ABOVE vZome viewer -->
+      <div class="build2-step-info">
+        <span class="build2-step-label" id="build-step-label">步骤 1</span>
+        <button class="build2-speak-btn" onclick="buildSpeak()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="rgba(249,115,22,0.12)"/>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- vZome viewer fills available space -->
+      <div class="build-vzome-full">
+        <vzome-viewer id="build-vzome-viewer"
+          src="https://raw.githubusercontent.com/jlshang/vzome/refs/heads/main/%E6%AD%A3%E6%96%B9%E4%BD%93/step1.vZome">
+        </vzome-viewer>
+      </div>
+
+      <!-- Bottom bar: dots + nav -->
+      <div class="build2-bottom-bar">
+        <div class="build2-dots" id="build-step-dots"></div>
+        <div class="build2-nav">
+          <button class="build2-prev-btn" id="bnav-prev" onclick="buildPrev()">上一步</button>
+          <button class="build2-next-btn" id="bnav-next" onclick="buildNext()">下一步</button>
+        </div>
+      </div>
+
+      <!-- Bottom section-switch row -->
+      <div class="build-section-row">
+        <!-- Left: back to parts-prep -->
+        <button class="build-sec-left" onclick="goTo('parts-prep')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <!-- Right: go to practice -->
+        <button class="build-sec-right not-done" id="build-go-practice" onclick="tryGoToExplore()">
+          去练习 ›
+        </button>
+      </div>
+    </div>
+  </div>
+
+<!-- ══════════════════════════════
+       SCREEN 5 · EXPLORE (练)
+  ══════════════════════════════ -->
+  <div class="screen" id="explore">
+    <div class="pp-topbar">
+      <div class="pp-topbar-left">
+        <button class="stage-exit-btn" onclick="goTo('building')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+        <div class="stage-flow">
+          <span class="sf-item sf-done">学</span>
+          <span class="sf-dash">—</span>
+          <span class="sf-item sf-done">拼</span>
+          <span class="sf-dash">—</span>
+          <span class="sf-item sf-active">练</span>
+        </div>
+      </div>
+      <div class="quiz2-topbar-right">
+        <div class="quiz2-prog-dots" id="quiz2-prog-dots"></div>
+      </div>
+    </div>
+    <div class="quiz2-content">
+      <div class="quiz2-q-card" id="quiz2-q-card"><!-- JS --></div>
+      <div id="quiz2-q-img-area"></div>
+      <div class="quiz2-opts-row" id="quiz2-opts-row"><!-- JS --></div>
+
+    </div>
+  </div>
+
+    <!-- ══════════════════════════════
+       SCREEN 6 · FEEDBACK
+  ══════════════════════════════ -->
+  <div class="screen" id="feedback">
+    <div class="confetti-layer" id="confetti-layer"></div>
+    <button class="fb-close" onclick="goTo('directory')">✕</button>
+    <div class="fb-body">
+      <div class="fb-left">
+        <div class="fb-model">
+          <svg width="160" height="130" viewBox="0 0 160 130" fill="none">
+            <!-- Hidden edges (dashed): back-left depth + back-left vertical -->
+            <line x1="25" y1="100" x2="62" y2="77" stroke="#d97706" stroke-width="2" stroke-dasharray="5,3" opacity="0.4"/>
+            <line x1="62" y1="9" x2="62" y2="77" stroke="#d97706" stroke-width="2" stroke-dasharray="5,3" opacity="0.4"/>
+            <line x1="62" y1="77" x2="137" y2="77" stroke="#d97706" stroke-width="2" stroke-dasharray="5,3" opacity="0.4"/>
+            <!-- Front face (solid): all 4 edges -->
+            <line x1="25" y1="35" x2="100" y2="35" stroke="#d97706" stroke-width="2.5"/>
+            <line x1="100" y1="35" x2="100" y2="100" stroke="#d97706" stroke-width="2.5"/>
+            <line x1="100" y1="100" x2="25" y2="100" stroke="#d97706" stroke-width="2.5"/>
+            <line x1="25" y1="35" x2="25" y2="100" stroke="#d97706" stroke-width="2.5"/>
+            <line x1="25" y1="35" x2="62" y2="9" stroke="#d97706" stroke-width="2.5"/>
+            <line x1="100" y1="35" x2="137" y2="9" stroke="#d97706" stroke-width="2.5"/>
+            <line x1="100" y1="100" x2="137" y2="77" stroke="#d97706" stroke-width="2.5"/>
+            <line x1="62" y1="9" x2="137" y2="9" stroke="#d97706" stroke-width="2.5"/>
+            <line x1="137" y1="9" x2="137" y2="77" stroke="#d97706" stroke-width="2.5"/>
+            <circle cx="100" cy="35" r="5" fill="#d97706"/>
+            <circle cx="100" cy="100" r="5" fill="#d97706"/>
+            <circle cx="25" cy="100" r="5" fill="#d97706"/>
+            <circle cx="25" cy="35" r="5" fill="#d97706" opacity="0.6"/>
+            <circle cx="137" cy="9" r="4.5" fill="#b45309"/>
+            <circle cx="137" cy="77" r="4.5" fill="#b45309"/>
+            <circle cx="62" cy="9" r="4.5" fill="#b45309"/>
+            <circle cx="62" cy="77" r="4.5" fill="#b45309" opacity="0.6"/>
+          </svg>
+        </div>
+      </div>
+      <div class="fb-right">
+        <div class="fb-title">你已经掌握了「正方体」</div>
+        <div class="fb-sub">继续保持，学习更多知识！</div>
+        <div class="fb-achievements">
+          <div class="fb-item"><div class="fb-check">✓</div><div class="fb-item-text">认识了正方体的特征</div></div>
+          <div class="fb-item"><div class="fb-check">✓</div><div class="fb-item-text">学会了有序拼搭正方体</div></div>
+          <div class="fb-item"><div class="fb-check">✓</div><div class="fb-item-text" id="fb-score">探索发现：答对了 0 题</div></div>
+        </div>
+        <button class="done-btn" onclick="goTo('directory')">完成</button>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- end .tablet -->
+</div><!-- end .wrap -->
+
+<script>
+/* ─── STATE ─── */
+let curStep = 0;
+let _buildCompleted = false;
+let curQ = 0;
+let answered = false;
+let correctCnt = 0;
+let quizSelected = -1;
+
+/* ─── KNOWLEDGE TAB DATA ─── */
+const tabData = {
+  all:    { desc: '正方体是最规则的立体图形之一，有6个面、12条棱、8个顶点，所有面都是正方形。', descColor: '#b45309', descTop: '正方体是非常常见的立体图形',  descTopColor: '#b45309', kNums: ['6 个面', '12 条棱', '8 个顶点'] },
+  face:   { desc: '每个面是完全相同的正方形，正方体共有 6 个面，上下左右前后各一个。',         descColor: '#b45309', descTop: '每个面是完全相同的正方形',    descTopColor: '#b45309', kNums: ['6 个面', '正方形面', '对面平行'] },
+  edge:   { desc: '面面相交形成的线叫棱。正方体共有 12 条棱，每条棱的长度完全相等。',          descColor: '#b45309', descTop: '面面相交形成的是棱',          descTopColor: '#b45309', kNums: ['12 条棱', '棱棱等长', '分3组排列'] },
+  vertex: { desc: '棱棱相交的点叫顶点。正方体共有 8 个顶点，每个顶点有 3 条棱交汇。',          descColor: '#b45309', descTop: '棱棱相交形成的是顶点',          descTopColor: '#b45309', kNums: ['8 个顶点', '每角3棱交', '对角对称'] }
+};
+
+/* ─── BUILD STEPS DATA ─── */
+const buildSteps = [
+  {
+    label: '步骤 1 · 搭第一条棱',
+    vzomeSrc: 'https://raw.githubusercontent.com/jlshang/vzome/refs/heads/main/%E6%AD%A3%E6%96%B9%E4%BD%93/step1.vZome',
+    desc: '取一根<span style="color:#5BB8FF;font-weight:700;">蓝色中棍</span>，将两端分别插入两个球的孔位中，保持棍子水平。这就是正方体的一条棱。',
+    tip: '<span style="font-weight:800;color:#b45309;">知识点：</span>正方体有12条棱，每条棱的长度完全相等。',
+    svg: `<svg width="160" height="60" viewBox="0 0 160 60" fill="none">
+      <text x="52" y="12" font-size="10" fill="#E05555" font-weight="700" text-anchor="middle">球A</text>
+      <text x="108" y="12" font-size="10" fill="#E05555" font-weight="700" text-anchor="middle">球B</text>
+      <line x1="52" y1="38" x2="108" y2="38" stroke="#5BB8FF" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="52" cy="38" r="14" fill="url(#bbg1)"/>
+      <circle cx="108" cy="38" r="14" fill="url(#bbg1)"/>
+      <circle cx="46" cy="33" r="4" fill="rgba(255,255,255,0.35)"/>
+      <circle cx="102" cy="33" r="4" fill="rgba(255,255,255,0.35)"/>
+      <defs><radialGradient id="bbg1" cx="35%" cy="30%" r="65%"><stop offset="0%" stop-color="#7DD3FC"/><stop offset="100%" stop-color="#1D4ED8"/></radialGradient></defs>
+    </svg>`
+  },
+  {
+    label: '步骤 2 · 搭底面正方形',
+    vzomeSrc: 'https://raw.githubusercontent.com/jlshang/vzome/refs/heads/main/%E6%AD%A3%E6%96%B9%E4%BD%93/step2.vZome',
+    desc: '继续添加3根<span style="color:#5BB8FF;font-weight:700;">蓝色中棍</span>，把4个球连成一个正方形。注意每个角都要插紧。',
+    tip: '<span style="font-weight:800;color:#b45309;">知识点：</span>正方体的每个面都是正方形，底面是正方体的基础。',
+    svg: `<svg width="140" height="80" viewBox="0 0 140 80" fill="none">
+      <line x1="30" y1="30" x2="110" y2="30" stroke="#5BB8FF" stroke-width="5" stroke-linecap="round"/>
+      <line x1="110" y1="30" x2="110" y2="65" stroke="#5BB8FF" stroke-width="5" stroke-linecap="round"/>
+      <line x1="110" y1="65" x2="30" y2="65" stroke="#5BB8FF" stroke-width="5" stroke-linecap="round"/>
+      <line x1="30" y1="65" x2="30" y2="30" stroke="#5BB8FF" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="30" cy="30" r="11" fill="url(#bbg2)"/>
+      <circle cx="110" cy="30" r="11" fill="url(#bbg2)"/>
+      <circle cx="110" cy="65" r="11" fill="url(#bbg2)"/>
+      <circle cx="30" cy="65" r="11" fill="url(#bbg2)"/>
+      <defs><radialGradient id="bbg2" cx="35%" cy="30%" r="65%"><stop offset="0%" stop-color="#7DD3FC"/><stop offset="100%" stop-color="#1D4ED8"/></radialGradient></defs>
+    </svg>`
+  },
+  {
+    label: '步骤 3 · 搭四条竖棱',
+    vzomeSrc: 'https://raw.githubusercontent.com/jlshang/vzome/refs/heads/main/%E6%AD%A3%E6%96%B9%E4%BD%93/step3.vZome',
+    desc: '在底面4个球上，各插一根<span style="color:#5BB8FF;font-weight:700;">蓝色中棍</span>竖直向上，再各放一个球在顶端。',
+    tip: '<span style="font-weight:800;color:#b45309;">知识点：</span>竖棱连接上下两个面，正方体共有4条竖棱。',
+    svg: `<svg width="140" height="90" viewBox="0 0 140 90" fill="none">
+      <line x1="30" y1="55" x2="110" y2="55" stroke="#5BB8FF" stroke-width="5" stroke-linecap="round"/>
+      <line x1="110" y1="55" x2="110" y2="75" stroke="#5BB8FF" stroke-width="5" stroke-linecap="round"/>
+      <line x1="110" y1="75" x2="30" y2="75" stroke="#5BB8FF" stroke-width="5" stroke-linecap="round"/>
+      <line x1="30" y1="75" x2="30" y2="55" stroke="#5BB8FF" stroke-width="5" stroke-linecap="round"/>
+      <line x1="30" y1="55" x2="30" y2="25" stroke="#5BB8FF" stroke-width="5" stroke-linecap="round" stroke-dasharray="5,3"/>
+      <line x1="110" y1="55" x2="110" y2="25" stroke="#5BB8FF" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="30" cy="75" r="10" fill="url(#bbg3)"/>
+      <circle cx="110" cy="75" r="10" fill="url(#bbg3)"/>
+      <circle cx="30" cy="55" r="10" fill="url(#bbg3)"/>
+      <circle cx="110" cy="55" r="10" fill="url(#bbg3)"/>
+      <circle cx="30" cy="25" r="10" fill="url(#bbg3)" opacity="0.7"/>
+      <circle cx="110" cy="25" r="10" fill="url(#bbg3)" opacity="0.7"/>
+      <defs><radialGradient id="bbg3" cx="35%" cy="30%" r="65%"><stop offset="0%" stop-color="#7DD3FC"/><stop offset="100%" stop-color="#1D4ED8"/></radialGradient></defs>
+    </svg>`
+  },
+  {
+    label: '步骤 4 · 封顶完成',
+    vzomeSrc: 'https://raw.githubusercontent.com/jlshang/vzome/refs/heads/main/%E6%AD%A3%E6%96%B9%E4%BD%93/step4.vZome',
+    desc: '用4根<span style="color:#5BB8FF;font-weight:700;">蓝色中棍</span>连接顶部4个球，形成顶面正方形。恭喜你，正方体搭建完成！',
+    tip: '<span style="font-weight:800;color:#b45309;">知识点：</span>正方体有6个面、12条棱、8个顶点，上下左右前后完全对称。',
+    svg: `<svg width="150" height="100" viewBox="0 0 150 100" fill="none">
+      <line x1="30" y1="70" x2="90" y2="70" stroke="#5BB8FF" stroke-width="4" stroke-linecap="round"/>
+      <line x1="90" y1="70" x2="90" y2="30" stroke="#5BB8FF" stroke-width="4" stroke-linecap="round"/>
+      <line x1="90" y1="30" x2="30" y2="30" stroke="#5BB8FF" stroke-width="4" stroke-linecap="round"/>
+      <line x1="30" y1="30" x2="30" y2="70" stroke="#5BB8FF" stroke-width="4" stroke-linecap="round"/>
+      <line x1="30" y1="30" x2="50" y2="12" stroke="#5BB8FF" stroke-width="3.5" stroke-linecap="round"/>
+      <line x1="90" y1="30" x2="110" y2="12" stroke="#5BB8FF" stroke-width="3.5" stroke-linecap="round"/>
+      <line x1="90" y1="70" x2="110" y2="52" stroke="#5BB8FF" stroke-width="3.5" stroke-linecap="round"/>
+      <line x1="50" y1="12" x2="110" y2="12" stroke="#5BB8FF" stroke-width="3.5" stroke-linecap="round"/>
+      <line x1="110" y1="12" x2="110" y2="52" stroke="#5BB8FF" stroke-width="3.5" stroke-linecap="round"/>
+      <line x1="110" y1="52" x2="50" y2="52" stroke="#5BB8FF" stroke-width="3" stroke-linecap="round" stroke-dasharray="5,3"/>
+      <line x1="50" y1="52" x2="30" y2="70" stroke="#5BB8FF" stroke-width="3" stroke-linecap="round" stroke-dasharray="5,3"/>
+      <line x1="50" y1="12" x2="50" y2="52" stroke="#5BB8FF" stroke-width="3" stroke-linecap="round" stroke-dasharray="5,3"/>
+      <circle cx="30" cy="70" r="9" fill="url(#bbg4)"/>
+      <circle cx="90" cy="70" r="9" fill="url(#bbg4)"/>
+      <circle cx="90" cy="30" r="9" fill="url(#bbg4)"/>
+      <circle cx="30" cy="30" r="9" fill="url(#bbg4)"/>
+      <circle cx="50" cy="12" r="8" fill="#b45309" opacity="0.85"/>
+      <circle cx="110" cy="12" r="8" fill="#b45309" opacity="0.85"/>
+      <circle cx="110" cy="52" r="8" fill="#b45309" opacity="0.85"/>
+      <circle cx="50" cy="52" r="7" fill="#b45309" opacity="0.65"/>
+      <text x="75" y="95" font-size="11" fill="#22C55E" font-weight="800" text-anchor="middle">✓ 完成！</text>
+      <defs><radialGradient id="bbg4" cx="35%" cy="30%" r="65%"><stop offset="0%" stop-color="#7DD3FC"/><stop offset="100%" stop-color="#1D4ED8"/></radialGradient></defs>
+    </svg>`
+  }
+];
+
+/* ─── QUIZ DATA ─── */
+const quizData = [
+  {
+    type: 'text',
+    layout: 'grid',
+    q: '观察手中的正方体，一共用了多少个小球？',
+    opts: ['4个', '6个', '8个', '12个'],
+    ans: 2,
+    correctFb: '8个小球就是正方体的8个顶点！',
+    wrongFb: '再数数～正方体每个角都有一个顶点，一共 8 个哦。'
+  },
+  {
+    type: 'img-stem',
+    layout: 'grid',
+    q: '正方体有几条棱？',
+    qSvg: '<svg width="145" height="100" viewBox="0 0 135 95" fill="none"><line x1="15" y1="85" x2="45" y2="65" stroke="#d97706" stroke-width="2" stroke-dasharray="5,3" opacity="0.45"/><line x1="45" y1="65" x2="115" y2="65" stroke="#d97706" stroke-width="2" stroke-dasharray="5,3" opacity="0.45"/><line x1="45" y1="65" x2="45" y2="5" stroke="#d97706" stroke-width="2" stroke-dasharray="5,3" opacity="0.45"/><line x1="15" y1="85" x2="85" y2="85" stroke="#d97706" stroke-width="2.5" stroke-linecap="round"/><line x1="85" y1="85" x2="85" y2="25" stroke="#d97706" stroke-width="2.5" stroke-linecap="round"/><line x1="85" y1="25" x2="15" y2="25" stroke="#d97706" stroke-width="2.5" stroke-linecap="round"/><line x1="15" y1="25" x2="15" y2="85" stroke="#d97706" stroke-width="2.5" stroke-linecap="round"/><line x1="85" y1="85" x2="115" y2="65" stroke="#d97706" stroke-width="2.5" stroke-linecap="round"/><line x1="85" y1="25" x2="115" y2="5" stroke="#d97706" stroke-width="2.5" stroke-linecap="round"/><line x1="115" y1="65" x2="115" y2="5" stroke="#d97706" stroke-width="2.5" stroke-linecap="round"/><line x1="15" y1="25" x2="45" y2="5" stroke="#d97706" stroke-width="2.5" stroke-linecap="round"/><line x1="45" y1="5" x2="115" y2="5" stroke="#d97706" stroke-width="2.5" stroke-linecap="round"/><circle cx="15" cy="85" r="4" fill="#d97706"/><circle cx="85" cy="85" r="4" fill="#d97706"/><circle cx="85" cy="25" r="4" fill="#d97706"/><circle cx="15" cy="25" r="4" fill="#d97706"/><circle cx="115" cy="65" r="3.5" fill="#b45309"/><circle cx="115" cy="5" r="3.5" fill="#b45309"/><circle cx="45" cy="5" r="3.5" fill="#b45309"/><circle cx="45" cy="65" r="3" fill="#d97706" opacity="0.3"/></svg>',
+    opts: ['8条', '10条', '12条', '16条'],
+    ans: 2,
+    correctFb: '每个正方体都有12条棱，每条棱的长度都相等。',
+    wrongFb: '再看看～每条边都是一根棍，正方体共 12 条棱哦。'
+  },
+  {
+    type: 'img-opts',
+    layout: 'grid',
+    q: '观察手中的正方体，它的面是什么图形？',
+    opts: ['三角形', '圆形', '长方形', '正方形'],
+    optSvgs: [
+      '<svg width="44" height="44" viewBox="0 0 80 80" fill="none"><polygon points="40,8 74,72 6,72" stroke="#3b82f6" stroke-width="3" stroke-linejoin="round" fill="rgba(59,130,246,0.08)"/></svg>',
+      '<svg width="44" height="44" viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="32" stroke="#3b82f6" stroke-width="3" fill="rgba(59,130,246,0.08)"/></svg>',
+      '<svg width="44" height="44" viewBox="0 0 80 80" fill="none"><rect x="8" y="20" width="64" height="40" rx="2" stroke="#3b82f6" stroke-width="3" fill="rgba(59,130,246,0.08)"/></svg>',
+      '<svg width="44" height="44" viewBox="0 0 80 80" fill="none"><rect x="8" y="8" width="64" height="64" rx="2" stroke="#3b82f6" stroke-width="3" fill="rgba(59,130,246,0.08)"/></svg>'
+    ],
+    ans: 3,
+    wrongSpeak: '再看一下哦',
+    correctFb: '正方体每个面都是正方形，总共有6个面。',
+    wrongFb: '再想想～正方体每个面四条边完全相等，是正方形哦。'
+  }
+];
+
+/* ─── NAVIGATION ─── */
+function goTo(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+/* ─── YEAR TABS ─── */
+function switchYear(n) {
+  document.querySelectorAll('.year-section').forEach(s => s.classList.remove('visible'));
+  document.querySelectorAll('.ytab').forEach(t => t.classList.remove('active'));
+  const sec = document.getElementById('year' + n);
+  if (sec) sec.classList.add('visible');
+  const tabs = document.querySelectorAll('.ytab');
+  if (tabs[n-1]) tabs[n-1].classList.add('active');
+  const cb = document.getElementById('claim-btn');
+  if (cb) cb.style.display = (n === 1) ? 'none' : '';
+}
+
+/* ─── MODAL ─── */
+function showModal(id) {
+  const m = document.getElementById(id);
+  if (m) m.classList.add('active');
+}
+function closeModal(id) {
+  const m = document.getElementById(id);
+  if (m) m.classList.remove('active');
+}
+
+/* ─── COURSE NAVIGATION ─── */
+function startLearning() {
+  _visitedTabs.clear();
+  document.querySelectorAll('.learn-tab').forEach(t => {
+    t.classList.remove('visited','active');
+  });
+  const btn = document.getElementById('learn-next-btn');
+  if (btn) { btn.classList.add('next-btn-dim'); btn.classList.remove('next-btn-ready'); }
+  const row = document.getElementById('learn-desc-row-wrap');
+  if (row) { row.style.opacity = '0'; row.style.pointerEvents = 'none'; }
+  applyTab('all');
+  goTo('learning');
+}
+function goToBuilding() {
+  _loadVzome();
+  goTo('parts-prep');
+}
+function _loadVzome() {
+  if (document.getElementById('vzome-script')) return;
+  const s = document.createElement('script');
+  s.id = 'vzome-script';
+  s.type = 'module';
+  s.src = 'https://www.vzome.com/modules/vzome-viewer.js';
+  document.head.appendChild(s);
+}
+function startBuilding() {
+  curStep = 0;
+  _buildCompleted = false;
+  buildUpdate();
+  _updatePracticeBtn();
+  goTo('building');
+}
+function _updatePracticeBtn() {
+  const btn = document.getElementById('build-go-practice');
+  if (!btn) return;
+  if (_buildCompleted) {
+    btn.classList.add('done');
+    btn.classList.remove('not-done');
+  } else {
+    btn.classList.add('not-done');
+    btn.classList.remove('done');
+  }
+}
+function tryGoToExplore() {
+  if (_buildCompleted) {
+    goToExplore();
+  } else {
+    showModal('modal-build-incomplete');
+  }
+}
+
+/* ─── KNOWLEDGE TABS ─── */
+const _visitedTabs = new Set();
+
+function selectTab(el, type) {
+  document.querySelectorAll('.learn-tab').forEach(t => t.classList.remove('active'));
+  if (el) { el.classList.add('active'); el.classList.add('visited'); }
+  _visitedTabs.add(type);
+  applyTab(type);
+  _checkAllTabsVisited();
+  // reveal desc-row: offset relative to first tab (so 正方体 = left edge)
+  const row = document.getElementById('learn-desc-row-wrap');
+  if (row && el) {
+    const firstTab = document.querySelector('#learning .learn-tab');
+    const tabRect  = el.getBoundingClientRect();
+    const baseRect = firstTab ? firstTab.getBoundingClientRect() : tabRect;
+    const ml = Math.max(0, tabRect.left - baseRect.left);
+    row.style.marginLeft = ml + 'px';
+    row.style.opacity = '1'; row.style.pointerEvents = '';
+  }
+  setTimeout(learnSpeak, 120);
+}
+function _checkAllTabsVisited() {
+  const all4 = ['all','face','edge','vertex'].every(t => _visitedTabs.has(t));
+  const btn = document.getElementById('learn-next-btn');
+  if (!btn) return;
+  btn.classList.toggle('next-btn-ready', all4);
+  btn.classList.toggle('next-btn-dim', !all4);
+}
+function tryGoToBuilding() {
+  const all4 = ['all','face','edge','vertex'].every(t => _visitedTabs.has(t));
+  if (all4) { goToBuilding(); }
+  else { showModal('modal-keep-learning'); }
+}
+
+function applyTab(type) {
+  const svg = document.getElementById('learn-cube');
+  if (!svg) return;
+
+  const allEdges = ['edge-1','edge-2','edge-3','edge-4','edge-5','edge-6','edge-7','edge-8','edge-9','edge-h1','edge-h3','edge-h4'];
+  const allVerts = ['v1','v2','v3','v4','v5','v6','v7','v8'];
+  const allFaces = ['face-front','face-top2','face-right2'];
+
+  // Reset all edges
+  allEdges.forEach(id => {
+    const e = document.getElementById(id);
+    if (!e) return;
+    const isHidden = id.startsWith('edge-h');
+    e.setAttribute('stroke', isHidden ? 'rgba(160,100,0,0.45)' : 'rgba(160,100,0,0.65)');
+    e.setAttribute('stroke-width', isHidden ? '2' : '2.5');
+    if (isHidden) e.setAttribute('stroke-dasharray','5,3');
+    else e.removeAttribute('stroke-dasharray');
+  });
+
+  allVerts.forEach(id => {
+    const v = document.getElementById(id);
+    if (!v) return;
+    const isBack = ['v5','v6','v7','v8'].includes(id);
+    v.setAttribute('fill', isBack ? '#92400e' : '#b45309');
+    v.setAttribute('opacity', isBack ? (id === 'v8' ? '0.4' : '0.5') : '0.6');
+    v.setAttribute('r', id === 'v8' ? '2.5' : isBack ? '2.8' : '3');
+  });
+  allFaces.forEach(id => { const f=document.getElementById(id); if(f) f.setAttribute('fill','rgba(91,184,255,0.0)'); });
+  ['label-face','label-edge','label-vertex'].forEach(id => { const l=document.getElementById(id); if(l) l.setAttribute('opacity','0'); });
+
+  if (type === 'face') {
+    // ONE face: face-front only
+    const ff = document.getElementById('face-front');
+    if (ff) ff.setAttribute('fill','rgba(220,140,0,0.22)');
+    // dim edges slightly
+    allEdges.forEach(id => { const e=document.getElementById(id); if(e) e.setAttribute('stroke', id.startsWith('edge-h') ? 'rgba(160,100,0,0.22)' : 'rgba(160,100,0,0.32)'); });
+    const lf=document.getElementById('label-face'); if(lf) lf.setAttribute('opacity','1');
+  } else if (type === 'edge') {
+    // ONE edge: edge-2 (right front vertical edge)
+    const e2 = document.getElementById('edge-2');
+    if (e2) { e2.setAttribute('stroke','#16a34a'); e2.setAttribute('stroke-width','4.5'); }
+    const le=document.getElementById('label-edge'); if(le) le.setAttribute('opacity','1');
+  } else if (type === 'vertex') {
+    // ONE vertex: v2 (top-right front)
+    const v2 = document.getElementById('v2');
+    if (v2) { v2.setAttribute('fill','#c2410c'); v2.setAttribute('opacity','1'); v2.setAttribute('r','7'); }
+    const lv=document.getElementById('label-vertex'); if(lv) lv.setAttribute('opacity','1');
+  }
+
+
+  // Update right panel content
+  const td = tabData[type] || tabData.all;
+  const descEl = document.getElementById('learn-kc-desc');
+  const numsEl = document.getElementById('learn-kc-nums');
+  const descTopEl = document.getElementById('learn-desc-top');
+  if (descEl) descEl.textContent = td.desc;
+  if (descEl) descEl.style.color = td.descColor;
+  if (descTopEl) { descTopEl.textContent = td.descTop; descTopEl.style.color = td.descTopColor; }
+  if (numsEl) numsEl.innerHTML = td.kNums.map(n => `<span class="num-pill">${n}</span>`).join('');
+}
+
+function learnSpeak() {
+  const descEl = document.getElementById('learn-desc-top');
+  const text = descEl ? descEl.textContent.trim() : '';
+  if (!text) return;
+  speakText(text);
+  // brief visual pulse on speaker button
+  const btn = document.getElementById('learn-audio-btn');
+  if (btn) { btn.style.transform = 'scale(1.15)'; setTimeout(() => btn.style.transform = '', 300); }
+}
+
+/* ─── BUILDING ─── */
+function buildUpdate() {
+  const s = buildSteps[curStep];
+  const total = buildSteps.length;
+  const isLast = curStep === total - 1;
+  const isFirst = curStep === 0;
+
+  // Step label
+  const lblEl = document.getElementById('build-step-label');
+  if (lblEl) lblEl.textContent = `步骤 ${curStep + 1}`;
+
+  // Swap vZome model for this step
+  const vzomeViewer = document.getElementById('build-vzome-viewer');
+  if (vzomeViewer && s.vzomeSrc) vzomeViewer.setAttribute('src', s.vzomeSrc);
+
+  // Auto-read step description via TTS (strip HTML tags)
+  const _tmp = document.createElement('div');
+  _tmp.innerHTML = s.desc;
+  const _extra = curStep === 1 ? '。这个就是正方体的一个面。' : '';
+  setTimeout(() => speakText(_tmp.textContent.trim() + _extra), 500);
+
+  // Dot progress
+  const dotsEl = document.getElementById('build-step-dots');
+  if (dotsEl) {
+    dotsEl.innerHTML = buildSteps.map((_, i) => {
+      let cls = 'b2dot';
+      if (i < curStep) cls += ' done';
+      else if (i === curStep) cls += ' active';
+      return `<div class="${cls}"></div>`;
+    }).join('');
+  }
+
+  // Prev button
+  const prevBtn = document.getElementById('bnav-prev');
+  if (prevBtn) prevBtn.disabled = isFirst;
+
+  // Next button
+  const nextBtn = document.getElementById('bnav-next');
+  if (nextBtn) {
+    if (isLast) {
+      nextBtn.textContent = '重新播放';
+      nextBtn.classList.add('replay');
+    } else {
+      nextBtn.textContent = '下一步';
+      nextBtn.classList.remove('replay');
+    }
+  }
+
+  // External arrows dim state
+  const arrowPrev = document.getElementById('build-arrow-prev');
+  if (arrowPrev) arrowPrev.classList.toggle('dimmed', isFirst);
+  const arrowNext = document.getElementById('build-arrow-next');
+  if (arrowNext) arrowNext.classList.toggle('dimmed', isLast);
+
+}
+
+function buildNext() {
+  if (curStep < buildSteps.length - 1) {
+    curStep++;
+    buildUpdate();
+    // Mark completed when reaching last step
+    if (curStep === buildSteps.length - 1) {
+      _buildCompleted = true;
+      _updatePracticeBtn();
+    }
+  } else {
+    // Last step: replay from start
+    curStep = 0;
+    buildUpdate();
+  }
+}
+
+function buildPrev() {
+  if (curStep > 0) { curStep--; buildUpdate(); }
+}
+
+function buildSpeak() {
+  const s = buildSteps[curStep];
+  if (s) {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = s.desc;
+    const extra = curStep === 1 ? '。这个就是正方体的一个面。' : '';
+    speakText(tmp.textContent.trim() + extra);
+  }
+  const btn = document.querySelector('#building .build2-speak-btn');
+  if (btn) { btn.style.transform = 'scale(1.2)'; setTimeout(() => btn.style.transform = '', 300); }
+}
+
+/* ─── QUIZ v2 ─── */
+function goToExplore() {
+  curQ = 0; correctCnt = 0; answered = false; quizSelected = -1;
+  renderQ(); goTo('explore');
+}
+
+function renderQ() {
+  answered = false; quizSelected = -1;
+  const q = quizData[curQ];
+  const spk = '<button class="quiz2-speak-btn" onclick="quizSpeak()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="rgba(249,115,22,0.12)"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button>';
+  const qCard = document.getElementById('quiz2-q-card');
+  qCard.innerHTML = '<div class="quiz2-q-inner">' + spk +
+    '<span class="quiz2-q-text">' + q.q + '</span></div>';
+  const imgArea = document.getElementById('quiz2-q-img-area');
+  if (imgArea) {
+    if (q.type === 'img-stem' && q.qSvg) {
+      imgArea.innerHTML = q.qSvg;
+      imgArea.classList.add('visible');
+    } else {
+      imgArea.innerHTML = '';
+      imgArea.classList.remove('visible');
+    }
+  }
+  const content = document.querySelector('#explore .quiz2-content');
+  if (content) content.className = 'quiz2-content' + (q.layout === 'grid' ? ' grid-mode' : '');
+  const row = document.getElementById('quiz2-opts-row');
+  row.className = 'quiz2-opts-row' + (q.layout === 'grid' ? ' grid-2x2' : '') + (q.type === 'img-opts' ? ' img-opts-grid' : '');
+  if (q.type === 'img-opts') {
+    row.innerHTML = q.opts.map((opt, i) =>
+      '<div class="quiz2-opt-card" onclick="selectOpt(' + i + ')">' +
+      '<div class="quiz2-opt-svg">' + q.optSvgs[i] + '</div>' +
+      '<div class="quiz2-opt-label">' + opt + '</div></div>'
+    ).join('');
+  } else {
+    row.innerHTML = q.opts.map((opt, i) =>
+      '<div class="quiz2-opt-card" onclick="selectOpt(' + i + ')">' + opt + '</div>'
+    ).join('');
+  }
+  const dotsEl = document.getElementById('quiz2-prog-dots');
+  if (dotsEl) dotsEl.innerHTML = quizData.map((_,i) =>
+    '<div class="q2dot' + (i<curQ?' done':(i===curQ?' cur':'')) + '"></div>'
+  ).join('');
+  // Auto-read question stem when it loads
+  setTimeout(() => speakText(q.q), 350);
+}
+
+function selectOpt(i) {
+  if (answered) return;
+  const q = quizData[curQ];
+  const cards = document.querySelectorAll('#quiz2-opts-row .quiz2-opt-card');
+  if (i === q.ans) {
+    // ✓ Correct
+    answered = true;
+    correctCnt++;
+    cards.forEach((c, idx) => {
+      c.onclick = null;
+      if (idx === q.ans) c.classList.add('correct');
+      else c.classList.add('dim');
+    });
+    spawnConfettiRising();
+    playCelebrationSound();
+    setTimeout(() => speakTextThen(q.correctFb, () => setTimeout(nextQ, 1500)), 350);
+  } else {
+    // ✗ Wrong — dim this option, speak hint, allow retry on other options
+    cards[i].classList.add('wrong', 'dim');
+    cards[i].onclick = null;
+    speakText(q.wrongSpeak || '再数一数哦');
+  }
+}
+
+/* confirmAnswer: no longer used – click-to-submit now handled by selectOpt() */
+
+
+function nextQ() { curQ++; if (curQ >= quizData.length) goToFeedback(); else renderQ(); }
+
+function quizSpeak() {
+  const t = document.querySelector('#quiz2-q-card .quiz2-q-text');
+  if (t) speakText(t.textContent);
+}
+
+function spawnConfetti(cardEl) {
+  const scr = document.getElementById('explore'); if (!scr) return;
+  const sr = scr.getBoundingClientRect(), cr = cardEl.getBoundingClientRect();
+  const cx = cr.left - sr.left + cr.width/2, cy = cr.top - sr.top + cr.height/2;
+  const cols = ['#22c55e','#4ade80','#86efac','#f97316','#fbbf24'];
+  for (let i=0; i<14; i++) {
+    const d = document.createElement('div'); d.className = 'q2-confetti';
+    const a = (i/14)*Math.PI*2, dist = 55 + Math.random()*35;
+    d.style.left=cx+'px'; d.style.top=cy+'px';
+    d.style.background = cols[i%cols.length];
+    d.style.setProperty('--dx', Math.cos(a)*dist+'px');
+    d.style.setProperty('--dy', Math.sin(a)*dist+'px');
+    scr.appendChild(d); setTimeout(()=>d.remove(), 800);
+  }
+}
+
+function playCelebrationSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const notes = [523.25, 659.25, 783.99, 1046.50]; // C5 E5 G5 C6
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value = freq;
+      osc.type = 'sine';
+      const t = ctx.currentTime + i * 0.11;
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(0.28, t + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
+      osc.start(t); osc.stop(t + 0.5);
+    });
+  } catch(e) {}
+}
+
+function spawnConfettiRising() {
+  const scr = document.getElementById('explore'); if (!scr) return;
+  const sr = scr.getBoundingClientRect();
+  const cols = ['#22c55e','#4ade80','#86efac','#f97316','#fbbf24','#a78bfa','#60a5fa','#f472b6','#fb923c','#34d399'];
+  const count = 38;
+  for (let i = 0; i < count; i++) {
+    const d = document.createElement('div');
+    d.className = 'q2-confetti-rise';
+    const startX = 60 + Math.random() * (sr.width - 120);
+    const dx = (Math.random() - 0.5) * 140;
+    const dy = -(180 + Math.random() * 300);
+    const delay = Math.random() * 0.5;
+    d.style.left = startX + 'px';
+    d.style.bottom = '0px';
+    d.style.background = cols[i % cols.length];
+    d.style.setProperty('--dx', dx + 'px');
+    d.style.setProperty('--dy', dy + 'px');
+    d.style.animationDelay = delay + 's';
+    scr.appendChild(d);
+    setTimeout(() => d.remove(), 1600 + delay * 1000);
+  }
+}
+
+function goToFeedback() {
+  const scoreEl = document.getElementById('fb-score');
+  if (scoreEl) scoreEl.textContent = '探索发现：答对了 ' + correctCnt + ' 题';
+  makeConfetti();
+  playFinalCelebrationSound();
+  goTo('feedback');
+}
+
+
+/* ─── TTS ─── */
+function setSpeaking(on) {
+  document.querySelectorAll('.learn-audio-btn, .quiz2-speak-btn, .build2-speak-btn').forEach(btn => {
+    if (on) btn.classList.add('tts-speaking');
+    else btn.classList.remove('tts-speaking');
+  });
+}
+
+function speakText(text) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'zh-CN'; utter.rate = 0.88; utter.pitch = 1.15;
+  const voices = window.speechSynthesis.getVoices();
+  const preferred = voices.find(v => v.lang === 'zh-CN' || v.lang === 'zh-TW' || v.lang.startsWith('zh'));
+  if (preferred) utter.voice = preferred;
+  utter.onstart = () => setSpeaking(true);
+  utter.onend = () => setSpeaking(false);
+  utter.onerror = () => setSpeaking(false);
+  window.speechSynthesis.speak(utter);
+}
+
+/* speak text, then call cb after speech ends (or fallback timeout if TTS unavailable) */
+function speakTextThen(text, cb) {
+  if (!window.speechSynthesis) { setTimeout(cb, 1800); return; }
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'zh-CN'; utter.rate = 0.88; utter.pitch = 1.15;
+  const voices = window.speechSynthesis.getVoices();
+  const preferred = voices.find(v => v.lang === 'zh-CN' || v.lang === 'zh-TW' || v.lang.startsWith('zh'));
+  if (preferred) utter.voice = preferred;
+  utter.onstart = () => setSpeaking(true);
+  utter.onend = () => { setSpeaking(false); cb(); };
+  utter.onerror = () => { setSpeaking(false); setTimeout(cb, 1800); };
+  window.speechSynthesis.speak(utter);
+}
+
+/* ─── INIT ─── */
+window.addEventListener('DOMContentLoaded', () => {
+  if (window.speechSynthesis) {
+    window.speechSynthesis.getVoices();
+    window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+  }
+});
+
+/* ─── AUTO SCALE ─── */
+function autoScale() {
+  const tablet = document.querySelector('.tablet');
+  const W = 960, H = 540;
+  const vw = window.innerWidth - 48;
+  const vh = window.innerHeight - 80;
+  const scale = Math.min(1, vw / W, vh / H);
+  tablet.style.transform = `scale(${scale})`;
+  const wrap = document.querySelector('.wrap');
+  wrap.style.width  = Math.round(W * scale) + 'px';
+  wrap.style.height = Math.round(H * scale + 30) + 'px';
+}
+window.addEventListener('load', autoScale);
+window.addEventListener('resize', autoScale);
+
+/* ─── CONFETTI ─── */
+function playFinalCelebrationSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    function n(freq, t, dur, vol, type) {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value = freq; o.type = type || 'sine';
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(vol, t + 0.05);
+      g.gain.setValueAtTime(vol, t + dur * 0.65);
+      g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      o.start(t); o.stop(t + dur + 0.05);
+    }
+    // Fanfare: ascending run → triumphant chord
+    n(523.25, 0.00, 0.22, 0.22);          // C5
+    n(659.25, 0.16, 0.22, 0.22);          // E5
+    n(784.00, 0.32, 0.22, 0.22);          // G5
+    n(1046.50, 0.48, 0.28, 0.26);         // C6
+    n(1318.51, 0.60, 0.26, 0.22);         // E6 – sparkle top note
+    // Sustained chord C5+E5+G5+C6 at t=0.72
+    n(523.25, 0.72, 1.6, 0.16);
+    n(659.25, 0.72, 1.5, 0.14);
+    n(784.00, 0.72, 1.5, 0.14);
+    n(1046.50, 0.74, 1.4, 0.18);
+    n(2093.00, 0.74, 1.0, 0.08, 'triangle'); // bell shimmer
+    // Second sparkle hit at t=1.1
+    n(1568.00, 1.10, 0.6, 0.10);          // G6 glitter
+    n(2093.00, 1.20, 0.5, 0.07, 'triangle');
+  } catch(e) {}
+}
+
+function makeConfetti() {
+  const layer = document.getElementById('confetti-layer');
+  if (!layer) return;
+  layer.innerHTML = '';
+  const colors = ['#f59e0b','#6d28d9','#22c55e','#ef4444','#3b82f6','#ec4899','#f97316','#06b6d4','#84cc16','#a855f7','#fbbf24','#34d399'];
+  // Wave 1: fall from top (70 particles, longer duration)
+  for (let i = 0; i < 70; i++) {
+    const p = document.createElement('div');
+    p.className = 'cp';
+    const size = 7 + Math.random() * 11;
+    const isRect = Math.random() > 0.45;
+    p.style.cssText = [
+      `left:${Math.random()*100}%`,
+      `width:${isRect ? (size*1.7|0) : size}px`,
+      `height:${size}px`,
+      `background:${colors[i % colors.length]}`,
+      `border-radius:${isRect ? '2px' : '50%'}`,
+      `animation-delay:${Math.random()*2.2}s`,
+      `animation-duration:${2.2+Math.random()*1.8}s`
+    ].join(';');
+    layer.appendChild(p);
+  }
+  // Wave 2: burst upward from bottom (60 particles)
+  for (let i = 0; i < 60; i++) {
+    const p = document.createElement('div');
+    p.className = 'cp-rise';
+    const size = 8 + Math.random() * 11;
+    const isRect = Math.random() > 0.5;
+    const dx = (Math.random() - 0.5) * 260;
+    const dy = -(160 + Math.random() * 380);
+    const rot = ((Math.random() - 0.5) * 900) | 0;
+    const delay = Math.random() * 1.0;
+    const dur = 1.8 + Math.random() * 1.6;
+    p.style.cssText = [
+      `left:${5 + Math.random()*90}%`,
+      `bottom:0px`,
+      `width:${isRect ? (size*1.8|0) : size}px`,
+      `height:${size}px`,
+      `background:${colors[(i + 5) % colors.length]}`,
+      `border-radius:${isRect ? '2px' : '50%'}`,
+      `--dx:${dx}px`,
+      `--dy:${dy}px`,
+      `--rot:${rot}deg`,
+      `animation-delay:${delay}s`,
+      `animation-duration:${dur}s`
+    ].join(';');
+    layer.appendChild(p);
+    setTimeout(() => { if (p.parentNode) p.parentNode.removeChild(p); }, (delay + dur + 0.3) * 1000);
+  }
+}
+</script>
+</body>
+</html>
+  <!-- Build incomplete retention modal -->
+  <div class="modal-bg" id="modal-build-incomplete">
+    <div class="modal-card" style="position:relative">
+      <button onclick="closeModal('modal-build-incomplete')" style="position:absolute;top:10px;right:12px;background:none;border:none;font-size:18px;cursor:pointer;color:#9ca3af;">✕</button>
+      <div class="modal-title">还没走完拼搭步骤 🔨</div>
+      <div class="modal-desc">建议把所有步骤都走一遍，加深对正方体的印象再去答题哦～</div>
+      <div class="modal-btns">
+        <button class="btn-secondary" onclick="closeModal('modal-build-incomplete')">继续拼搭</button>
+        <button class="btn-primary" onclick="closeModal('modal-build-incomplete');goToExplore()">直接去练习</button>
+      </div>
+    </div>
+  </div>

@@ -1,0 +1,1555 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>列算式解应用题</title>
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--amber:#F5A623;--amber-light:#FFF3D6;--amber-dark:#C47B00;--orange:#FF7F3E;--correct:#3D9E3D;--wrong:#D94040;--cream:#FFFBF2;}
+html,body{min-height:100%;background:#D8EFE4;display:flex;align-items:flex-start;justify-content:center;padding:24px 0;font-family:'Noto Sans SC',sans-serif;}
+.phone{width:min(390px,100vw);background:var(--cream);display:flex;flex-direction:column;border-radius:32px;box-shadow:0 20px 60px rgba(0,0,0,0.18);overflow:hidden;}
+.stem{background:linear-gradient(135deg,#FFF8E1 0%,#FFF3D0 100%);padding:16px 20px 14px;border-bottom:2px dashed #F5D78A;position:relative;}
+.stem-nav{position:absolute;top:12px;right:14px;width:32px;height:32px;border-radius:50%;background:#FFF3D0;border:1.5px solid #F5C842;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s,transform .12s;box-shadow:0 2px 0 #D4A800;}
+.stem-nav:hover{background:#FFE580;transform:scale(1.08);}
+.stem-nav:active{transform:scale(0.95);}
+.stem-nav svg{width:14px;height:14px;}
+.stem-tag{display:inline-block;background:var(--amber);color:#fff;font-size:11px;font-weight:700;letter-spacing:.08em;padding:2px 10px;border-radius:20px;margin-bottom:8px;}
+.stem-text{font-family:'Ma Shan Zheng',cursive;font-size:19px;color:#3A2800;line-height:1.75;}
+@keyframes speakerPulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(245,185,0,0.4);}50%{transform:scale(1.12);box-shadow:0 0 0 5px rgba(245,185,0,0);}}
+.speaker-btn{width:24px;height:24px;border-radius:50%;background:#FFF3D0;border:1px solid #F5C842;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;vertical-align:middle;margin-right:4px;position:relative;top:-1px;transition:background .15s,transform .12s;}
+.speaker-btn:hover{background:#FFE580;transform:scale(1.08);}
+.speaker-btn.speaking{background:#FFD94A;border-color:var(--amber);animation:speakerPulse 0.8s ease-in-out infinite;}
+@keyframes hlPulse{
+  0%,100%{transform:scale(1);box-shadow:0 3px 0 #D4A800,0 0 0 0 rgba(245,185,0,0.5);}
+  50%{transform:scale(1.1);box-shadow:0 4px 0 #D4A800,0 0 0 7px rgba(245,185,0,0);}
+}
+.read-seg{border-radius:6px;transition:background .2s;}
+.read-seg.reading{background:rgba(255,220,80,0.22);}
+.hl-btn{display:inline-block;background:#FFE08A;border:2px solid #F5C842;border-radius:20px;padding:1px 10px;color:#8B5A00;cursor:pointer;font-family:'Ma Shan Zheng',cursive;font-size:19px;transition:transform .15s,background .15s,box-shadow .15s;box-shadow:0 3px 0 #D4A800;user-select:none;}
+.hl-btn.pre{border-color:transparent;box-shadow:none;cursor:default;pointer-events:none;border-radius:6px;padding:0 4px;animation:none;}
+.hl-btn.pending{animation:hlPulse 1.2s ease-in-out infinite;border-width:2.5px;}
+.hl-btn-b.pending{animation-delay:.4s;}
+.hl-btn-d.pending{animation-delay:.2s;}
+.hl-btn-e.pending{animation-delay:.6s;}
+.hl-btn-f.pending{animation-delay:.3s;}
+.hl-btn-g.pending{animation-delay:.5s;}
+.hl-btn:hover{background:#FFD94A;transform:scale(1.06);}
+.hl-btn:active{transform:scale(.96) translateY(2px);box-shadow:0 1px 0 #D4A800;}
+.hl-btn.revealed{background:#FFE08A;border-color:transparent;box-shadow:none;cursor:default;pointer-events:none;border-radius:6px;padding:0 4px;animation:none;}
+.hl-btn-b{background:#FFD4A0;border-color:#F5A050;box-shadow:0 3px 0 #C86800;color:#7B3A00;}
+.hl-btn-b:hover{background:#FFBB70;}
+.hl-btn-b.revealed{background:#FFD4A0;border-color:transparent;box-shadow:none;border-radius:6px;padding:0 4px;animation:none;}
+.hl-btn-c{background:#D4F0C0;border-color:#7DC95A;box-shadow:0 3px 0 #4A9E2A;color:#2A6010;}
+.hl-btn-c:hover{background:#BFEA9A;}
+.hl-btn-c.revealed{background:#D4F0C0;border-color:transparent;box-shadow:none;border-radius:6px;padding:0 4px;color:#2A6010;animation:none;}
+.hl-btn-d{background:#D4E8FF;border-color:#70AAEE;box-shadow:0 3px 0 #3070C0;color:#1A4080;}
+.hl-btn-d:hover{background:#B8D8FF;}
+.hl-btn-d.revealed{background:#D4E8FF;border-color:transparent;box-shadow:none;border-radius:6px;padding:0 4px;color:#1A4080;animation:none;}
+.hl-btn-e{background:#EDE0FF;border-color:#A070E0;box-shadow:0 3px 0 #7040B0;color:#5020A0;}
+.hl-btn-e:hover{background:#D8C0FF;}
+.hl-btn-e.revealed{background:#EDE0FF;border-color:transparent;box-shadow:none;border-radius:6px;padding:0 4px;color:#5020A0;animation:none;}
+.hl-btn-f{background:#D8EEFF;border-color:#5090D8;box-shadow:0 3px 0 #2060A8;color:#1040A0;}
+.hl-btn-f:hover{background:#B8D8FF;}
+.hl-btn-f.revealed{background:#D8EEFF;border-color:transparent;box-shadow:none;border-radius:6px;padding:0 4px;color:#1040A0;animation:none;}
+.hl-btn-g{background:#F0E4D0;border-color:#A0784A;box-shadow:0 3px 0 #7A5030;color:#5A3010;}
+.hl-btn-g:hover{background:#E0CCAA;}
+.hl-btn-g.revealed{background:#F0E4D0;border-color:transparent;box-shadow:none;border-radius:6px;padding:0 4px;color:#5A3010;animation:none;}
+.hl-btn-h{background:#FFE0E0;border-color:#E05050;box-shadow:0 3px 0 #A02020;color:#A00000;}
+.hl-btn-h:hover{background:#FFC0C0;}
+.hl-btn-h.revealed{background:#FFE0E0;border-color:transparent;box-shadow:none;border-radius:6px;padding:0 4px;color:#A00000;animation:none;}
+.question-mark{color:var(--orange);font-weight:700;}
+.scene{flex-shrink:0;height:200px;position:relative;overflow:hidden;}
+.scene svg{display:block;width:100%;height:100%;}
+.interact{padding:16px 16px 24px;display:flex;flex-direction:column;gap:16px;background:#FFFBF2;}
+.section-title{font-size:12px;color:#A0845A;font-weight:700;letter-spacing:.07em;margin-bottom:6px;}
+.interact.locked .section-title{opacity:0;}
+.interact.locked .answer-bar{opacity:0;}
+.answer-bar{width:100%;min-height:50px;border-bottom:3px solid #D4BF96;display:flex;align-items:center;padding:4px 6px;gap:4px;flex-wrap:nowrap;transition:border-color .2s;}
+.answer-bar.has-content{border-color:var(--amber);}
+.answer-bar.drag-over{border-color:var(--amber);background:#FFF8E0;}
+.drop-indicator{width:3px;min-width:3px;height:32px;background:#F5A030;border-radius:3px;pointer-events:none;flex-shrink:0;}
+.chip-placed{background:var(--amber-light);border:1.5px solid #F5D48A;border-radius:10px;padding:4px 9px;font-size:18px;color:var(--amber-dark);font-weight:700;white-space:nowrap;animation:popIn .25s cubic-bezier(.34,1.56,.64,1);flex-shrink:0;cursor:pointer;user-select:none;transition:background .12s,transform .1s;}
+.answer-bar.compact .chip-placed{font-size:15px;padding:3px 7px;}
+.chip-placed:hover{background:#FFE9A0;transform:scale(1.05);}
+@keyframes popIn{from{transform:scale(.4) translateY(-10px);opacity:0;}to{transform:scale(1) translateY(0);opacity:1;}}
+@keyframes popOut{from{transform:scale(1);opacity:1;}to{transform:scale(.4) translateY(-10px);opacity:0;}}
+@keyframes fadeSlideIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.step-question{font-family:'Noto Sans SC',sans-serif;font-size:15px;font-weight:700;color:#1A4080;background:#EEF6FF;border-left:4px solid #4A90D9;border-radius:0 8px 8px 0;padding:8px 12px;margin-bottom:8px;line-height:1.4;opacity:0;}
+.step-question.show{animation:fadeSlideIn .4s ease forwards;}
+.answer-bar.ms-show{animation:fadeSlideIn .4s ease forwards;}
+.options-row.ms-show{animation:fadeSlideIn .4s ease forwards;}
+.step-record{display:flex;flex-direction:column;gap:3px;margin-bottom:4px;}
+.step-done{font-size:12px;color:#6A5020;background:#FFF3D0;border-radius:6px;padding:3px 8px;opacity:0;transform:translateY(6px);transition:opacity .4s ease, transform .4s ease;}
+.step-done.show{opacity:1;transform:translateY(0);}
+@keyframes chipFlyUp{0%{opacity:1;transform:scale(1) translateY(0);}100%{opacity:0;transform:scale(0.6) translateY(-24px);}}
+.chip{background:#FFF8E1;border:2px solid #F5D48A;border-radius:50px;padding:8px 18px;font-size:20px;font-weight:700;color:#7B4F00;cursor:grab;transition:transform .12s,background .12s,opacity .2s;user-select:none;touch-action:none;}
+.options-row.compact{gap:5px;}
+.options-row.compact .chip{padding:5px 9px;font-size:15px;}
+.options-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+.chip:hover:not(.used){background:#FFE9A0;transform:scale(1.08);}
+.chip.used{opacity:.28;pointer-events:none;}
+.chip.dragging{opacity:.5;cursor:grabbing;}
+.drag-ghost{position:fixed;pointer-events:none;z-index:9999;background:#FFE9A0;border:2px solid #F5C842;border-radius:50px;padding:7px 16px;font-size:19px;font-weight:700;color:#7B4F00;box-shadow:0 4px 16px rgba(0,0,0,.18);white-space:nowrap;}
+.interact.locked .chip{opacity:.3;pointer-events:none;}
+.feedback-area{min-height:28px;display:flex;align-items:center;justify-content:center;}
+.feedback{font-family:'Ma Shan Zheng',cursive;font-size:18px;opacity:0;transition:opacity .3s;text-align:center;}
+.feedback.show{opacity:1;}
+.feedback.correct{color:var(--correct);}
+.feedback.wrong{color:var(--wrong);}
+.btn-row{display:flex;gap:10px;justify-content:center;}
+.reset-btn{background:none;border:1.5px solid #D4BF96;border-radius:50px;padding:7px 20px;font-size:13px;color:#A0845A;cursor:pointer;font-family:'Noto Sans SC',sans-serif;transition:background .15s;}
+.reset-btn:hover{background:#FFF3D0;color:#7B4F00;}
+.submit-btn{background:#4A90D9;border:none;border-radius:50px;padding:7px 22px;font-size:13px;color:#fff;cursor:pointer;font-family:'Noto Sans SC',sans-serif;font-weight:700;box-shadow:0 3px 0 #2A6090;transition:background .15s,transform .1s;opacity:0.4;pointer-events:none;}
+.submit-btn:hover{background:#3A80C9;transform:scale(1.04);}
+.submit-btn.ready{opacity:1;pointer-events:auto;}
+.next-btn{background:var(--amber);border:none;border-radius:50px;padding:7px 22px;font-size:13px;color:#fff;cursor:pointer;font-family:'Noto Sans SC',sans-serif;font-weight:700;box-shadow:0 3px 0 #C47B00;transition:background .15s,transform .1s;display:none;}
+.next-btn:hover{background:#E8941A;transform:scale(1.04);}
+.next-btn.visible{display:block;}
+.confetti-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999;overflow:hidden;}
+.confetti-piece{position:absolute;border-radius:2px;animation:fall linear forwards;}
+@keyframes fall{0%{transform:translateY(-20px) rotate(0deg);opacity:1;}100%{transform:translateY(110vh) rotate(720deg);opacity:0;}}
+@keyframes chickBounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+.chick-group{opacity:0;pointer-events:none;transition:opacity .4s ease;}
+.chick-group.visible{opacity:1;pointer-events:auto;}
+.chick-inner.bounce{animation:chickBounce .4s ease-in-out 3;}
+</style>
+</head>
+<body>
+<div class="confetti-container" id="confetti"></div>
+<button id="muteBtn" onclick="toggleMute()" title="背景音乐" style="position:fixed;bottom:14px;right:14px;z-index:999;width:36px;height:36px;border-radius:50%;border:1.5px solid #D4BF96;background:#FFF8E1;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.12);">🎵</button>
+<div class="phone" id="appRoot"></div>
+<script>
+var _ac;
+function ac(){if(!_ac)_ac=new(window.AudioContext||window.webkitAudioContext)();return _ac;}
+function tone(f,t,d,v){v=v||0.25;try{var c=ac(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type=t;o.frequency.value=f;g.gain.setValueAtTime(v,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.start();o.stop(c.currentTime+d);}catch(e){}}
+
+// ── Background music (looped MP3, quiet under TTS) ────────
+var _bgPlaying=false;
+var _bgAudio=null;
+
+function ensureBgAudio(){
+  if(!_bgAudio){
+    _bgAudio=new Audio('videoplayback.mp3');
+    _bgAudio.loop=true;
+    _bgAudio.preload='auto';
+    // Keep BGM below speech / SFX (adjust if needed)
+    _bgAudio.volume=0.22;
+  }
+  return _bgAudio;
+}
+
+function startBgMusic(){
+  if(_bgPlaying)return;
+  _bgPlaying=true;
+  var a=ensureBgAudio();
+  var p=a.play();
+  if(p&&typeof p.catch==='function')p.catch(function(){_bgPlaying=false;});
+}
+
+function stopBgMusic(){
+  _bgPlaying=false;
+  if(_bgAudio)_bgAudio.pause();
+}
+function toggleMute(){
+  var btn=document.getElementById('muteBtn');
+  if(_bgPlaying){stopBgMusic();if(btn)btn.textContent='🔇';}
+  else{startBgMusic();if(btn)btn.textContent='🎵';}
+}
+function sndReveal(){[523,659,784].forEach(function(f,i){setTimeout(function(){tone(f,'sine',.18,.25);},i*80);});}
+function sndPlace(){tone(880,'sine',.1,.2);}
+function sndRemove(){tone(420,'triangle',.09,.15);}
+function sndCorrect(){[523,659,784,1047].forEach(function(f,i){setTimeout(function(){tone(f,'sine',.2,.28);},i*70);});}
+function sndWrong(){tone(280,'sawtooth',.22,.18);setTimeout(function(){tone(250,'sawtooth',.18,.2);},120);}
+
+// ── Auto-read engine ──────────────────────────────────────
+var _readSegs=[], _readIdx=0, _readPaused=false, _readWaitGroup=null;
+var _waitMergeAnim=false;
+var _readGen=0; // incremented on each startAutoRead to invalidate stale callbacks
+
+// Delay (ms) after BGM starts before first TTS segment — music leads, then narration
+var _READ_AFTER_BGM_MS=1800;
+
+function startAutoRead(){
+  var q=QUESTIONS[cQ];
+  if(!q.readSegments)return;
+  _readGen++;
+  _readSegs=q.readSegments; _readIdx=0; _readPaused=false; _readWaitGroup=null;
+  ttsCancel();
+  // Background music first, then read-aloud
+  startBgMusic();
+  var gen=_readGen;
+  setTimeout(function(){if(gen===_readGen)readNextSeg();},_READ_AFTER_BGM_MS);
+}
+
+function readNextSeg(){
+  if(_readIdx>=_readSegs.length)return;
+  var seg=_readSegs[_readIdx];
+  var gen=_readGen; // capture current generation
+  _readPaused=false; _readWaitGroup=null;
+
+  if(seg.segId){
+    var el=document.getElementById('rseg-'+seg.segId);
+    if(el)el.classList.add('reading');
+  }
+
+  var _spkBtn=document.getElementById('speakerBtn');
+  if(_spkBtn)_spkBtn.classList.add('speaking');
+  var _ended=false;
+  function onSegEnd(){
+    if(_ended||gen!==_readGen)return; _ended=true;
+    if(_spkBtn)_spkBtn.classList.remove('speaking');
+    if(seg.segId){var el=document.getElementById('rseg-'+seg.segId);if(el)el.classList.remove('reading');}
+    if(seg.waitFor&&!st[seg.waitFor]){
+      _readPaused=true;
+      _readWaitGroup=seg.waitFor;
+      activatePreBtns(seg.segId, seg.waitFor);
+    } else {
+      _readIdx++;
+      var q=QUESTIONS[cQ];
+      if(q.isMultiStep&&_readIdx>=_readSegs.length&&st.msStep===0&&!st.done){
+        if(!_waitMergeAnim) setTimeout(showMSQuestion,500);
+      } else {
+        setTimeout(readNextSeg,250);
+      }
+    }
+  }
+  function onSegErr(){
+    if(_ended||gen!==_readGen)return; _ended=true;
+    if(_spkBtn)_spkBtn.classList.remove('speaking');
+    if(seg.segId){var el=document.getElementById('rseg-'+seg.segId);if(el)el.classList.remove('reading');}
+    _readIdx++;setTimeout(readNextSeg,250);
+  }
+  ttsSpeak(seg.text, onSegEnd, onSegErr);
+}
+
+// ── TTS API ───────────────────────────────────────────────
+var _ttsCache={};  // text → mp3 url cache
+var _ttsAudio=null; // current playing audio
+
+function ttsSpeak(txt, onend, onerror){
+  txt=txt.trim();
+  if(!txt){if(onend)onend();return;}
+  // stop current audio
+  if(_ttsAudio){_ttsAudio.pause();_ttsAudio=null;}
+  function play(url){
+    var a=new Audio(url);
+    _ttsAudio=a;
+    a.volume=0.9;
+    a.onended=function(){_ttsAudio=null;if(onend)onend();};
+    a.onerror=function(){_ttsAudio=null;if(onerror)onerror();else if(onend)onend();};
+    a.play().catch(function(){if(onerror)onerror();else if(onend)onend();});
+  }
+  if(_ttsCache[txt]){play(_ttsCache[txt]);return;}
+  fetch('https://tts.mathufo.com/tts',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({data:[txt],voice_name:'zh_male_tiancaitongsheng_mars_bigtts'})
+  }).then(function(r){return r.json();})
+  .then(function(j){
+    if(j.error||!j.data||!j.data[0]){if(onerror)onerror();else if(onend)onend();return;}
+    var url='https://cdn.mathufo.com/sound/'+j.data[0];
+    _ttsCache[txt]=url;
+    play(url);
+  }).catch(function(){if(onerror)onerror();else if(onend)onend();});
+}
+
+function ttsCancel(){
+  if(_ttsAudio){_ttsAudio.pause();_ttsAudio=null;}
+}
+
+// Resume auto-read after user reveals the waited segment
+function resumeAutoRead(){
+  if(!_readPaused)return;
+  var gen=_readGen;
+  _readPaused=false; _readWaitGroup=null;
+  _readIdx++;
+  setTimeout(function(){if(gen===_readGen)readNextSeg();},300);
+}
+
+function activatePreBtns(segId, waitFor){
+  var segEl = segId ? document.getElementById('rseg-'+segId) : null;
+  var sc = document.getElementById('stemContent');
+  var container = segEl || sc;
+  if(!container) return;
+  container.querySelectorAll('[data-grp]').forEach(function(el){
+    var grp = el.getAttribute('data-grp');
+    if(!grp) return;
+    el.classList.remove('pre');
+    el.style.cursor = 'pointer';
+    el.style.pointerEvents = 'auto';
+    // use setAttribute onclick to avoid duplicate listeners after re-render
+    el.setAttribute('onclick', "doReveal('"+grp+"')");
+    if(waitFor===null||grp===waitFor) el.classList.add('pending');
+  });
+}
+
+function activateBtnPulse(group){
+  var sc=document.getElementById('stemContent');
+  if(!sc)return;
+  sc.querySelectorAll('[onclick],[data-grp]').forEach(function(el){
+    var oc=el.getAttribute('onclick')||'';
+    var grp=el.getAttribute('data-grp')||'';
+    if(oc.indexOf("'"+group+"'")!==-1||oc.indexOf('"'+group+'"')!==-1||grp===group){
+      el.classList.add('pending');
+    }
+  });
+}
+
+function deactivateBtnPulse(group){
+  var sc=document.getElementById('stemContent');
+  if(!sc)return;
+  sc.querySelectorAll('.pending').forEach(function(el){
+    var oc=el.getAttribute('onclick')||'';
+    var grp=el.getAttribute('data-grp')||'';
+    if(oc.indexOf("'"+group+"'")!==-1||oc.indexOf('"'+group+'"')!==-1||grp===group){
+      el.classList.remove('pending');
+    }
+  });
+}
+
+function speak(txt){
+  ttsCancel();
+  var b=document.getElementById('speakerBtn');
+  if(b)b.classList.add('speaking');
+  ttsSpeak(txt, function(){if(b)b.classList.remove('speaking');}, function(){if(b)b.classList.remove('speaking');});
+}
+
+function shuffle(a){var r=a.slice();for(var i=r.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=r[i];r[i]=r[j];r[j]=t;}return r;}
+
+function spk(txt){return '<button class="speaker-btn" id="speakerBtn" onclick="speak(\''+txt.replace(/'/g,"\\'")+'\')" title="朗读题目"><svg viewBox="0 0 24 24" fill="none" stroke="#8B5A00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>';}
+
+function hlbtn(cls,grp,txt,revealed){var c=cls+(revealed?' revealed':'');return '<span class="'+c+'" onclick="doReveal(\''+grp+'\')">'+txt+'</span>';}
+function hlbtnPre(cls,grp,txt,revealed){
+  // pre: revealed style but not yet clickable; becomes normal hlbtn after seg is read
+  if(revealed)return '<span class="'+cls+' revealed">'+txt+'</span>';
+  return '<span class="'+cls+' pre" data-grp="'+grp+'">'+txt+'</span>';
+}
+function seg(id,content){return '<span class="read-seg" id="rseg-'+id+'">'+content+'</span>';}
+
+var QUESTIONS=[
+  {
+    tag:'列算式解应用题',
+    stemFn:function(s){
+      return spk('农场里有3支小鸡，又来了两支，合起来共几支？')+
+        seg('A','农场里有'+hlbtnPre('hl-btn','A','3只',s.A)+'小鸡')+
+        '，'+seg('B','又来了'+hlbtnPre('hl-btn hl-btn-b','B','2只',s.B))+
+        '，'+seg('merge',hlbtnPre('hl-btn hl-btn-c','merge','合起来',s.merge)+'共几只')+
+        '<span class="question-mark">？</span>';
+    },
+    sceneFn:function(){
+      return '<svg viewBox="0 0 390 200" xmlns="http://www.w3.org/2000/svg">'+
+        '<defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#C9EFF8"/><stop offset="100%" stop-color="#A8E0F0"/></linearGradient></defs>'+
+        '<rect width="390" height="200" fill="url(#sg)"/>'+
+        '<circle cx="342" cy="34" r="22" fill="#FFD94A" opacity=".95"/><circle cx="342" cy="34" r="30" fill="#FFD94A" opacity=".2"/>'+
+        '<g opacity=".9"><ellipse cx="80" cy="30" rx="34" ry="16" fill="white"/><ellipse cx="58" cy="38" rx="22" ry="14" fill="white"/><ellipse cx="104" cy="38" rx="22" ry="13" fill="white"/></g>'+
+        '<ellipse cx="195" cy="192" rx="230" ry="55" fill="#6CC46C"/>'+
+        '<ellipse cx="195" cy="200" rx="210" ry="28" fill="#4EAA4E"/>'+
+        fence()+
+        chickG(70,108,'#FFD94A','#F5A000','#FFE87A','chickGroupA')+
+        chickG2(220,110,'#FF9F50','#C85000','#FFB870','chickGroupB')+
+        '</svg>';
+    },
+    options:['3','＋','2','＝','5','（只）'],
+    valid:[['3','＋','2','＝','5','（只）'],['2','＋','3','＝','5','（只）']],
+    successMsg:'太棒了！答对啦，一共5只小鸡！',
+    readSegments:[
+      {text:'农场里有3支小鸡', segId:'A', waitFor:'A'},
+      {text:'又来了两支', segId:'B', waitFor:'B'},
+      {text:'合起来共几支？', segId:'merge', waitFor:'merge'}
+    ],
+    revealFn:function(group,s){
+      if(group==='A'&&!s.A){s.A=true;sndReveal();show('chickGroupA');}
+      if(group==='B'&&!s.B){s.B=true;sndReveal();show('chickGroupB');}
+      if(group==='merge'&&s.A&&s.B&&!s.merge){
+        s.merge=true;sndReveal();
+        var gA=document.getElementById('chickGroupA'),gB=document.getElementById('chickGroupB');
+        // A starts at SVG translate(70,108), target translate(110,108) → +40px right
+        // B starts at SVG translate(220,110), target translate(200,110) → -20px left
+        // Use SMIL-style: just update SVG transform attribute directly, CSS transition on SVG attr won't work
+        // Instead animate via requestAnimationFrame
+        function animateTo(el, x0, y0, x1, y1, dur){
+          var start=null;
+          function step(ts){
+            if(!start)start=ts;
+            var p=Math.min((ts-start)/dur,1);
+            // ease out cubic
+            var e=1-Math.pow(1-p,3);
+            var cx=x0+(x1-x0)*e, cy=y0+(y1-y0)*e;
+            el.setAttribute('transform','translate('+cx+','+cy+')');
+            if(p<1)requestAnimationFrame(step);
+          }
+          requestAnimationFrame(step);
+        }
+        if(gA) animateTo(gA, 70, 108, 111, 108, 700);
+        if(gB) animateTo(gB, 220, 110, 199, 110, 700);
+        setTimeout(bounceAll,800);
+        setTimeout(unlock, 1000);
+      }
+    }
+  },
+  {
+    tag:'列算式解应用题',
+    stemFn:function(s){
+      return spk('小明前面有3人，后面有4人，一共有几人？')+
+        seg('C',hlbtnPre('hl-btn hl-btn-g','C','小明',s.C)+'前面有'+hlbtnPre('hl-btn hl-btn-f','A','3人',s.A))+
+        '，'+seg('B','后面有'+hlbtnPre('hl-btn hl-btn-e','B','4人',s.B))+
+        '，'+seg('merge',hlbtnPre('hl-btn hl-btn-h','merge','一共',s.merge)+'有几人')+
+        '<span class="question-mark">？</span>';
+    },
+    sceneFn:function(){
+      var sp=44, startX=19, y=148;
+      function mkPerson(idx, color, id, label){
+        var x = startX + idx*sp + sp/2;
+        var inner =
+          '<circle cx="0" cy="-22" r="11" fill="'+color+'"/>'+
+          '<rect x="-9" y="-11" width="18" height="18" rx="3" fill="'+color+'"/>'+
+          '<line x1="-9" y1="-8" x2="-16" y2="4" stroke="'+color+'" stroke-width="4" stroke-linecap="round"/>'+
+          '<line x1="9" y1="-8" x2="16" y2="4" stroke="'+color+'" stroke-width="4" stroke-linecap="round"/>'+
+          '<line x1="-4" y1="7" x2="-5" y2="20" stroke="'+color+'" stroke-width="4" stroke-linecap="round"/>'+
+          '<line x1="4" y1="7" x2="5" y2="20" stroke="'+color+'" stroke-width="4" stroke-linecap="round"/>'+
+          (label?'<text x="0" y="-36" text-anchor="middle" font-size="10" fill="'+color+'" font-family="Noto Sans SC,sans-serif" font-weight="700">'+label+'</text>':'');
+        return '<g class="chick-group" id="'+id+'" transform="translate('+x+','+y+')"><g class="chick-inner">'+inner+'</g></g>';
+      }
+      return '<svg viewBox="0 0 390 200" xmlns="http://www.w3.org/2000/svg">'+
+        '<defs><linearGradient id="sg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#E8F4FF"/><stop offset="100%" stop-color="#C8E0F0"/></linearGradient></defs>'+
+        '<rect width="390" height="200" fill="url(#sg2)"/>'+
+        '<rect x="0" y="155" width="390" height="45" fill="#D0C8B8"/>'+
+        '<rect x="0" y="152" width="390" height="5" fill="#B0A898"/>'+
+        '<line x1="0" y1="172" x2="390" y2="172" stroke="#E8E0D0" stroke-width="2" stroke-dasharray="24,16"/>'+
+        '<ellipse cx="22" cy="128" rx="16" ry="20" fill="#E8A030"/><rect x="19" y="138" width="6" height="16" fill="#8B6432"/>'+
+        '<ellipse cx="368" cy="126" rx="16" ry="20" fill="#D08828"/><rect x="365" y="136" width="6" height="18" fill="#8B6432"/>'+
+        '<g id="arrowGroup" style="opacity:0;transition:opacity .5s">'+
+          '<line x1="155" y1="164" x2="52" y2="164" stroke="#4A90D9" stroke-width="2.5" stroke-linecap="round"/>'+
+          '<polygon points="50,164 58,160 58,168" fill="#4A90D9"/>'+
+          '<text x="103" y="161" text-anchor="middle" font-size="10" fill="#4A90D9" font-family="Noto Sans SC,sans-serif" font-weight="700">前</text>'+
+          '<line x1="191" y1="164" x2="338" y2="164" stroke="#8B5CF6" stroke-width="2.5" stroke-linecap="round"/>'+
+          '<polygon points="340,164 332,160 332,168" fill="#8B5CF6"/>'+
+          '<text x="265" y="161" text-anchor="middle" font-size="10" fill="#8B5CF6" font-family="Noto Sans SC,sans-serif" font-weight="700">后</text>'+
+        '</g>'+
+        mkPerson(0,'#4A90D9','pA1',null)+
+        mkPerson(1,'#4A90D9','pA2',null)+
+        mkPerson(2,'#4A90D9','pA3',null)+
+        mkPerson(3,'#8B5A2B','xiaoming','小明')+
+        mkPerson(4,'#8B5CF6','pB1',null)+
+        mkPerson(5,'#8B5CF6','pB2',null)+
+        mkPerson(6,'#8B5CF6','pB3',null)+
+        mkPerson(7,'#8B5CF6','pB4',null)+
+        '<g id="braceMark" style="opacity:0;transition:opacity .5s">'+
+          '<path d="M 30,92 Q 30,86 37,86 L 190,86 Q 195,82 200,86 L 353,86 Q 360,86 360,92" fill="none" stroke="#D94040" stroke-width="2.5" stroke-linecap="round"/>'+
+          '<text x="195" y="78" text-anchor="middle" font-size="18" fill="#D94040" font-family="Ma Shan Zheng,cursive" font-weight="700">？</text>'+
+        '</g>'+
+        '</svg>';
+    },
+    options:['3','＋','4','＋','1','＝','8','（人）'],
+    valid:[['3','＋','4','＋','1','＝','8','（人）'],['4','＋','3','＋','1','＝','8','（人）'],['3','＋','1','＋','4','＝','8','（人）'],['4','＋','1','＋','3','＝','8','（人）'],['1','＋','3','＋','4','＝','8','（人）'],['1','＋','4','＋','3','＝','8','（人）']],
+    successMsg:'答对了！小明加上前后一共8人！',
+    readSegments:[
+      {text:'小明前面有3人', segId:'C', waitFor:'A'},
+      {text:'后面有4人', segId:'B', waitFor:'B'},
+      {text:'一共有几人？', segId:'merge', waitFor:'merge'}
+    ],
+    revealFn:function(group,s){
+      if(group==='A'&&!s.A){s.A=true;sndReveal();['pA1','pA2','pA3'].forEach(function(id){show(id);});}
+      if(group==='B'&&!s.B){s.B=true;sndReveal();['pB1','pB2','pB3','pB4'].forEach(function(id){show(id);});}
+      if(group==='C'&&!s.C){
+        s.C=true;sndReveal();
+        show('xiaoming');
+        var ag=document.getElementById('arrowGroup');
+        if(ag)ag.style.opacity='1';
+      }
+      if(group==='merge'&&s.A&&s.B&&s.C&&!s.merge){
+        s.merge=true;sndReveal();
+        var brace=document.getElementById('braceMark');
+        if(brace)brace.style.opacity='1';
+        bounceAll();
+        setTimeout(unlock, 700);
+      }
+    }
+  },
+  // ── Q3: 分步解题 ──
+  {
+    tag:'列算式解应用题',
+    isMultiStep:true,
+    stemBase:'小马速度是75千米/天，大马速度为120千米/天，小马先走3天后，大马开始追赶，几天能追上？',
+    readSegments:[
+      {text:'小马速度是75千米每天', segId:'A', waitFor:'B'},
+      {text:'大马速度为120千米每天', segId:'D', waitFor:'E'},
+      {text:'小马先走了3天', segId:'C', waitFor:'C'},
+      {text:'大马开始追赶，几天能追上？', segId:'merge', waitFor:'merge'}
+    ],
+    stemFn:function(s){
+      return spk('小马速度是75千米每天，大马速度为120千米每天，小马先走3天后，大马开始追赶，几天能追上？')+
+        seg('A',hlbtnPre('hl-btn hl-btn-d','A','小马',s.A)+'速度是'+hlbtnPre('hl-btn hl-btn-d','B','75千米/天',s.B))+
+        '，'+seg('D',hlbtnPre('hl-btn hl-btn-g','D','大马',s.D)+'速度为'+hlbtnPre('hl-btn hl-btn-g','E','120千米/天',s.E))+
+        '，小马先走了'+seg('C',hlbtnPre('hl-btn hl-btn-d','C','3天',s.C))+
+        '后，大马开始追赶，'+seg('merge','几天能'+hlbtnPre('hl-btn hl-btn-h','merge','追',s.merge)+'上')+
+        '<span class="question-mark">？</span>';
+    },
+    steps:[
+      {
+        question:'第①步：大马每天比小马多跑多少千米？',
+        readText:'第一步：大马每天比小马多跑多少千米？',
+        revealGroups:[],
+        options:['120','－','75','＝','45','（千米/天）'],
+        valid:[['120','－','75','＝','45','（千米/天）']],
+        successText:'120－75＝45（千米/天）'
+      },
+      {
+        question:'第②步：大马出发时，距小马有多远？',
+        readText:'第二步：大马出发时，距小马有多远？',
+        revealGroups:[],
+        options:['75','×','3','＝','225','（千米）'],
+        valid:[['75','×','3','＝','225','（千米）']],
+        successText:'75×3＝225（千米）'
+      },
+      {
+        question:'第③步：大马几天后能追上小马？',
+        readText:'第三步：大马几天后能追上小马？',
+        revealGroups:[],
+        options:['225','÷','45','＝','5','（天）'],
+        valid:[['225','÷','45','＝','5','（天）']],
+        successText:'225÷45＝5（天）'
+      }
+    ],
+    sceneFn:function(){
+      var bx=55,uw=28,y1=75,y2=125,uw2=Math.round(uw*120/75),thickW=9,thinW=3,dr=9;
+      function horseIcon(id,x,y,color,label){
+        return '<g id="'+id+'" style="opacity:0;transition:opacity .4s" transform="translate('+x+','+y+')">'+
+          '<ellipse cx="0" cy="-2" rx="13" ry="10" fill="'+color+'"/>'+
+          '<circle cx="7" cy="-8" r="7" fill="'+color+'"/>'+
+          '<circle cx="10" cy="-10" r="1.8" fill="#1A0A00"/>'+
+          '<path d="M3,-14 Q5,-19 7,-14" stroke="'+color+'" stroke-width="2.5" fill="none" stroke-linecap="round"/>'+
+          '<path d="M-13,0 Q-18,4 -14,9" stroke="'+color+'" stroke-width="2" fill="none" stroke-linecap="round"/>'+
+          '<text x="0" y="14" text-anchor="middle" font-size="8" fill="'+color+'" font-family="Noto Sans SC,sans-serif" font-weight="700">'+label+'</text>'+
+          '</g>';
+      }
+      function speedSeg(id,x,y,w,color,above,label){
+        var ly=above?y-14:y+18;
+        return '<g id="'+id+'" style="opacity:0;transition:opacity .4s">'+
+          '<line x1="'+x+'" y1="'+y+'" x2="'+(x+w)+'" y2="'+y+'" stroke="'+color+'" stroke-width="'+thinW+'" stroke-linecap="round" opacity="0.7"/>'+
+          '<line x1="'+x+'" y1="'+(y-6)+'" x2="'+x+'" y2="'+(y+6)+'" stroke="'+color+'" stroke-width="1.5"/>'+
+          '<line x1="'+(x+w)+'" y1="'+(y-6)+'" x2="'+(x+w)+'" y2="'+(y+6)+'" stroke="'+color+'" stroke-width="1.5"/>'+
+          '<text x="'+(x+w/2)+'" y="'+ly+'" text-anchor="middle" font-size="9" fill="'+color+'" font-family="Noto Sans SC,sans-serif" font-weight="700">'+label+'</text>'+
+          '</g>';
+      }
+      function pathSeg3(ids,x,y,w,color){
+        var out='';
+        for(var i=0;i<3;i++){
+          var sx=x+i*w,ex=sx+w;
+          out+='<g id="'+ids[i]+'" style="opacity:0;transition:opacity .35s">'+
+            '<line x1="'+sx+'" y1="'+y+'" x2="'+ex+'" y2="'+y+'" stroke="'+color+'" stroke-width="'+thickW+'" stroke-linecap="butt" opacity="0.8"/>'+
+            (i<2?'<line x1="'+ex+'" y1="'+(y-7)+'" x2="'+ex+'" y2="'+(y+7)+'" stroke="white" stroke-width="2.5"/>':'')+
+            '<text x="'+(sx+w/2)+'" y="'+(y-16)+'" text-anchor="middle" font-size="9" fill="'+color+'" font-family="Noto Sans SC,sans-serif" font-weight="700">75</text>'+
+            '</g>';
+        }
+        return out;
+      }
+      var meetX=bx+8*uw;
+      return '<svg id="q3svg" viewBox="0 0 390 200" xmlns="http://www.w3.org/2000/svg">'+
+        '<rect width="390" height="200" fill="#F8F4EE"/>'+
+        horseIcon('q3horseBlue',28,y1+2,'#4A90D9','小马')+
+        horseIcon('q3horseBrown',28,y2+2,'#8B5A2B','大马')+
+        '<line x1="'+bx+'" y1="'+y1+'" x2="370" y2="'+y1+'" stroke="#C8D8F0" stroke-width="1" stroke-dasharray="3,5"/>'+
+        '<line x1="'+bx+'" y1="'+y2+'" x2="370" y2="'+y2+'" stroke="#D8C8A8" stroke-width="1" stroke-dasharray="3,5"/>'+
+        speedSeg('q3blueSpd',bx,y1,uw,'#4A90D9',true,'75千米/天')+
+        speedSeg('q3brownSpd',bx,y2,uw2,'#8B5A2B',false,'120千米/天')+
+        pathSeg3(['q3bs0','q3bs1','q3bs2'],bx,y1,uw,'#4A90D9')+
+        '<g id="q3preBrace" style="opacity:0;transition:opacity .4s">'+
+          '<path d="M'+bx+','+(y1+12)+' L'+bx+','+(y1+18)+' L'+(bx+1.5*uw)+','+(y1+18)+' L'+(bx+1.5*uw)+','+(y1+22)+' L'+(bx+1.5*uw)+','+(y1+18)+' L'+(bx+3*uw)+','+(y1+18)+' L'+(bx+3*uw)+','+(y1+12)+'" fill="none" stroke="#4A90D9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'+
+          '<text x="'+(bx+1.5*uw)+'" y="'+(y1+30)+'" text-anchor="middle" font-size="9" fill="#1A4080" font-family="Noto Sans SC,sans-serif">先走3天</text>'+
+        '</g>'+
+        '<g id="q3meetMark" style="opacity:0;transition:opacity .4s">'+
+          '<line x1="'+meetX+'" y1="'+(y1-20)+'" x2="'+meetX+'" y2="'+(y2+22)+'" stroke="#D94040" stroke-width="1.5" stroke-dasharray="3,3"/>'+
+          '<text x="'+meetX+'" y="'+(y2+34)+'" text-anchor="middle" font-size="10" fill="#D94040" font-family="Noto Sans SC,sans-serif" font-weight="700">追上！</text>'+
+        '</g>'+
+        '<g id="q3chaseBrace" style="opacity:0;transition:opacity .4s">'+
+          '<path d="M'+bx+','+(y2+12)+' L'+bx+','+(y2+18)+' L'+((bx+meetX)/2)+','+(y2+18)+' L'+((bx+meetX)/2)+','+(y2+22)+' L'+((bx+meetX)/2)+','+(y2+18)+' L'+meetX+','+(y2+18)+' L'+meetX+','+(y2+12)+'" fill="none" stroke="#8B5A2B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'+
+          '<text x="'+((bx+meetX)/2)+'" y="'+(y2+32)+'" text-anchor="middle" font-size="9" fill="#5A3010" font-family="Noto Sans SC,sans-serif">？天</text>'+
+        '</g>'+
+        '<circle id="q3dotBlue" cx="'+bx+'" cy="'+y1+'" r="'+dr+'" fill="#4A90D9" stroke="white" stroke-width="2" opacity="0"/>'+
+        '<circle id="q3dotBrown" cx="'+bx+'" cy="'+y2+'" r="'+dr+'" fill="#8B5A2B" stroke="white" stroke-width="2" opacity="0"/>'+
+        '</svg>';
+    },
+    revealFn:function(group,s){
+      var bx=55,uw=28,y1=75,y2=125,uw2=45;
+      if(group==='A'&&!s.A){s.A=true;sndReveal();var h=document.getElementById('q3horseBlue');if(h)h.style.opacity='1';var d=document.getElementById('q3dotBlue');if(d)d.style.opacity='1';}
+      if(group==='B'&&!s.B){
+        s.B=true;sndReveal();var g=document.getElementById('q3blueSpd');if(g)g.style.opacity='1';
+        // also reveal small horse icon
+        if(!s.A){s.A=true;var h=document.getElementById('q3horseBlue');if(h)h.style.opacity='1';var d2=document.getElementById('q3dotBlue');if(d2)d2.style.opacity='1';}
+      }
+      if(group==='D'&&!s.D){s.D=true;sndReveal();var h=document.getElementById('q3horseBrown');if(h)h.style.opacity='1';var d=document.getElementById('q3dotBrown');if(d)d.style.opacity='1';}
+      if(group==='E'&&!s.E){
+        s.E=true;sndReveal();var g=document.getElementById('q3brownSpd');if(g)g.style.opacity='1';
+        // also reveal big horse icon
+        if(!s.D){s.D=true;var h=document.getElementById('q3horseBrown');if(h)h.style.opacity='1';var d2=document.getElementById('q3dotBrown');if(d2)d2.style.opacity='1';}
+      }
+      if(group==='C'&&!s.C){
+        s.C=true;sndReveal();
+        var sp=document.getElementById('q3blueSpd');if(sp)sp.style.opacity='0';
+        var bd=document.getElementById('q3dotBlue');
+        if(bd){bd.setAttribute('cx',bx);bd.setAttribute('opacity','1');}
+        function revealAndMove(idx){
+          var id=['q3bs0','q3bs1','q3bs2'][idx];
+          var g=document.getElementById(id);if(g)g.style.opacity='1';
+          var startX=bx+idx*uw,endX=bx+(idx+1)*uw,dur=300,t0=null;
+          requestAnimationFrame(function step(ts){
+            if(!t0)t0=ts;var p=Math.min((ts-t0)/dur,1);var ep=p<0.5?2*p*p:1-Math.pow(-2*p+2,2)/2;
+            if(bd)bd.setAttribute('cx',startX+(endX-startX)*ep);
+            if(p<1){requestAnimationFrame(step);}
+            else{if(idx<2){setTimeout(function(){revealAndMove(idx+1);},80);}
+              else{setTimeout(function(){var pb=document.getElementById('q3preBrace');if(pb)pb.style.opacity='1';},200);}
+            }
+          });
+        }
+        setTimeout(function(){revealAndMove(0);},100);
+      }
+      if(group==='merge'&&!s.merge){
+        s.merge=true;sndReveal();
+        _waitMergeAnim=true;
+        var bsp=document.getElementById('q3brownSpd');if(bsp)bsp.style.opacity='0';
+        var svg=document.getElementById('q3svg');
+        var bd=document.getElementById('q3dotBlue');
+        var brd=document.getElementById('q3dotBrown');
+        var mm=document.getElementById('q3meetMark');
+        var cb=document.getElementById('q3chaseBrace');
+        if(!svg||!bd||!brd)return;
+        var blueStart=bx+3*uw,brownStart=bx,meetX=bx+8*uw,thickW=9;
+        bd.setAttribute('cx',blueStart);brd.setAttribute('cx',brownStart);
+        bd.setAttribute('opacity','1');brd.setAttribute('opacity','1');
+        svg.appendChild(bd);svg.appendChild(brd);
+        var totalDays=5,dayDur=550,currentDay=0;
+        var bls=[],brs=[],blt=[],brt=[];
+        for(var i=0;i<totalDays;i++){
+          var bl=document.createElementNS('http://www.w3.org/2000/svg','line');
+          bl.setAttribute('x1',blueStart+i*uw);bl.setAttribute('x2',blueStart+i*uw);bl.setAttribute('y1',y1);bl.setAttribute('y2',y1);bl.setAttribute('stroke','#4A90D9');bl.setAttribute('stroke-width',thickW);bl.setAttribute('stroke-linecap','butt');svg.insertBefore(bl,bd);bls.push(bl);
+          var brl=document.createElementNS('http://www.w3.org/2000/svg','line');
+          brl.setAttribute('x1',brownStart+i*uw2);brl.setAttribute('x2',brownStart+i*uw2);brl.setAttribute('y1',y2);brl.setAttribute('y2',y2);brl.setAttribute('stroke','#8B5A2B');brl.setAttribute('stroke-width',thickW);brl.setAttribute('stroke-linecap','butt');svg.insertBefore(brl,bd);brs.push(brl);
+          var btick=document.createElementNS('http://www.w3.org/2000/svg','line');btick.setAttribute('x1',blueStart+(i+1)*uw);btick.setAttribute('x2',blueStart+(i+1)*uw);btick.setAttribute('y1',y1-7);btick.setAttribute('y2',y1+7);btick.setAttribute('stroke','white');btick.setAttribute('stroke-width','2.5');btick.setAttribute('opacity','0');svg.insertBefore(btick,bd);blt.push(btick);
+          var brtick=document.createElementNS('http://www.w3.org/2000/svg','line');brtick.setAttribute('x1',brownStart+(i+1)*uw2);brtick.setAttribute('x2',brownStart+(i+1)*uw2);brtick.setAttribute('y1',y2-7);brtick.setAttribute('y2',y2+7);brtick.setAttribute('stroke','white');brtick.setAttribute('stroke-width','2.5');brtick.setAttribute('opacity','0');svg.insertBefore(brtick,bd);brt.push(brtick);
+        }
+        function runDay(startTs){
+          return function(ts){
+            var p=Math.min((ts-startTs)/dayDur,1),ep=p<0.5?2*p*p:1-Math.pow(-2*p+2,2)/2,d=currentDay;
+            var bcx=(blueStart+d*uw)+uw*ep,brcx=(brownStart+d*uw2)+uw2*ep;
+            bls[d].setAttribute('x2',bcx);brs[d].setAttribute('x2',brcx);
+            bd.setAttribute('cx',bcx);brd.setAttribute('cx',brcx);
+            if(p<1){requestAnimationFrame(runDay(startTs));}
+            else{blt[d].setAttribute('opacity','1');brt[d].setAttribute('opacity','1');currentDay++;
+              if(currentDay<totalDays){requestAnimationFrame(function(ts2){runDay(ts2)(ts2);});}
+              else{setTimeout(function(){
+                if(mm)mm.style.opacity='1';if(cb)cb.style.opacity='1';
+                _waitMergeAnim=false;
+                var q=QUESTIONS[cQ];
+                if(q&&q.isMultiStep&&st.msStep===0&&!st.done&&_readIdx>=_readSegs.length){
+                  setTimeout(showMSQuestion,600);
+                }
+              },300);}
+            }
+          };
+        }
+        setTimeout(function(){requestAnimationFrame(function(ts){runDay(ts)(ts);});},300);
+      }
+    }
+  },
+  // ── Q4: 综合算式（追及） ──
+  {
+    tag:'列算式解应用题',
+    stemFn:function(s){
+      return spk('小马速度是75千米每天，先走了3天后，大马开始追赶，速度是120千米每天，几天能追上？')+
+        seg('A',hlbtnPre('hl-btn hl-btn-d','A','小马',s.A)+'速度是'+hlbtnPre('hl-btn hl-btn-d','B','75千米/天',s.B))+
+        '，'+seg('C','先走了'+hlbtnPre('hl-btn hl-btn-d','C','3天',s.C))+
+        '后，'+seg('D',hlbtnPre('hl-btn hl-btn-g','D','大马',s.D)+'开始追赶，速度是'+hlbtnPre('hl-btn hl-btn-g','E','120千米/天',s.E))+
+        '，'+seg('merge',hlbtnPre('hl-btn hl-btn-h','merge','追',s.merge)+'几天')+
+        '<span class="question-mark">？</span>';
+    },
+    sceneFn:function(){
+      var bx=55, uw=28, y1=75, y2=125;
+      var uw2=Math.round(uw*120/75); // 45px per brown unit
+      var thickW=9, thinW=3, dr=9;
+
+      // horse icons (hidden until A/D clicked)
+      function horseIcon(id,x,y,color,label){
+        return '<g id="'+id+'" style="opacity:0;transition:opacity .4s" transform="translate('+x+','+y+')">'+
+          '<ellipse cx="0" cy="-2" rx="13" ry="10" fill="'+color+'"/>'+
+          '<circle cx="7" cy="-8" r="7" fill="'+color+'"/>'+
+          '<circle cx="10" cy="-10" r="1.8" fill="#1A0A00"/>'+
+          '<path d="M3,-14 Q5,-19 7,-14" stroke="'+color+'" stroke-width="2.5" fill="none" stroke-linecap="round"/>'+
+          '<path d="M-13,0 Q-18,4 -14,9" stroke="'+color+'" stroke-width="2" fill="none" stroke-linecap="round"/>'+
+          '<text x="0" y="14" text-anchor="middle" font-size="8" fill="'+color+'" font-family="Noto Sans SC,sans-serif" font-weight="700">'+label+'</text>'+
+          '</g>';
+      }
+
+      // baseline tracks
+      var trackBlue ='<line x1="'+bx+'" y1="'+y1+'" x2="370" y2="'+y1+'" stroke="#C8D8F0" stroke-width="1" stroke-dasharray="3,5"/>';
+      var trackBrown='<line x1="'+bx+'" y1="'+y2+'" x2="370" y2="'+y2+'" stroke="#D8C8A8" stroke-width="1" stroke-dasharray="3,5"/>';
+
+      // thin speed reference segment + label (shown on B/E click)
+      function speedSeg(id,x,y,w,color,above,label){
+        var ly=above?y-14:y+18;
+        return '<g id="'+id+'" style="opacity:0;transition:opacity .4s">'+
+          '<line x1="'+x+'" y1="'+y+'" x2="'+(x+w)+'" y2="'+y+'" stroke="'+color+'" stroke-width="'+thinW+'" stroke-linecap="round" opacity="0.7"/>'+
+          // end ticks
+          '<line x1="'+x+'" y1="'+(y-6)+'" x2="'+x+'" y2="'+(y+6)+'" stroke="'+color+'" stroke-width="1.5"/>'+
+          '<line x1="'+(x+w)+'" y1="'+(y-6)+'" x2="'+(x+w)+'" y2="'+(y+6)+'" stroke="'+color+'" stroke-width="1.5"/>'+
+          '<text x="'+(x+w/2)+'" y="'+ly+'" text-anchor="middle" font-size="9" fill="'+color+'" font-family="Noto Sans SC,sans-serif" font-weight="700">'+label+'</text>'+
+          '</g>';
+      }
+
+      // thick path segment with colored tick dividers (shown on C click, 3 segs)
+      function pathSeg3(ids,x,y,w,color,above){
+        var ly=above?y-16:y+20;
+        var out='';
+        for(var i=0;i<3;i++){
+          var sx=x+i*w, ex=sx+w;
+          out+='<g id="'+ids[i]+'" style="opacity:0;transition:opacity .35s">'+
+            '<line x1="'+sx+'" y1="'+y+'" x2="'+ex+'" y2="'+y+'" stroke="'+color+'" stroke-width="'+thickW+'" stroke-linecap="butt" opacity="0.8"/>'+
+            // right tick divider (colored)
+            (i<2?'<line x1="'+ex+'" y1="'+(y-7)+'" x2="'+ex+'" y2="'+(y+7)+'" stroke="white" stroke-width="2.5"/>':'') +
+            '<text x="'+(sx+w/2)+'" y="'+ly+'" text-anchor="middle" font-size="9" fill="'+color+'" font-family="Noto Sans SC,sans-serif" font-weight="700">75</text>'+
+            '</g>';
+        }
+        return out;
+      }
+
+      var blueSpeedSeg = speedSeg('q3blueSpd', bx, y1, uw, '#4A90D9', true, '75千米/天');
+      var bluePathSegs = pathSeg3(['q3bs0','q3bs1','q3bs2'], bx, y1, uw, '#4A90D9', true);
+
+      var preBrace='<g id="q3preBrace" style="opacity:0;transition:opacity .4s">'+
+        '<path d="M'+bx+','+(y1+12)+' L'+bx+','+(y1+18)+' L'+(bx+3*uw)+','+(y1+18)+' L'+(bx+3*uw)+','+(y1+12)+'" fill="none" stroke="#4A90D9" stroke-width="1.5" stroke-linecap="round"/>'+
+        '<text x="'+(bx+1.5*uw)+'" y="'+(y1+29)+'" text-anchor="middle" font-size="9" fill="#1A4080" font-family="Noto Sans SC,sans-serif">先走3天</text>'+
+        '</g>';
+
+      var brownSpeedSeg = speedSeg('q3brownSpd', bx, y2, uw2, '#8B5A2B', false, '120千米/天');
+
+      // meet mark
+      var meetX=bx+8*uw;
+      var meetMark='<g id="q3meetMark" style="opacity:0;transition:opacity .4s">'+
+        '<line x1="'+meetX+'" y1="'+(y1-20)+'" x2="'+meetX+'" y2="'+(y2+22)+'" stroke="#D94040" stroke-width="1.5" stroke-dasharray="3,3"/>'+
+        '<text x="'+meetX+'" y="'+(y2+34)+'" text-anchor="middle" font-size="10" fill="#D94040" font-family="Noto Sans SC,sans-serif" font-weight="700">追上！</text>'+
+        '</g>';
+
+      // brown brace: from bx (origin) to meetX — represents total travel time of brown horse
+      var chaseBraceX0=bx, chaseBraceX1=meetX;
+      var chaseBrace='<g id="q3chaseBrace" style="opacity:0;transition:opacity .4s 0.2s">'+
+        '<path d="M'+chaseBraceX0+','+(y2+12)+' L'+chaseBraceX0+','+(y2+18)+' L'+((chaseBraceX0+chaseBraceX1)/2)+','+(y2+18)+' L'+((chaseBraceX0+chaseBraceX1)/2)+','+(y2+22)+' L'+((chaseBraceX0+chaseBraceX1)/2)+','+(y2+18)+' L'+chaseBraceX1+','+(y2+18)+' L'+chaseBraceX1+','+(y2+12)+'" fill="none" stroke="#8B5A2B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'+
+        '<text x="'+((chaseBraceX0+chaseBraceX1)/2)+'" y="'+(y2+32)+'" text-anchor="middle" font-size="9" fill="#5A3010" font-family="Noto Sans SC,sans-serif">？天</text>'+
+        '</g>';
+
+      // dots: blue starts at bx (origin), brown at bx
+      var blueDot='<circle id="q3dotBlue" cx="'+bx+'" cy="'+y1+'" r="'+dr+'" fill="#4A90D9" stroke="white" stroke-width="2" opacity="0"/>';
+      var brownDot='<circle id="q3dotBrown" cx="'+bx+'" cy="'+y2+'" r="'+dr+'" fill="#8B5A2B" stroke="white" stroke-width="2" opacity="0"/>';
+
+      return '<svg id="q3svg" viewBox="0 0 390 200" xmlns="http://www.w3.org/2000/svg">'+
+        '<rect width="390" height="200" fill="#F8F4EE"/>'+
+        horseIcon('q3horseBlue', 28, y1+2, '#4A90D9', '小马')+
+        horseIcon('q3horseBrown', 28, y2+2, '#8B5A2B', '大马')+
+        trackBlue+trackBrown+
+        blueSpeedSeg+bluePathSegs+preBrace+
+        brownSpeedSeg+
+        meetMark+chaseBrace+blueDot+brownDot+
+        '</svg>';
+    },
+    options:['75','×','3','÷','(120－75)','＝','5','（天）'],
+    valid:[['75','×','3','÷','(120－75)','＝','5','（天）']],
+    successMsg:'太厉害！大马5天后能追上小马！',
+    readSegments:[
+      {text:'小马速度是75千米每天', segId:'A', waitFor:'B'},
+      {text:'先走了3天', segId:'C', waitFor:'C'},
+      {text:'大马开始追赶，速度是120千米每天', segId:'D', waitFor:'E'},
+      {text:'几天能追上？', segId:'merge', waitFor:'merge'}
+    ],
+    revealFn:function(group,s){
+      if(group==='A'&&!s.A){
+        s.A=true;sndReveal();
+        var h=document.getElementById('q3horseBlue');if(h)h.style.opacity='1';
+        var d=document.getElementById('q3dotBlue');if(d)d.style.opacity='1';
+      }
+      if(group==='B'&&!s.B){
+        s.B=true;sndReveal();
+        var g=document.getElementById('q3blueSpd');if(g)g.style.opacity='1';
+      }
+      if(group==='C'&&!s.C){
+        s.C=true;sndReveal();
+        // hide speed seg
+        var sp=document.getElementById('q3blueSpd');if(sp)sp.style.opacity='0';
+        // show 3 path segs one by one, animate blue dot across them
+        var bx=55,uw=28,y1=75;
+        var bd=document.getElementById('q3dotBlue');
+        if(bd){bd.setAttribute('cx',bx);bd.setAttribute('opacity','1');}
+        // reveal each seg then move dot to its end
+        function revealAndMove(idx){
+          var id=['q3bs0','q3bs1','q3bs2'][idx];
+          var g=document.getElementById(id);if(g)g.style.opacity='1';
+          // animate dot from current pos to end of this seg
+          var startX=bx+idx*uw, endX=bx+(idx+1)*uw;
+          var dur=300, t0=null;
+          function step(ts){
+            if(!t0)t0=ts;
+            var p=Math.min((ts-t0)/dur,1);
+            var ep=p<0.5?2*p*p:1-Math.pow(-2*p+2,2)/2;
+            if(bd)bd.setAttribute('cx',startX+(endX-startX)*ep);
+            if(p<1){requestAnimationFrame(step);}
+            else{
+              if(idx<2){setTimeout(function(){revealAndMove(idx+1);},80);}
+              else{setTimeout(function(){var pb=document.getElementById('q3preBrace');if(pb)pb.style.opacity='1';},200);}
+            }
+          }
+          requestAnimationFrame(step);
+        }
+        setTimeout(function(){revealAndMove(0);},100);
+      }
+      if(group==='D'&&!s.D){
+        s.D=true;sndReveal();
+        var h=document.getElementById('q3horseBrown');if(h)h.style.opacity='1';
+        var d=document.getElementById('q3dotBrown');if(d)d.style.opacity='1';
+      }
+      if(group==='E'&&!s.E){
+        s.E=true;sndReveal();
+        var g=document.getElementById('q3brownSpd');if(g)g.style.opacity='1';
+      }
+      if(group==='merge'&&s.A&&s.B&&s.C&&s.D&&s.E&&!s.merge){
+        s.merge=true;sndReveal();
+
+        var bx=55, uw=28, uw2=45, y1=75, y2=125;
+        var thickW=9;
+        var blueStart=bx+3*uw, brownStart=bx, meetX=bx+8*uw;
+        var svg=document.getElementById('q3svg');
+        var bd=document.getElementById('q3dotBlue');
+        var brd=document.getElementById('q3dotBrown');
+        var mm=document.getElementById('q3meetMark');
+        if(!svg||!bd||!brd)return;
+
+        // hide speed segs when chase starts
+        var bsp=document.getElementById('q3brownSpd');if(bsp)bsp.style.opacity='0';
+
+        // blue already at blueStart after C walk, brown at origin
+        bd.setAttribute('cx',blueStart); bd.setAttribute('opacity','1');
+        brd.setAttribute('cx',brownStart); brd.setAttribute('opacity','1');
+        svg.appendChild(bd); svg.appendChild(brd);
+
+        var totalDays=5, dayDur=550, currentDay=0, gap=2;
+        var cb=document.getElementById('q3chaseBrace');
+
+        var blueLines=[], brownLines=[], blueLabels=[], brownLabels=[];
+        for(var i=0;i<totalDays;i++){
+          var bl=document.createElementNS('http://www.w3.org/2000/svg','line');
+          bl.setAttribute('x1',blueStart+i*uw); bl.setAttribute('x2',blueStart+i*uw);
+          bl.setAttribute('y1',y1); bl.setAttribute('y2',y1);
+          bl.setAttribute('stroke','#4A90D9'); bl.setAttribute('stroke-width',thickW);
+          bl.setAttribute('stroke-linecap','butt');
+          svg.insertBefore(bl,bd); blueLines.push(bl);
+
+          var brl=document.createElementNS('http://www.w3.org/2000/svg','line');
+          brl.setAttribute('x1',brownStart+i*uw2); brl.setAttribute('x2',brownStart+i*uw2);
+          brl.setAttribute('y1',y2); brl.setAttribute('y2',y2);
+          brl.setAttribute('stroke','#8B5A2B'); brl.setAttribute('stroke-width',thickW);
+          brl.setAttribute('stroke-linecap','butt');
+          svg.insertBefore(brl,bd); brownLines.push(brl);
+
+          // colored tick dividers at each day boundary
+          var btick=document.createElementNS('http://www.w3.org/2000/svg','line');
+          btick.setAttribute('x1',blueStart+(i+1)*uw); btick.setAttribute('x2',blueStart+(i+1)*uw);
+          btick.setAttribute('y1',y1-7); btick.setAttribute('y2',y1+7);
+          btick.setAttribute('stroke','white'); btick.setAttribute('stroke-width','2.5');
+          btick.setAttribute('opacity','0');
+          svg.insertBefore(btick,bd); blueLabels.push(btick);
+
+          var brtick=document.createElementNS('http://www.w3.org/2000/svg','line');
+          brtick.setAttribute('x1',brownStart+(i+1)*uw2); brtick.setAttribute('x2',brownStart+(i+1)*uw2);
+          brtick.setAttribute('y1',y2-7); brtick.setAttribute('y2',y2+7);
+          brtick.setAttribute('stroke','white'); brtick.setAttribute('stroke-width','2.5');
+          brtick.setAttribute('opacity','0');
+          svg.insertBefore(brtick,bd); brownLabels.push(brtick);
+        }
+
+        function runDay(startTs){
+          return function(ts){
+            var p=Math.min((ts-startTs)/dayDur,1);
+            var ep=p<0.5?2*p*p:1-Math.pow(-2*p+2,2)/2;
+            var d=currentDay;
+            var bcx=(blueStart+d*uw)+uw*ep;
+            var brcx=(brownStart+d*uw2)+uw2*ep;
+            blueLines[d].setAttribute('x2',bcx);
+            brownLines[d].setAttribute('x2',brcx);
+            bd.setAttribute('cx',bcx); brd.setAttribute('cx',brcx);
+            if(p<1){requestAnimationFrame(runDay(startTs));}
+            else{
+              blueLabels[d].setAttribute('opacity','1');
+              brownLabels[d].setAttribute('opacity','1');
+              currentDay++;
+              if(currentDay<totalDays){requestAnimationFrame(function(ts2){runDay(ts2)(ts2);});}
+              else{setTimeout(function(){
+                if(mm)mm.style.opacity='1';if(cb)cb.style.opacity='1';
+                setTimeout(unlock, 400);
+              },300);}
+            }
+          };
+        }
+        setTimeout(function(){requestAnimationFrame(function(ts){runDay(ts)(ts);});},300);
+      }
+    }
+  },
+];
+function fence(){
+  var s='<rect x="8" y="143" width="374" height="5" rx="2" fill="#A0784A"/><rect x="8" y="156" width="374" height="4" rx="2" fill="#A0784A"/>';
+  [20,75,130,185,240,295,350].forEach(function(x){s+='<rect x="'+x+'" y="133" width="6" height="30" rx="2" fill="#8B6432"/>';});
+  return s;
+}
+
+function chickG(cx,cy,fill,beak,wing,id){
+  function c1(dx,dy,r1,r2){
+    return '<g transform="translate('+dx+','+dy+')">'+
+      '<ellipse cx="0" cy="2" rx="'+r1+'" ry="'+r2+'" fill="'+fill+'"/>'+
+      '<circle cx="0" cy="-'+(r1+5)+'" r="'+(r1-3)+'" fill="'+fill+'"/>'+
+      '<polygon points="0,-'+(r1+12)+' -4,-'+(r1+7)+' 4,-'+(r1+7)+'" fill="'+beak+'"/>'+
+      '<circle cx="4" cy="-'+(r1+8)+'" r="2" fill="#2C1800"/>'+
+      '<line x1="-'+r1+'" y1="5" x2="-'+(r1+7)+'" y2="16" stroke="'+beak+'" stroke-width="2.5"/>'+
+      '<line x1="'+r1+'" y1="5" x2="'+(r1+7)+'" y2="16" stroke="'+beak+'" stroke-width="2.5"/>'+
+      '<ellipse cx="-'+(r1+5)+'" cy="17" rx="5" ry="2.5" fill="'+beak+'"/>'+
+      '<ellipse cx="'+(r1+5)+'" cy="17" rx="5" ry="2.5" fill="'+beak+'"/>'+
+      '<ellipse cx="-8" cy="-9" rx="5" ry="3" fill="'+wing+'" transform="rotate(-30,-8,-9)"/>'+
+      '<ellipse cx="8" cy="-9" rx="5" ry="3" fill="'+wing+'" transform="rotate(30,8,-9)"/>'+
+      '</g>';
+  }
+  return '<g class="chick-group" id="'+id+'" transform="translate('+cx+','+cy+')"><g class="chick-inner">'+
+    c1(0,0,15,12)+c1(46,5,13,10)+c1(22,-8,13,10)+'</g></g>';
+}
+
+function chickG2(cx,cy,fill,beak,wing,id){
+  function c1(dx,dy,r1,r2){
+    return '<g transform="translate('+dx+','+dy+')">'+
+      '<ellipse cx="0" cy="2" rx="'+r1+'" ry="'+r2+'" fill="'+fill+'"/>'+
+      '<circle cx="0" cy="-'+(r1+5)+'" r="'+(r1-3)+'" fill="'+fill+'"/>'+
+      '<polygon points="0,-'+(r1+12)+' -4,-'+(r1+7)+' 4,-'+(r1+7)+'" fill="'+beak+'"/>'+
+      '<circle cx="4" cy="-'+(r1+8)+'" r="2" fill="#2C1800"/>'+
+      '<line x1="-'+r1+'" y1="5" x2="-'+(r1+7)+'" y2="16" stroke="'+beak+'" stroke-width="2.5"/>'+
+      '<line x1="'+r1+'" y1="5" x2="'+(r1+7)+'" y2="16" stroke="'+beak+'" stroke-width="2.5"/>'+
+      '<ellipse cx="-'+(r1+5)+'" cy="17" rx="5" ry="2.5" fill="'+beak+'"/>'+
+      '<ellipse cx="'+(r1+5)+'" cy="17" rx="5" ry="2.5" fill="'+beak+'"/>'+
+      '<ellipse cx="-8" cy="-9" rx="5" ry="3" fill="'+wing+'" transform="rotate(-30,-8,-9)"/>'+
+      '<ellipse cx="8" cy="-9" rx="5" ry="3" fill="'+wing+'" transform="rotate(30,8,-9)"/>'+
+      '</g>';
+  }
+  return '<g class="chick-group" id="'+id+'" transform="translate('+cx+','+cy+')"><g class="chick-inner">'+
+    c1(0,0,15,12)+c1(38,4,13,10)+'</g></g>';
+}
+
+function personG(x,y,color,id){
+  return '<g class="chick-group" id="'+id+'" transform="translate('+x+','+y+')"><g class="chick-inner">'+
+    '<circle cx="0" cy="-26" r="10" fill="'+color+'"/>'+
+    '<rect x="-10" y="-16" width="20" height="22" rx="4" fill="'+color+'"/>'+
+    '<line x1="-10" y1="-14" x2="-18" y2="-1" stroke="'+color+'" stroke-width="4" stroke-linecap="round"/>'+
+    '<line x1="10" y1="-14" x2="18" y2="-1" stroke="'+color+'" stroke-width="4" stroke-linecap="round"/>'+
+    '<line x1="-5" y1="6" x2="-7" y2="20" stroke="'+color+'" stroke-width="4" stroke-linecap="round"/>'+
+    '<line x1="5" y1="6" x2="7" y2="20" stroke="'+color+'" stroke-width="4" stroke-linecap="round"/>'+
+    '</g></g>';
+}
+
+function personStatic(x,y,color,label){
+  return '<g transform="translate('+x+','+y+')">'+
+    '<circle cx="0" cy="-26" r="10" fill="'+color+'"/>'+
+    '<rect x="-10" y="-16" width="20" height="22" rx="4" fill="'+color+'"/>'+
+    '<line x1="-10" y1="-14" x2="-18" y2="-1" stroke="'+color+'" stroke-width="4" stroke-linecap="round"/>'+
+    '<line x1="10" y1="-14" x2="18" y2="-1" stroke="'+color+'" stroke-width="4" stroke-linecap="round"/>'+
+    '<line x1="-5" y1="6" x2="-7" y2="20" stroke="'+color+'" stroke-width="4" stroke-linecap="round"/>'+
+    '<line x1="5" y1="6" x2="7" y2="20" stroke="'+color+'" stroke-width="4" stroke-linecap="round"/>'+
+    '<text x="0" y="-40" text-anchor="middle" font-size="11" fill="'+color+'" font-family="Noto Sans SC,sans-serif" font-weight="700">'+label+'</text>'+
+    '</g>';
+}
+
+function horseG(x,y,color,id){
+  return '<g class="chick-group" id="'+id+'" transform="translate('+x+','+y+')">'+
+    '<ellipse cx="0" cy="0" rx="38" ry="20" fill="'+color+'"/>'+
+    '<ellipse cx="28" cy="-16" rx="13" ry="18" fill="'+color+'" transform="rotate(-20,28,-16)"/>'+
+    '<ellipse cx="42" cy="-30" rx="15" ry="10" fill="'+color+'" transform="rotate(-10,42,-30)"/>'+
+    '<circle cx="48" cy="-34" r="2.5" fill="#1A0A00"/>'+
+    '<path d="M16,-18 Q20,-36 32,-30 Q26,-40 38,-36" stroke="#3A1800" stroke-width="3" fill="none" stroke-linecap="round"/>'+
+    '<path d="M-38,0 Q-54,-8 -50,12 Q-48,5 -42,13" stroke="#3A1800" stroke-width="3" fill="none" stroke-linecap="round"/>'+
+    '<line x1="-18" y1="18" x2="-20" y2="40" stroke="'+color+'" stroke-width="7" stroke-linecap="round"/>'+
+    '<line x1="-4" y1="18" x2="-5" y2="40" stroke="'+color+'" stroke-width="7" stroke-linecap="round"/>'+
+    '<line x1="10" y1="18" x2="11" y2="40" stroke="'+color+'" stroke-width="7" stroke-linecap="round"/>'+
+    '<line x1="24" y1="18" x2="25" y2="40" stroke="'+color+'" stroke-width="7" stroke-linecap="round"/>'+
+    '<ellipse cx="-20" cy="41" rx="5" ry="3" fill="#2C1800"/>'+
+    '<ellipse cx="-5" cy="41" rx="5" ry="3" fill="#2C1800"/>'+
+    '<ellipse cx="11" cy="41" rx="5" ry="3" fill="#2C1800"/>'+
+    '<ellipse cx="25" cy="41" rx="5" ry="3" fill="#2C1800"/>'+
+    '</g>';
+}
+
+function show(id){var g=document.getElementById(id);if(g)g.classList.add('visible');}
+function unlock(){var el=document.getElementById('interactArea');if(el)el.classList.remove('locked');}
+function bounceAll(){document.querySelectorAll('.chick-group.visible .chick-inner').forEach(function(g){g.classList.remove('bounce');void g.offsetWidth;g.classList.add('bounce');});}
+function launchConfetti(){
+  var colors=['#FFD94A','#FF9F50','#5CB85C','#4FC3F7','#F48FB1','#CE93D8'];
+  var el=document.getElementById('confetti');
+  for(var i=0;i<70;i++){
+    var p=document.createElement('div');p.className='confetti-piece';
+    var s=6+Math.random()*9;
+    p.style.cssText='left:'+Math.random()*100+'%;width:'+s+'px;height:'+s+'px;background:'+colors[Math.floor(Math.random()*colors.length)]+';border-radius:'+(Math.random()>.5?'50%':'3px')+';animation-duration:'+(1.2+Math.random()*1.6)+'s;animation-delay:'+Math.random()*.5+'s';
+    el.appendChild(p);
+  }
+  setTimeout(function(){el.innerHTML='';},3200);
+}
+
+var cQ=0,st={};
+function initSt(i){
+  var q=QUESTIONS[i];
+  var opts=q.isMultiStep?[]:shuffle(q.options.slice());
+  return{A:false,B:false,C:false,D:false,E:false,merge:false,placed:[],done:false,opts:opts,msStep:0,msAllDone:false};
+}
+
+function doReveal(group){
+  var q=QUESTIONS[cQ];
+  q.revealFn(group,st);
+  if(q.stemFn){
+    document.getElementById('stemContent').innerHTML=q.stemFn(st);
+    // re-activate all segments that have already been read
+    if(q.readSegments){
+      for(var i=0;i<_readIdx;i++){
+        var s=q.readSegments[i];
+        if(s.segId) activatePreBtns(s.segId, null);
+      }
+      // re-apply pending to current waiting segment
+      if(_readPaused&&_readWaitGroup){
+        var cur=q.readSegments[_readIdx];
+        if(cur&&cur.segId) activatePreBtns(cur.segId, _readWaitGroup);
+      }
+    } else {
+      if(_readPaused&&_readWaitGroup) activateBtnPulse(_readWaitGroup);
+    }
+  }
+  // resume auto-read if this reveal unblocks the waiting segment
+  if(_readPaused){
+    var waitSeg=_readSegs[_readIdx];
+    if(waitSeg&&waitSeg.waitFor===group){
+      deactivateBtnPulse(group);
+      resumeAutoRead();
+    }
+  }
+  // for multistep q4: showMSQuestion is triggered by merge animation end, not here
+}
+
+var uidCtr=0;
+function place(chip){
+  if(st.done)return;
+  var q=QUESTIONS[cQ];
+  if(q.isMultiStep){var step=q.steps[st.msStep];if(!step||st.msAllDone)return;}
+  var bar=document.getElementById('answerBar');
+  placeAtIndex(chip, bar.querySelectorAll('.chip-placed').length);
+}
+
+function removeChip(span,chip){
+  if(st.done)return;
+  span.style.animation='popOut .18s forwards';
+  setTimeout(function(){
+    span.remove();
+    if(chip)chip.classList.remove('used');
+    var bar=document.getElementById('answerBar');
+    // re-sync placed from DOM order
+    st.placed=Array.from(bar.querySelectorAll('.chip-placed')).map(function(s){return s.dataset.val;});
+    if(!bar.querySelector('.chip-placed'))bar.classList.remove('has-content');
+    var sb=document.getElementById('submitBtn');if(sb)sb.classList.remove('ready');
+    sndRemove();
+  },170);
+}
+
+function submitAnswer(){
+  var sb=document.getElementById('submitBtn');
+  if(sb)sb.classList.remove('ready');
+  evaluate();
+}
+
+// Compare two sequences with commutative law for ＋ and ×
+function normalizeSeq(seq){
+  // Split into segments separated by ＝, normalize each segment's operands
+  var result=[];
+  var i=0;
+  while(i<seq.length){
+    if(seq[i]==='＝'){result.push('＝');i++;continue;}
+    // collect a run of terms connected by ＋ or ×
+    var terms=[seq[i]];
+    var ops=[];
+    i++;
+    while(i<seq.length&&(seq[i]==='＋'||seq[i]==='×')){
+      ops.push(seq[i]);i++;
+      if(i<seq.length){terms.push(seq[i]);i++;}
+    }
+    if(ops.length>0&&ops.every(function(o){return o===ops[0];})){
+      // all same commutative op: sort terms
+      var op=ops[0];
+      terms=terms.slice().sort();
+      for(var j=0;j<terms.length;j++){result.push(terms[j]);if(j<ops.length)result.push(op);}
+    } else {
+      // mixed ops or single term: keep as-is
+      for(var j=0;j<terms.length;j++){result.push(terms[j]);if(j<ops.length)result.push(ops[j]);}
+    }
+  }
+  return result.join('|');
+}
+
+function seqMatch(placed, valid){
+  if(placed.length!==valid.length)return false;
+  return normalizeSeq(placed)===normalizeSeq(valid);
+}
+
+function evaluate(){
+  if(QUESTIONS[cQ].isMultiStep){evaluateMS();return;}
+  var q=QUESTIONS[cQ];
+  var ok=q.valid.some(function(seq){return seqMatch(st.placed,seq);});
+  var fb=document.getElementById('feedback'),nb=document.getElementById('nextBtn');
+  if(ok){
+    st.done=true;fb.textContent=q.successMsg;fb.className='feedback show correct';
+    sndCorrect();launchConfetti();bounceAll();
+    if(cQ<QUESTIONS.length-1&&nb)nb.classList.add('visible');
+  }else{
+    fb.textContent='再想想～检查一下算式吧！';fb.className='feedback show wrong';sndWrong();
+    var sb=document.getElementById('submitBtn');if(sb)sb.classList.add('ready');
+    setTimeout(function(){if(fb.classList.contains('wrong'))fb.className='feedback';},2500);
+  }
+}
+
+function resetQ(){
+  var q=QUESTIONS[cQ];st=initSt(cQ);
+  document.getElementById('answerBar').innerHTML='';
+  document.getElementById('answerBar').classList.remove('has-content');
+  document.getElementById('feedback').className='feedback';document.getElementById('feedback').textContent='';
+  var nb=document.getElementById('nextBtn');if(nb)nb.classList.remove('visible');
+  var sb=document.getElementById('submitBtn');if(sb)sb.classList.remove('ready');
+  document.getElementById('interactArea').classList.add('locked');
+  document.getElementById('sceneArea').innerHTML=q.sceneFn();
+  if(q.isMultiStep){
+    var rec=document.getElementById('stepRecord');if(rec)rec.innerHTML='';
+    st.msStep=0;st.msAllDone=false;
+    renderMSStep();
+  } else {
+    document.getElementById('stemContent').innerHTML=q.stemFn(st);
+    renderOpts();
+  }
+}
+
+function nextQ(){cQ++;if(cQ<QUESTIONS.length)renderQ(cQ);}
+
+function renderMSStep(){
+  var q=QUESTIONS[cQ];
+  var step=q.steps[st.msStep];
+  var bar=document.getElementById('answerBar');bar.innerHTML='';bar.classList.remove('has-content');
+  var fb=document.getElementById('feedback');fb.className='feedback';fb.textContent='';
+  st.placed=[];st.done=false;
+  var sq=document.getElementById('stepQuestion');if(sq)sq.innerHTML='';
+  document.getElementById('optionsRow').innerHTML='';
+  document.getElementById('interactArea').classList.add('locked');
+  // trigger any scene reveals for this step
+  if(step.revealGroups&&step.revealGroups.length>0){
+    step.revealGroups.forEach(function(g){q.revealFn(g,st);});
+  }
+  // show question (with speaker) immediately
+  showMSQuestion();
+}
+
+function showMSQuestion(){
+  var q=QUESTIONS[cQ];
+  var step=q.steps[st.msStep];
+  // guard against double-call (e.g. from both readNextSeg and merge animation end)
+  if(st._showingQuestion)return;
+  st._showingQuestion=true;
+
+  var sq=document.getElementById('stepQuestion');
+  var bar=document.getElementById('answerBar');
+  var row=document.getElementById('optionsRow');
+  var ia=document.getElementById('interactArea');
+  if(sq){sq.innerHTML='';sq.classList.remove('show');}
+  if(bar){bar.innerHTML='';bar.classList.remove('has-content','ms-show');}
+  if(row){row.innerHTML='';row.classList.remove('ms-show');}
+  // keep interactArea locked until speech done
+
+  st.opts=shuffle(step.options.slice());
+
+  setTimeout(function(){
+    if(!sq)return;
+    var readTxt=step.readText||step.question;
+    var btn=document.createElement('button');
+    btn.className='speaker-btn';btn.title='重播';btn.id='stepSpeakerBtn';
+    btn.style.cssText='display:inline-flex;vertical-align:middle;margin-right:6px;position:relative;top:-1px;flex-shrink:0;';
+    btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="#1A4080" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>';
+    btn.onclick=function(){speakStep(readTxt);};
+    sq.appendChild(btn);
+    sq.appendChild(document.createTextNode(step.question));
+    sq.classList.add('show');
+
+    ttsCancel();
+    btn.classList.add('speaking');
+    function afterSpeech(){
+      btn.classList.remove('speaking');
+      if(ia)ia.classList.remove('locked');
+      showBarAndOptions(bar,row);
+    }
+    ttsSpeak(readTxt, afterSpeech, afterSpeech);
+  },300);
+}
+
+function showBarAndOptions(bar,row){
+  // show answer bar
+  setTimeout(function(){
+    var secTitle=document.querySelector('#interactArea .section-title');
+    if(secTitle){secTitle.style.animation='fadeSlideIn .4s ease forwards';secTitle.style.opacity='0';}
+    if(bar)bar.classList.add('ms-show');
+  },200);
+  // show options
+  setTimeout(function(){
+    var q=QUESTIONS[cQ];
+    if(!row)return;
+    if(st.opts.length>6){row.classList.add('compact');if(bar)bar.classList.add('compact');}
+    else{row.classList.remove('compact');if(bar)bar.classList.remove('compact');}
+    st.opts.forEach(function(val){
+      var d=document.createElement('div');d.className='chip';d.dataset.val=val;d.textContent=val;
+      var uid=uidCtr++;d.dataset.uid=uid;
+      (function(dd){dd.onclick=function(){place(dd);};})(d);
+      setupDrag(d);row.appendChild(d);
+    });
+    row.classList.add('ms-show');
+  },600);
+}
+
+function speakStep(txt){
+  ttsCancel();
+  var btn=document.getElementById('stepSpeakerBtn');
+  if(btn)btn.classList.add('speaking');
+  ttsSpeak(txt, function(){if(btn)btn.classList.remove('speaking');}, function(){if(btn)btn.classList.remove('speaking');});
+}
+
+function evaluateMS(){
+  var q=QUESTIONS[cQ];
+  var step=q.steps[st.msStep];
+  var ok=step.valid.some(function(seq){return seqMatch(st.placed,seq);});
+  var fb=document.getElementById('feedback');
+  if(ok){
+    st.done=true;
+    fb.textContent='✓ '+step.successText;fb.className='feedback show correct';
+    sndCorrect();
+    // 1. 先撒花庆祝
+    launchConfetti();
+    // 2. 1秒后chip飞走
+    setTimeout(function(){
+      var bar=document.getElementById('answerBar');
+      if(bar){
+        var chips=bar.querySelectorAll('.chip-placed');
+        chips.forEach(function(c,i){
+          c.style.animation='chipFlyUp 0.35s ease '+(i*55)+'ms forwards';
+        });
+      }
+      // 3. chip飞完后文字淡入，然后清场
+      setTimeout(function(){
+        var rec=document.getElementById('stepRecord');
+        if(rec){
+          var div=document.createElement('div');div.className='step-done';
+          div.textContent=(st.msStep+1)+'）'+step.successText;
+          rec.appendChild(div);
+          requestAnimationFrame(function(){requestAnimationFrame(function(){div.classList.add('show');});});
+        }
+        setTimeout(function(){
+          st.msStep++;
+          st._showingQuestion=false;
+          if(st.msStep<q.steps.length){
+            var sc=document.getElementById('stemContent');
+            if(sc&&q.stemFn)sc.innerHTML=q.stemFn(st);
+            document.getElementById('answerBar').innerHTML='';
+            document.getElementById('answerBar').classList.remove('has-content');
+            document.getElementById('optionsRow').innerHTML='';
+            var sq2=document.getElementById('stepQuestion');if(sq2)sq2.innerHTML='';
+            document.getElementById('interactArea').classList.add('locked');
+            fb.className='feedback';fb.textContent='';
+            st.placed=[];st.done=false;
+            var sb=document.getElementById('submitBtn');if(sb)sb.classList.remove('ready');
+            showMSQuestion();
+          } else {
+            st.msAllDone=true;
+            var nb=document.getElementById('nextBtn');if(nb)nb.classList.add('visible');
+            var sq=document.getElementById('stepQuestion');if(sq)sq.textContent='全部完成！大马5天后追上小马！';
+            document.getElementById('optionsRow').innerHTML='';
+            document.getElementById('answerBar').innerHTML='';
+          }
+        },500);
+      },400);
+    },1000);
+  } else {
+    fb.textContent='再想想～检查一下算式吧！';fb.className='feedback show wrong';sndWrong();
+    var sb=document.getElementById('submitBtn');if(sb)sb.classList.add('ready');
+    setTimeout(function(){if(fb.classList.contains('wrong'))fb.className='feedback';},2500);
+  }
+}
+function renderOpts(){
+  var row=document.getElementById('optionsRow');row.innerHTML='';
+  var bar=document.getElementById('answerBar');
+  if(st.opts.length>6){row.classList.add('compact');if(bar)bar.classList.add('compact');}
+  else{row.classList.remove('compact');if(bar)bar.classList.remove('compact');}
+  st.opts.forEach(function(val){
+    var d=document.createElement('div');d.className='chip';d.dataset.val=val;d.textContent=val;
+    var uid=uidCtr++;d.dataset.uid=uid;
+    (function(dd){dd.onclick=function(){place(dd);};})(d);
+    setupDrag(d);row.appendChild(d);
+  });
+}
+
+// ── drag helpers ──────────────────────────────────────────
+var _dragCaret=null; // the insert-position indicator in answerBar
+
+function getInsertIndex(bar, ex){
+  var chips=Array.from(bar.querySelectorAll('.chip-placed'));
+  for(var i=0;i<chips.length;i++){
+    var r=chips[i].getBoundingClientRect();
+    if(ex < r.left + r.width/2) return i;
+  }
+  return chips.length;
+}
+
+function showCaret(bar, ex){
+  if(!_dragCaret){
+    _dragCaret=document.createElement('div');
+    _dragCaret.style.cssText='width:3px;background:#4A90D9;border-radius:2px;height:32px;flex-shrink:0;pointer-events:none;transition:none;';
+    _dragCaret.id='dragCaret';
+  }
+  var idx=getInsertIndex(bar,ex);
+  var chips=Array.from(bar.querySelectorAll('.chip-placed'));
+  if(idx>=chips.length){
+    bar.appendChild(_dragCaret);
+  } else {
+    bar.insertBefore(_dragCaret,chips[idx]);
+  }
+}
+
+function removeCaret(){
+  if(_dragCaret&&_dragCaret.parentNode)_dragCaret.parentNode.removeChild(_dragCaret);
+}
+
+function placeAtIndex(chip, idx){
+  if(st.done)return;
+  var val=chip.dataset.val;
+  var bar=document.getElementById('answerBar');
+  var span=document.createElement('span');
+  span.className='chip-placed';span.textContent=chip.textContent;span.dataset.val=val;
+  var uid=chip.dataset.uid;span.dataset.uid=uid;
+  (function(s,c){s.onclick=function(){removeChip(s,c);};})(span,chip);
+  setupPlacedDrag(span, chip);
+
+  var chips=Array.from(bar.querySelectorAll('.chip-placed'));
+  if(idx>=chips.length){bar.appendChild(span);}
+  else{bar.insertBefore(span,chips[idx]);}
+  bar.classList.add('has-content');
+
+  // sync st.placed to bar order
+  st.placed=Array.from(bar.querySelectorAll('.chip-placed')).map(function(s){return s.dataset.val;});
+  chip.classList.add('used');
+
+  // read chip text
+  var txt=chip.textContent.replace(/[（）()【】\[\]]/g,'').trim();
+  txt=txt.replace(/只/g,'支').replace(/＋/g,'加').replace(/－/g,'减').replace(/×/g,'乘以').replace(/÷/g,'除以').replace(/＝/g,'等于');
+  if(txt)ttsSpeak(txt,null,null);
+  sndPlace();
+
+  var q=QUESTIONS[cQ];
+  var optLen=q.isMultiStep?q.steps[st.msStep].options.length:q.options.length;
+  var sb=document.getElementById('submitBtn');
+  if(sb&&st.placed.length===optLen)sb.classList.add('ready');
+}
+
+// drag for source chips (from optionsRow)
+function setupDrag(chip){
+  var ghost=null,_sx=0,_sy=0,_started=false;
+  function mv(ex,ey){
+    if(!_started){
+      if(Math.sqrt((ex-_sx)*(ex-_sx)+(ey-_sy)*(ey-_sy))<6)return;
+      _started=true;
+      ghost=document.createElement('div');ghost.className='drag-ghost';ghost.textContent=chip.textContent;
+      ghost.style.left=(ex-ghost.offsetWidth/2)+'px';ghost.style.top=(ey-ghost.offsetHeight/2)+'px';
+      document.body.appendChild(ghost);
+      chip.classList.add('dragging');
+    }
+    ghost.style.left=(ex-ghost.offsetWidth/2)+'px';ghost.style.top=(ey-ghost.offsetHeight/2)+'px';
+    var bar=document.getElementById('answerBar');
+    var r=bar.getBoundingClientRect();
+    var over=ex>=r.left&&ex<=r.right&&ey>=r.top&&ey<=r.bottom;
+    bar.classList.toggle('drag-over',over);
+    if(over)showCaret(bar,ex); else removeCaret();
+  }
+  function end(ex,ey){
+    var bar=document.getElementById('answerBar');
+    if(ghost){ghost.remove();ghost=null;chip.classList.remove('dragging');bar.classList.remove('drag-over');
+      var r=bar.getBoundingClientRect();
+      var over=ex>=r.left&&ex<=r.right&&ey>=r.top&&ey<=r.bottom;
+      removeCaret();
+      if(over&&!chip.classList.contains('used'))placeAtIndex(chip,getInsertIndex(bar,ex));
+    }
+    _started=false;
+    document.removeEventListener('mousemove',mm);document.removeEventListener('mouseup',mu);
+    document.removeEventListener('touchmove',tm);document.removeEventListener('touchend',te);
+  }
+  function mm(e){mv(e.clientX,e.clientY);}
+  function mu(e){end(e.clientX,e.clientY);}
+  function tm(e){e.preventDefault();mv(e.touches[0].clientX,e.touches[0].clientY);}
+  function te(e){var t=e.changedTouches[0];end(t.clientX,t.clientY);}
+  function startDrag(ex,ey){
+    if(chip.classList.contains('used')||st.done)return;
+    _sx=ex;_sy=ey;_started=false;ghost=null;
+  }
+  chip.addEventListener('mousedown',function(e){startDrag(e.clientX,e.clientY);document.addEventListener('mousemove',mm);document.addEventListener('mouseup',mu);});
+  chip.addEventListener('touchstart',function(e){var t=e.touches[0];startDrag(t.clientX,t.clientY);document.addEventListener('touchmove',tm,{passive:false});document.addEventListener('touchend',te);},{passive:true});
+}
+
+// drag for placed chips (re-order within answerBar)
+function setupPlacedDrag(span, sourceChip){
+  var ghost=null;
+  var origIdx=-1;
+  function mv(ex,ey){
+    if(!ghost)return;
+    ghost.style.left=(ex-ghost.offsetWidth/2)+'px';ghost.style.top=(ey-ghost.offsetHeight/2)+'px';
+    var bar=document.getElementById('answerBar');
+    var r=bar.getBoundingClientRect();
+    if(ex>=r.left&&ex<=r.right&&ey>=r.top&&ey<=r.bottom)showCaret(bar,ex);
+    else removeCaret();
+  }
+  function end(ex,ey){
+    if(!ghost)return;ghost.remove();ghost=null;
+    var bar=document.getElementById('answerBar');
+    var r=bar.getBoundingClientRect();
+    var over=ex>=r.left&&ex<=r.right&&ey>=r.top&&ey<=r.bottom;
+    removeCaret();
+    if(over){
+      var newIdx=getInsertIndex(bar,ex);
+      span.remove();
+      var chips=Array.from(bar.querySelectorAll('.chip-placed'));
+      if(newIdx>=chips.length)bar.appendChild(span);
+      else bar.insertBefore(span,chips[newIdx]);
+      st.placed=Array.from(bar.querySelectorAll('.chip-placed')).map(function(s){return s.dataset.val;});
+    } else {
+      // dragged off bar: remove and restore source chip
+      span.style.animation='popOut .18s forwards';
+      setTimeout(function(){
+        span.remove();
+        if(!bar.querySelector('.chip-placed'))bar.classList.remove('has-content');
+        if(sourceChip)sourceChip.classList.remove('used');
+        st.placed=Array.from(bar.querySelectorAll('.chip-placed')).map(function(s){return s.dataset.val;});
+        var sb=document.getElementById('submitBtn');if(sb)sb.classList.remove('ready');
+        sndRemove();
+      },170);
+    }
+    document.removeEventListener('mousemove',mm2);document.removeEventListener('mouseup',mu2);
+    document.removeEventListener('touchmove',tm2);document.removeEventListener('touchend',te2);
+  }
+  function mm2(e){mv(e.clientX,e.clientY);}
+  function mu2(e){end(e.clientX,e.clientY);}
+  function tm2(e){e.preventDefault();mv(e.touches[0].clientX,e.touches[0].clientY);}
+  function te2(e){var t=e.changedTouches[0];end(t.clientX,t.clientY);}
+  function startDrag(ex,ey){
+    if(st.done)return;
+    var bar=document.getElementById('answerBar');
+    var chips=Array.from(bar.querySelectorAll('.chip-placed'));
+    origIdx=chips.indexOf(span);
+    // delay ghost creation until actual movement
+    _dragStartX=ex;_dragStartY=ey;_dragStarted=false;
+    ghost=null;
+  }
+  var _dragStartX=0,_dragStartY=0,_dragStarted=false;
+  function mv(ex,ey){
+    if(!_dragStarted){
+      var dx=ex-_dragStartX,dy=ey-_dragStartY;
+      if(Math.sqrt(dx*dx+dy*dy)<6)return;
+      _dragStarted=true;
+      ghost=document.createElement('div');ghost.className='drag-ghost';ghost.textContent=span.textContent;
+      ghost.style.left=(ex-ghost.offsetWidth/2)+'px';ghost.style.top=(ey-ghost.offsetHeight/2)+'px';
+      document.body.appendChild(ghost);
+    }
+    ghost.style.left=(ex-ghost.offsetWidth/2)+'px';ghost.style.top=(ey-ghost.offsetHeight/2)+'px';
+    var bar=document.getElementById('answerBar');
+    var r=bar.getBoundingClientRect();
+    if(ex>=r.left&&ex<=r.right&&ey>=r.top&&ey<=r.bottom)showCaret(bar,ex);
+    else removeCaret();
+  }
+  function end(ex,ey){
+    if(!_dragStarted){
+      document.removeEventListener('mousemove',mm2);document.removeEventListener('mouseup',mu2);
+      document.removeEventListener('touchmove',tm2);document.removeEventListener('touchend',te2);
+      return;
+    }
+    if(ghost){ghost.remove();ghost=null;}
+    var bar=document.getElementById('answerBar');
+    var r=bar.getBoundingClientRect();
+    var over=ex>=r.left&&ex<=r.right&&ey>=r.top&&ey<=r.bottom;
+    removeCaret();
+    if(over){
+      var newIdx=getInsertIndex(bar,ex);
+      span.remove();
+      var chips=Array.from(bar.querySelectorAll('.chip-placed'));
+      if(newIdx>=chips.length)bar.appendChild(span);
+      else bar.insertBefore(span,chips[newIdx]);
+      st.placed=Array.from(bar.querySelectorAll('.chip-placed')).map(function(s){return s.dataset.val;});
+    } else {
+      span.style.animation='popOut .18s forwards';
+      setTimeout(function(){
+        span.remove();
+        if(!bar.querySelector('.chip-placed'))bar.classList.remove('has-content');
+        if(sourceChip)sourceChip.classList.remove('used');
+        st.placed=Array.from(bar.querySelectorAll('.chip-placed')).map(function(s){return s.dataset.val;});
+        var sb=document.getElementById('submitBtn');if(sb)sb.classList.remove('ready');
+        sndRemove();
+      },170);
+    }
+    document.removeEventListener('mousemove',mm2);document.removeEventListener('mouseup',mu2);
+    document.removeEventListener('touchmove',tm2);document.removeEventListener('touchend',te2);
+  }
+  function mm2(e){mv(e.clientX,e.clientY);}
+  function mu2(e){end(e.clientX,e.clientY);}
+  function tm2(e){e.preventDefault();mv(e.touches[0].clientX,e.touches[0].clientY);}
+  function te2(e){var t=e.changedTouches[0];end(t.clientX,t.clientY);}
+  span.addEventListener('mousedown',function(e){e.stopPropagation();startDrag(e.clientX,e.clientY);document.addEventListener('mousemove',mm2);document.addEventListener('mouseup',mu2);});
+  span.addEventListener('touchstart',function(e){e.stopPropagation();var t=e.touches[0];startDrag(t.clientX,t.clientY);document.addEventListener('touchmove',tm2,{passive:false});document.addEventListener('touchend',te2);},{passive:true});
+}
+
+function renderQ(idx){
+  cQ=idx;var q=QUESTIONS[idx];st=initSt(idx);
+  var root=document.getElementById('appRoot');
+  var isMS=q.isMultiStep;
+  var interactInner=isMS
+    ? '<div id="stepRecord" class="step-record"></div>'+
+      '<div><div class="step-question" id="stepQuestion"></div></div>'+
+      '<div><div class="section-title">列算式</div><div class="answer-bar" id="answerBar"></div></div>'+
+      '<div><div class="options-row" id="optionsRow"></div></div>'
+    : '<div><div class="section-title">列算式</div><div class="answer-bar" id="answerBar"></div></div>'+
+      '<div><div class="options-row" id="optionsRow"></div></div>';
+  root.innerHTML=
+    '<div class="stem">'+
+    '<div class="stem-tag">'+q.tag+'</div>'+
+    (idx<QUESTIONS.length-1?'<button class="stem-nav" onclick="nextQ()" title="下一题"><svg viewBox="0 0 24 24" fill="none" stroke="#8B5A00" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>':'')+
+    '<div class="stem-text" id="stemContent">'+(isMS&&q.stemFn?q.stemFn(st):isMS?q.stemBase:q.stemFn(st))+'</div>'+
+    '</div>'+
+    '<div class="scene" id="sceneArea">'+q.sceneFn()+'</div>'+
+    '<div class="interact locked" id="interactArea">'+
+    interactInner+
+    '<div>'+
+    '<div class="feedback-area"><div class="feedback" id="feedback"></div></div>'+
+    '<div class="btn-row">'+
+    '<button class="reset-btn" onclick="resetQ()">↺ 重置</button>'+
+    '<button class="submit-btn" id="submitBtn" onclick="submitAnswer()">提交</button>'+
+    '<button class="next-btn" id="nextBtn" onclick="nextQ()">'+(idx<QUESTIONS.length-1?'下一题 →':'完成 ✓')+'</button>'+
+    '</div></div>'+
+    '</div>';
+  if(isMS){
+    st.msStep=0;st.msAllDone=false;
+    // if has readSegments, autoread will trigger showMSQuestion when done
+    if(!q.readSegments) renderMSStep();
+  } else {
+    renderOpts();
+  }
+  startAutoRead();
+}
+
+renderQ(0);
+// start background music on first user interaction
+function _tryStartMusic(){startBgMusic();}
+document.addEventListener('click', function startMusic(){_tryStartMusic();document.removeEventListener('click',startMusic);},{once:true});
+document.addEventListener('touchstart', function startMusicT(){_tryStartMusic();document.removeEventListener('touchstart',startMusicT);},{once:true});
+</script>
+</body>
+</html>
