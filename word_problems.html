@@ -177,7 +177,6 @@ function startAutoRead(){
   _readGen++;
   _readSegs=q.readSegments; _readIdx=0; _readPaused=false; _readWaitGroup=null;
   ttsCancel();
-  // Background music first, then read-aloud
   startBgMusic();
   var gen=_readGen;
   setTimeout(function(){if(gen===_readGen)readNextSeg();},_READ_AFTER_BGM_MS);
@@ -227,19 +226,50 @@ function readNextSeg(){
 // ── TTS API ───────────────────────────────────────────────
 var _ttsCache={};  // text → mp3 url cache
 var _ttsAudio=null; // current playing audio
+var _ttsPlayRetryRem=null; // remove listeners if ttsCancel runs before retry
 
 function ttsSpeak(txt, onend, onerror){
   txt=txt.trim();
   if(!txt){if(onend)onend();return;}
-  // stop current audio
-  if(_ttsAudio){_ttsAudio.pause();_ttsAudio=null;}
+  ttsCancel();
+  function clearPlayRetry(){
+    if(_ttsPlayRetryRem){_ttsPlayRetryRem();_ttsPlayRetryRem=null;}
+  }
   function play(url){
     var a=new Audio(url);
     _ttsAudio=a;
     a.volume=0.9;
-    a.onended=function(){_ttsAudio=null;if(onend)onend();};
-    a.onerror=function(){_ttsAudio=null;if(onerror)onerror();else if(onend)onend();};
-    a.play().catch(function(){if(onerror)onerror();else if(onend)onend();});
+    a.onended=function(){clearPlayRetry();_ttsAudio=null;if(onend)onend();};
+    a.onerror=function(){clearPlayRetry();_ttsAudio=null;if(onerror)onerror();else if(onend)onend();};
+    function fail(){
+      clearPlayRetry();
+      _ttsAudio=null;
+      if(onerror)onerror();else if(onend)onend();
+    }
+    function tryPlay(){
+      var p=a.play();
+      if(p&&typeof p.catch==='function'){
+      p.catch(function(){
+        if(_ttsAudio!==a)return;
+        // Autoplay blocked: retry on first user gesture without skipping this segment
+        function retry(){
+          document.removeEventListener('click',retry,true);
+          document.removeEventListener('touchstart',retry,true);
+          _ttsPlayRetryRem=null;
+          if(_ttsAudio!==a)return;
+          var p2=a.play();
+          if(p2&&typeof p2.catch==='function')p2.catch(fail);
+        }
+        document.addEventListener('click',retry,{capture:true});
+        document.addEventListener('touchstart',retry,{capture:true});
+        _ttsPlayRetryRem=function(){
+          document.removeEventListener('click',retry,true);
+          document.removeEventListener('touchstart',retry,true);
+        };
+      });
+      }
+    }
+    tryPlay();
   }
   if(_ttsCache[txt]){play(_ttsCache[txt]);return;}
   fetch('https://tts.mathufo.com/tts',{
@@ -256,6 +286,7 @@ function ttsSpeak(txt, onend, onerror){
 }
 
 function ttsCancel(){
+  if(_ttsPlayRetryRem){_ttsPlayRetryRem();_ttsPlayRetryRem=null;}
   if(_ttsAudio){_ttsAudio.pause();_ttsAudio=null;}
 }
 
@@ -281,7 +312,9 @@ function activatePreBtns(segId, waitFor){
     el.style.pointerEvents = 'auto';
     // use setAttribute onclick to avoid duplicate listeners after re-render
     el.setAttribute('onclick', "doReveal('"+grp+"')");
-    if(waitFor===null||grp===waitFor) el.classList.add('pending');
+    // Pulse every still-hidden control in this segment (not only waitFor); narration still waits for waitFor to continue
+    if(waitFor===null) el.classList.add('pending');
+    else if(!st[grp]) el.classList.add('pending');
   });
 }
 
