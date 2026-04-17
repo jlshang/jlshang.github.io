@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>应用题闯关</title>
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #EEE9E0;
+  --card: #FFFDF8;
+  --q-bg: #FEF8EA;
+  --q-border: #EED898;
+  --bottom-bg: #F8F5EE;
+  --coral: #E06830;
+  --amber: #E8A000;
+  --teal: #38B880;
+  --purple: #6858E8;
+  --text: #382818;
+  --text-mid: #786858;
+  --text-soft: #B8A898;
+  --border: #E8DCC8;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);min-height:100vh;display:flex;justify-content:center;padding:20px 16px 40px;}
+.phone{width:100%;max-width:360px;}
+
+.nav{display:flex;align-items:center;justify-content:space-between;padding:0 4px 14px;}
+.level-tag{font-size:12px;font-weight:700;padding:6px 18px;border-radius:20px;letter-spacing:1px;}
+.tag-1{background:#FFE0CC;color:#B03800;}
+.tag-2{background:#CCEEDC;color:#186840;}
+.tag-3{background:#E0DCFF;color:#3828A8;}
+.dots{display:flex;gap:6px;align-items:center;}
+.dot{width:8px;height:8px;border-radius:50%;background:#C8C0B0;transition:all 0.3s;}
+.dot.active{width:22px;border-radius:5px;}
+.dot.d1.active{background:var(--coral);}
+.dot.d2.active{background:var(--teal);}
+.dot.d3.active{background:var(--purple);}
+.dot.done{background:var(--teal);}
+
+.main-card{background:var(--card);border-radius:28px;overflow:hidden;box-shadow:0 2px 16px rgba(80,60,20,0.12);}
+
+/* Q SECTION */
+.q-section{background:var(--q-bg);padding:16px 18px 14px;border-bottom:1.5px dashed var(--q-border);}
+.q-tag-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.q-badge{font-size:11px;font-weight:700;background:var(--amber);color:white;padding:4px 12px;border-radius:20px;letter-spacing:1px;}
+.q-row{display:flex;align-items:flex-start;gap:10px;}
+.spk-wrap{flex-shrink:0;margin-top:4px;position:relative;width:32px;height:32px;}
+.spk-ring{display:none;}
+/* speaker button: fixed circle, icon breathes when reading */
+.spk-btn{width:32px;height:32px;border-radius:50%;background:transparent;border:2px solid var(--amber);cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative;z-index:1;transition:opacity 0.12s;}
+.spk-btn:active{opacity:0.6;}
+.spk-btn svg{width:16px;height:16px;transition:transform 0.2s,opacity 0.2s;}
+.spk-btn.reading svg{animation:iconBreath 0.8s ease-in-out infinite;}
+@keyframes iconBreath{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.35);opacity:0.6}}
+
+.q-text{font-family:'Ma Shan Zheng',cursive;font-size:18px;color:var(--text);line-height:2.5;flex:1;}
+.seg{border-radius:8px;padding:2px 4px;transition:background 0.25s;display:inline-block;vertical-align:middle;font-family:'Ma Shan Zheng',cursive;font-size:17px;line-height:1.7;}
+.seg.lit{background:#FFD060;}
+
+/* unified kw button — all same shape, color-coded */
+.kw{display:inline-block;font-family:'Ma Shan Zheng',cursive;font-size:17px;border-radius:8px;padding:2px 8px;user-select:none;vertical-align:middle;transition:transform 0.15s,box-shadow 0.15s,opacity 0.2s;line-height:1.7;}
+.kw.as-text{background:transparent;color:var(--text);cursor:default;border:none;}
+.kw.as-text.lit{background:#FFD060;}
+.kw.wrong-shake{animation:shake 0.4s;}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+
+/* active states: breathing + color, no heavy shadow */
+@keyframes kwBob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-2px) scale(1.05)}}
+.kw.active-num1{background:#FFD8D8;color:#900000;cursor:pointer;border:1.5px solid #E08080;animation:kwBob 1s ease-in-out infinite;}
+.kw.active-num2{background:#E4DEFF;color:#300098;cursor:pointer;border:1.5px solid #9080E0;animation:kwBob 1s ease-in-out infinite;}
+.kw.active-q{background:#FFF0A8;color:#705000;cursor:pointer;border:1.5px solid #D0A000;animation:kwBob 1s ease-in-out infinite;}
+.kw.wrong-kw{background:#FFD8D8;color:#900000;cursor:pointer;border:1.5px solid #E08080;animation:kwBob 1s ease-in-out infinite;}
+/* wrong-dog: purple dashed, breathing */
+.kw.wrong-dog{background:#E4DEFF;color:#300098;cursor:pointer;border:1.5px solid #9080E0;animation:kwBob 1s ease-in-out infinite;}
+.kw.wrong-kw:active,.kw.wrong-dog:active{transform:scale(0.93);animation:none;}
+.kw.active-num1:active,.kw.active-num2:active,.kw.active-q:active{transform:translateY(2px);animation:none;}
+
+/* done states */
+.kw.done-num1{background:#FFD8D8;color:#900000;cursor:default;animation:none;border:none;}
+.kw.done-num2{background:#E4DEFF;color:#300098;cursor:default;animation:none;border:none;}
+.kw.done-q{background:#FFF0A8;color:#705000;cursor:default;animation:none;border:none;}
+
+/* VOICE */
+.voice-row{display:flex;align-items:center;gap:8px;padding:10px 18px;background:var(--q-bg);border-bottom:1.5px dashed var(--q-border);min-height:44px;}
+.chick{font-size:18px;flex-shrink:0;}
+.v-text{font-size:13px;color:var(--text-mid);line-height:1.5;}
+
+/* L1/L3 SCENE */
+.scene-section{background:#FAFAF7;min-height:190px;padding:14px 18px 14px;border-bottom:1px solid var(--border);position:relative;display:flex;flex-direction:column;gap:0;justify-content:flex-start;}
+.scene-ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;}
+.scene-ph-txt{font-size:12px;color:#C0B0A0;background:#F0ECE4;padding:6px 16px;border-radius:20px;}
+.flower-row{display:flex;align-items:flex-start;gap:8px;opacity:0;transition:opacity 0.35s;padding:8px 0 4px;}
+.flower-row.show{opacity:1;}
+.row-lbl{font-size:11px;color:var(--text-soft);width:28px;flex-shrink:0;text-align:right;padding-top:5px;}
+.flowers{display:flex;gap:5px;align-items:flex-start;flex-wrap:wrap;flex:1;}
+.flower-svg{width:26px;height:26px;opacity:0;transform:scale(0.2) rotate(-30deg);transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1);flex-shrink:0;display:block;}
+.flower-svg.show{opacity:1;transform:scale(1) rotate(0deg);}
+/* scene highlight overlays for opt selection */
+.scene-hl-ring{position:absolute;inset:-4px;border-radius:50%;border:2px dashed #E84848;pointer-events:none;opacity:0;}
+.scene-hl-ring.red{border-color:#E84848;}
+.scene-hl-ring.purple{border-color:#6858E8;}
+.scene-hl-ring.flash-red{animation:hlFlash 1s ease-in-out 3;}
+.scene-hl-ring.flash-purple{animation:hlFlashPurple 1s ease-in-out 3;}
+@keyframes hlFlash{0%,100%{opacity:0}40%,60%{opacity:1}}
+@keyframes hlFlashPurple{0%,100%{opacity:0}40%,60%{opacity:1}}
+.flower-svg.breathe-yellow{animation:breatheY 1s ease-in-out 3;}
+.flower-extra-wrap.breathe-yellow-wrap{animation:breatheY 1s ease-in-out 3;}
+@keyframes breatheY{0%,100%{transform:scale(1) rotate(0deg)}50%{transform:scale(1.25) rotate(0deg)}}
+.flower-extra-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;flex-shrink:0;opacity:0;transform:scale(0.2) rotate(-30deg);transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1);}
+.flower-extra-wrap.show{opacity:1;transform:scale(1) rotate(0deg);}
+.flower-extra-ring{position:absolute;inset:-3px;border-radius:50%;border:2px dashed #6858E8;pointer-events:none;}
+.flower-extra-ring.flash{animation:ringFlash 0.6s ease-in-out infinite;}
+@keyframes ringFlash{0%,100%{opacity:1;border-color:#6858E8}50%{opacity:0.2;border-color:#9080E8}}
+.brace-qmark.breathe{animation:braceBreath 0.6s ease-in-out infinite;}
+@keyframes braceBreath{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.9)}}
+.row-divider{height:1px;background:#EAE4D8;margin:2px 0 2px 36px;opacity:0;transition:opacity 0.3s;}
+.row-divider.show{opacity:1;}
+.brace-row{display:flex;align-items:flex-start;padding-left:36px;opacity:0;transform:translateY(-4px);transition:all 0.4s ease;margin-top:2px;}
+.brace-row.show{opacity:1;transform:translateY(0);}
+.brace-inner{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.brace-qmark{font-size:22px;font-weight:700;color:#E8A000;font-family:'Ma Shan Zheng',cursive;line-height:1;}
+
+/* ---- L2 SPECIFIC ---- */
+.l2-section{background:#FAFAF7;border-bottom:1px solid var(--border);display:none;}
+.l2-section.show{display:block;}
+.info-cards{display:grid;gap:8px;padding:14px 14px 10px;}
+.info-card{background:white;border-radius:14px;border:1.5px dashed var(--border);padding:10px 8px;text-align:center;min-height:64px;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:all 0.35s;}
+.info-card.filled{border-style:solid;border-color:#D8CCC0;background:#F8F4EE;}
+.info-card.card-done{border-color:#60C898;background:#D8F5E8;animation:cardDone 0.5s ease forwards;}
+.info-card.card-faded{border-color:#D8CCC0;background:#F0F0EC;opacity:0.6;}
+@keyframes cardDone{0%{transform:scale(1)}50%{transform:scale(1.06)}100%{transform:scale(1)}}
+.info-card.highlight{border-color:var(--amber)!important;background:var(--q-bg)!important;box-shadow:0 0 0 3px #E8A00028;transform:scale(1.04);}
+.info-card.dim{opacity:0.4;}
+.card-lbl{font-size:10px;color:var(--text-soft);letter-spacing:0.5px;margin-bottom:4px;}
+.card-val{font-size:14px;font-weight:700;font-family:'Ma Shan Zheng',cursive;opacity:0;transform:translateY(6px);transition:all 0.35s cubic-bezier(0.34,1.56,0.64,1);}
+.card-val.show{opacity:1;transform:translateY(0);}
+.card-val.c-red{color:#C03030;}
+.card-val.c-purple{color:#4030C0;}
+.card-val.c-amber{color:#A07000;}
+.build-area{padding:10px 14px 14px;}
+.build-rows{display:flex;flex-direction:column;gap:8px;}
+.build-row{display:flex;align-items:center;gap:8px;opacity:0;transition:opacity 0.3s;}
+.build-row.show{opacity:1;}
+.build-lbl{font-size:11px;color:var(--text-soft);width:28px;flex-shrink:0;text-align:right;}
+.build-slots{display:flex;gap:6px;flex-wrap:wrap;align-items:flex-end;border-bottom:2px solid #D0C8B8;padding-bottom:4px;min-width:120px;}
+.slot{width:26px;height:26px;border-radius:0;border:none;background:transparent;display:flex;align-items:center;justify-content:center;font-size:18px;transition:all 0.2s;}
+.slot.filled{background:transparent;}
+.slot.extra-filled{background:transparent;}
+/* fish button: right-aligned */
+.fish-btn-wrap{display:flex;justify-content:flex-end;padding:8px 0 4px;padding-right:14px;}
+.fish-btn{width:52px;height:52px;border-radius:50%;background:#E8F8F0;border:2px solid #70C898;font-size:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 0 #40A870;transition:all 0.15s;user-select:none;animation:kwBob 1s ease-in-out infinite;}
+.fish-btn:active{transform:translateY(2px);box-shadow:0 0 0 #40A870;animation:none;}
+.fish-btn.disabled{opacity:0.3;pointer-events:none;box-shadow:none;animation:none;}
+.build-divider{height:1px;background:#EAE4D8;margin:0 0 0 36px;}
+.build-qmark{display:none;font-size:22px;font-weight:700;color:#E8A000;font-family:'Ma Shan Zheng',cursive;text-align:center;padding:4px 0 2px;animation:fadeUp 0.4s ease;}
+.build-qmark.show{display:block;}
+
+/* BOTTOM */
+.bottom-section{background:var(--bottom-bg);padding:16px 16px 18px;}
+.eq-line{min-height:46px;border-bottom:2px solid #D8CCC0;display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding-bottom:8px;margin-bottom:14px;}
+.eq-ph{font-size:13px;color:var(--text-soft);font-style:italic;}
+.placed{padding:6px 14px;border-radius:10px;font-size:15px;font-weight:500;cursor:pointer;user-select:none;animation:chipIn 0.28s cubic-bezier(0.34,1.56,0.64,1);background:#FFF0D8;color:#904000;border:1.5px solid #E8B870;}
+.placed:active{opacity:0.7;}
+.placed.dragging{opacity:0.4;transform:scale(0.95);}
+.placed.drag-over{outline:2px solid var(--amber);outline-offset:2px;}
+@keyframes chipIn{0%{transform:scale(0.3);opacity:0}100%{transform:scale(1);opacity:1}}
+.opts-pool{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:14px;min-height:54px;}
+.opt{min-width:48px;height:46px;padding:0 16px;border-radius:10px;font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;background:#FFF0D8;color:#904000;border:1.5px solid #E8B870;transition:transform 0.12s,opacity 0.2s;box-shadow:0 2px 0 #D09040;}
+.opt:active{transform:translateY(2px);box-shadow:none;}
+.opt.used{opacity:0.22;pointer-events:none;box-shadow:none;}
+.opt.inactive{opacity:0.28;pointer-events:none;box-shadow:none;}
+.act-row{display:flex;gap:10px;justify-content:center;}
+.btn-reset{padding:11px 22px;border-radius:50px;border:1.5px solid #C8C0B0;background:white;color:var(--text-mid);font-size:14px;font-weight:500;cursor:pointer;font-family:'Noto Sans SC',sans-serif;box-shadow:0 2px 0 #C0B8A8;transition:transform 0.12s;-webkit-appearance:none;}
+.btn-reset:active{transform:translateY(2px);box-shadow:none;background:white;}
+.btn-reset:focus{outline:none;background:white;}
+.btn-reset:hover{background:#F8F4EE;}
+.btn-sub{padding:11px 32px;border-radius:50px;border:none;background:#C8C0B0;color:white;font-size:15px;font-weight:700;cursor:pointer;font-family:'Noto Sans SC',sans-serif;letter-spacing:1px;box-shadow:0 3px 0 #A0988A;transition:all 0.2s;}
+.btn-sub.on{background:var(--coral);box-shadow:0 3px 0 #A03800;}
+.btn-sub.on:active{transform:translateY(2px);box-shadow:0 1px 0 #A03800;}
+
+.success-layer{display:none;padding:28px 20px;background:var(--bottom-bg);text-align:center;flex-direction:column;align-items:center;gap:8px;}
+.success-layer.show{display:flex;animation:fadeUp 0.4s ease;}
+.s-ico{font-size:46px;}
+.s-tit{font-size:22px;font-weight:700;color:var(--teal);font-family:'Ma Shan Zheng',cursive;}
+.s-sub{font-size:13px;color:var(--text-soft);}
+.btn-next{margin-top:10px;padding:13px 36px;border-radius:50px;background:var(--teal);color:white;font-size:15px;font-weight:700;border:none;cursor:pointer;font-family:'Noto Sans SC',sans-serif;letter-spacing:1px;box-shadow:0 3px 0 #208858;transition:transform 0.12s;}
+.btn-next:active{transform:translateY(2px);box-shadow:0 1px 0 #208858;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+/* confetti */
+.confetti-piece{position:fixed;width:8px;height:8px;border-radius:2px;pointer-events:none;animation:confettiFall linear forwards;z-index:9999;}
+@keyframes confettiFall{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(-100vh) rotate(720deg);opacity:0}}
+.gone{display:none!important;}
+.next-arrow-btn{
+  width:32px;height:32px;border-radius:50%;
+  background:transparent;border:1.5px solid var(--border);
+  color:var(--text-mid);font-size:16px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:background 0.15s,border-color 0.15s;
+  line-height:1;
+}
+.next-arrow-btn:hover{background:var(--bottom-bg);border-color:#C0B0A0;}
+.next-arrow-btn:active{transform:scale(0.93);}
+</style>
+</head>
+<body>
+<audio id="bgm" loop preload="auto"></audio>
+<div class="phone">
+
+<div class="nav" id="nav">
+  <div class="level-tag tag-1" id="nav-tag">梯度一</div>
+  <div class="dots">
+    <div class="dot d1 active" id="dot1"></div>
+    <div class="dot d1" id="dot2"></div>
+    <div class="dot d1" id="dot3"></div>
+  </div>
+</div>
+
+<div class="main-card">
+  <div class="q-section">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:6px;"><button class="next-arrow-btn" onclick="skipToNext()" title="下一题">&#8594;</button></div>
+    <div class="q-row">
+      <div class="spk-wrap">
+        <div class="spk-ring" id="spk-ring"></div>
+        <button class="spk-btn" onclick="doRead()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#E8A000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+        </button>
+      </div>
+      <div class="q-text" id="q-text"></div>
+    </div>
+  </div>
+
+  <div class="voice-row">
+    <span class="chick">🐥</span>
+    <div class="v-text" id="v-text">我来读一读这道题～</div>
+  </div>
+
+  <!-- L1 / L3 scene -->
+  <div class="scene-section" id="scene-section">
+    <div class="scene-ph" id="scene-ph">
+      <div class="scene-ph-txt" id="ph-txt">点击题目中的关键词，看看发生什么～</div>
+    </div>
+    <div class="flower-row" id="row-a">
+      <div class="row-lbl" id="lbl-a">红花</div>
+      <div class="flowers" id="flowers-a"></div>
+    </div>
+    <div class="row-divider" id="row-div"></div>
+    <div class="flower-row" id="row-b">
+      <div class="row-lbl" id="lbl-b">黄花</div>
+      <div class="flowers" id="flowers-b"></div>
+    </div>
+    <div class="brace-row" id="brace-row">
+      <div class="brace-inner" id="brace-inner"></div>
+    </div>
+  </div>
+
+  <!-- L2 scene: cards + build area -->
+  <div class="l2-section" id="l2-section">
+    <div class="info-cards" id="l2-cards-wrap" style="grid-template-columns:repeat(3,1fr)!important;">
+      <div class="info-card" id="l2-card-0">
+        <div class="card-lbl">已知 1</div>
+        <div class="card-val c-red" id="l2-cv-0">小猫 4条</div>
+      </div>
+      <div class="info-card" id="l2-card-1">
+        <div class="card-lbl">已知 2</div>
+        <div class="card-val c-purple" id="l2-cv-1">多 3条</div>
+      </div>
+      <div class="info-card" id="l2-card-2">
+        <div class="card-lbl">问题</div>
+        <div class="card-val c-amber" id="l2-cv-2">小狗几条</div>
+      </div>
+    </div>
+    <!-- build area -->
+    <div class="build-area">
+      <div class="build-rows">
+        <div class="build-row" id="build-row-cat">
+          <div class="build-lbl">小猫</div>
+          <div class="build-slots" id="slots-cat"></div>
+        </div>
+        <div class="build-divider"></div>
+        <div class="build-row" id="build-row-dog">
+          <div class="build-lbl">小狗</div>
+          <div class="build-slots" id="slots-dog"></div>
+        </div>
+      </div>
+      <div class="fish-btn-wrap" id="fish-btn-wrap">
+        <div class="fish-btn disabled" id="fish-btn" onclick="addFish()">🐟</div>
+      </div>
+      <div class="brace-row" id="l2-brace-row" style="padding-left:36px;margin-top:4px;">
+        <div class="brace-inner" id="l2-brace-inner"></div>
+      </div>
+      <div class="build-qmark" id="build-qmark">？</div>
+    </div>
+  </div>
+
+  <div class="bottom-section" id="bottom-section">
+    <div class="eq-line" id="eq-line">
+      <span class="eq-ph" id="eq-ph">点击下方选项，拼出算式</span>
+    </div>
+    <div class="opts-pool" id="opts-pool"></div>
+    <div class="act-row">
+      <button class="btn-reset" onclick="doReset()">↺ 重置</button>
+      <button class="btn-sub" id="btn-sub" onclick="doSubmit()">提 交</button>
+    </div>
+  </div>
+
+  <div class="success-layer gone" id="success-layer">
+    <div class="s-ico" id="s-ico">🌸</div>
+    <div class="s-tit" id="s-tit">太棒了！</div>
+    <div class="s-sub" id="s-sub"></div>
+    <button class="btn-next" id="btn-next">进入梯度二 →</button>
+  </div>
+</div>
+</div>
+
+<script>
+/* ---- SVG flower ---- */
+function mkFlower(color,size=26){
+  const ns='http://www.w3.org/2000/svg';
+  const svg=document.createElementNS(ns,'svg');
+  svg.setAttribute('viewBox','0 0 28 28');
+  svg.setAttribute('width',size);svg.setAttribute('height',size);
+  svg.classList.add('flower-svg');
+  const g=document.createElementNS(ns,'g');
+  g.setAttribute('transform','translate(14,14)');
+  [0,72,144,216,288].forEach(a=>{
+    const el=document.createElementNS(ns,'ellipse');
+    const r=a*Math.PI/180;
+    el.setAttribute('cx',(Math.sin(r)*6).toFixed(2));
+    el.setAttribute('cy',(-Math.cos(r)*6).toFixed(2));
+    el.setAttribute('rx','4.5');el.setAttribute('ry','3');
+    el.setAttribute('transform',`rotate(${a})`);
+    el.setAttribute('fill',color);el.setAttribute('opacity','0.9');
+    g.appendChild(el);
+  });
+  const c=document.createElementNS(ns,'circle');
+  c.setAttribute('cx','0');c.setAttribute('cy','0');
+  c.setAttribute('r','3.5');c.setAttribute('fill','#FFFAD0');
+  g.appendChild(c);svg.appendChild(g);
+  return svg;
+}
+
+function mkBrace(n){
+  const fw=26,gap=5,W=n*fw+(n-1)*gap;
+  const ns='http://www.w3.org/2000/svg';
+  const svg=document.createElementNS(ns,'svg');
+  svg.setAttribute('viewBox',`0 0 ${W} 14`);
+  svg.setAttribute('width',W);svg.setAttribute('height',14);
+  svg.style.display='block';
+  const mid=W/2;
+  const path=document.createElementNS(ns,'path');
+  path.setAttribute('d',`M 4 2 Q 4 10 ${mid-4} 10 Q ${mid} 13 ${mid+4} 10 Q ${W-4} 10 ${W-4} 2`);
+  path.setAttribute('stroke','#E8A000');path.setAttribute('stroke-width','2.5');
+  path.setAttribute('fill','none');path.setAttribute('stroke-linecap','round');
+  svg.appendChild(path);
+  return svg;
+}
+
+/* ---- LEVELS ---- */
+const LEVELS=[
+  {
+    tag:'梯度一',tagCls:'tag-1',dotCls:'d1',sceneType:'l1l3',
+    lblA:'红花',lblB:'黄花',
+    segs:[
+      {id:'sa0',text:'红花有',type:'txt'},
+      {id:'sa1',text:'3朵',type:'kw',kwt:'num1',key:'k1'},
+      {id:'sa1p',text:'，',type:'txt'},
+      {id:'sa2',text:'黄花比红花',type:'txt'},
+      {id:'sa2m',text:'多',type:'txt'},
+      {id:'sa3',text:'4朵',type:'kw',kwt:'num2',key:'k2'},
+      {id:'sa3p',text:'，',type:'txt'},
+      {id:'sa4',text:'黄花有几朵',type:'kw',kwt:'q',key:'k3'},
+      {id:'sa5',text:'？',type:'txt'},
+    ],
+    readPhrases:[
+      {lit:['sa0','sa1'],stay:1800,pause:700},
+      {lit:['sa2','sa2m','sa3'],stay:1800,pause:700},
+      {lit:['sa4'],stay:1600,pause:400},
+    ],
+    voiceSeq:['我们想想看，红花有几朵呢？','黄花比红花多几朵呢？','我们需要求什么呢？','接下来我们列一列算式吧'],
+    kwFeedback:{k1:'对啦，红花有3朵！',k2:'黄花比红花多4朵！',k3:'是的，我们要算黄花的数量！'},
+    countA:3,countB_base:3,countB_extra:4,colorA:'#E84848',colorB:'#F0B800',
+    opts:[{v:'3'},{v:'+'},{v:'4'},{v:'='},{v:'7'},{v:'(朵)'}],
+    correctNums:['3','4'],correctOp:'+',correctResult:'7',correctUnit:'(朵)',
+    success:{ico:'🌸',tit:'太棒了！',sub:'3 + 4 = 7朵，你找到了！',next:'进入梯度二 →'},
+  },
+  {
+    tag:'梯度二',tagCls:'tag-2',dotCls:'d2',sceneType:'l2',
+    segs:[
+      {id:'sb0w',text:'小猫',type:'kw',kwt:'wrong',key:'w1'},
+      {id:'sb0w2',text:'钓了',type:'kw',kwt:'wrong',key:'w2'},
+      {id:'sb1',text:'4条鱼',type:'kw',kwt:'num1',key:'k1'},
+      {id:'sb1p',text:'，',type:'txt'},
+      {id:'sb2',text:'小狗比小猫',type:'kw',kwt:'wrong-dog',key:'w3'},
+      {id:'sb3',text:'多3条',type:'kw',kwt:'num2',key:'k2'},
+      {id:'sb3p',text:'，',type:'txt'},
+      {id:'sb4a',text:'小狗',type:'kw',kwt:'q',key:'k3a'},
+      {id:'sb4b',text:'钓了几条',type:'kw',kwt:'q',key:'k3b'},
+      {id:'sb5',text:'？',type:'txt'},
+    ],
+    readPhrases:[
+      {lit:['sb0w','sb0w2','sb1'],stay:1800,pause:700},
+      {lit:['sb2','sb3'],stay:1800,pause:700},
+      {lit:['sb4a','sb4b'],stay:1600,pause:400},
+    ],
+    voiceSeq:[
+      '读完了，你来点一点重要的已知数量。',
+      '',
+      '很好！我们要算谁的数量呢？',
+      '全部找到！',
+    ],
+    kwFeedback:{k1:'小猫钓了4条',k2:'小狗比小猫多3条',k3a:'我们要算小狗的数量！',k3b:'这个不是关键信息，再找找～'},
+    kwFeedback2:{k2:'已知数量已经找到了！'},
+    opts:[{v:'4'},{v:'3'},{v:'2'},{v:'+'},{v:'-'},{v:'='},{v:'7'},{v:'6'},{v:'(条)'}],
+    correctNums:['4','3'],correctOp:'+',correctResult:'7',correctUnit:'(条)',numCards:2,
+    success:{ico:'🐟',tit:'你真棒！',sub:'4 + 3 = 7条，自己找到了！',next:'进入梯度三 →'},
+  },
+  {
+    tag:'梯度三',tagCls:'tag-3',dotCls:'d3',sceneType:'l1l3',
+    lblA:'树上',lblB:'草地',
+    segs:[
+      {id:'sc0',text:'树上有',type:'txt'},
+      {id:'sc1',text:'6只',type:'txt',color:'#E06830'},
+      {id:'sc2',text:'小鸟',type:'txt'},
+      {id:'sc2p',text:'，',type:'txt'},
+      {id:'sc3',text:'草地上比树上',type:'txt'},
+      {id:'sc4',text:'多3只',type:'txt',color:'#E8A000'},
+      {id:'sc4p',text:'，',type:'txt'},
+      {id:'sc5w',text:'草地',type:'txt'},
+      {id:'sc5',text:'上有',type:'txt'},
+      {id:'sc6',text:'几只',type:'txt',color:'#6858E8'},
+      {id:'sc7',text:'？',type:'txt'},
+    ],
+    readPhrases:[
+      {lit:['sc0','sc1','sc2'],stay:1000,pause:500},
+      {lit:['sc3','sc4'],stay:1100,pause:500},
+      {lit:['sc5w','sc5','sc6','sc7'],stay:1000,pause:300},
+    ],
+    voiceSeq:['请你根据题目列出正确的算式吧～'],
+    kwFeedback:{},
+    countA:6,countB_base:0,countB_extra:0,
+    emojiA:'🐦',emojiB:'🐦',
+    opts:[{v:'6'},{v:'3'},{v:'9'},{v:'5'},{v:'+'},{v:'-'},{v:'='},{v:'(只)'},{v:'(朵)'}],
+    correctNums:['6','3'],correctOp:'+',correctResult:'9',correctUnit:'(只)',
+    success:{ico:'🏆',tit:'全部完成！',sub:'6 + 3 = 9只，你已经学会了！',next:'再来一遍 ↺'},
+  },
+];
+
+let curLvl=0,readDone=false,found=[];
+// L2 build state
+let l2BuildPhase=0; // 0=waiting k1, 1=filling cat, 2=filling dog base, 3=filling dog extra, 4=done
+let catFilled=0,dogBaseFilled=0,dogExtraFilled=0;
+const CAT_COUNT=4,DOG_BASE=4,DOG_EXTRA=3;
+
+function getLvl(){return LEVELS[curLvl];}
+
+/* ---- INIT ---- */
+function init(){
+  const lvl=getLvl();
+  readDone=false;found=[];
+  l2BuildPhase=0;catFilled=0;dogBaseFilled=0;dogExtraFilled=0;
+
+  document.getElementById('nav-tag').textContent=lvl.tag;
+  document.getElementById('nav-tag').className='level-tag '+lvl.tagCls;
+  document.querySelectorAll('.dot').forEach((d,i)=>{
+    d.className='dot '+lvl.dotCls;
+    if(i<curLvl)d.classList.add('done');
+    else if(i===curLvl)d.classList.add('active');
+  });
+
+  document.getElementById('spk-ring').classList.remove('off');
+  buildQText();
+  setVoiceText('我来读一读这道题～');
+
+  // show/hide scene sections
+  const isL2=lvl.sceneType==='l2';
+  document.getElementById('scene-section').style.display=isL2?'none':'';
+  document.getElementById('l2-section').classList.toggle('show',isL2);
+
+  if(isL2){
+    initL2Scene();
+  } else {
+    resetL1L3Scene();
+    // L3: show scene immediately before read
+    if(curLvl===2){
+      buildL3Scene();
+    }
+  }
+
+  buildOpts();disableOpts();
+  document.getElementById('eq-line').innerHTML='<span class="eq-ph" id="eq-ph">点击下方选项，拼出算式</span>';
+  document.getElementById('btn-sub').className='btn-sub';
+  document.getElementById('success-layer').classList.add('gone');
+  document.getElementById('bottom-section').style.display='';
+
+  // wait for user to click speaker (autoplay blocked by browser)
+  // background music continues across levels
+}
+
+/* ---- Q TEXT ---- */
+function buildQText(){
+  const lvl=getLvl();
+  const qt=document.getElementById('q-text');
+  qt.innerHTML='';
+  lvl.segs.forEach(seg=>{
+    if(seg.type==='txt'){
+      const sp=document.createElement('span');
+      sp.className='seg';sp.id=seg.id;sp.textContent=seg.text;
+      if(seg.color)sp.style.color=seg.color;
+      // L3: always visible, just highlight on read
+      qt.appendChild(sp);
+      if((curLvl===0||curLvl===1||curLvl===2) && seg.text==='，'){
+        const br=document.createElement('br');
+        if(curLvl===2) br.classList.add('l3-br');
+        qt.appendChild(br);
+      }
+    } else {
+      const sp=document.createElement('span');
+      sp.id=seg.id;sp.dataset.key=seg.key;sp.dataset.kwt=seg.kwt;
+      sp.textContent=seg.text;
+      sp.className='kw as-text seg';
+      qt.appendChild(sp);
+    }
+  });
+}
+
+/* ---- READ ---- */
+function doRead(){
+  unlockAudio();
+  const lvl=getLvl();
+  document.getElementById('spk-ring').classList.add('off');
+  const spkBtn=document.querySelector('.spk-btn');
+  if(spkBtn) spkBtn.classList.add('reading');
+
+  if(curLvl===2){
+    // L3: reveal and speak each phrase sequentially via TTS onend
+    readL3Phrases(0, ()=>{
+      if(spkBtn) spkBtn.classList.remove('reading');
+      readDone=true;
+      setTimeout(()=>{
+        const prompt=lvl.voiceSeq[0];
+        setVoiceText(prompt);
+        speak(prompt);
+        enableOpts();
+      },400);
+    });
+  } else {
+    // L1/L2: original timing-based read
+    const fullText=lvl.segs.map(s=>s.text).join('');
+    speak(fullText,{rate:0.85});
+    let t=0;
+    lvl.readPhrases.forEach(phrase=>{
+      setTimeout(()=>{clearLit();phrase.lit.forEach(id=>{const el=document.getElementById(id);if(el)el.classList.add('lit');});},t);
+      t+=phrase.stay;
+      setTimeout(()=>clearLit(),t);
+      t+=phrase.pause;
+    });
+    setTimeout(()=>{
+      if(spkBtn) spkBtn.classList.remove('reading');
+      readDone=true;
+      setTimeout(()=>{
+        const prompt=getLvl().voiceSeq[0];
+        setVoiceText(prompt);
+        const u=speak(prompt);
+        const afterPrompt=()=>{ upgradeKwBtns(); };
+        if(u) u.onend=afterPrompt;
+        else setTimeout(afterPrompt,1800);
+      },400);
+    },t+100);
+  }
+}
+
+function readL3Phrases(idx, onDone){
+  const lvl=getLvl();
+  if(idx >= lvl.readPhrases.length){ onDone(); return; }
+  const phrase=lvl.readPhrases[idx];
+  // highlight segs in this phrase
+  phrase.lit.forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){ el.classList.add('lit'); }
+  });
+  // get text for this phrase
+  const phraseText=phrase.lit.map(id=>{
+    const el=document.getElementById(id);
+    return el?el.textContent:'';
+  }).join('');
+  const u=speak(phraseText);
+  const afterSpeak=()=>{
+    clearLit();
+    // pause between phrases then continue
+    setTimeout(()=> readL3Phrases(idx+1, onDone), phrase.pause||500);
+  };
+  if(u) u.onend=afterSpeak;
+  else setTimeout(afterSpeak, phrase.stay||1200);
+}
+
+function clearLit(){document.querySelectorAll('#q-text .lit').forEach(e=>e.classList.remove('lit'));}
+
+function upgradeKwBtns(){
+  if(curLvl===2) return; // L3: no interactive buttons
+  getLvl().segs.filter(s=>s.type==='kw').forEach(seg=>{
+    const el=document.getElementById(seg.id);
+    if(!el)return;
+    el.classList.remove('as-text','lit');
+    if(seg.kwt==='wrong'){
+      el.classList.add('wrong-kw');
+      el.onclick=()=>wrongKwClick(el);
+    } else if(seg.kwt==='wrong-dog'){
+      el.classList.add('wrong-dog');
+      el.onclick=()=>wrongKwClick(el);
+    } else {
+      el.classList.add(seg.kwt==='num1'?'active-num1':seg.kwt==='num2'?'active-num2':'active-q');
+      el.onclick=()=>kwClick(el);
+    }
+  });
+}
+
+/* ---- KW CLICK ---- */
+function wrongKwClick(el){
+  playSound('wrong');
+  el.classList.add('wrong-shake');
+  speak('这个不是关键信息，再找找～');
+  setVoiceText('这个不是关键信息，再找找～');
+  setTimeout(()=>el.classList.remove('wrong-shake'),500);
+}
+
+function kwClick(el){
+  if(!readDone)return;
+  const key=el.dataset.key,kwt=el.dataset.kwt;
+  if(found.includes(key))return;
+  playSound('correct');
+  launchConfetti(12, getCardCenterX());
+  found.push(key);
+  // k3a clicked: deactivate sb4b to plain text completely
+  if(key==='k3a'){
+    const s=document.getElementById('sb4b');
+    if(s){
+      s.className='seg'; // remove ALL kw classes
+      s.style.cssText='font-family:"Ma Shan Zheng",cursive;font-size:17px;color:var(--text);background:transparent;border:none;animation:none;cursor:default;padding:1px 6px;';
+      s.onclick=null;
+    }
+  }
+  el.classList.remove('active-num1','active-num2','active-q');
+  el.classList.add(kwt==='num1'?'done-num1':kwt==='num2'?'done-num2':'done-q');
+  el.onclick=null;el.style.cursor='default';
+  const lvl=getLvl();
+  const feedback=lvl.kwFeedback[key]||'';
+  const realFound=found.filter(k=>!k.startsWith('w'));
+  // map k3a/k3b to k3 for card/voice indexing
+  const mappedFound=realFound.map(k=>L2_KEY_MAP&&L2_KEY_MAP[k]?L2_KEY_MAP[k]:k);
+  const uniqueMapped=[...new Set(mappedFound)];
+  const nextIdx=uniqueMapped.length;
+  const nextPrompt=lvl.voiceSeq[nextIdx]||'';
+  setVoiceText(feedback);
+  // scene trigger
+  if(lvl.sceneType==='l1l3') triggerL1Scene(key);
+  if(lvl.sceneType==='l2'){
+    fillL2Card(key);
+    // flash purple rings on k2
+    if(key==='k2'){
+      setTimeout(()=>{
+        document.querySelectorAll('.flower-extra-ring').forEach(r=>r.classList.add('flash'));
+      },400);
+    }
+  }
+  if(feedback){
+    const u=speak(feedback);
+    const afterFeedback=()=>{
+      if(lvl.sceneType==='l1l3' && (key==='k2'||key==='k3')) return;
+      if(lvl.sceneType==='l2' && (key==='k3'||key==='k3a'||key==='k3b')) return;
+      // L2 k1/k2: chain secondary feedback after 2s pause
+      if(lvl.sceneType==='l2' && (key==='k1'||key==='k2') && lvl.kwFeedback2&&lvl.kwFeedback2[key]){
+        setTimeout(()=>{
+          const msg2=lvl.kwFeedback2[key];
+          const u2=speak(msg2);
+          setVoiceText(msg2);
+          const afterF2=()=>{
+            if(nextPrompt){
+              const u3=speak(nextPrompt);
+              setVoiceText(nextPrompt);
+              // after voiceSeq[2] plays, reveal question phase
+              const afterPrompt2=()=>{ setTimeout(()=>revealL2QuestionPhase(),300); };
+              if(u3)u3.onend=afterPrompt2; else setTimeout(afterPrompt2,1800);
+            } else {
+              setTimeout(()=>revealL2QuestionPhase(),300);
+            }
+          };
+          if(u2)u2.onend=afterF2; else setTimeout(afterF2,1400);
+        },2000);
+        return;
+      }
+      if(nextPrompt){
+        setTimeout(()=>{setVoiceText(nextPrompt);speak(nextPrompt);},300);
+      }
+    };
+    if(u)u.onend=afterFeedback;
+    else setTimeout(afterFeedback,1400);
+  } else if(nextPrompt){
+    if(!(lvl.sceneType==='l1l3' && (key==='k2'||key==='k3')) &&
+       !(lvl.sceneType==='l2' && (key==='k3'||key==='k3a'||key==='k3b')) &&
+       !(lvl.sceneType==='l2' && key==='k2')) setVoice(nextPrompt);
+  }
+}
+
+/* ---- L2 CARDS ---- */
+const L2_CARD_KEYS=['k1','k2','k3'];
+const L2_KEY_MAP={'k1':'k1','k2':'k2','k3a':'k3'};
+function fillL2Card(key){
+  const mappedKey=L2_KEY_MAP[key]||key;
+  const idx=L2_CARD_KEYS.indexOf(mappedKey);
+  if(idx<0)return;
+  const card=document.getElementById(`l2-card-${idx}`);
+  const cv=document.getElementById(`l2-cv-${idx}`);
+  card.classList.add('filled');
+  cv.classList.add('show');
+  // flash green for question card too
+  if(mappedKey==='k3'){
+    setTimeout(()=>flashCardDone(2),400);
+  }
+  const realFound=found.filter(k=>!k.startsWith('w'));
+  const mappedF=[...new Set(realFound.map(k=>L2_KEY_MAP&&L2_KEY_MAP[k]?L2_KEY_MAP[k]:k))];
+  if(mappedF.length===2){
+    // question phase reveal is triggered after voice chain completes (in afterF2)
+  }
+  if(mappedF.length===3){
+    // all found, start build after 3s pause
+    setTimeout(()=>startL2Build(),3000);
+  }
+}
+
+function revealL2QuestionPhase(){
+  // stop all kw animations, make them plain text
+  document.querySelectorAll('#q-text .kw').forEach(el=>{
+    if(!el.classList.contains('done-num1') && !el.classList.contains('done-num2')){
+      el.classList.remove('wrong-kw','wrong-dog','active-num1','active-num2','active-q','as-text');
+      el.style.animation='none';
+      el.style.background='transparent';
+      el.style.border='none';
+      el.style.color='var(--text)';
+      el.style.cursor='default';
+      el.onclick=null;
+    }
+  });
+  // highlight the third card (问题) to signal it's next
+  resetL2CardHighlight();
+  const card2=document.getElementById('l2-card-2');
+  if(card2) card2.classList.add('highlight');
+  // activate only sb4a (小狗) as active-q; sb4b (钓了几条) becomes wrong
+  const qa=document.getElementById('sb4a');
+  if(qa){
+    qa.classList.remove('as-text','wrong-dog','wrong-kw');
+    qa.style.animation='';qa.style.background='';
+    qa.style.border='';qa.style.color='';qa.style.cursor='';
+    qa.classList.add('active-q');
+    qa.onclick=()=>kwClick(qa);
+  }
+  const qb=document.getElementById('sb4b');
+  if(qb){
+    qb.classList.remove('as-text','active-q');
+    qb.style.animation='';qb.style.background='';
+    qb.style.border='';qb.style.color='';qb.style.cursor='';
+    qb.classList.add('wrong-dog');
+    qb.onclick=()=>wrongKwClick(qb);
+  }
+  // voice prompt is handled by the afterFeedback chain in kwClick
+  // just update the display text here
+  const prompt=getLvl().voiceSeq[2]||'';
+  if(prompt){ setVoiceText(prompt); }
+}
+
+function highlightL2Card(activeKey){
+  L2_CARD_KEYS.forEach((k,i)=>{
+    const card=document.getElementById(`l2-card-${i}`);
+    card.classList.remove('highlight','dim');
+    if(k===activeKey) card.classList.add('highlight');
+    else card.classList.add('dim');
+  });
+}
+function resetL2CardHighlight(){
+  L2_CARD_KEYS.forEach((_,i)=>{
+    const card=document.getElementById(`l2-card-${i}`);
+    card.classList.remove('highlight','dim');
+  });
+}
+
+/* ---- L2 BUILD ---- */
+function buildL2Brace(n){
+  const inner=document.getElementById('l2-brace-inner');
+  inner.innerHTML='';
+  const fw=30,gap=5,total=n*fw+(n-1)*gap;
+  const ns='http://www.w3.org/2000/svg';
+  const svg=document.createElementNS(ns,'svg');
+  svg.setAttribute('viewBox',`0 0 ${total} 14`);
+  svg.setAttribute('width',total);svg.setAttribute('height',14);
+  svg.style.display='block';
+  const mid=total/2;
+  const path=document.createElementNS(ns,'path');
+  path.setAttribute('d',`M 4 2 Q 4 10 ${mid-4} 10 Q ${mid} 13 ${mid+4} 10 Q ${total-4} 10 ${total-4} 2`);
+  path.setAttribute('stroke','#E8A000');path.setAttribute('stroke-width','2.5');
+  path.setAttribute('fill','none');path.setAttribute('stroke-linecap','round');
+  svg.appendChild(path);
+  inner.appendChild(svg);
+  const q=document.createElement('div');
+  q.className='brace-qmark';q.textContent='？';
+  inner.appendChild(q);
+  document.getElementById('l2-brace-row').classList.add('show');
+}
+
+function initL2Scene(){
+  [0,1,2].forEach(i=>{
+    document.getElementById(`l2-card-${i}`).className='info-card';
+    document.getElementById(`l2-cv-${i}`).className=`card-val ${['c-red','c-purple','c-amber'][i]}`;
+  });
+  buildSlots('slots-cat',CAT_COUNT,false);
+  buildSlots('slots-dog',CAT_COUNT+DOG_EXTRA,true);
+  document.getElementById('build-row-cat').classList.remove('show');
+  document.getElementById('build-row-dog').classList.remove('show');
+  document.getElementById('fish-btn').classList.add('disabled');
+  document.getElementById('fish-btn-wrap').style.display='';
+  document.getElementById('build-qmark').classList.remove('show');
+  const br=document.getElementById('l2-brace-row');
+  br.classList.remove('show');
+  document.getElementById('l2-brace-inner').innerHTML='';
+}
+
+function buildSlots(containerId,count,hasDivider){
+  const c=document.getElementById(containerId);
+  c.innerHTML='';
+  // for dog: first CAT_COUNT slots are base, rest are extra
+  for(let i=0;i<count;i++){
+    const slot=document.createElement('div');
+    slot.className='slot';
+    slot.id=`${containerId}-${i}`;
+    if(containerId==='slots-dog'&&i===CAT_COUNT){
+      // small gap divider between base and extra
+      const gap=document.createElement('div');
+      gap.style.width='4px';
+      c.appendChild(gap);
+    }
+    c.appendChild(slot);
+  }
+}
+
+function startL2Build(){
+  l2BuildPhase=1;
+  highlightL2Card('k1');
+  document.getElementById('build-row-cat').classList.add('show');
+  document.getElementById('fish-btn').classList.remove('disabled');
+  setVoice('我们来画画图，先帮小猫放好鱼。');
+}
+
+function flashCardDone(idx){
+  const card=document.getElementById(`l2-card-${idx}`);
+  if(!card)return;
+  card.classList.add('card-done');
+  setTimeout(()=>{
+    card.classList.remove('card-done','highlight');
+    card.classList.add('card-faded');
+  },1200);
+}
+
+function addFish(){
+  playSound('fish');
+  const lvl=getLvl();
+  if(l2BuildPhase===1){
+    const slot=document.getElementById(`slots-cat-${catFilled}`);
+    if(!slot)return;
+    slot.textContent='🐟';
+    slot.classList.add('filled');
+    catFilled++;
+    if(catFilled===CAT_COUNT){
+      l2BuildPhase=2;
+      dogBaseFilled=0;
+      flashCardDone(0);
+      setTimeout(()=>{
+        highlightL2Card('k2');
+        document.getElementById('build-row-dog').classList.add('show');
+        setVoice('小猫放好了！再帮小狗放，先放和小猫一样多的。');
+      },800);
+    }
+  } else if(l2BuildPhase===2){
+    const slot=document.getElementById(`slots-dog-${dogBaseFilled}`);
+    if(!slot)return;
+    slot.textContent='🐟';
+    slot.classList.add('filled');
+    dogBaseFilled++;
+    if(dogBaseFilled===DOG_BASE){
+      l2BuildPhase=3;
+      dogExtraFilled=0;
+      setVoiceText('小狗比小猫多3条，继续放多出来的！');speak('小狗比小猫多3条，继续放多出来的！');
+    }
+  } else if(l2BuildPhase===3){
+    const slotIdx=DOG_BASE+dogExtraFilled;
+    const slot=document.getElementById(`slots-dog-${slotIdx}`);
+    if(!slot)return;
+    slot.textContent='🐟';
+    slot.classList.add('extra-filled');
+    dogExtraFilled++;
+    if(dogExtraFilled===DOG_EXTRA){
+      l2BuildPhase=4;
+      flashCardDone(1);
+      document.getElementById('fish-btn-wrap').style.display='none';
+      resetL2CardHighlight();
+      setTimeout(()=>{
+        buildL2Brace(CAT_COUNT+DOG_EXTRA);
+        setVoice('小狗一共钓了几条呢？看图列出算式吧～');
+        setTimeout(()=>enableOpts(),600);
+      },1000);
+    }
+  }
+}
+
+/* ---- L1/L3 SCENE ---- */
+function resetL1L3Scene(){
+  const lvl=getLvl();
+  document.getElementById('scene-ph').style.display='';
+  document.getElementById('ph-txt').textContent=curLvl===2?'':'点击题目中的关键词，看看发生什么～';
+  document.getElementById('lbl-a').textContent=lvl.lblA||'';
+  document.getElementById('lbl-b').textContent=lvl.lblB||'';
+  document.getElementById('flowers-a').innerHTML='';
+  document.getElementById('flowers-b').innerHTML='';
+  document.getElementById('row-a').classList.remove('show');
+  document.getElementById('row-b').classList.remove('show');
+  document.getElementById('row-div').classList.remove('show');
+  document.getElementById('brace-row').classList.remove('show');
+  document.getElementById('brace-inner').innerHTML='';
+}
+
+function triggerL1Scene(key){
+  const lvl=getLvl();
+  if(key==='k1'){
+    document.getElementById('scene-ph').style.display='none';
+    document.getElementById('row-a').classList.add('show');
+    spawnFlowers('flowers-a',lvl.countA,lvl.colorA);
+  }
+  if(key==='k2'){
+    document.getElementById('row-div').classList.add('show');
+    document.getElementById('row-b').classList.add('show');
+    spawnFlowers('flowers-b',lvl.countB_base,lvl.colorB);
+    const extraStartDelay=550;
+    const perFlower=120;
+    const allAppearedDelay=extraStartDelay + lvl.countB_extra*perFlower + 300;
+    setTimeout(()=>{
+      spawnFlowersExtra('flowers-b',lvl.countB_extra,lvl.colorB,'#6858E8');
+    }, extraStartDelay);
+    // all flowers fully appeared → show rings, flash 3 cycles, remove rings, say next prompt
+    setTimeout(()=>{
+      const rings=document.querySelectorAll('.flower-extra-ring');
+      // show rings
+      rings.forEach(r=>{ r.style.opacity='1'; r.classList.add('flash'); });
+      setTimeout(()=>{
+        // remove rings entirely
+        rings.forEach(r=>r.remove());
+        // say next prompt
+        const nextPrompt=getLvl().voiceSeq[2]||'';
+        if(nextPrompt){ setVoiceText(nextPrompt); speak(nextPrompt); }
+      }, 1800);
+    }, allAppearedDelay);
+  }
+  if(key==='k3'){
+    const total=lvl.countB_base+lvl.countB_extra;
+    setTimeout(()=>{
+      buildBrace(total);
+      document.getElementById('brace-row').classList.add('show');
+      // after brace appears, flash qmark 3 cycles (1.8s)
+      setTimeout(()=>{
+        const bq=document.querySelector('#brace-inner .brace-qmark');
+        if(bq) bq.classList.add('breathe');
+        setTimeout(()=>{
+          if(bq) bq.classList.remove('breathe');
+          // pause 1.5s then say next prompt
+          setTimeout(()=>{
+            const nextPrompt=getLvl().voiceSeq[3]||'';
+            if(nextPrompt){ setVoiceText(nextPrompt); speak(nextPrompt); }
+            setTimeout(()=>enableOpts(),800);
+          }, 1500);
+        }, 1800);
+      },300);
+    },400);
+  }
+}
+
+function buildBrace(n){
+  const inner=document.getElementById('brace-inner');
+  inner.innerHTML='';
+  inner.appendChild(mkBrace(n));
+  const q=document.createElement('div');
+  q.className='brace-qmark';q.textContent='？';
+  inner.appendChild(q);
+}
+
+function buildL3Scene(){
+  const section=document.getElementById('scene-section');
+  section.innerHTML='';
+  section.style.padding='0';
+  section.style.overflow='hidden';
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('viewBox','0 0 340 180');
+  svg.setAttribute('width','100%');
+  svg.setAttribute('height','180');
+  svg.style.display='block';
+  svg.innerHTML=`
+    <!-- sky -->
+    <rect x="0" y="0" width="340" height="130" fill="#D8EEFA"/>
+    <!-- clouds -->
+    <ellipse cx="60" cy="28" rx="28" ry="12" fill="white" opacity="0.9"/>
+    <ellipse cx="80" cy="22" rx="18" ry="10" fill="white" opacity="0.9"/>
+    <ellipse cx="42" cy="24" rx="16" ry="9" fill="white" opacity="0.9"/>
+    <ellipse cx="260" cy="38" rx="22" ry="10" fill="white" opacity="0.85"/>
+    <ellipse cx="278" cy="32" rx="15" ry="9" fill="white" opacity="0.85"/>
+    <!-- ground -->
+    <ellipse cx="170" cy="133" rx="175" ry="22" fill="#8DC96A"/>
+    <rect x="0" y="133" width="340" height="47" fill="#8DC96A"/>
+    <!-- grass tufts -->
+    <path d="M20 133 Q22 122 24 133" stroke="#6AAA44" stroke-width="1.5" fill="none"/>
+    <path d="M50 133 Q53 120 56 133" stroke="#6AAA44" stroke-width="1.5" fill="none"/>
+    <path d="M200 133 Q203 123 206 133" stroke="#6AAA44" stroke-width="1.5" fill="none"/>
+    <path d="M280 133 Q282 124 284 133" stroke="#6AAA44" stroke-width="1.5" fill="none"/>
+    <path d="M310 133 Q313 122 316 133" stroke="#6AAA44" stroke-width="1.5" fill="none"/>
+    <!-- tree trunk -->
+    <rect x="90" y="68" width="16" height="65" rx="4" fill="#8B5E3C"/>
+    <!-- tree canopy -->
+    <ellipse cx="98" cy="60" rx="38" ry="32" fill="#5AAA38"/>
+    <ellipse cx="78" cy="72" rx="24" ry="20" fill="#4A9A28"/>
+    <ellipse cx="118" cy="72" rx="24" ry="20" fill="#4A9A28"/>
+    <ellipse cx="98" cy="42" rx="26" ry="22" fill="#6ABB48"/>
+    <!-- birds on tree (6 birds) -->
+    <g fill="#F08030">
+      <ellipse cx="72" cy="54" rx="6" ry="4"/>
+      <path d="M78 54 L84 50 L82 55Z" fill="#F08030"/>
+      <circle cx="69" cy="52" r="2" fill="#F0F0E0"/>
+      <circle cx="68.5" cy="51.8" r="0.8" fill="#333"/>
+    </g>
+    <g fill="#E87020">
+      <ellipse cx="90" cy="44" rx="6" ry="4"/>
+      <path d="M96 44 L102 40 L100 45Z" fill="#E87020"/>
+      <circle cx="87" cy="42" r="2" fill="#F0F0E0"/>
+      <circle cx="86.5" cy="41.8" r="0.8" fill="#333"/>
+    </g>
+    <g fill="#F09040">
+      <ellipse cx="110" cy="52" rx="6" ry="4"/>
+      <path d="M104 52 L98 48 L100 53Z" fill="#F09040"/>
+      <circle cx="113" cy="50" r="2" fill="#F0F0E0"/>
+      <circle cx="113.5" cy="49.8" r="0.8" fill="#333"/>
+    </g>
+    <g fill="#F08030">
+      <ellipse cx="82" cy="68" rx="5" ry="3.5"/>
+      <path d="M87 68 L93 64 L91 69Z" fill="#F08030"/>
+      <circle cx="79.5" cy="66.5" r="1.8" fill="#F0F0E0"/>
+      <circle cx="79.2" cy="66.3" r="0.7" fill="#333"/>
+    </g>
+    <g fill="#E87828">
+      <ellipse cx="105" cy="66" rx="5" ry="3.5"/>
+      <path d="M100 66 L94 62 L96 67Z" fill="#E87828"/>
+      <circle cx="107.5" cy="64.5" r="1.8" fill="#F0F0E0"/>
+      <circle cx="107.8" cy="64.3" r="0.7" fill="#333"/>
+    </g>
+    <g fill="#F09840">
+      <ellipse cx="98" cy="78" rx="5" ry="3.5"/>
+      <path d="M103 78 L109 74 L107 79Z" fill="#F09840"/>
+      <circle cx="95.5" cy="76.5" r="1.8" fill="#F0F0E0"/>
+      <circle cx="95.2" cy="76.3" r="0.7" fill="#333"/>
+    </g>
+    <!-- label 树上6只 -->
+    <text x="98" y="16" text-anchor="middle" font-family="Ma Shan Zheng,sans-serif" font-size="13" fill="#E06830" font-weight="bold">树上 6只</text>
+    <!-- grass area with question -->
+    <text x="240" y="120" text-anchor="middle" font-family="Ma Shan Zheng,sans-serif" font-size="13" fill="#5A3800">草地上</text>
+    <!-- question bubble -->
+    <circle cx="240" cy="152" r="18" fill="none" stroke="#E8A000" stroke-width="2" stroke-dasharray="5,3"/>
+    <text x="240" y="158" text-anchor="middle" font-family="Ma Shan Zheng,sans-serif" font-size="20" fill="#E8A000" font-weight="bold">？</text>
+  `;
+  section.appendChild(svg);
+}
+
+function spawnFlowers(cid,count,color){
+  const c=document.getElementById(cid);
+  for(let i=0;i<count;i++){
+    const svg=mkFlower(color,26);
+    c.appendChild(svg);
+    setTimeout(()=>svg.classList.add('show'),i*100+60);
+  }
+}
+function spawnFlowersExtra(cid,count,color,ringColor){
+  const c=document.getElementById(cid);
+  for(let i=0;i<count;i++){
+    const wrap=document.createElement('div');
+    wrap.className='flower-extra-wrap';
+    const svg=mkFlower(color,26);
+    svg.style.cssText='position:absolute;inset:0;width:100%;height:100%;';
+    svg.classList.remove('flower-svg');
+    const ring=document.createElement('div');
+    ring.className='flower-extra-ring';
+    ring.style.borderColor=ringColor||'#6858E8';
+    ring.style.opacity='0'; // hidden until all flowers appear
+    wrap.appendChild(svg);wrap.appendChild(ring);
+    c.appendChild(wrap);
+    setTimeout(()=>{wrap.classList.add('show');svg.style.opacity='1';svg.style.transform='none';},i*120+60);
+  }
+}
+function spawnEmoji(cid,count,emoji,isExtra){
+  const c=document.getElementById(cid);
+  for(let i=0;i<count;i++){
+    const el=document.createElement('span');
+    el.className='flower-svg';
+    el.style.cssText='display:inline-flex;align-items:center;justify-content:center;font-size:19px;width:26px;height:26px;';
+    if(isExtra)el.style.filter='brightness(0.82)';
+    el.textContent=emoji;
+    c.appendChild(el);
+    setTimeout(()=>el.classList.add('show'),i*100+60);
+  }
+}
+
+/* ---- OPTS & EQ ---- */
+function buildOpts(){
+  const pool=document.getElementById('opts-pool');
+  pool.innerHTML='';
+  getLvl().opts.forEach((o,i)=>{
+    const el=document.createElement('div');
+    el.className='opt';el.textContent=o.v;
+    el.dataset.val=o.v;el.dataset.uidx='u'+i;
+    el.onclick=()=>placeOpt(el);
+    pool.appendChild(el);
+  });
+}
+function disableOpts(){document.querySelectorAll('.opt').forEach(o=>o.classList.add('inactive'));}
+function enableOpts(){
+  document.querySelectorAll('.opt').forEach(o=>o.classList.remove('inactive'));
+  // stop ring flash
+  document.querySelectorAll('.flower-extra-ring').forEach(r=>r.classList.remove('flash'));
+}
+
+function launchConfetti(count, originX){
+  const colors=['#F08030','#6858E8','#38B880','#E8A000','#E84848','#58C8F8'];
+  for(let i=0;i<count;i++){
+    const el=document.createElement('div');
+    el.className='confetti-piece';
+    const x=originX + (Math.random()-0.5)*120;
+    el.style.left=x+'px';
+    el.style.top=(window.innerHeight-30)+'px';
+    el.style.background=colors[Math.floor(Math.random()*colors.length)];
+    el.style.animationDuration=(0.8+Math.random()*1.0)+'s';
+    el.style.animationDelay=(Math.random()*0.3)+'s';
+    el.style.width=(6+Math.random()*6)+'px';
+    el.style.height=(6+Math.random()*6)+'px';
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), 2200);
+  }
+}
+
+function getCardCenterX(){
+  const card=document.querySelector('.main-card');
+  if(!card) return window.innerWidth/2;
+  const r=card.getBoundingClientRect();
+  return r.left+r.width/2;
+}
+
+function sceneHighlight(val){
+  if(curLvl!==0) return; // only for L1
+  const ANIM_DURATION=3000;
+  if(val==='3'){
+    // red dashed ring around each red flower for 3s
+    const redFlowers=document.querySelectorAll('#flowers-a .flower-svg.show');
+    redFlowers.forEach(f=>{
+      // wrap in relative container if not already
+      const parent=f.parentElement;
+      if(!parent) return;
+      // add ring overlay
+      const ring=document.createElement('div');
+      ring.className='scene-hl-ring red flash-red';
+      ring.style.cssText='position:absolute;inset:-4px;border-radius:50%;border:2px dashed #E84848;pointer-events:none;';
+      // ensure parent is relative
+      const pw=f.closest('.flower-extra-wrap')||f.parentElement;
+      const wrap=document.createElement('div');
+      wrap.style.cssText='position:relative;display:inline-flex;flex-shrink:0;width:26px;height:26px;';
+      f.parentElement.insertBefore(wrap,f);
+      wrap.appendChild(f);
+      wrap.appendChild(ring);
+      setTimeout(()=>{ ring.remove(); wrap.parentElement&&wrap.parentElement.insertBefore(f,wrap); wrap.remove(); },ANIM_DURATION+200);
+    });
+  } else if(val==='4'){
+    // purple dashed ring around the 4 extra yellow flowers
+    const extraWraps=document.querySelectorAll('#flowers-b .flower-extra-wrap.show');
+    extraWraps.forEach(wrap=>{
+      const ring=document.createElement('div');
+      ring.style.cssText='position:absolute;inset:-4px;border-radius:50%;border:2px dashed #6858E8;pointer-events:none;animation:hlFlashPurple 1s ease-in-out 3;';
+      wrap.style.position='relative';
+      wrap.appendChild(ring);
+      setTimeout(()=>ring.remove(),ANIM_DURATION+200);
+    });
+  } else if(val==='7'){
+    // all 7 yellow flowers breathe: base flowers (flower-svg) + extra wraps
+    const baseYellow=document.querySelectorAll('#flowers-b .flower-svg.show');
+    const extraYellow=document.querySelectorAll('#flowers-b .flower-extra-wrap.show');
+    baseYellow.forEach(f=>{
+      f.classList.add('breathe-yellow');
+      setTimeout(()=>f.classList.remove('breathe-yellow'),ANIM_DURATION+200);
+    });
+    extraYellow.forEach(wrap=>{
+      wrap.classList.add('breathe-yellow-wrap');
+      setTimeout(()=>wrap.classList.remove('breathe-yellow-wrap'),ANIM_DURATION+200);
+    });
+  }
+}
+
+function placeOpt(el){
+  if(el.classList.contains('used')||el.classList.contains('inactive'))return;
+  playSound('tap');
+  const val=el.dataset.val.replace(/[()]/g,'');
+  const speakVal = val==='只' ? 'zhī' : val;
+  speak(speakVal);
+  sceneHighlight(val);
+  el.classList.add('used');
+  const line=document.getElementById('eq-line');
+  const ph=document.getElementById('eq-ph');
+  if(ph)ph.style.display='none';
+  const p=document.createElement('div');
+  p.className='placed';p.textContent=el.dataset.val;
+  p.dataset.uidx=el.dataset.uidx;
+  p.onclick=()=>{playSound('tap');p.remove();el.classList.remove('used');updateSub();};
+  makePlacedDraggable(p,el);
+  line.appendChild(p);updateSub();
+}
+
+function doReset(){
+  const line=document.getElementById('eq-line');
+  Array.from(line.querySelectorAll('.placed')).forEach(p=>{
+    const src=document.querySelector(`.opt[data-uidx="${p.dataset.uidx}"]`);
+    if(src)src.classList.remove('used');
+  });
+  line.innerHTML='<span class="eq-ph" id="eq-ph">点击下方选项，拼出算式</span>';
+  updateSub();
+}
+
+function updateSub(){
+  const n=document.getElementById('eq-line').querySelectorAll('.placed').length;
+  document.getElementById('btn-sub').className='btn-sub'+(n>=4?' on':'');
+}
+
+function doSubmit(){
+  if(!document.getElementById('btn-sub').classList.contains('on'))return;
+  const vals=Array.from(document.getElementById('eq-line').querySelectorAll('.placed')).map(p=>p.textContent);
+  const lvl=getLvl();
+  // Smart check: nums can be in any order, op and result and unit must be correct
+  // expected form: num op num = result unit  (6 items)
+  function isCorrect(v){
+    if(v.length!==6)return false;
+    const nums=[v[0],v[2]];
+    const op=v[1];
+    const eq=v[3];
+    const res=v[4];
+    const unit=v[5];
+    if(eq!=='=')return false;
+    if(op!==lvl.correctOp)return false;
+    if(res!==lvl.correctResult)return false;
+    if(unit!==lvl.correctUnit)return false;
+    // nums in any order
+    const cn=[...lvl.correctNums].sort();
+    const gn=[...nums].sort();
+    return JSON.stringify(cn)===JSON.stringify(gn);
+  }
+  if(isCorrect(vals)){
+    playSound('success');
+    launchConfetti(60, getCardCenterX());
+    setTimeout(()=>launchConfetti(40, getCardCenterX()-80),300);
+    setTimeout(()=>launchConfetti(40, getCardCenterX()+80),500);
+    document.getElementById('bottom-section').style.display='none';
+    const sl=document.getElementById('success-layer');
+    sl.classList.remove('gone');sl.classList.add('show');
+    document.getElementById('s-ico').textContent=lvl.success.ico;
+    document.getElementById('s-tit').textContent=lvl.success.tit;
+    document.getElementById('s-sub').textContent=lvl.success.sub;
+    const nb=document.getElementById('btn-next');
+    nb.textContent=lvl.success.next;
+    nb.style.background=curLvl===2?'#6858E8':'#38B880';
+    nb.style.boxShadow=curLvl===2?'0 3px 0 #3828A8':'0 3px 0 #208858';
+    nb.onclick=()=>{if(curLvl<2){curLvl++;init();}else{curLvl=0;init();}};
+    speak(lvl.success.tit);
+  } else {
+    playSound('wrong');
+    document.getElementById('eq-line').style.borderBottomColor='#E08080';
+    setVoice('再检查一下～');
+    setTimeout(()=>document.getElementById('eq-line').style.borderBottomColor='',1200);
+  }
+}
+
+/* ---- SOUND EFFECTS ---- */
+let audioCtx=null;
+function getAudio(){
+  if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  return audioCtx;
+}
+function playSound(type){
+  try{
+    const ctx=getAudio();
+    const o=ctx.createOscillator();
+    const g=ctx.createGain();
+    o.connect(g);g.connect(ctx.destination);
+    if(type==='tap'){
+      o.frequency.setValueAtTime(600,ctx.currentTime);
+      g.gain.setValueAtTime(0.18,ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.08);
+      o.start();o.stop(ctx.currentTime+0.08);
+    } else if(type==='correct'){
+      o.frequency.setValueAtTime(520,ctx.currentTime);
+      o.frequency.setValueAtTime(660,ctx.currentTime+0.1);
+      g.gain.setValueAtTime(0.2,ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.3);
+      o.start();o.stop(ctx.currentTime+0.3);
+    } else if(type==='wrong'){
+      o.type='sawtooth';
+      o.frequency.setValueAtTime(220,ctx.currentTime);
+      g.gain.setValueAtTime(0.12,ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.2);
+      o.start();o.stop(ctx.currentTime+0.2);
+    } else if(type==='success'){
+      [0,0.12,0.24].forEach((t,i)=>{
+        const o2=ctx.createOscillator();
+        const g2=ctx.createGain();
+        o2.connect(g2);g2.connect(ctx.destination);
+        o2.frequency.setValueAtTime([520,660,780][i],ctx.currentTime+t);
+        g2.gain.setValueAtTime(0.2,ctx.currentTime+t);
+        g2.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+t+0.25);
+        o2.start(ctx.currentTime+t);o2.stop(ctx.currentTime+t+0.25);
+      });
+    } else if(type==='fish'){
+      o.frequency.setValueAtTime(440,ctx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(660,ctx.currentTime+0.06);
+      g.gain.setValueAtTime(0.15,ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.1);
+      o.start();o.stop(ctx.currentTime+0.1);
+    }
+  }catch(e){}
+}
+
+/* ---- DRAGGABLE EQ LINE ---- */
+let dragSrc=null;
+function makePlacedDraggable(p,srcEl){
+  p.draggable=true;
+  p.addEventListener('dragstart',e=>{
+    dragSrc=p;
+    e.dataTransfer.effectAllowed='move';
+    setTimeout(()=>p.classList.add('dragging'),0);
+  });
+  p.addEventListener('dragend',()=>{
+    p.classList.remove('dragging');
+    dragSrc=null;
+    document.querySelectorAll('.placed').forEach(x=>x.classList.remove('drag-over'));
+  });
+  p.addEventListener('dragover',e=>{
+    e.preventDefault();
+    if(dragSrc&&dragSrc!==p){
+      document.querySelectorAll('.placed').forEach(x=>x.classList.remove('drag-over'));
+      p.classList.add('drag-over');
+    }
+  });
+  p.addEventListener('drop',e=>{
+    e.preventDefault();
+    if(dragSrc&&dragSrc!==p){
+      const line=document.getElementById('eq-line');
+      const children=Array.from(line.querySelectorAll('.placed'));
+      const srcIdx=children.indexOf(dragSrc);
+      const tgtIdx=children.indexOf(p);
+      if(srcIdx<tgtIdx) line.insertBefore(dragSrc,p.nextSibling);
+      else line.insertBefore(dragSrc,p);
+      p.classList.remove('drag-over');
+      playSound('tap');
+    }
+  });
+}
+
+/* ---- SPEECH ---- */
+const TTS_API='https://tts.mathufo.com/tts';
+const TTS_CDN='https://cdn.mathufo.com/sound/';
+const TTS_VOICE='zh_male_tiancaitongsheng_mars_bigtts';
+const ttsCache={};
+let currentAudio=null;
+
+function unlockAudio(){
+  // create and immediately play a silent buffer to unlock audio context
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    const buf=ctx.createBuffer(1,1,22050);
+    const src=ctx.createBufferSource();
+    src.buffer=buf;src.connect(ctx.destination);src.start(0);
+    ctx.resume();
+  }catch(e){}
+}
+
+function speak(text,opts={}){
+  if(!text) return null;
+  const clean=text.trim();
+  if(!clean) return null;
+  console.log('[TTS] speak:', clean);
+  // return a promise-like object with onend support
+  const handle={onend:null,_done:false};
+  const doPlay=(url)=>{
+    if(currentAudio){ currentAudio.pause(); currentAudio=null; }
+    const audio=new Audio(url);
+    currentAudio=audio;
+    audio.onended=()=>{
+      handle._done=true;
+      if(handle.onend) handle.onend();
+    };
+    audio.onerror=(e)=>{
+      console.error('[TTS] audio error:', e, audio.src);
+      handle._done=true;
+      if(handle.onend) handle.onend();
+    };
+    audio.play().catch(()=>{
+      handle._done=true;
+      if(handle.onend) handle.onend();
+    });
+  };
+  if(ttsCache[clean]){
+    setTimeout(()=>doPlay(ttsCache[clean]),0);
+  } else {
+    fetch(TTS_API,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({data:[clean],voice_name:TTS_VOICE})
+    })
+    .then(r=>r.json())
+    .then(json=>{
+      if(json.data&&json.data[0]){
+        const url=TTS_CDN+json.data[0];
+        ttsCache[clean]=url;
+        doPlay(url);
+      } else {
+        handle._done=true;
+        if(handle.onend) handle.onend();
+      }
+    })
+    .catch(e=>{
+      console.error('[TTS] fetch error:', e);
+      handle._done=true;
+      if(handle.onend) handle.onend();
+    });
+  }
+  return handle;
+}
+
+function setVoiceText(t){document.getElementById('v-text').textContent=t;}
+function setVoice(t){setVoiceText(t);speak(t);}
+
+function skipToNext(){
+  if(curLvl<2){curLvl++;init();}
+  else{curLvl=0;init();}
+}
+
+init();
+
+// Background music
+(function(){
+  const bgm=document.getElementById('bgm');
+  if(!bgm) return;
+  bgm.src='videoplayback.mp3';
+  bgm.volume=0.25;
+  bgm.loop=true;
+  function startBgm(){
+    bgm.play().catch(()=>{});
+    document.removeEventListener('click',startBgm);
+    document.removeEventListener('touchstart',startBgm);
+  }
+  document.addEventListener('click',startBgm);
+  document.addEventListener('touchstart',startBgm);
+})();
+
+</script>
+</body>
+</html>
