@@ -83,6 +83,8 @@ body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);min-height:100vh
 
 /* VOICE */
 .voice-row{display:flex;align-items:center;gap:8px;padding:10px 18px;background:var(--q-bg);border-bottom:1.5px dashed var(--q-border);min-height:44px;}
+.replay-btn{flex-shrink:0;width:26px;height:26px;border-radius:50%;border:1.5px solid #E8C070;background:#FEF3DC;color:#A07000;font-size:13px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:opacity 0.2s,transform 0.12s;opacity:0.7;}
+.replay-btn:active{transform:scale(0.88);opacity:1;}
 .chick{font-size:18px;flex-shrink:0;}
 .v-text{font-size:13px;color:var(--text-mid);line-height:1.5;}
 
@@ -252,6 +254,7 @@ body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);min-height:100vh
   <div class="voice-row">
     <span class="chick">🐥</span>
     <div class="v-text" id="v-text">我来读一读这道题～</div>
+    <button class="replay-btn" id="replay-btn" onclick="replayVoice()" style="display:none;">🔊</button>
   </div>
 
   <!-- L1 / L3 scene -->
@@ -492,6 +495,10 @@ function init(){
   });
 
   document.getElementById('spk-ring').classList.remove('off');
+  const _rb=document.getElementById('replay-btn');
+  if(_rb) _rb.style.display='none';
+  const _spkB=document.querySelector('.spk-btn');
+  if(_spkB){ _spkB.style.opacity=''; _spkB.style.transform=''; _spkB.style.pointerEvents=''; }
   buildQText();
   setVoiceText('我来读一读这道题～');
 
@@ -552,6 +559,10 @@ function buildQText(){
 function doRead(){
   hideFingerHint();
   unlockAudio();
+  if(readDone){
+    replayVoice();
+    return;
+  }
   const lvl=getLvl();
   document.getElementById('spk-ring').classList.add('off');
   const spkBtn=document.querySelector('.spk-btn');
@@ -562,6 +573,9 @@ function doRead(){
     readL3Phrases(0, ()=>{
       if(spkBtn) spkBtn.classList.remove('reading');
       readDone=true;
+      const rb2=document.getElementById('replay-btn');
+      if(rb2) rb2.style.display='flex';
+      if(spkBtn){ spkBtn.style.opacity='0.4'; spkBtn.style.transform='scale(0.8)'; spkBtn.style.pointerEvents='none'; }
       setTimeout(()=>{
         const prompt=lvl.voiceSeq[0];
         setVoiceText(prompt);
@@ -587,7 +601,14 @@ function doRead(){
         const prompt=getLvl().voiceSeq[0];
         setVoiceText(prompt);
         const u=speak(prompt);
-        const afterPrompt=()=>{ upgradeKwBtns(); };
+        const afterPrompt=()=>{
+          upgradeKwBtns();
+          // dim main spk, show replay btn
+          const rb=document.getElementById('replay-btn');
+          if(rb) rb.style.display='flex';
+          const spk=document.querySelector('.spk-btn');
+          if(spk){ spk.style.opacity='0.4'; spk.style.transform='scale(0.8)'; spk.style.pointerEvents='none'; }
+        };
         if(u) u.onend=afterPrompt;
         else setTimeout(afterPrompt,1800);
       },400);
@@ -1492,6 +1513,14 @@ function speak(text,opts={}){
 
 function setVoiceText(t){document.getElementById('v-text').textContent=t;}
 function setVoice(t){setVoiceText(t);speak(t);}
+
+function replayVoice(){
+  const t=document.getElementById('v-text').textContent;
+  if(t) speak(t);
+  // brief visual feedback on replay btn
+  const rb=document.getElementById('replay-btn');
+  if(rb){ rb.style.opacity='1'; setTimeout(()=>rb.style.opacity='0.7',400); }
+}
 
 function skipToNext(){
   if(curLvl<2){curLvl++;init();}
