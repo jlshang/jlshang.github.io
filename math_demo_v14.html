@@ -191,6 +191,23 @@ body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);min-height:100vh
 /* confetti */
 .confetti-piece{position:fixed;width:8px;height:8px;border-radius:2px;pointer-events:none;animation:confettiFall linear forwards;z-index:9999;}
 @keyframes confettiFall{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(-100vh) rotate(720deg);opacity:0}}
+
+/* finger hint */
+.finger-hint{
+  position:fixed;
+  font-size:28px;
+  pointer-events:none;
+  z-index:9998;
+  opacity:0;
+  transition:opacity 0.4s;
+  animation:fingerBob 0.8s ease-in-out infinite;
+  transform-origin:left top;
+}
+.finger-hint.show{ opacity:1; }
+@keyframes fingerBob{
+  0%,100%{ transform:translate(0,0) rotate(-20deg); }
+  50%{ transform:translate(0,-8px) rotate(-20deg); }
+}
 .gone{display:none!important;}
 .next-arrow-btn{
   width:32px;height:32px;border-radius:50%;
@@ -205,6 +222,7 @@ body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);min-height:100vh
 </style>
 </head>
 <body>
+<div id="finger-hint" class="finger-hint">👆</div>
 <audio id="bgm" loop preload="auto"></audio>
 <div class="phone">
 
@@ -457,6 +475,10 @@ function getLvl(){return LEVELS[curLvl];}
 
 /* ---- INIT ---- */
 function init(){
+  // 强制停止所有音频，防止上一梯度的语音链污染新梯度
+  if(currentAudio){ currentAudio.pause(); currentAudio=null; }
+  window._initGeneration = (window._initGeneration||0) + 1; // generation counter
+
   const lvl=getLvl();
   readDone=false;found=[];
   l2BuildPhase=0;catFilled=0;dogBaseFilled=0;dogExtraFilled=0;
@@ -496,6 +518,7 @@ function init(){
 
   // wait for user to click speaker (autoplay blocked by browser)
   // background music continues across levels
+  startFingerTimer();
 }
 
 /* ---- Q TEXT ---- */
@@ -527,6 +550,7 @@ function buildQText(){
 
 /* ---- READ ---- */
 function doRead(){
+  hideFingerHint();
   unlockAudio();
   const lvl=getLvl();
   document.getElementById('spk-ring').classList.add('off');
@@ -694,8 +718,9 @@ function kwClick(el){
         setTimeout(()=>{setVoiceText(nextPrompt);speak(nextPrompt);},300);
       }
     };
+    const _gen=window._initGeneration||0;
     if(u)u.onend=afterFeedback;
-    else setTimeout(afterFeedback,1400);
+    else setTimeout(()=>{ if((window._initGeneration||0)===_gen) afterFeedback(); },1400);
   } else if(nextPrompt){
     if(!(lvl.sceneType==='l1l3' && (key==='k2'||key==='k3')) &&
        !(lvl.sceneType==='l2' && (key==='k3'||key==='k3a'||key==='k3b')) &&
@@ -914,6 +939,29 @@ function addFish(){
 /* ---- L1/L3 SCENE ---- */
 function resetL1L3Scene(){
   const lvl=getLvl();
+  // restore original scene HTML structure (L3 replaces innerHTML with SVG)
+  const section=document.getElementById('scene-section');
+  if(!document.getElementById('row-a')){
+    // L3 replaced the content with SVG — rebuild original structure
+    section.style.padding='';
+    section.style.overflow='';
+    section.innerHTML=`
+      <div class="scene-ph" id="scene-ph">
+        <div class="scene-ph-txt" id="ph-txt">点击题目中的关键词，看看发生什么～</div>
+      </div>
+      <div class="flower-row" id="row-a">
+        <div class="row-lbl" id="lbl-a"></div>
+        <div class="flowers" id="flowers-a"></div>
+      </div>
+      <div class="row-divider" id="row-div"></div>
+      <div class="flower-row" id="row-b">
+        <div class="row-lbl" id="lbl-b"></div>
+        <div class="flowers" id="flowers-b"></div>
+      </div>
+      <div class="brace-row" id="brace-row">
+        <div class="brace-inner" id="brace-inner"></div>
+      </div>`;
+  }
   document.getElementById('scene-ph').style.display='';
   document.getElementById('ph-txt').textContent=curLvl===2?'':'点击题目中的关键词，看看发生什么～';
   document.getElementById('lbl-a').textContent=lvl.lblA||'';
@@ -1391,23 +1439,24 @@ function speak(text,opts={}){
   if(!text) return null;
   const clean=text.trim();
   if(!clean) return null;
-  console.log('[TTS] speak:', clean);
-  // return a promise-like object with onend support
+  const gen=window._initGeneration||0;
   const handle={onend:null,_done:false};
   const doPlay=(url)=>{
     if(currentAudio){ currentAudio.pause(); currentAudio=null; }
     const audio=new Audio(url);
     currentAudio=audio;
     audio.onended=()=>{
+      if((window._initGeneration||0)!==gen) return;
       handle._done=true;
       if(handle.onend) handle.onend();
     };
-    audio.onerror=(e)=>{
-      console.error('[TTS] audio error:', e, audio.src);
+    audio.onerror=()=>{
+      if((window._initGeneration||0)!==gen) return;
       handle._done=true;
       if(handle.onend) handle.onend();
     };
     audio.play().catch(()=>{
+      if((window._initGeneration||0)!==gen) return;
       handle._done=true;
       if(handle.onend) handle.onend();
     });
@@ -1422,6 +1471,7 @@ function speak(text,opts={}){
     })
     .then(r=>r.json())
     .then(json=>{
+      if((window._initGeneration||0)!==gen) return;
       if(json.data&&json.data[0]){
         const url=TTS_CDN+json.data[0];
         ttsCache[clean]=url;
@@ -1431,8 +1481,8 @@ function speak(text,opts={}){
         if(handle.onend) handle.onend();
       }
     })
-    .catch(e=>{
-      console.error('[TTS] fetch error:', e);
+    .catch(()=>{
+      if((window._initGeneration||0)!==gen) return;
       handle._done=true;
       if(handle.onend) handle.onend();
     });
@@ -1446,6 +1496,33 @@ function setVoice(t){setVoiceText(t);speak(t);}
 function skipToNext(){
   if(curLvl<2){curLvl++;init();}
   else{curLvl=0;init();}
+}
+
+
+/* ---- FINGER HINT ---- */
+let _fingerTimer = null;
+
+function showFingerHint(){
+  const spk = document.querySelector('.spk-btn');
+  if(!spk) return;
+  const hint = document.getElementById('finger-hint');
+  if(!hint) return;
+  const r = spk.getBoundingClientRect();
+  // position finger just below-right of speaker button
+  hint.style.left = (r.right - 8) + 'px';
+  hint.style.top  = (r.bottom - 4) + 'px';
+  hint.classList.add('show');
+}
+
+function hideFingerHint(){
+  const hint = document.getElementById('finger-hint');
+  if(hint) hint.classList.remove('show');
+  if(_fingerTimer){ clearTimeout(_fingerTimer); _fingerTimer=null; }
+}
+
+function startFingerTimer(){
+  hideFingerHint();
+  _fingerTimer = setTimeout(()=> showFingerHint(), 3000);
 }
 
 init();
