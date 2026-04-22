@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>应用题闯关</title>
-<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.loli.net/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg: #EEE9E0;
@@ -22,7 +22,7 @@
   --border: #E8DCC8;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);min-height:100vh;display:flex;justify-content:center;padding:20px 16px 40px;}
+body{font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);min-height:100vh;display:flex;justify-content:center;padding:20px 16px 40px;}
 .phone{width:100%;max-width:360px;}
 
 .nav{display:flex;align-items:center;justify-content:space-between;padding:0 4px 14px;}
@@ -54,12 +54,12 @@ body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);min-height:100vh
 .spk-btn.reading svg{animation:iconBreath 0.8s ease-in-out infinite;}
 @keyframes iconBreath{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.35);opacity:0.6}}
 
-.q-text{font-family:'Ma Shan Zheng',cursive;font-size:18px;color:var(--text);line-height:2.5;flex:1;}
-.seg{border-radius:8px;padding:2px 4px;transition:background 0.25s;display:inline-block;vertical-align:middle;font-family:'Ma Shan Zheng',cursive;font-size:17px;line-height:1.7;}
+.q-text{font-family:'Ma Shan Zheng','STKaiti','KaiTi',cursive;font-size:18px;color:var(--text);line-height:2.5;flex:1;}
+.seg{border-radius:8px;padding:2px 4px;transition:background 0.25s;display:inline-block;vertical-align:middle;font-family:'Ma Shan Zheng','STKaiti','KaiTi',cursive;font-size:17px;line-height:1.7;}
 .seg.lit{background:#FFD060;}
 
 /* unified kw button — all same shape, color-coded */
-.kw{display:inline-block;font-family:'Ma Shan Zheng',cursive;font-size:17px;border-radius:8px;padding:2px 8px;user-select:none;vertical-align:middle;transition:transform 0.15s,box-shadow 0.15s,opacity 0.2s;line-height:1.7;}
+.kw{display:inline-block;font-family:'Ma Shan Zheng','STKaiti','KaiTi',cursive;font-size:17px;border-radius:8px;padding:2px 8px;user-select:none;vertical-align:middle;transition:transform 0.15s,box-shadow 0.15s,opacity 0.2s;line-height:1.7;}
 .kw.as-text{background:transparent;color:var(--text);cursor:default;border:none;}
 .kw.as-text.lit{background:#FFD060;}
 .kw.wrong-shake{animation:shake 0.4s;}
