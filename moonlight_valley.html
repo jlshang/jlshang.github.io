@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>月光谷物语 · 像素农场</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#15100c;color:#f3e7c9;font-family:"Microsoft YaHei","PingFang SC",sans-serif;display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:8px;user-select:none}
+h1{font-size:18px;margin:4px 0;letter-spacing:4px;color:#ffd76e;text-shadow:2px 2px 0 #6b3c14}
+#wrap{position:relative}
+canvas{display:block;image-rendering:pixelated;border:4px solid #6b3c14;box-shadow:0 0 0 4px #2c1b0c,0 8px 30px #000;background:#000;max-width:96vw;height:auto}
+#hud{position:absolute;top:8px;left:8px;background:rgba(20,12,5,.82);border:2px solid #8a5a2b;padding:6px 10px;font-size:13px;line-height:1.6;border-radius:4px;pointer-events:none}
+#energyWrap{width:140px;height:10px;background:#3a2a18;border:1px solid #8a5a2b;margin-top:2px}
+#energyBar{height:100%;width:100%;background:#7ed957}
+#hotbar{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;justify-content:center}
+.slot{position:relative;width:62px;height:62px;background:#2c1b0c;border:3px solid #6b3c14;border-radius:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:11px}
+.slot.on{border-color:#ffd76e;background:#4a2f14}
+.slot .ic{font-size:22px;line-height:1}
+.slot .key{position:absolute;top:1px;left:3px;font-size:9px;color:#c9a86b}
+.slot .cnt{position:absolute;top:1px;right:3px;font-size:10px;color:#ffd76e}
+.slot .nm{font-size:10px;color:#e8d9a0;margin-top:2px;white-space:nowrap}
+#toast{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);background:rgba(20,12,5,.92);border:2px solid #ffd76e;color:#ffe9b0;padding:6px 16px;border-radius:4px;font-size:14px;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+#fade{position:absolute;inset:0;background:#000;opacity:0;transition:opacity .45s;pointer-events:none}
+.panel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:560px;max-width:92%;max-height:86%;overflow:auto;background:#2c1b0c;border:4px solid #8a5a2b;border-radius:6px;padding:14px;z-index:10}
+.panel h2{font-size:16px;color:#ffd76e;margin-bottom:10px}
+.panel.hidden{display:none}
+.row{display:flex;align-items:center;justify-content:space-between;background:#3a2a18;border:2px solid #5a3a1d;padding:6px 10px;margin-bottom:6px;border-radius:4px;font-size:13px;gap:8px}
+.row button{background:#6b8f3c;border:2px solid #3f5722;color:#fff;padding:4px 10px;cursor:pointer;border-radius:3px;font-size:12px}
+.row button:hover{background:#7ea84a}
+.row button.sellb{background:#a8662a;border-color:#6b3c14}
+.tabs{display:flex;gap:8px;margin-bottom:10px}
+.tabs button{background:#4a2f14;border:2px solid #8a5a2b;color:#e8d9a0;padding:6px 14px;cursor:pointer;border-radius:4px;font-size:13px}
+.tabs button.on{background:#8a5a2b;color:#fff}
+.tabs .close{margin-left:auto}
+#help p{font-size:13px;line-height:1.9;margin-bottom:6px}
+#help b{color:#ffd76e}
+#resetBtn{background:#8f3c3c;border:2px solid #571f1f;color:#fff;padding:5px 12px;cursor:pointer;border-radius:4px;margin-top:8px;font-size:12px}
+.muted{color:#b39b6e;font-size:12px}
+#musicBtn{position:absolute;top:8px;right:8px;z-index:5;background:rgba(20,12,5,.82);border:2px solid #8a5a2b;color:#ffe9b0;font-size:16px;width:38px;height:38px;border-radius:4px;cursor:pointer}
+#musicBtn:hover{background:#4a2f14}
+</style>
+</head>
+<body>
+<h1>月 光 谷 物 语</h1>
+<div id="wrap">
+<canvas id="game" width="960" height="640"></canvas>
+<div id="hud">
+  <span id="hudDay"></span> · <span id="hudTime"></span><br>
+  💰 <span id="hudMoney"></span> 金币 <span id="hudExtra" class="muted"></span>
+  <div id="energyWrap"><div id="energyBar"></div></div>
+</div>
+<button id="musicBtn" title="音乐开关 (M)">🔊</button>
+<div id="toast"></div>
+<div id="fade"></div>
+
+<div id="shop" class="panel hidden">
+  <div class="tabs">
+    <button id="tabBuy" class="on">🛒 购买</button>
+    <button id="tabSell">💰 出售</button>
+    <button class="close" onclick="closePanels()">关闭 (ESC)</button>
+  </div>
+  <div id="shopList"></div>
+</div>
+
+<div id="bag" class="panel hidden">
+  <div class="tabs"><h2 style="margin:0">🎒 背包</h2><button class="close" onclick="closePanels()">关闭 (ESC)</button></div>
+  <div id="bagList"></div>
+</div>
+
+<div id="help" class="panel hidden">
+  <div class="tabs"><h2 style="margin:0">🌾 欢迎来到月光谷!</h2><button class="close" onclick="closePanels()">开始游戏 (ESC)</button></div>
+  <p>你继承了一座小农场。种田、钓鱼、挖矿、养动物,把它经营起来吧!</p>
+  <p><b>移动</b>:WASD / 方向键 &nbsp;&nbsp;<b>使用工具/种子</b>:空格 或 J(也可以鼠标点击身边的格子)</p>
+  <p><b>互动 / 收获 / 进门</b>:E &nbsp;&nbsp;<b>切换物品栏</b>:数字键 1-9 或点击 &nbsp;&nbsp;<b>背包</b>:B &nbsp;&nbsp;<b>音乐</b>:M &nbsp;&nbsp;<b>帮助</b>:H</p>
+  <p><b>音乐</b>:随四季变换旋律,进矿洞还会切成洞穴主题(浏览器需要你先点一下页面才能出声)。</p>
+  <p><b>种田</b>:锄头开垦 → 种下种子 → 每天浇水 → 成熟后按 E 收获。不浇水不生长!</p>
+  <p><b>四季</b>:每季28天。换季时不合季节的作物会枯萎,商店的种子也会换。</p>
+  <p><b>钓鱼</b>:站在池塘边用鱼竿,出现“❗”时立刻按空格,然后按住空格让绿条罩住鱼。</p>
+  <p><b>挖矿</b>:右上角进矿洞,用十字镐敲矿石,找到梯子可以下到更深、更富的矿层。</p>
+  <p><b>动物</b>:商店买小鸡/奶牛,它们住在右下角畜栏,每天靠近按 E 收鸡蛋/牛奶。</p>
+  <p><b>睡觉</b>:回小屋床边按 E 结束一天、恢复体力(凌晨2点会累倒)。存档在每天开始时自动保存。</p>
+  <button id="resetBtn" onclick="resetSave()">⚠ 清空存档重新开始</button>
+</div>
+</div>
+<div id="hotbar"></div>
+
+<script>
+'use strict';
+/* ================= 常量与数据 ================= */
+const TILE=32, MW=30, MH=20, W=MW*TILE, H=MH*TILE;
+const G=0,TL=1,WA=2,TR=3,HS=4,BD=5,SH=6,MN=7,FN=8,PN=9,EXIT=11;
+const SEASONS=['spring','summer','fall','winter'];
+const SEASON_CN={spring:'春',summer:'夏',fall:'秋',winter:'冬'};
+const CROPS={
+  parsnip:{name:'防风草',season:'spring',days:4,sell:45,c:'#e8d9a0'},
+  strawberry:{name:'草莓',season:'spring',days:8,regrow:4,sell:130,c:'#e8413c'},
+  tomato:{name:'番茄',season:'summer',days:6,regrow:4,sell:70,c:'#ff5b47'},
+  blueberry:{name:'蓝莓',season:'summer',days:8,regrow:4,sell:95,c:'#4f6df5'},
+  eggplant:{name:'茄子',season:'fall',days:5,regrow:5,sell:75,c:'#8a4bd2'},
+  pumpkin:{name:'南瓜',season:'fall',days:9,sell:320,c:'#f5862a'}
+};
+const SEED_PRICE={parsnip:20,strawberry:100,tomato:50,blueberry:80,eggplant:40,pumpkin:100};
+const ITEMS={};
+for(const id in CROPS){
+  ITEMS[id]={name:CROPS[id].name,sell:CROPS[id].sell};
+  ITEMS[id+'_seed']={name:CROPS[id].name+'种子',sell:Math.floor(SEED_PRICE[id]/2),seed:id};
+}
+Object.assign(ITEMS,{
+  stone:{name:'石头',sell:5},copper:{name:'铜矿石',sell:40},iron:{name:'铁矿石',sell:80},
+  gold:{name:'金矿石',sell:160},gem:{name:'宝石',sell:400},
+  fish1:{name:'鲤鱼',sell:40},fish2:{name:'鲈鱼',sell:85},fish3:{name:'金枪鱼',sell:160},fish4:{name:'传说之鱼',sell:600},
+  egg:{name:'鸡蛋',sell:60},milk:{name:'牛奶',sell:120}
+});
+const EMOJI={parsnip:'🥕',strawberry:'🍓',tomato:'🍅',blueberry:'🫐',eggplant:'🍆',pumpkin:'🎃',
+  stone:'🪨',copper:'🟠',iron:'⚪',gold:'🟡',gem:'💎',
+  fish1:'🐟',fish2:'🐠',fish3:'🐡',fish4:'🐉',egg:'🥚',milk:'🥛'};
+const TOOLS={hoe:{name:'锄头',icon:'⛏️'},can:{name:'水壶',icon:'💧'},rod:{name:'鱼竿',icon:'🎣'},pick:{name:'十字镐',icon:'⚒️'}};
+const ORE_C={stone:'#9e9e9e',copper:'#e07b39',iron:'#d4dae3',gold:'#f4c430',gem:'#6fd8f0'};
+
+/* ================= 状态 ================= */
+let day=1,timeMin=6*60,money=500,energy=100;
+const maxEnergy=100;
+let inv={parsnip_seed:5};
+let map=[],crops={},watered=new Set();
+let animals=[];
+let mineLevel=1,mineRocks={},mineLadder=null,mineMap=[];
+let scene='farm';
+let player={x:8*TILE,y:7*TILE,fx:0,fy:1,anim:0};
+let sel=0,fishing=null,fading=false,mouseDown=false;
+const keys={};
+
+/* ================= DOM ================= */
+const cvs=document.getElementById('game'),ctx=cvs.getContext('2d');
+ctx.imageSmoothingEnabled=false;
+const hudDay=document.getElementById('hudDay'),hudTime=document.getElementById('hudTime'),
+  hudMoney=document.getElementById('hudMoney'),hudExtra=document.getElementById('hudExtra'),
+  energyBar=document.getElementById('energyBar'),hotbarEl=document.getElementById('hotbar'),
+  toastEl=document.getElementById('toast'),fadeEl=document.getElementById('fade');
+let toastTimer=null;
+function toast(t){toastEl.textContent=t;toastEl.style.opacity=1;clearTimeout(toastTimer);toastTimer=setTimeout(()=>toastEl.style.opacity=0,2400);}
+
+/* ================= 地图 ================= */
+function buildFarm(){
+  map=[];
+  for(let y=0;y<MH;y++){const row=[];for(let x=0;x<MW;x++)row.push((x===0||y===0||x===MW-1||y===MH-1)?TR:G);map.push(row);}
+  for(let y=1;y<=3;y++)for(let x=1;x<=5;x++)map[y][x]=HS;
+  map[3][3]=BD;
+  for(let y=1;y<=2;y++)for(let x=13;x<=16;x++)map[y][x]=SH;
+  map[1][26]=MN;map[1][27]=MN;
+  for(let y=14;y<=18;y++)for(let x=2;x<=8;x++)map[y][x]=WA;
+  for(let y=12;y<=18;y++)for(let x=21;x<=28;x++)map[y][x]=(y===12||y===18||x===21||x===28)?FN:PN;
+  map[15][21]=PN;
+  [[10,8],[18,5],[12,17],[19,11],[16,16]].forEach(p=>{map[p[1]][p[0]]=TR;});
+}
+function rockType(){
+  const r=Math.random(),d=mineLevel;
+  if(r<0.03+d*0.006)return 'gem';
+  if(r<0.08+d*0.012)return 'gold';
+  if(r<0.2+d*0.02)return 'iron';
+  if(r<0.45+d*0.02)return 'copper';
+  return 'stone';
+}
+function genMine(){
+  mineMap=[];mineRocks={};mineLadder=null;
+  for(let y=0;y<MH;y++){const row=[];for(let x=0;x<MW;x++)row.push((x===0||y===0||x===MW-1||y===MH-1)?TR:G);mineMap.push(row);}
+  mineMap[1][2]=EXIT;
+  for(let y=1;y<MH-1;y++)for(let x=1;x<MW-1;x++){
+    if(Math.abs(x-2)<=1&&Math.abs(y-2)<=1)continue;
+    if(mineMap[y][x]===G&&Math.random()<0.42)mineRocks[x+','+y]={t:rockType()};
+  }
+}
+
+/* ================= 工具函数 ================= */
+function season(){return SEASONS[Math.floor((day-1)/28)%4];}
+function dayOfSeason(){return (day-1)%28+1;}
+function pTile(){return [Math.floor(player.x/TILE),Math.floor(player.y/TILE)];}
+function frontTile(){const [px,py]=pTile();return [px+player.fx,py+player.fy];}
+function spend(e){if(energy<e){toast('体力不足了,回小屋睡觉吧 💤');return false;}energy=Math.max(0,energy-e);return true;}
+function gain(id,n){inv[id]=(inv[id]||0)+n;toast('获得 '+(EMOJI[id]||'🌱')+' '+ITEMS[id].name+' ×'+n);renderHotbar();}
+function overlayOpen(){return ['shop','bag','help'].some(id=>!document.getElementById(id).classList.contains('hidden'));}
+function closePanels(){['shop','bag','help'].forEach(id=>document.getElementById(id).classList.add('hidden'));}
+function blockedAt(x,y){
+  const tx=Math.floor(x/TILE),ty=Math.floor(y/TILE);
+  if(tx<0||ty<0||tx>=MW||ty>=MH)return true;
+  if(scene==='mine'){
+    if(mineRocks[tx+','+ty])return true;
+    return mineMap[ty][tx]!==G;
+  }
+  const t=map[ty][tx];
+  return !(t===G||t===TL||t===PN);
+}
+function canMove(x,y){
+  return !blockedAt(x-9,y-2)&&!blockedAt(x+9,y-2)&&!blockedAt(x-9,y+10)&&!blockedAt(x+9,y+10);
+}
+function fadeOut(cb){fading=true;fadeEl.style.opacity=1;setTimeout(()=>{cb();setTimeout(()=>{fadeEl.style.opacity=0;fading=false;},120);},460);}
+
+/* ================= 行动 ================= */
+function useTool(tx,ty){
+  if(overlayOpen()||fishing||fading)return;
+  const s=slots()[sel];if(!s)return;
+  if(tx===undefined){[tx,ty]=frontTile();}
+  const k=tx+','+ty;
+  if(scene==='mine'){
+    if(s.id==='pick'){
+      const r=mineRocks[k];
+      if(!r){toast('这里没有矿石');return;}
+      if(!spend(3))return;
+      delete mineRocks[k];gain(r.t,1);
+      if(!mineLadder&&Math.random()<0.13){mineLadder=[tx,ty];toast('⬇ 岩石下出现了一架梯子!走上去可以下层');}
+    }else toast('在矿洞里请切换到 ⚒️ 十字镐');
+    return;
+  }
+  const t=(map[ty]&&map[ty][tx]!==undefined)?map[ty][tx]:TR;
+  if(s.kind==='seed'){
+    const cid=ITEMS[s.id].seed;
+    if(t!==TL){toast('需要先用锄头开垦土地');return;}
+    if(crops[k]){toast('这里已经有作物了');return;}
+    if(CROPS[cid].season!==season()){toast('现在不是种'+CROPS[cid].name+'的季节');return;}
+    inv[s.id]--;if(inv[s.id]<=0)delete inv[s.id];
+    crops[k]={type:cid,grown:0};
+    renderHotbar();toast('种下了'+CROPS[cid].name+',记得每天浇水 💧');
+    return;
+  }
+  switch(s.id){
+    case 'hoe':
+      if(crops[k]&&crops[k].dead){delete crops[k];toast('清除了枯萎的作物');return;}
+      if(crops[k]){toast('上面有作物,不能动土');return;}
+      if(t===G){if(!spend(2))return;map[ty][tx]=TL;}
+      else if(t===TL){map[ty][tx]=G;watered.delete(k);}
+      else toast('这里不能开垦');
+      break;
+    case 'can':
+      if(t===TL){if(watered.has(k)){toast('已经浇过水了');return;}if(!spend(1))return;watered.add(k);}
+      else if(t===WA)toast('水壶在池塘边永远是满的~');
+      else toast('这里不需要浇水');
+      break;
+    case 'rod':
+      if(t===WA)startFishing();
+      else toast('要面向池塘(左下角)才能钓鱼');
+      break;
+    case 'pick':
+      if(t===TL&&!crops[k]){map[ty][tx]=G;watered.delete(k);}
+      else toast('十字镐在矿洞里才有用(入口在右上角)');
+      break;
+  }
+}
+function interact(tx,ty){
+  if(fishing||fading||overlayOpen())return;
+  if(tx===undefined){[tx,ty]=frontTile();}
+  const [ptx,pty]=pTile();
+  if(scene==='mine'){
+    if(mineMap[ty]&&mineMap[ty][tx]===EXIT){fadeOut(()=>{scene='farm';player.x=26.5*TILE;player.y=2.6*TILE;player.fy=1;player.fx=0;toast('回到了农场');});}
+    return;
+  }
+  for(const kk of [tx+','+ty,ptx+','+pty]){
+    const c=crops[kk];
+    if(c&&!c.dead&&c.grown>=CROPS[c.type].days){
+      const cd=CROPS[c.type];gain(c.type,1);
+      if(cd.regrow)c.grown=cd.days-cd.regrow;else delete crops[kk];
+      return;
+    }
+  }
+  const t=(map[ty]&&map[ty][tx]!==undefined)?map[ty][tx]:TR;
+  if(t===BD){fadeOut(()=>{nextDay(false);});return;}
+  if(t===SH){openShop();return;}
+  if(t===MN){fadeOut(()=>{scene='mine';genMine();player.x=3.5*TILE;player.y=3.5*TILE;toast('⛏ 矿洞 第 '+mineLevel+' 层 — 敲碎矿石,寻找梯子');});return;}
+  for(const a of animals){
+    if(Math.hypot(a.x-player.x,a.y-player.y)<42){
+      if(a.product){gain(a.type==='chicken'?'egg':'milk',1);a.product=false;}
+      else toast(a.type==='chicken'?'🐔 咯咯咯~(今天的蛋已经收过了)':'🐮 哞~(今天的奶已经挤过了)');
+      return;
+    }
+  }
+}
+function startFishing(){
+  if(!spend(4))return;
+  fishing={st:'wait',t:1+Math.random()*2.5};
+  toast('🎣 抛竿了……安静等鱼上钩');
+}
+function hookFish(){
+  const r=Math.random();
+  let fish,diff;
+  if(r<0.45){fish='fish1';diff=1;}
+  else if(r<0.75){fish='fish2';diff=1.5;}
+  else if(r<0.95){fish='fish3';diff=2.1;}
+  else{fish='fish4';diff=3;}
+  fishing={st:'mini',fish,diff,fishY:0.5,fishTarget:0.5,tChange:0,barY:0.55,barV:0,bh:0.28,prog:30};
+}
+function action(){
+  if(fading||overlayOpen())return;
+  if(fishing){
+    if(fishing.st==='wait'){fishing=null;toast('收竿了');}
+    else if(fishing.st==='bite'){hookFish();}
+    return;
+  }
+  useTool();
+}
+function nextDay(passOut){
+  day++;timeMin=6*60;fishing=null;
+  energy=passOut?Math.max(40,Math.floor(maxEnergy*0.6)):maxEnergy;
+  const sn=season();
+  for(const k in crops){
+    const c=crops[k],cd=CROPS[c.type];
+    if(cd.season!==sn){c.dead=true;continue;}
+    if(c.grown<cd.days&&watered.has(k))c.grown++;
+  }
+  watered.clear();
+  for(const a of animals)a.product=true;
+  if(scene==='mine'){scene='farm';player.x=26.5*TILE;player.y=2.6*TILE;}
+  else{player.x=3.5*TILE;player.y=4.6*TILE;player.fx=0;player.fy=-1;}
+  save();
+  if(dayOfSeason()===1&&day>1)toast('🍂 换季了!现在是'+SEASON_CN[sn]+'季,不合季节的作物枯萎了');
+  else toast((passOut?'😵 你累倒了……':'☀ ')+'第 '+day+' 天 · '+SEASON_CN[sn]+'季 第 '+dayOfSeason()+' 天');
+}
+
+/* ================= 商店 / 背包 ================= */
+let shopTab='buy';
+function openShop(){shopTab='buy';document.getElementById('shop').classList.remove('hidden');renderShop();}
+function renderShop(){
+  document.getElementById('tabBuy').classList.toggle('on',shopTab==='buy');
+  document.getElementById('tabSell').classList.toggle('on',shopTab==='sell');
+  const el=document.getElementById('shopList');
+  if(shopTab==='buy'){
+    const sn=season();let html='';
+    for(const id in CROPS){
+      if(CROPS[id].season!==sn)continue;
+      const cd=CROPS[id];
+      html+='<div class="row"><span>🌱 '+cd.name+'种子 <span class="muted">'+cd.days+'天成熟'+(cd.regrow?' · 可反复收获':'')+' · 卖'+cd.sell+'金</span></span><button onclick="buyItem(\''+id+'_seed\','+SEED_PRICE[id]+')">买 '+SEED_PRICE[id]+'金</button></div>';
+    }
+    if(sn==='winter')html+='<div class="row"><span>❄ 冬天没有种子出售 — 去钓鱼和挖矿吧!</span></div>';
+    html+='<div class="row"><span>🐔 小鸡 <span class="muted">每天产蛋(60金)</span></span><button onclick="buyAnimal(\'chicken\',800)">买 800金</button></div>';
+    html+='<div class="row"><span>🐮 奶牛 <span class="muted">每天产奶(120金)</span></span><button onclick="buyAnimal(\'cow\',1500)">买 1500金</button></div>';
+    el.innerHTML=html;
+  }else{
+    let html='';
+    const ids=Object.keys(inv).filter(id=>inv[id]>0);
+    if(!ids.length)html='<div class="row"><span>背包是空的</span></div>';
+    for(const id of ids){
+      const it=ITEMS[id];
+      html+='<div class="row"><span>'+(EMOJI[id]||'🌱')+' '+it.name+' ×'+inv[id]+' <span class="muted">单价'+it.sell+'金</span></span><span><button class="sellb" onclick="sellItem(\''+id+'\',1)">卖1个</button> <button class="sellb" onclick="sellItem(\''+id+'\','+inv[id]+')">全卖('+(it.sell*inv[id])+'金)</button></span></div>';
+    }
+    el.innerHTML=html;
+  }
+}
+function buyItem(id,price){
+  if(money<price){toast('金币不够');return;}
+  money-=price;inv[id]=(inv[id]||0)+1;
+  renderShop();renderHotbar();save();
+}
+function buyAnimal(type,price){
+  if(money<price){toast('金币不够');return;}
+  if(animals.length>=8){toast('畜栏满了(最多8只)');return;}
+  money-=price;animals.push(newAnimal(type));
+  toast('🎉 购买成功!它住进了右下角的畜栏');
+  renderShop();save();
+}
+function sellItem(id,n){
+  n=Math.min(n,inv[id]||0);if(n<=0)return;
+  money+=ITEMS[id].sell*n;inv[id]-=n;
+  if(inv[id]<=0)delete inv[id];
+  renderShop();renderHotbar();save();
+}
+function newAnimal(type){
+  return {type,x:(22.5+Math.random()*5)*TILE,y:(13.5+Math.random()*4)*TILE,tx:0,ty:0,wt:0,product:false};
+}
+function renderBag(){
+  const el=document.getElementById('bagList');
+  const ids=Object.keys(inv).filter(id=>inv[id]>0);
+  el.innerHTML=ids.length?ids.map(id=>'<div class="row"><span>'+(EMOJI[id]||'🌱')+' '+ITEMS[id].name+' ×'+inv[id]+'</span><span class="muted">单价 '+ITEMS[id].sell+' 金</span></div>').join(''):'<div class="row"><span>背包是空的</span></div>';
+}
+document.getElementById('tabBuy').onclick=()=>{shopTab='buy';renderShop();};
+document.getElementById('tabSell').onclick=()=>{shopTab='sell';renderShop();};
+
+/* ================= 物品栏 ================= */
+function slots(){
+  const s=[{kind:'tool',id:'hoe'},{kind:'tool',id:'can'},{kind:'tool',id:'rod'},{kind:'tool',id:'pick'}];
+  for(const id in inv)if(ITEMS[id]&&ITEMS[id].seed&&inv[id]>0)s.push({kind:'seed',id});
+  return s;
+}
+function renderHotbar(){
+  const s=slots();
+  if(sel>=s.length)sel=s.length-1;
+  hotbarEl.innerHTML=s.map((it,i)=>{
+    const icon=it.kind==='tool'?TOOLS[it.id].icon:'🌱';
+    const name=it.kind==='tool'?TOOLS[it.id].name:ITEMS[it.id].name;
+    const cnt=it.kind==='seed'?'<span class="cnt">'+inv[it.id]+'</span>':'';
+    return '<div class="slot'+(i===sel?' on':'')+'" data-i="'+i+'"><span class="key">'+(i+1)+'</span><span class="ic">'+icon+'</span>'+cnt+'<span class="nm">'+name+'</span></div>';
+  }).join('');
+}
+hotbarEl.addEventListener('click',e=>{
+  const sl=e.target.closest('.slot');
+  if(sl){sel=+sl.dataset.i;renderHotbar();}
+});
+
+/* ================= 存档 ================= */
+function save(){
+  try{
+    const tilled=[];
+    for(let y=0;y<MH;y++)for(let x=0;x<MW;x++)if(map[y][x]===TL)tilled.push(x+','+y);
+    localStorage.setItem('ygv_save',JSON.stringify({day,money,inv,crops,tilled,animals:animals.map(a=>({type:a.type,product:a.product})),mineLevel}));
+  }catch(e){}
+}
+function load(){
+  try{
+    const d=JSON.parse(localStorage.getItem('ygv_save'));
+    if(!d)return false;
+    day=d.day||1;money=d.money||0;inv=d.inv||{};crops=d.crops||{};mineLevel=d.mineLevel||1;
+    (d.tilled||[]).forEach(k=>{const p=k.split(',');const x=+p[0],y=+p[1];if(map[y]&&map[y][x]===G)map[y][x]=TL;});
+    (d.animals||[]).forEach(a=>{const na=newAnimal(a.type);na.product=a.product!==false;animals.push(na);});
+    return true;
+  }catch(e){return false;}
+}
+function resetSave(){
+  if(confirm('确定要删除存档、从第1天重新开始吗?')){
+    try{localStorage.removeItem('ygv_save');}catch(e){}
+    location.reload();
+  }
+}
+window.addEventListener('beforeunload',save);
+
+/* ================= 输入 ================= */
+window.addEventListener('keydown',e=>{
+  const k=e.key.toLowerCase();
+  if([' ','arrowup','arrowdown','arrowleft','arrowright'].includes(k))e.preventDefault();
+  if(e.repeat){keys[k]=true;return;}
+  keys[k]=true;
+  if(k==='escape'){closePanels();return;}
+  if(k==='h'){const h=document.getElementById('help');const was=h.classList.contains('hidden');closePanels();if(was)h.classList.remove('hidden');return;}
+  if(k==='b'){const b=document.getElementById('bag');const was=b.classList.contains('hidden');closePanels();if(was){renderBag();b.classList.remove('hidden');}return;}
+  if(k==='m'){MUSIC.start();MUSIC.toggle();return;}
+  if(k>='1'&&k<='9'){const n=+k-1;if(n<slots().length){sel=n;renderHotbar();}return;}
+  if(k===' '||k==='j'){action();return;}
+  if(k==='e'||k==='f'){interact();return;}
+});
+window.addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});
+function canvasPos(e){
+  const r=cvs.getBoundingClientRect();
+  return [(e.clientX-r.left)*cvs.width/r.width,(e.clientY-r.top)*cvs.height/r.height];
+}
+cvs.addEventListener('mousedown',e=>{
+  mouseDown=true;
+  if(overlayOpen()||fading)return;
+  if(fishing){if(fishing.st==='bite')hookFish();else if(fishing.st==='wait'){fishing=null;toast('收竿了');}return;}
+  const [mx,my]=canvasPos(e);
+  const tx=Math.floor(mx/TILE),ty=Math.floor(my/TILE);
+  const [ptx,pty]=pTile();
+  if(Math.abs(tx-ptx)>1||Math.abs(ty-pty)>1){toast('走近一点再操作');return;}
+  if(tx!==ptx||ty!==pty){
+    if(Math.abs(tx-ptx)>=Math.abs(ty-pty)){player.fx=Math.sign(tx-ptx);player.fy=0;}
+    else{player.fx=0;player.fy=Math.sign(ty-pty);}
+  }
+  const t=scene==='farm'?map[ty][tx]:null;
+  const k=tx+','+ty;
+  const c=crops[k];
+  const nearAnimal=scene==='farm'&&animals.some(a=>Math.hypot(a.x-(tx*TILE+16),a.y-(ty*TILE+16))<30&&a.product);
+  if(scene==='mine'&&mineMap[ty][tx]===EXIT){interact(tx,ty);return;}
+  if(scene==='farm'&&(t===BD||t===SH||t===MN||nearAnimal||(c&&!c.dead&&c.grown>=CROPS[c.type].days))){interact(tx,ty);return;}
+  useTool(tx,ty);
+});
+window.addEventListener('mouseup',()=>{mouseDown=false;});
+
+/* ================= 更新 ================= */
+function holding(){return keys[' ']||mouseDown;}
+function update(dt){
+  if(overlayOpen()||fading)return;
+  timeMin+=dt*10;
+  if(timeMin>=26*60){fadeOut(()=>nextDay(true));return;}
+  if(fishing){updateFishing(dt);return;}
+  // 移动
+  let vx=0,vy=0;
+  if(keys['w']||keys['arrowup'])vy=-1;
+  if(keys['s']||keys['arrowdown'])vy=1;
+  if(keys['a']||keys['arrowleft'])vx=-1;
+  if(keys['d']||keys['arrowright'])vx=1;
+  if(vx||vy){
+    if(vx&&vy){vx*=0.707;vy*=0.707;}
+    const sp=175*dt;
+    const nx=player.x+vx*sp,ny=player.y+vy*sp;
+    if(canMove(nx,player.y))player.x=nx;
+    if(canMove(player.x,ny))player.y=ny;
+    if(Math.abs(vx)>=Math.abs(vy)&&vx){player.fx=Math.sign(vx);player.fy=0;}
+    else if(vy){player.fx=0;player.fy=Math.sign(vy);}
+    player.anim+=dt*8;
+  }
+  // 矿洞梯子
+  if(scene==='mine'&&mineLadder){
+    const [ptx,pty]=pTile();
+    if(ptx===mineLadder[0]&&pty===mineLadder[1]){
+      fadeOut(()=>{mineLevel++;genMine();player.x=3.5*TILE;player.y=3.5*TILE;toast('⬇ 来到矿洞 第 '+mineLevel+' 层,矿石更丰富了!');});
+    }
+  }
+  // 动物游荡
+  for(const a of animals){
+    a.wt-=dt;
+    if(a.wt<=0){
+      a.tx=(22.3+Math.random()*5.4)*TILE;a.ty=(13.3+Math.random()*4.4)*TILE;
+      a.wt=2+Math.random()*4;
+    }
+    const dx=a.tx-a.x,dy=a.ty-a.y,d=Math.hypot(dx,dy);
+    if(d>3){a.x+=dx/d*22*dt;a.y+=dy/d*22*dt;}
+  }
+}
+function updateFishing(dt){
+  const f=fishing;
+  if(f.st==='wait'){f.t-=dt;if(f.t<=0){f.st='bite';f.t=0.9;}return;}
+  if(f.st==='bite'){f.t-=dt;if(f.t<=0){fishing=null;toast('鱼跑了……再试一次');}return;}
+  // 小游戏
+  if(holding())f.barV-=5.2*dt;
+  f.barV+=3.6*dt;
+  f.barV=Math.max(-1.6,Math.min(1.6,f.barV));
+  f.barY+=f.barV*dt;
+  if(f.barY<0){f.barY=0;f.barV*=-0.25;}
+  if(f.barY>1-f.bh){f.barY=1-f.bh;f.barV*=-0.25;}
+  f.tChange-=dt;
+  if(f.tChange<=0){f.fishTarget=Math.random()*0.92;f.tChange=(0.7+Math.random()*1.3)/f.diff;}
+  f.fishY+=(f.fishTarget-f.fishY)*Math.min(1,f.diff*1.6*dt);
+  const inBar=f.fishY>=f.barY-0.02&&f.fishY<=f.barY+f.bh+0.02;
+  f.prog+=(inBar?24:-15)*dt;
+  if(f.prog>=100){const fish=f.fish;fishing=null;gain(fish,1);toast('🎉 钓到了 '+(EMOJI[fish]||'')+' '+ITEMS[fish].name+'!');}
+  else if(f.prog<=0){fishing=null;toast('💨 鱼挣脱跑掉了!');}
+}
+
+/* ================= 绘制 ================= */
+function drawSprite(pat,pal,px,py,s){
+  for(let r=0;r<pat.length;r++)for(let c=0;c<pat[r].length;c++){
+    const ch=pat[r][c];
+    if(ch!=='.'&&pal[ch]){ctx.fillStyle=pal[ch];ctx.fillRect(px+c*s,py+r*s,s,s);}
+  }
+}
+const PPAL={h:'#7a4a26',s:'#f1c27d',e:'#26262e',c:'#3a6ea5',p:'#5a3a25',b:'#33241a'};
+const P_DOWN=['..hhhh..','.hhhhhh.','.sesses.','..ssss..','.cccccc.','.cccccc.','..p..p..','..b..b..'];
+const P_UP=['..hhhh..','.hhhhhh.','.hhhhhh.','..ssss..','.cccccc.','.cccccc.','..p..p..','..b..b..'];
+const P_LEFT=['..hhhh..','.hhhhhh.','.esssss.','..ssss..','.cccccc.','.cccccc.','..p..p..','..b..b..'];
+const P_RIGHT=['..hhhh..','.hhhhhh.','.sessse.','..ssss..','.cccccc.','.cccccc.','..p..p..','..b..b..'];
+const CHICK=['...r....','..www...','.kwwwo..','.wwww...','wwwwww..','.wwwww..','..w.w...','..o.o...'];
+const CPAL={w:'#fbfbf4',r:'#d23a32',o:'#e8973d',k:'#26262e'};
+const COW=['.kk..kk.','.wwwwww.','kwwwkkww','wwkwwwwk','.wwwwww.','.wkkwww.','.pp.www.','.k.k.k.k'];
+const WPAL={w:'#f5f3ea',k:'#3a3a3a',p:'#e8a9b0'};
+const TREE=['...gg...','..gggg..','.gggggg.','gggggggg','.gggggg.','..gggg..','...tt...','...tt...'];
+const TPAL_S={g:'#3f8f3a',t:'#6b4a2f'};
+const TPAL_F={g:'#c77b2e',t:'#6b4a2f'};
+const TPAL_W={g:'#dfe8ec',t:'#6b4a2f'};
+function treePal(){const sn=season();return sn==='fall'?TPAL_F:sn==='winter'?TPAL_W:TPAL_S;}
+function grassColor(){const sn=season();return sn==='winter'?'#cfd8dc':sn==='fall'?'#a3a851':sn==='summer'?'#5fae3e':'#6fbf4a';}
+function drawTiles(){
+  const sn=season(),gc=grassColor(),now=performance.now();
+  const m=scene==='farm'?map:mineMap;
+  for(let y=0;y<MH;y++)for(let x=0;x<MW;x++){
+    const t=m[y][x],px=x*TILE,py=y*TILE;
+    if(scene==='mine'){
+      if(t===TR){ctx.fillStyle='#2c2530';ctx.fillRect(px,py,TILE,TILE);ctx.fillStyle='#3a3344';ctx.fillRect(px+4,py+4,8,8);ctx.fillRect(px+18,py+16,9,9);}
+      else if(t===EXIT){ctx.fillStyle='#2c2530';ctx.fillRect(px,py,TILE,TILE);ctx.fillStyle='#7a5230';ctx.fillRect(px+4,py+2,24,30);ctx.fillStyle='#4a3018';ctx.fillRect(px+8,py+6,16,26);}
+      else{ctx.fillStyle='#55483f';ctx.fillRect(px,py,TILE,TILE);if((x*7+y*13)%6===0){ctx.fillStyle='#4a3e36';ctx.fillRect(px+(x*5+y*3)%24+3,py+(x*11+y*7)%24+3,4,4);}}
+      continue;
+    }
+    // 农场
+    ctx.fillStyle=gc;ctx.fillRect(px,py,TILE,TILE);
+    if((x*7+y*13)%6===0){ctx.fillStyle='rgba(0,0,0,0.08)';ctx.fillRect(px+(x*5+y*3)%24+3,py+(x*11+y*7)%24+3,4,4);}
+    switch(t){
+      case TL:{
+        ctx.fillStyle=watered.has(x+','+y)?'#5e3d1c':'#8a5a2b';
+        ctx.fillRect(px+1,py+1,TILE-2,TILE-2);
+        ctx.fillStyle='rgba(0,0,0,0.15)';
+        ctx.fillRect(px+2,py+8,TILE-4,2);ctx.fillRect(px+2,py+18,TILE-4,2);ctx.fillRect(px+2,py+28,TILE-4,2);
+        break;}
+      case WA:{
+        ctx.fillStyle=sn==='winter'?'#7fa8c9':'#3b6ed0';ctx.fillRect(px,py,TILE,TILE);
+        if((x+y+Math.floor(now/450))%4===0){ctx.fillStyle='rgba(255,255,255,0.35)';ctx.fillRect(px+6,py+12,12,3);}
+        break;}
+      case TR:
+        drawSprite(TREE,treePal(),px,py,4);break;
+      case HS:
+        ctx.fillStyle='#b08968';ctx.fillRect(px,py,TILE,TILE);
+        ctx.fillStyle='#8a623f';ctx.fillRect(px,py,TILE,4);
+        if(y===1){ctx.fillStyle='#a8402f';ctx.fillRect(px,py,TILE,14);ctx.fillStyle='#7e2f22';ctx.fillRect(px,py+12,TILE,3);}
+        break;
+      case BD:
+        ctx.fillStyle='#b08968';ctx.fillRect(px,py,TILE,TILE);
+        ctx.fillStyle='#5a3a1d';ctx.fillRect(px+5,py+4,22,28);
+        ctx.fillStyle='#ffd76e';ctx.fillRect(px+21,py+17,3,3);
+        break;
+      case SH:
+        if(y===1){ctx.fillStyle=(x%2)?'#d8d2c2':'#c94f4f';ctx.fillRect(px,py,TILE,TILE);ctx.fillStyle='rgba(0,0,0,0.15)';ctx.fillRect(px,py+26,TILE,6);}
+        else{ctx.fillStyle='#8a5a2b';ctx.fillRect(px,py,TILE,TILE);ctx.fillStyle='#6b4220';ctx.fillRect(px,py,TILE,6);}
+        break;
+      case MN:
+        ctx.fillStyle='#6e6e76';ctx.fillRect(px,py,TILE,TILE);
+        ctx.fillStyle='#1c1c22';ctx.beginPath();ctx.arc(px+16,py+32,13,Math.PI,0);ctx.fill();
+        break;
+      case FN:{
+        ctx.fillStyle='#8a5a2b';
+        ctx.fillRect(px+13,py+4,6,24);
+        ctx.fillRect(px,py+10,TILE,5);
+        break;}
+      case PN:
+        ctx.fillStyle='#caa86c';ctx.fillRect(px,py,TILE,TILE);
+        ctx.fillStyle='rgba(0,0,0,0.07)';ctx.fillRect(px+(x*5+y*3)%24+3,py+(x*11+y*7)%24+3,5,4);
+        break;
+    }
+  }
+}
+function drawCrops(){
+  const now=performance.now();
+  for(const k in crops){
+    const p=k.split(',');const x=+p[0],y=+p[1];
+    const c=crops[k],cd=CROPS[c.type];
+    const px=x*TILE,py=y*TILE;
+    if(c.dead){
+      ctx.fillStyle='#8d8478';
+      ctx.fillRect(px+14,py+12,4,16);ctx.fillRect(px+9,py+16,4,8);ctx.fillRect(px+20,py+15,4,9);
+      continue;
+    }
+    const mature=c.grown>=cd.days;
+    const st=mature?3:Math.min(2,Math.floor(c.grown/cd.days*3));
+    ctx.fillStyle='#3f8f3a';
+    if(st===0){ctx.fillRect(px+14,py+20,4,8);}
+    else if(st===1){ctx.fillRect(px+14,py+14,4,14);ctx.fillRect(px+9,py+18,5,4);ctx.fillRect(px+18,py+18,5,4);}
+    else{ctx.fillRect(px+13,py+8,6,20);ctx.fillRect(px+6,py+14,7,5);ctx.fillRect(px+19,py+14,7,5);}
+    if(mature){
+      ctx.fillStyle=cd.c;ctx.fillRect(px+9,py+9,14,14);
+      ctx.fillStyle='rgba(255,255,255,'+(0.35+0.3*Math.sin(now/300))+')';
+      ctx.fillRect(px+11,py+11,4,4);
+    }
+  }
+}
+function drawAnimals(){
+  for(const a of animals){
+    const bob=Math.sin(performance.now()/300+a.x)*1.5;
+    if(a.type==='chicken')drawSprite(CHICK,CPAL,a.x-12,a.y-16+bob,3);
+    else drawSprite(COW,WPAL,a.x-16,a.y-20+bob,4);
+    if(a.product){
+      ctx.fillStyle='#ffd76e';ctx.font='bold 16px sans-serif';ctx.textAlign='center';
+      ctx.fillText('❗',a.x,a.y-24+bob);ctx.textAlign='left';
+    }
+  }
+}
+function drawRocks(){
+  for(const k in mineRocks){
+    const p=k.split(',');const x=+p[0],y=+p[1];
+    const px=x*TILE,py=y*TILE,t=mineRocks[k].t;
+    ctx.fillStyle='#7d7d85';
+    ctx.fillRect(px+5,py+9,22,18);ctx.fillRect(px+9,py+5,14,26);
+    ctx.fillStyle='#94949c';ctx.fillRect(px+9,py+9,8,6);
+    if(t!=='stone'){
+      ctx.fillStyle=ORE_C[t];
+      ctx.fillRect(px+11,py+13,5,5);ctx.fillRect(px+19,py+18,5,5);ctx.fillRect(px+14,py+22,4,4);
+    }
+  }
+  if(mineLadder){
+    const px=mineLadder[0]*TILE,py=mineLadder[1]*TILE;
+    ctx.fillStyle='#1c1c22';ctx.fillRect(px+4,py+4,24,24);
+    ctx.fillStyle='#caa86c';
+    ctx.fillRect(px+8,py+4,4,24);ctx.fillRect(px+20,py+4,4,24);
+    ctx.fillRect(px+8,py+9,16,3);ctx.fillRect(px+8,py+17,16,3);ctx.fillRect(px+8,py+25,16,3);
+  }
+}
+function drawPlayer(){
+  let pat=P_DOWN;
+  if(player.fy<0)pat=P_UP;
+  else if(player.fx<0)pat=P_LEFT;
+  else if(player.fx>0)pat=P_RIGHT;
+  const hop=Math.abs(Math.sin(player.anim*2))*2;
+  drawSprite(pat,PPAL,player.x-16,player.y-24-hop,4);
+  // 朝向指示
+  const [tx,ty]=frontTile();
+  if(!fishing&&!overlayOpen()){
+    ctx.strokeStyle='rgba(255,255,255,0.35)';ctx.lineWidth=2;
+    ctx.strokeRect(tx*TILE+2,ty*TILE+2,TILE-4,TILE-4);
+  }
+  if(fishing){
+    ctx.strokeStyle='#e8e3d0';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(player.x+player.fx*10,player.y-18);
+    ctx.lineTo(player.x+player.fx*40,player.y+player.fy*40);ctx.stroke();
+    ctx.fillStyle='#d23a32';ctx.beginPath();ctx.arc(player.x+player.fx*40,player.y+player.fy*40,4,0,7);ctx.fill();
+    if(fishing.st==='bite'){
+      ctx.fillStyle='#ffd76e';ctx.font='bold 30px sans-serif';ctx.textAlign='center';
+      ctx.fillText('❗',player.x,player.y-40);ctx.textAlign='left';
+    }
+  }
+}
+function drawFishingUI(){
+  const f=fishing;if(!f||f.st!=='mini')return;
+  const px=W-100,py=70,pw=64,ph=H-180;
+  ctx.fillStyle='rgba(20,12,5,0.9)';ctx.fillRect(px-8,py-34,pw+16,ph+52);
+  ctx.strokeStyle='#8a5a2b';ctx.lineWidth=3;ctx.strokeRect(px-8,py-34,pw+16,ph+52);
+  ctx.fillStyle='#ffe9b0';ctx.font='12px sans-serif';ctx.textAlign='center';
+  ctx.fillText('按住空格!',px+pw/2,py-14);ctx.textAlign='left';
+  // 轨道
+  const tx0=px+6,tw=26,th=ph-10,ty0=py+5;
+  ctx.fillStyle='#16304a';ctx.fillRect(tx0,ty0,tw,th);
+  // 绿条
+  ctx.fillStyle='#7ed957';
+  ctx.fillRect(tx0+2,ty0+f.barY*th,tw-4,f.bh*th);
+  // 鱼
+  ctx.font='18px sans-serif';
+  ctx.fillText('🐟',tx0+3,ty0+f.fishY*(th-14)+16);
+  // 进度
+  const gx=px+42,gw=14;
+  ctx.fillStyle='#3a2a18';ctx.fillRect(gx,ty0,gw,th);
+  const ph2=f.prog/100*th;
+  ctx.fillStyle=f.prog>60?'#7ed957':f.prog>30?'#f4c430':'#d23a32';
+  ctx.fillRect(gx,ty0+th-ph2,gw,ph2);
+}
+function drawLabels(){
+  ctx.font='bold 12px sans-serif';ctx.textAlign='center';
+  ctx.fillStyle='rgba(0,0,0,0.45)';
+  const lbl=(t,x,y)=>{const w=ctx.measureText(t).width+10;ctx.fillStyle='rgba(0,0,0,0.45)';ctx.fillRect(x-w/2,y-11,w,15);ctx.fillStyle='#ffe9b0';ctx.fillText(t,x,y);};
+  if(scene==='farm'){
+    lbl('🛏 小屋(E睡觉)',3.5*TILE,4.6*TILE);
+    lbl('🛒 商店(E)',15*TILE,3.4*TILE);
+    lbl('⛏ 矿洞(E)',27*TILE,3.2*TILE);
+    lbl('🐔 畜栏',25*TILE,11.6*TILE);
+    lbl('🎣 池塘',5.5*TILE,13.5*TILE);
+  }else{
+    lbl('🚪 出口(E)',2.5*TILE+16,3.2*TILE);
+    lbl('第 '+mineLevel+' 层',W/2,1.6*TILE);
+  }
+  ctx.textAlign='left';
+}
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  drawTiles();
+  if(scene==='farm'){drawCrops();drawAnimals();}
+  else drawRocks();
+  drawPlayer();
+  drawLabels();
+  // 夜色
+  if(timeMin>20*60){
+    const a=Math.min(0.55,(timeMin-1200)/360*0.55);
+    ctx.fillStyle='rgba(12,14,60,'+a+')';ctx.fillRect(0,0,W,H);
+  }
+  drawFishingUI();
+}
+
+/* ================= 音乐(原创田园芯片风BGM) ================= */
+const MUSIC=(()=>{
+  let ac=null,master=null,muted=false,step=0,nextT=0;
+  const m2f=n=>440*Math.pow(2,(n-69)/12);
+  // 4小节旋律(八分音符×32),C大调,和弦 C-Am-F-G
+  const MEL=[64,67,72,67,64,67,69,67, 72,71,69,64,69,0,67,64,
+             65,69,72,69,74,72,69,65, 67,71,74,71,76,74,71,67];
+  const CHORDS=[[48,52,55],[45,48,52],[41,45,48],[43,47,50]];
+  // 矿洞:A小调五声,低沉稀疏
+  const MINE_MEL=[57,0,60,0,64,0,62,60, 57,0,55,0,52,0,55,57,
+                  57,0,60,0,64,0,67,64, 62,0,60,0,57,0,55,57];
+  const MINE_CH=[[45,48,52],[45,48,52],[41,45,48],[43,47,50]];
+  function cfg(){
+    if(scene==='mine')return{bpm:72,tr:-7,wave:'triangle',mel:MINE_MEL,ch:MINE_CH,vol:0.07,sparse:false,dark:true};
+    const sn=season();
+    if(sn==='spring')return{bpm:92,tr:0,wave:'triangle',mel:MEL,ch:CHORDS,vol:0.09,sparse:false};
+    if(sn==='summer')return{bpm:108,tr:2,wave:'square',mel:MEL,ch:CHORDS,vol:0.05,sparse:false};
+    if(sn==='fall')return{bpm:82,tr:-2,wave:'triangle',mel:MEL,ch:CHORDS,vol:0.08,sparse:false};
+    return{bpm:64,tr:-4,wave:'sine',mel:MEL,ch:CHORDS,vol:0.11,sparse:true};
+  }
+  function note(t,f,dur,wave,vol){
+    if(f<=0)return;
+    const o=ac.createOscillator(),g=ac.createGain();
+    o.type=wave;o.frequency.value=f;
+    g.gain.setValueAtTime(0,t);
+    g.gain.linearRampToValueAtTime(vol,t+0.025);
+    g.gain.exponentialRampToValueAtTime(0.001,t+dur);
+    o.connect(g);g.connect(master);
+    o.start(t);o.stop(t+dur+0.05);
+  }
+  function tick(){
+    if(!ac)return;
+    while(nextT<ac.currentTime+0.35){
+      const c=cfg(),spb=60/c.bpm/2,i=step%32,bar=Math.floor(i/8)%4,t=Math.max(nextT,ac.currentTime);
+      if(i%8===0){
+        const ch=c.ch[bar];
+        note(t,m2f(ch[0]+c.tr-12),spb*7,'triangle',c.dark?0.16:0.12);
+        if(!c.dark)ch.forEach(n=>note(t,m2f(n+c.tr),spb*7.5,'sine',0.045));
+        else note(t,m2f(ch[0]+c.tr),spb*7.5,'sine',0.05);
+      }
+      const mn=c.mel[i];
+      if(mn&&!(c.sparse&&i%2===1))note(t,m2f(mn+c.tr),spb*0.95,c.wave,c.vol);
+      nextT+=spb;step++;
+    }
+  }
+  function start(){
+    if(ac)return;
+    try{
+      ac=new (window.AudioContext||window.webkitAudioContext)();
+      master=ac.createGain();master.gain.value=muted?0:0.6;
+      master.connect(ac.destination);
+      nextT=ac.currentTime+0.1;
+      setInterval(tick,110);
+    }catch(e){}
+  }
+  function toggle(){
+    muted=!muted;
+    if(master)master.gain.value=muted?0:0.6;
+    document.getElementById('musicBtn').textContent=muted?'🔇':'🔊';
+    toast(muted?'🔇 音乐已关闭':'🎵 音乐已开启');
+  }
+  return{start,toggle};
+})();
+document.getElementById('musicBtn').onclick=()=>{MUSIC.start();MUSIC.toggle();};
+window.addEventListener('keydown',()=>MUSIC.start(),{once:true});
+window.addEventListener('mousedown',()=>MUSIC.start(),{once:true});
+
+/* ================= HUD ================= */
+function pad(n){return (n<10?'0':'')+n;}
+function updateHud(){
+  hudDay.textContent='第 '+day+' 天 · '+SEASON_CN[season()]+'季 '+dayOfSeason()+'/28';
+  const h=Math.floor(timeMin/60),m=Math.floor(timeMin%60);
+  hudTime.textContent='🕐 '+(h>=24?'凌晨'+(h-24):h)+':'+pad(m);
+  hudMoney.textContent=money;
+  hudExtra.textContent=scene==='mine'?('· 矿洞第'+mineLevel+'层'):'';
+  energyBar.style.width=(energy/maxEnergy*100)+'%';
+  energyBar.style.background=energy>50?'#7ed957':energy>20?'#f4c430':'#d23a32';
+}
+
+/* ================= 启动 ================= */
+buildFarm();
+const hasSave=load();
+renderHotbar();
+if(!hasSave)document.getElementById('help').classList.remove('hidden');
+else toast('欢迎回来!第 '+day+' 天 · '+SEASON_CN[season()]+'季');
+let last=performance.now();
+function loop(now){
+  const dt=Math.min(0.05,(now-last)/1000);last=now;
+  update(dt);draw();updateHud();
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
