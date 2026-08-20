@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>阿基米兔产品触点地图</title>
+  <style>
+    :root { --ink:#24333d; --muted:#65737d; --line:#d9e1e2; --paper:#ffffff; --canvas:#f4f7f6; --teach:#3a8091; --emotion:#ca7652; --heavy:#b64a48; --medium:#d59238; --light:#639d78; --subtle:#8a98a0; }
+    * { box-sizing:border-box; }
+    body { margin:0; color:var(--ink); background:var(--canvas); font-family:"PingFang SC","Microsoft YaHei",Arial,sans-serif; line-height:1.5; }
+    .page { max-width:1480px; margin:auto; padding:32px; }
+    .header { display:flex; align-items:flex-start; justify-content:space-between; gap:24px; margin-bottom:24px; }
+    h1 { margin:0; font-size:28px; font-weight:600; letter-spacing:0; }
+    .subtitle { margin:6px 0 0; color:var(--muted); }
+    .line-switch { display:flex; gap:8px; margin-top:18px; }
+    .line-tab { min-width:112px; padding:9px 14px; border:1px solid var(--line); border-radius:6px; background:var(--paper); color:var(--muted); font:inherit; font-weight:600; cursor:pointer; }
+    .line-tab:hover, .line-tab:focus-visible { outline:2px solid var(--teach); outline-offset:1px; }
+    .line-tab.active[data-line="教学线"] { border-color:var(--teach); background:#e8f2f3; color:var(--teach); }
+    .line-tab.active[data-line="情感线"] { border-color:var(--emotion); background:#faede7; color:var(--emotion); }
+    .legend { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; }
+    .chip, .state { display:inline-flex; align-items:center; gap:6px; padding:5px 9px; border:1px solid var(--line); border-radius:999px; font-size:13px; white-space:nowrap; background:var(--paper); }
+    .dot { width:8px; height:8px; border-radius:50%; background:currentColor; }
+    .journey { display:grid; grid-template-columns:170px repeat(5,minmax(150px,1fr)); border-bottom:1px solid var(--line); }
+    .journey-label, .phase { padding:12px 14px; }
+    .journey-label { color:var(--muted); }
+    .phase { border-left:1px solid var(--line); font-weight:600; }
+    .lane { display:grid; grid-template-columns:170px repeat(5,minmax(150px,1fr)); margin-top:14px; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--paper); }
+    .lane[hidden] { display:none; }
+    .lane-title { padding:18px 14px; font-weight:600; }
+    .lane-title small { display:block; margin-top:5px; color:var(--muted); font-weight:400; }
+    .lane-title.teaching { background:#e8f2f3; color:var(--teach); }
+    .lane-title.emotion { background:#faede7; color:var(--emotion); }
+    .cell { min-height:160px; padding:10px; border-left:1px solid var(--line); }
+    .touchpoint { display:block; width:100%; margin:0 0 8px; padding:9px 10px; border:1px solid var(--line); border-left:4px solid var(--subtle); border-radius:6px; background:var(--paper); color:var(--ink); text-align:left; cursor:pointer; font:inherit; }
+    .touchpoint:last-child { margin-bottom:0; }
+    .touchpoint:hover, .touchpoint:focus-visible, .touchpoint.active { background:#edf6f6; outline:none; border-color:var(--teach); }
+    .touchpoint.heavy { border-left-color:var(--heavy); }
+    .touchpoint.medium { border-left-color:var(--medium); }
+    .touchpoint.light { border-left-color:var(--light); }
+    .name { display:block; font-weight:600; font-size:14px; }
+    .meta { display:block; margin-top:3px; color:var(--muted); font-size:12px; }
+    .data-band { display:grid; grid-template-columns:170px 1fr; margin-top:14px; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:#eaf0ef; }
+    .data-band strong { padding:12px 14px; }
+    .data-band span { padding:12px 14px; color:var(--muted); border-left:1px solid var(--line); }
+    .detail { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; margin-top:14px; padding:18px; border:1px solid var(--line); border-radius:8px; background:var(--paper); }
+    .detail-item strong { display:block; font-size:13px; }
+    .detail-item span { display:block; margin-top:5px; color:var(--muted); font-size:14px; }
+    .detail { display:none; }
+    .welcome-preview { margin-top:14px; padding:20px; border:1px solid #e5d7cd; border-radius:8px; background:#fffaf6; }
+    .welcome-preview[hidden] { display:none; }
+    .preview-header { display:flex; justify-content:space-between; gap:16px; align-items:flex-start; margin-bottom:16px; }
+    .preview-header h2 { margin:0; font-size:18px; font-weight:600; }
+    .preview-header p { margin:4px 0 0; color:var(--muted); font-size:13px; }
+    .scenario-tabs { display:flex; gap:6px; flex-wrap:wrap; }
+    .scenario-tab { padding:6px 10px; border:1px solid var(--line); border-radius:6px; background:var(--paper); color:var(--muted); font:inherit; font-size:13px; cursor:pointer; }
+    .scenario-tab.active { border-color:var(--emotion); background:#faede7; color:var(--emotion); font-weight:600; }
+    .preview-content { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(260px,.85fr); gap:20px; align-items:center; }
+    .welcome-screen { position:relative; min-height:280px; overflow:hidden; border:1px solid #e7d8ce; border-radius:8px; background:#fffdf9; }
+    .welcome-screen::before { content:""; position:absolute; inset:14px; border:1px dashed #ead7c8; border-radius:6px; pointer-events:none; }
+    .app-mark { position:absolute; top:24px; left:28px; color:#b76b47; font-size:13px; font-weight:600; }
+    .speech { position:absolute; z-index:2; top:70px; left:28px; max-width:56%; padding:14px 16px; border:1px solid #e6d5c9; border-radius:8px; background:var(--paper); }
+    .speech strong { display:block; font-size:16px; font-weight:600; }
+    .speech span { display:block; margin-top:5px; color:var(--muted); font-size:14px; }
+    .character-window { position:absolute; right:8px; bottom:0; width:54%; height:250px; overflow:hidden; }
+    .mitu-sprite { position:absolute; width:850px; max-width:none; height:auto; pointer-events:none; animation:mitu-bob 2.6s ease-in-out infinite; }
+    .pose-now .mitu-sprite { left:-35px; top:-225px; }
+    .pose-return .mitu-sprite { left:-185px; top:-220px; }
+    .pose-long-return .mitu-sprite { left:-530px; top:-55px; animation-duration:3.1s; }
+    @keyframes mitu-bob { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-5px); } }
+    .preview-note { padding:4px 4px 4px 12px; border-left:3px solid var(--emotion); }
+    .preview-note .note-label { color:var(--emotion); font-size:13px; font-weight:600; }
+    .preview-note h3 { margin:6px 0; font-size:17px; font-weight:600; }
+    .preview-note p { margin:0; color:var(--muted); font-size:14px; }
+    .preview-rules { display:grid; gap:8px; margin-top:14px; padding-top:14px; border-top:1px solid #e7d8ce; }
+    .preview-rules div { color:var(--muted); font-size:13px; }
+    .preview-rules strong { color:var(--ink); }
+    .full-list { margin-top:28px; }
+    .full-list h2 { margin:0 0 5px; font-size:20px; font-weight:600; }
+    .full-list > p { margin:0 0 14px; color:var(--muted); font-size:14px; }
+    .table-wrap { overflow-x:auto; border:1px solid var(--line); border-radius:8px; background:var(--paper); }
+    table { width:100%; min-width:1180px; border-collapse:collapse; font-size:13px; }
+    th, td { padding:12px 13px; border-right:1px solid var(--line); border-bottom:1px solid var(--line); vertical-align:top; text-align:left; }
+    th:last-child, td:last-child { border-right:0; }
+    tr:last-child td { border-bottom:0; }
+    tr[hidden] { display:none; }
+    th { background:#eaf0ef; font-weight:600; white-space:nowrap; }
+    td { color:var(--muted); }
+    td strong { color:var(--ink); font-weight:600; }
+    .line-teaching { color:var(--teach); font-weight:600; }
+    .line-emotion { color:var(--emotion); font-weight:600; }
+    .status { display:inline-block; padding:2px 7px; border-radius:999px; background:#edf3f0; color:#49745c; font-size:12px; white-space:nowrap; }
+    .status.plan { background:#f5f1e9; color:#947236; }
+    .touchpoint { transition:background .18s ease, border-color .18s ease, transform .18s ease; }
+    .touchpoint:hover { transform:translateY(-1px); }
+    .touchpoint::after { content:"查看详情"; display:block; margin-top:5px; color:var(--muted); font-size:11px; font-weight:400; }
+    .touchpoint-modal { width:min(1120px,calc(100% - 40px)); max-width:none; max-height:calc(100% - 40px); padding:0; border:0; border-radius:10px; background:var(--paper); color:var(--ink); box-shadow:0 24px 70px rgba(31,48,57,.24); }
+    .touchpoint-modal::backdrop { background:rgba(31,48,57,.44); }
+    .modal-header { display:flex; align-items:flex-start; gap:14px; padding:24px 28px 20px; border-bottom:1px solid var(--line); }
+    .modal-kicker { margin:0 0 5px; color:var(--muted); font-size:13px; }
+    .modal-header h2 { margin:0; font-size:24px; font-weight:600; }
+    .modal-header .modal-line { margin:6px 0 0; color:var(--muted); font-size:14px; }
+    .modal-close { flex:0 0 auto; width:34px; height:34px; border:1px solid var(--line); border-radius:6px; background:var(--paper); color:var(--muted); font:inherit; font-size:22px; line-height:1; cursor:pointer; }
+    .modal-close:hover, .modal-close:focus-visible { outline:2px solid var(--teach); outline-offset:1px; color:var(--ink); }
+    .modal-content { padding:24px 28px 28px; }
+    .modal-spec { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:22px 32px; padding:20px; border:1px solid var(--line); border-radius:8px; background:#fbfcfc; }
+    .modal-spec-item strong { display:block; font-size:15px; font-weight:600; }
+    .modal-spec-item span { display:block; margin-top:7px; color:var(--muted); font-size:16px; line-height:1.55; }
+    .modal-preview { display:grid; grid-template-columns:minmax(0,1.05fr) minmax(300px,.95fr); gap:26px; margin-top:24px; padding-top:24px; border-top:1px solid var(--line); }
+    .modal-preview h3 { margin:0 0 12px; font-size:18px; font-weight:600; }
+    .preview-stage { position:relative; min-height:300px; overflow:hidden; border:1px solid #e7d8ce; border-radius:8px; background:#fffaf6; }
+    .preview-stage::before { content:"孩子端效果预览"; position:absolute; z-index:4; top:16px; left:18px; color:#b76b47; font-size:13px; font-weight:600; }
+    .preview-stage::after { content:""; position:absolute; inset:12px; border:1px dashed #ead7c8; border-radius:6px; pointer-events:none; }
+    .preview-bubble { position:absolute; z-index:4; top:66px; left:22px; max-width:54%; padding:14px 16px; border:1px solid #e6d5c9; border-radius:8px; background:var(--paper); }
+    .preview-bubble strong { display:block; font-size:17px; font-weight:600; }
+    .preview-bubble span { display:block; margin-top:5px; color:var(--muted); font-size:14px; }
+    .preview-character { position:absolute; right:0; bottom:0; width:57%; height:276px; overflow:hidden; }
+    .preview-character img { position:absolute; width:920px; max-width:none; height:auto; animation:mitu-bob 2.6s ease-in-out infinite; }
+    .modal-scene-image { position:absolute; inset:0; z-index:2; width:100%; height:100%; object-fit:cover; background:#fff; }
+    .modal-scene-image.contain { object-fit:contain; }
+    .modal-preview-video { position:absolute; inset:0; z-index:5; width:100%; height:100%; background:#111; object-fit:contain; }
+    .preview-stage.video-preview::before, .preview-stage.video-preview::after { display:none; }
+    .preview-pose-welcome .preview-character img { left:-570px; top:-64px; animation-duration:3.1s; }
+    .preview-pose-guidance .preview-character img { left:-25px; top:-225px; }
+    .preview-pose-feedback .preview-character img { left:-165px; top:-215px; }
+    .preview-pose-celebrate .preview-character img { left:-570px; top:-64px; }
+    .preview-panel { padding:4px 4px 4px 16px; border-left:3px solid var(--emotion); }
+    .preview-panel .preview-type { color:var(--emotion); font-size:13px; font-weight:600; }
+    .preview-panel h4 { margin:6px 0; font-size:20px; font-weight:600; }
+    .preview-panel p { margin:0; color:var(--muted); font-size:15px; line-height:1.65; }
+    .preview-guidelines { display:grid; gap:10px; margin-top:18px; padding-top:16px; border-top:1px solid var(--line); }
+    .preview-guidelines div { color:var(--muted); font-size:14px; }
+    .preview-guidelines strong { color:var(--ink); }
+    .modal-scenario-tabs { display:flex; gap:7px; flex-wrap:wrap; margin-top:18px; }
+    .modal-scenario-tabs[hidden] { display:none; }
+    .modal-scenario-tab { padding:7px 10px; border:1px solid var(--line); border-radius:6px; background:var(--paper); color:var(--muted); font:inherit; font-size:13px; cursor:pointer; }
+    .modal-scenario-tab.active { border-color:var(--emotion); background:#faede7; color:var(--emotion); font-weight:600; }
+    .modal-scenario-tab:disabled { border-color:#e0e4e5; background:#f1f3f3; color:#a1aaae; cursor:not-allowed; }
+    @media (max-width:900px) {
+      .page { padding:20px 16px; }
+      .header { display:block; }
+      .legend { justify-content:flex-start; margin-top:16px; }
+      .line-switch { margin-top:14px; }
+      .line-tab { flex:1; }
+      .journey { display:none; }
+      .lane { display:block; }
+      .lane-title { padding:14px; }
+      .cell { position:relative; min-height:0; padding:14px; border-left:0; border-top:1px solid var(--line); }
+      .cell::before { content:attr(data-phase); display:block; margin-bottom:8px; color:var(--muted); font-size:13px; font-weight:600; }
+      .data-band { display:block; }
+      .data-band strong, .data-band span { display:block; border-left:0; }
+      .data-band span { border-top:1px solid var(--line); }
+      .detail { grid-template-columns:1fr; gap:14px; }
+      .preview-header { display:block; }
+      .scenario-tabs { margin-top:12px; }
+      .preview-content { grid-template-columns:1fr; }
+      .welcome-screen { min-height:270px; }
+      .touchpoint-modal { width:calc(100% - 20px); max-height:calc(100% - 20px); }
+      .modal-header { padding:20px; }
+      .modal-content { padding:20px; }
+      .modal-spec { grid-template-columns:1fr; gap:16px; padding:16px; }
+      .modal-preview { grid-template-columns:1fr; gap:20px; }
+      .preview-stage { min-height:270px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="header">
+      <div><h1>阿基米兔产品触点地图</h1><p id="page-subtitle" class="subtitle">教学线：陪孩子把数学想明白</p><div class="line-switch" role="tablist" aria-label="选择产品设计线"><button class="line-tab active" type="button" role="tab" aria-selected="true" data-line="教学线">教学线</button><button class="line-tab" type="button" role="tab" aria-selected="false" data-line="情感线">情感线</button></div></div>
+      <div class="legend" aria-label="表达轻重"><span class="chip" style="color:var(--heavy)"><i class="dot"></i>重：剧情 / 仪式</span><span class="chip" style="color:var(--medium)"><i class="dot"></i>中：关键反馈</span><span class="chip" style="color:var(--light)"><i class="dot"></i>轻：短句 / 小动效</span><span class="chip" style="color:var(--subtle)"><i class="dot"></i>极轻：音色 / 留痕</span></div>
+    </header>
+
+    <section class="journey" aria-label="孩子旅程"><div class="journey-label">孩子旅程</div><div class="phase">打开产品</div><div class="phase">开始学习</div><div class="phase">学习过程</div><div class="phase">完成学习</div><div class="phase">持续成长</div></section>
+
+    <section class="lane" aria-label="教学线">
+      <div class="lane-title teaching">教学线<small>陪孩子把数学想明白</small></div>
+      <div class="cell" data-phase="打开产品"></div>
+      <div class="cell" data-phase="开始学习"><button class="touchpoint medium" data-key="unit"><span class="name">单元开场</span><span class="meta">轻视频 / 微故事</span></button></div>
+      <div class="cell" data-phase="学习过程"><button class="touchpoint" data-key="interaction"><span class="name">交互与操作引导</span><span class="meta">米兔音色</span></button><button class="touchpoint light" data-key="answer"><span class="name">答题反馈</span><span class="meta">鼓励 / 再尝试</span></button><button class="touchpoint heavy" data-key="reasoning"><span class="name">开口讲算理</span><span class="meta">互动理解关键知识</span></button><button class="touchpoint medium" data-key="special"><span class="name">训练与挑战课</span><span class="meta">节奏 / 挑战感</span></button></div>
+      <div class="cell" data-phase="完成学习"><button class="touchpoint medium" data-key="recommend"><span class="name">AI 内容推荐</span><span class="meta">下一步学什么</span></button></div>
+      <div class="cell" data-phase="持续成长"><button class="touchpoint light" data-key="reminder"><span class="name">学习提醒</span><span class="meta">回到合适内容</span></button></div>
+    </section>
+
+    <section class="lane" aria-label="情感线" hidden>
+      <div class="lane-title emotion">情感线<small>看见成长，让孩子愿意坚持</small></div>
+      <div class="cell" data-phase="打开产品"><button class="touchpoint medium" data-key="welcome"><span class="name">首场 / 回归欢迎</span><span class="meta">被记得、被等待</span></button></div>
+      <div class="cell" data-phase="开始学习"><button class="touchpoint" data-key="presence"><span class="name">轻量角色留痕</span><span class="meta">头像 / 进度条 / 弹窗</span></button></div>
+      <div class="cell" data-phase="学习过程"><button class="touchpoint light" data-key="voice"><span class="name">声音陪伴</span><span class="meta">熟悉感与安全感</span></button></div>
+      <div class="cell" data-phase="完成学习"><button class="touchpoint heavy" data-key="settlement"><span class="name">结算仪式</span><span class="meta">看见本次努力</span></button><button class="touchpoint light" data-key="coins"><span class="name">金币获得</span><span class="meta">努力变成收获</span></button></div>
+      <div class="cell" data-phase="持续成长"><button class="touchpoint medium" data-key="checkin"><span class="name">打卡故事图</span><span class="meta">每日可收集</span></button><button class="touchpoint medium" data-key="milestone"><span class="name">里程碑奖励</span><span class="meta">持续积累</span></button><button class="touchpoint medium" data-key="home"><span class="name">装扮与家园</span><span class="meta">塑造自己的米兔</span></button></div>
+    </section>
+
+    <div class="data-band"><strong>共同底座</strong><span>学习结果、掌握情况、使用频率、学习习惯、距离上次学习的间隔</span></div>
+    <section class="detail" aria-live="polite" aria-label="触点详情">
+      <div class="detail-item"><strong>场景</strong><span id="scene">开始学习</span></div>
+      <div class="detail-item"><strong>触点</strong><span id="touchpoint">单元开场</span></div>
+      <div class="detail-item"><strong>米兔表达方式</strong><span id="form">轻视频或白底微故事 + 米兔引导。</span></div>
+      <div class="detail-item"><strong>表达强度</strong><span id="level">中：关键反馈</span></div>
+      <div class="detail-item"><strong>米兔作用</strong><span id="role">建立学习情境与期待，陪孩子进入本单元。</span></div>
+      <div class="detail-item"><strong>触发依据</strong><span id="trigger">进入单元；适配规则待补充。</span></div>
+    </section>
+    <section id="welcome-preview" class="welcome-preview" hidden aria-label="回归欢迎效果预览">
+      <div class="preview-header">
+        <div><h2>首场 / 回归欢迎效果预览</h2><p>根据距上次学习的间隔，调整米兔的欢迎语与动作语气。</p></div>
+        <div class="scenario-tabs" aria-label="选择间隔天数"><button class="scenario-tab active" type="button" data-days="0">间隔 0 天</button><button class="scenario-tab" type="button" data-days="3">间隔 3 天</button><button class="scenario-tab" type="button" data-days="10" disabled>间隔 10 天</button></div>
+      </div>
+      <div class="preview-content">
+        <div id="welcome-screen" class="welcome-screen pose-now">
+          <div class="app-mark">数感星球</div>
+          <div class="speech"><strong id="welcome-title">今天又来啦！</strong><span id="welcome-copy">和我一起继续闯关吧。</span></div>
+          <div class="character-window"><img class="mitu-sprite" src="assets/mitu-eurekka.png" alt="阿基米兔欢迎小朋友"></div>
+        </div>
+        <div class="preview-note"><div class="note-label" id="scenario-label">间隔 0 天</div><h3 id="scenario-name">熟悉感与连续感</h3><p id="scenario-note">把回访视为自然的连续学习，米兔以轻快、熟悉的语气接住孩子。</p><div class="preview-rules"><div><strong>动作：</strong><span id="scenario-motion">正面出现，轻微点头</span></div><div><strong>设计原则：</strong><span id="scenario-principle">只强化“又见面了”，不额外增加任务压力。</span></div></div></div>
+      </div>
+    </section>
+    <section class="full-list" aria-label="完整触点明细">
+      <h2 id="list-title">教学线触点明细</h2>
+      <p id="list-subtitle">以下内容默认展开，供产品、内容、动画与算法团队按触点拆解。</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>线</th><th>场景</th><th>触点</th><th>米兔表达方式</th><th>轻重</th><th>米兔在此的作用</th><th>触发 / 个性化依据</th><th>当前状态</th></tr></thead>
+          <tbody id="touchpoint-list"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+  <dialog id="touchpoint-modal" class="touchpoint-modal" aria-labelledby="modal-title">
+    <header class="modal-header">
+      <button id="modal-close" class="modal-close" type="button" aria-label="关闭详情" title="关闭">×</button>
+      <div><p id="modal-kicker" class="modal-kicker">教学线 · 开始学习</p><h2 id="modal-title">单元开场</h2><p id="modal-line" class="modal-line">陪孩子把数学想明白</p></div>
+    </header>
+    <div class="modal-content">
+      <section class="modal-spec" aria-label="触点设计说明">
+        <div class="modal-spec-item"><strong>场景</strong><span id="modal-scene"></span></div>
+        <div class="modal-spec-item"><strong>触点</strong><span id="modal-touchpoint"></span></div>
+        <div class="modal-spec-item"><strong>米兔表达方式</strong><span id="modal-form"></span></div>
+        <div class="modal-spec-item"><strong>表达强度</strong><span id="modal-level"></span></div>
+        <div class="modal-spec-item"><strong>米兔作用</strong><span id="modal-role"></span></div>
+        <div class="modal-spec-item"><strong>触发依据</strong><span id="modal-trigger"></span></div>
+      </section>
+      <section class="modal-preview" aria-label="效果预览">
+        <div><h3>效果预览</h3><div id="modal-preview-stage" class="preview-stage preview-pose-guidance"><img id="modal-scene-image" class="modal-scene-image" src="" alt="" hidden><video id="modal-preview-video" class="modal-preview-video" controls playsinline preload="metadata" aria-label="单元开场视频预览" hidden></video><div id="modal-preview-bubble" class="preview-bubble"><strong id="modal-preview-title"></strong><span id="modal-preview-copy"></span></div><div class="preview-character"><img src="assets/mitu-eurekka.png" alt="阿基米兔效果预览"></div></div></div>
+        <aside class="preview-panel"><div id="modal-preview-type" class="preview-type">陪伴表达</div><h4 id="modal-preview-heading"></h4><p id="modal-preview-note"></p><div class="preview-guidelines"><div><strong>动作 / 画面：</strong><span id="modal-preview-motion"></span></div><div><strong>设计原则：</strong><span id="modal-preview-principle"></span></div></div><div id="modal-scenario-tabs" class="modal-scenario-tabs" aria-label="欢迎间隔场景" hidden><button class="modal-scenario-tab active" type="button" data-days="0">间隔 0 天</button><button class="modal-scenario-tab" type="button" data-days="3">间隔 3 天</button><button class="modal-scenario-tab" type="button" data-days="10" disabled>间隔 10 天</button></div><div id="modal-special-tabs" class="modal-scenario-tabs" aria-label="训练与挑战预览" hidden><button class="modal-scenario-tab active" type="button" data-special="training">训练过程</button><button class="modal-scenario-tab" type="button" data-special="challenge">挑战结算</button></div></aside>
+      </section>
+    </div>
+  </dialog>
+  <script>
+    const details={unit:['单元开场','中：关键反馈','建立学习情境与期待，陪孩子进入本单元。','轻视频或白底微故事 + 米兔引导。','进入单元；适配规则待补充。'],interaction:['交互与操作引导','极轻：音色 / 留痕','提示孩子如何与题目、教具或页面互动。','米兔音色为主。','首次操作、关键交互节点。'],answer:['答题反馈','轻：短句 / 小动效','肯定尝试或鼓励继续思考，保持学习节奏。','米兔音色 + 表情或小动效。','答题结果；连续错误规则待补充。'],reasoning:['开口讲算理','重：剧情 / 仪式','陪孩子理解、表达和确认数学思路。','米兔与孩子互动的讲算理内容。','适配关键知识单元；当前约 60 个单元。'],special:['训练与挑战课','中：关键反馈','训练课强化节奏，挑战课营造挑战与荣誉。','短反馈、节奏型音效；完成后可有仪式感表达。','训练课、算力挑战课。'],recommend:['AI 内容推荐','中：关键反馈','帮助孩子找到下一步适合学习的内容。','米兔以推荐伙伴身份呈现内容建议。','学习数据、掌握情况。'],reminder:['学习提醒','轻：短句 / 小动效','提醒孩子回来，并提供合适的内容入口。','米兔口吻文案 + 内容推荐卡或跳转。','使用频率、学习习惯、学习间隔。'],welcome:['首场 / 回归欢迎','中：关键反馈','让孩子感到被记得、被等待，降低回归压力。','差异化欢迎语 + 米兔音色 + 轻动画。','首次打开、连续学习天数、距离上次学习间隔。'],presence:['轻量角色留痕','极轻：音色 / 留痕','维持米兔的存在感，但不干扰学习内容。','头像、进度条、答案弹窗、表情或小动效。','页面关键位置；具体规则待补充。'],voice:['声音陪伴','轻：短句 / 小动效','建立熟悉感和安全感，让高频互动有统一角色感。','米兔专属音色贯穿引导与反馈。','交互引导、操作引导、答题反馈。'],settlement:['结算仪式','重：剧情 / 仪式','隆重看见孩子本次努力与成果。','米兔形象、动画、语音与成果反馈。','完成课次、单元或特殊挑战。'],coins:['金币获得','轻：短句 / 小动效','让学习努力即时变成可感知的收获。','米兔留痕 + 金币动效或音效。','完成课次、任务或其他行为待补充。'],checkin:['打卡故事图','中：关键反馈','把当天努力沉淀为可收集的情绪记忆。','每日米兔故事图卡，可按主题持续更新。','每天完成首个课次。'],milestone:['里程碑奖励','中：关键反馈','让持续坚持被看见，形成长期目标。','米兔庆祝、奖励动画、收集进度。','打卡累计天数、月度目标或其他里程碑。'],home:['装扮与家园','中：关键反馈','让孩子通过努力塑造自己的米兔和家园。','试穿、布置、米兔状态互动与留痕。','金币余额、装扮与家园规则待补充。']};
+    const buttons=document.querySelectorAll('.touchpoint');
+    const welcomePreview=document.querySelector('#welcome-preview');
+    const modal=document.querySelector('#touchpoint-modal');
+    const modalScenarioTabs=document.querySelector('#modal-scenario-tabs');
+    const modalSpecialTabs=document.querySelector('#modal-special-tabs');
+    const previewByTouchpoint={
+      unit:{type:'单元引导',title:'准备好一起探索了吗？',copy:'这一单元里，我们会发现新的数学规律。',heading:'用轻故事建立期待',note:'让孩子在正式操作前，先感知本节内容的主题与探索方向。',motion:'米兔正面出现，轻微点头或指向本单元主题。',principle:'时长短、信息单一，不抢占核心学习内容。',pose:'preview-pose-guidance',video:'assets/unit-opening-preview.mp4'},
+      interaction:{type:'操作陪伴',title:'我们试试这样做。',copy:'跟着我，一步一步来。',heading:'声音引导，视觉极轻',note:'米兔高频出现于音色中，视觉只在关键操作节点轻量留痕。',motion:'米兔头像或表情微动，不做持续角色表演。',principle:'优先保障题目和操作对象的可读性。',pose:'preview-pose-guidance'},
+      answer:{type:'即时反馈',title:'你真棒！',copy:'这个思路很清楚，继续试试下一题吧。',heading:'肯定尝试，承接下一步',note:'正确时鼓励，错误时支持再尝试，不用角色放大对错压力。',motion:'做对轻点头或小庆祝；答错保持温和表情。',principle:'短、准、不过度打断答题节奏。',pose:'preview-pose-feedback'},
+      reasoning:{type:'关键理解',title:'我们一起想想，为什么呢？',copy:'换一种方法看看，会不会发现新的规律？',heading:'与孩子共同思考',note:'在关键单元中，米兔与孩子互动讲算理，帮助把思路说出来。',motion:'正面倾听、指向关键教具或做思考表情。',principle:'米兔是学伴，不代替老师直接给出答案。',pose:'preview-pose-guidance'},
+      special:{type:'特殊课次',title:'准备好挑战了吗？',copy:'我们先试一试，看看能闯到哪一关。',heading:'训练有节奏，挑战有荣誉',note:'训练课强化游戏节奏；算力挑战强调认真感和完成后的荣誉。',motion:'入场短促有力，完成后再放大庆祝。',principle:'普通课次不套用挑战式高强度表达。',pose:'preview-pose-celebrate'},
+      recommend:{type:'个性化推荐',title:'我为你找到一节合适的内容。',copy:'从这里继续，会更容易找到感觉。',heading:'把数据翻译成下一步',note:'基于掌握情况推荐巩固、复习、进阶或挑战内容。',motion:'米兔指向推荐内容卡，语气像伙伴建议。',principle:'说明推荐方向，不制造“必须完成”的压力。',pose:'preview-pose-guidance',video:'assets/ai-recommendation-preview.mp4'},
+      reminder:{type:'学习提醒',title:'想和我再探索一会儿吗？',copy:'这里有一小步，等你回来试试。',heading:'温和邀请回到学习',note:'结合使用频率、学习习惯与间隔，在合适时机发出提醒。',motion:'米兔轻挥手或探头，搭配一张内容入口卡。',principle:'先提供容易开始的一步，再谈持续学习。',pose:'preview-pose-welcome'},
+      presence:{type:'视觉留痕',title:'我陪你一起学。',copy:'米兔在这里，不打扰你思考。',heading:'存在感轻于学习内容',note:'以头像、进度条、答案弹窗或微动效维持角色连贯性。',motion:'小幅眨眼、点头或静态头像。',principle:'复杂页面不常驻角色，不额外叙事。',pose:'preview-pose-guidance'},
+      voice:{type:'声音陪伴',title:'我们再试试看。',copy:'米兔的声音在关键时刻陪着你。',heading:'声音是高频陪伴主载体',note:'交互引导、操作引导与答题反馈使用统一的米兔音色。',motion:'视觉角色可不出现，或只做极轻留痕。',principle:'声音清晰、短句化，避免压过题目指令。',pose:'preview-pose-feedback'},
+      settlement:{type:'完成仪式',title:'这一节完成啦！',copy:'你的努力，米兔都看见了。',heading:'把努力变成完成感',note:'在课次结算、阶段完成或特殊挑战后，用更完整的角色表达放大成果。',motion:'米兔庆祝、挥手或展示成果标记。',principle:'根据完成质量和情绪状态做差异化反馈。',pose:'preview-pose-celebrate'},
+      coins:{type:'即时收获',title:'获得金币！',copy:'这是你认真学习的小奖励。',heading:'努力即时可见',note:'将完成学习转化为可感知的金币收获，为装扮和家园提供积累。',motion:'米兔展示金币，小幅庆祝动效。',principle:'金币是成长的结果，不替代学习本身的价值。',pose:'preview-pose-celebrate'},
+      checkin:{type:'每日积累',title:'今天的米兔故事已收集。',copy:'明天再来看看，会发生什么新故事？',heading:'把打卡变成共同记忆',note:'每日首课完成后生成可收集的米兔故事图，建立回访期待。',motion:'米兔与当天故事主题做简短互动。',principle:'主题可变，但收藏规则与情绪基调保持稳定。',pose:'preview-pose-celebrate'},
+      milestone:{type:'阶段成就',title:'你坚持得真棒！',copy:'这个成长印记，属于一直努力的你。',heading:'让持续坚持被看见',note:'在月度累计和里程碑节点中，用奖励与收集进度建立长期目标。',motion:'米兔庆祝、展示阶段奖励或进度完成。',principle:'仪式感集中在里程碑，不频繁透支孩子期待。',pose:'preview-pose-celebrate'},
+      home:{type:'成长沉淀',title:'这是你和我的小家。',copy:'又多了一件喜欢的装扮！',heading:'把努力沉淀为共同空间',note:'孩子用学习获得的金币装扮米兔、布置家园，看见长期积累。',motion:'米兔试穿、展示新物品或在家园中互动。',principle:'装扮和家园服务于成长感，不与学习目标脱节。',pose:'preview-pose-welcome'}
+    };
+    const welcomeScenarios={
+      0:{title:'今天又来啦！',copy:'和我一起继续闯关吧。',label:'间隔 0 天',name:'熟悉感与连续感',note:'把回访视为自然的连续学习，米兔以轻快、熟悉的语气接住孩子。',motion:'正面挥手，轻快迎接',principle:'只强化“又见面了”，不额外增加任务压力。',pose:'preview-pose-guidance',image:'assets/mitu-welcome-wave.png',contain:true},
+      3:{title:'好久不见！',copy:'我还在等你，我们从这里继续吧。',label:'间隔 3 天',name:'轻唤回与承接感',note:'用“还在等你”建立关系感，同时明确孩子可以从上次的位置自然继续。',motion:'从画面右侧探头，像在等候与迎接',principle:'不强调中断天数，不使用批评或催促语言。',pose:'preview-pose-feedback',image:'assets/mitu-return-peek.png',contain:false},
+      10:{title:'终于等到你啦！',copy:'先从一个轻松的小挑战开始吧。',label:'间隔 10 天',name:'无压力回归',note:'让久未学习的孩子先感受到欢迎，再用低门槛内容帮助重新进入状态。',motion:'张开双手欢迎，动作更明显',principle:'先降低回归压力，再给出一小步可完成的学习入口。',pose:'preview-pose-welcome',image:'assets/mitu-welcome-wave.png',contain:true}
+    };
+    const specialPreviewScenes={
+      training:{type:'训练过程',title:'实战训练开始！',copy:'跟着节奏，一题一题来。',heading:'节奏感与即时反馈',note:'通过连续题目、星级反馈和米兔跑动，让训练过程保持轻快、清晰的节奏。',motion:'米兔随训练进度出现，关键节点给出短促鼓励。',principle:'过程反馈要快，不遮挡答题操作。',pose:'preview-pose-celebrate',image:'assets/training-flow-preview.png',contain:true,hideBubble:true},
+      challenge:{type:'挑战结算',title:'冲刺闪光！',copy:'你的挑战结果，米兔都看见啦。',heading:'用成就感承接下一次挑战',note:'结算根据表现呈现星级、正确率、速度和挑战入口，米兔以庆祝表情放大完成感。',motion:'米兔与星级、彩带共同出现，完成后引导进入下一次挑战。',principle:'仪式感集中在结算时刻，避免在过程中过度打断。',pose:'preview-pose-celebrate',image:'assets/challenge-settlement-preview.png',contain:true,hideBubble:true}
+    };
+    function select(key,button){const d=details[key];buttons.forEach(b=>b.classList.remove('active'));button.classList.add('active');document.querySelector('#scene').textContent=button.closest('.cell').dataset.phase;document.querySelector('#touchpoint').textContent=d[0];document.querySelector('#level').textContent=d[1];document.querySelector('#role').textContent=d[2];document.querySelector('#form').textContent=d[3];document.querySelector('#trigger').textContent=d[4];welcomePreview.hidden=true;}
+    function fillPreview(preview){const stage=document.querySelector('#modal-preview-stage');const sceneImage=document.querySelector('#modal-scene-image');const video=document.querySelector('#modal-preview-video');const bubble=document.querySelector('#modal-preview-bubble');stage.className=`preview-stage ${preview.pose}`;sceneImage.hidden=true;sceneImage.removeAttribute('src');sceneImage.classList.remove('contain');video.pause();video.hidden=true;video.removeAttribute('src');bubble.hidden=false;document.querySelector('.preview-character').hidden=false;document.querySelector('#modal-preview-title').textContent=preview.title;document.querySelector('#modal-preview-copy').textContent=preview.copy;document.querySelector('#modal-preview-type').textContent=preview.type||preview.label;document.querySelector('#modal-preview-heading').textContent=preview.heading||preview.name;document.querySelector('#modal-preview-note').textContent=preview.note;document.querySelector('#modal-preview-motion').textContent=preview.motion;document.querySelector('#modal-preview-principle').textContent=preview.principle;if(preview.video){stage.classList.add('video-preview');video.src=preview.video;video.hidden=false;bubble.hidden=true;document.querySelector('.preview-character').hidden=true;video.load();}}
+    function switchModalScenario(days){const scenario=welcomeScenarios[days];const sceneImage=document.querySelector('#modal-scene-image');modalScenarioTabs.querySelectorAll('.modal-scenario-tab').forEach(tab=>tab.classList.toggle('active',Number(tab.dataset.days)===Number(days)));fillPreview(scenario);sceneImage.src=scenario.image;sceneImage.alt=`${scenario.label}的阿基米兔欢迎场景`;sceneImage.hidden=false;sceneImage.classList.toggle('contain',scenario.contain);document.querySelector('.preview-character').hidden=true;}
+    function switchSpecialPreview(kind){const preview=specialPreviewScenes[kind];const sceneImage=document.querySelector('#modal-scene-image');modalSpecialTabs.querySelectorAll('.modal-scenario-tab').forEach(tab=>tab.classList.toggle('active',tab.dataset.special===kind));fillPreview(preview);sceneImage.src=preview.image;sceneImage.alt=`${preview.type}效果预览`;sceneImage.hidden=false;sceneImage.classList.toggle('contain',preview.contain);document.querySelector('.preview-character').hidden=true;document.querySelector('#modal-preview-bubble').hidden=Boolean(preview.hideBubble);}
+    function openTouchpoint(key,button){const d=details[key];const cell=button.closest('.cell');const lane=button.closest('.lane');const line=lane.getAttribute('aria-label');document.querySelector('#modal-kicker').textContent=`${line} · ${cell.dataset.phase}`;document.querySelector('#modal-title').textContent=d[0];document.querySelector('#modal-line').textContent=line==='教学线'?'陪孩子把数学想明白':'看见成长，让孩子愿意坚持';document.querySelector('#modal-scene').textContent=cell.dataset.phase;document.querySelector('#modal-touchpoint').textContent=d[0];document.querySelector('#modal-form').textContent=d[3];document.querySelector('#modal-level').textContent=d[1];document.querySelector('#modal-role').textContent=d[2];document.querySelector('#modal-trigger').textContent=d[4];const isWelcome=key==='welcome';const isSpecial=key==='special';modalScenarioTabs.hidden=!isWelcome;modalSpecialTabs.hidden=!isSpecial;if(isWelcome){switchModalScenario(0);}else if(isSpecial){switchSpecialPreview('training');}else{fillPreview(previewByTouchpoint[key]);}if(!modal.open)modal.showModal();}
+    buttons.forEach(button=>button.addEventListener('click',()=>{select(button.dataset.key,button);openTouchpoint(button.dataset.key,button);}));
+    const currentStatus={unit:'待建设',interaction:'已存在',answer:'已存在',reasoning:'部分已存在（约 60 个单元）',special:'待细化',recommend:'已具备能力，待 IP 化表达',reminder:'已具备能力，待 IP 化表达',welcome:'已存在',presence:'待建设',voice:'已存在',settlement:'部分已存在',coins:'已存在',checkin:'已存在，待丰富故事图',milestone:'已存在，待 IP 化强化',home:'已存在'};
+    const list=document.querySelector('#touchpoint-list');
+    buttons.forEach(button=>{const d=details[button.dataset.key];const cell=button.closest('.cell');const lane=button.closest('.lane');const line=lane.getAttribute('aria-label');const className=line==='教学线'?'line-teaching':'line-emotion';const status=currentStatus[button.dataset.key];const statusClass=status.includes('待')?'status plan':'status';list.insertAdjacentHTML('beforeend',`<tr data-line="${line}"><td><span class="${className}">${line}</span></td><td>${cell.dataset.phase}</td><td><strong>${d[0]}</strong></td><td>${d[3]}</td><td>${d[1]}</td><td>${d[2]}</td><td>${d[4]}</td><td><span class="${statusClass}">${status}</span></td></tr>`);});
+    const lineTabs=document.querySelectorAll('.line-tab');
+    const lanes=document.querySelectorAll('.lane');
+    const subtitleByLine={教学线:'教学线：陪孩子把数学想明白',情感线:'情感线：看见成长，让孩子愿意坚持'};
+    function switchLine(line){
+      lanes.forEach(lane=>{lane.hidden=lane.getAttribute('aria-label')!==line;});
+      lineTabs.forEach(tab=>{const selected=tab.dataset.line===line;tab.classList.toggle('active',selected);tab.setAttribute('aria-selected',String(selected));});
+      document.querySelector('#page-subtitle').textContent=subtitleByLine[line];
+      document.querySelector('#list-title').textContent=`${line}触点明细`;
+      document.querySelectorAll('#touchpoint-list tr').forEach(row=>{row.hidden=row.dataset.line!==line;});
+      const firstTouchpoint=document.querySelector(`.lane[aria-label="${line}"] .touchpoint`);
+      select(firstTouchpoint.dataset.key,firstTouchpoint);
+    }
+    lineTabs.forEach(tab=>tab.addEventListener('click',()=>switchLine(tab.dataset.line)));
+    function closeModal(){document.querySelector('#modal-preview-video').pause();modal.close();}
+    modalScenarioTabs.querySelectorAll('.modal-scenario-tab').forEach(tab=>tab.addEventListener('click',()=>switchModalScenario(tab.dataset.days)));
+    modalSpecialTabs.querySelectorAll('.modal-scenario-tab').forEach(tab=>tab.addEventListener('click',()=>switchSpecialPreview(tab.dataset.special)));
+    document.querySelector('#modal-close').addEventListener('click',closeModal);
+    modal.addEventListener('click',(event)=>{if(event.target===modal)closeModal();});
+    switchLine('教学线');
+  </script>
+</body>
+</html>
