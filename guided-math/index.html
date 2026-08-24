@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>米兔海底探索</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="game-shell">
+    <header class="topbar">
+      <button class="icon-button" id="homeBtn" aria-label="返回主页">⌂</button>
+      <div class="progress" aria-label="关卡进度"><span id="progressFill"></span><i></i><i></i><i></i><i></i></div>
+      <button class="skip-button" id="skipBtn">跳过</button>
+    </header>
+
+    <section class="stage" aria-label="海底关卡">
+      <div class="lighthouse"></div><div class="island island-left"></div><div class="island island-right"></div><div class="palm"></div>
+      <div class="water-line"></div><div class="bubble bubble-a"></div><div class="bubble bubble-b"></div>
+      <div class="reef reef-left"></div><div class="reef reef-right"></div>
+      <div class="choices" id="choices"></div>
+      <div class="prompt-number" id="promptNumber" aria-label="题目数量" hidden></div>
+      <div class="count-result" id="countResult" hidden><span>4</span><p>一共有 4 只</p></div>
+      <button class="next-round" id="nextRoundBtn" hidden>下一题</button>
+    </section>
+
+    <section class="dialogue" id="dialoguePanel" aria-live="polite">
+      <button class="collapse-button" id="collapseBtn" aria-label="收起米兔对话">⌄</button>
+      <div class="mitu-wrap"><img class="mitu-sprite" id="mituSprite" src="question.gif" alt="米兔" /><span class="speaking-ring"></span></div>
+      <div class="dialogue-copy"><div class="speaker-line"><strong>阿基米兔</strong><span id="moodLabel">准备出发</span><span class="sound-bars" id="soundBars"><b></b><b></b><b></b></span></div><p id="dialogueText"></p></div>
+      <button class="replay-button" id="replayBtn" aria-label="重播米兔语音">↻</button>
+      <button class="voice-button active" id="voiceBtn" aria-label="开启或关闭语音">◖</button>
+    </section>
+  <button class="expand-button" id="expandBtn" aria-label="展开米兔对话" hidden>米兔</button>
+  <audio id="voiceAudio" preload="auto"></audio>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
