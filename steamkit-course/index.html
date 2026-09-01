@@ -1,0 +1,1069 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zometool 课程编排</title>
+<meta name="description" content="Zometool STEAM Kit 配套课包 · 15 讲课程编排与环节设计">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700&family=Noto+Sans+SC:wght@300;400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0}
+img,svg{display:block;max-width:100%}
+</style>
+</head>
+<body>
+
+<style>
+:root{
+  --ground:#F6F7F9; --panel:#FFFFFF; --panel-2:#EFF1F5; --panel-3:#E5E8EE;
+  --ink:#191C24; --ink-2:#4A5162; --ink-3:#7C8398;
+  --line:#DCE0E8; --line-2:#C6CCD9;
+  --blue:#2B57C9; --red:#CE3A34; --yellow:#B87A05; --green:#2E8C63;
+  --t-blue:#E7EDFB; --t-red:#FAE9E8; --t-yellow:#F8EEDC; --t-green:#E4F1EB;
+  --shadow:0 1px 2px rgba(25,28,36,.05), 0 10px 28px -20px rgba(25,28,36,.35);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#12141A; --panel:#191C24; --panel-2:#22262F; --panel-3:#2A2F3A;
+    --ink:#EDEFF4; --ink-2:#A8B0C0; --ink-3:#7A8294;
+    --line:#2B303B; --line-2:#3A4150;
+    --blue:#7C9BF2; --red:#EE7B72; --yellow:#DFAA48; --green:#5FBE92;
+    --t-blue:#1B2440; --t-red:#33201E; --t-yellow:#2E2513; --t-green:#152D24;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -20px rgba(0,0,0,.9);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#12141A; --panel:#191C24; --panel-2:#22262F; --panel-3:#2A2F3A;
+  --ink:#EDEFF4; --ink-2:#A8B0C0; --ink-3:#7A8294;
+  --line:#2B303B; --line-2:#3A4150;
+  --blue:#7C9BF2; --red:#EE7B72; --yellow:#DFAA48; --green:#5FBE92;
+  --t-blue:#1B2440; --t-red:#33201E; --t-yellow:#2E2513; --t-green:#152D24;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -20px rgba(0,0,0,.9);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font-family:"Noto Sans SC",-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+  line-height:1.72;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:"Noto Serif SC",Georgia,serif;margin:0;line-height:1.32;text-wrap:balance}
+p{margin:0}
+button{font-family:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:4px}
+@media (prefers-reduced-motion:reduce){*{transition:none !important;animation:none !important}}
+
+.wrap{max-width:1200px;margin:0 auto;padding:0 26px 96px}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--ink-3)}
+
+/* masthead */
+header.top{border-bottom:1px solid var(--line)}
+.top-in{max-width:1200px;margin:0 auto;padding:52px 26px 32px;display:flex;flex-direction:column;gap:18px}
+.strip{display:flex;gap:4px}
+.strip i{height:5px;border-radius:3px;display:block}
+h1{font-size:clamp(29px,4.2vw,44px);font-weight:700;letter-spacing:-.01em}
+.dek{color:var(--ink-2);font-size:16px;max-width:64ch;font-weight:300}
+.stats{display:flex;flex-wrap:wrap;gap:6px 30px;padding-top:4px}
+.stats div{display:flex;flex-direction:column}
+.stats b{font-family:"IBM Plex Mono",monospace;font-size:21px;font-weight:500;font-variant-numeric:tabular-nums}
+.stats span{font-size:12px;color:var(--ink-3)}
+
+/* toolbar */
+.toolbar{position:sticky;top:0;z-index:20;background:var(--ground);
+  border-bottom:1px solid var(--line);margin-bottom:30px}
+.tb-in{max-width:1200px;margin:0 auto;padding:11px 26px;display:flex;flex-wrap:wrap;
+  gap:10px 18px;align-items:center}
+.seg{display:flex;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;padding:2px}
+.seg button{border:0;background:transparent;color:var(--ink-2);font-size:12.5px;
+  padding:5px 13px;border-radius:5px;transition:background .12s,color .12s}
+.seg button[aria-pressed="true"]{background:var(--panel);color:var(--ink);font-weight:500;box-shadow:var(--shadow)}
+.filters{display:flex;gap:6px;align-items:center}
+.filters .lbl{font-size:11.5px;color:var(--ink-3);margin-right:2px}
+.fbtn{border:1px solid var(--line-2);background:transparent;border-radius:20px;
+  padding:3px 11px;font-size:12px;color:var(--ink-3);display:flex;align-items:center;gap:5px;
+  transition:all .12s}
+.fbtn[aria-pressed="true"]{color:var(--ink);border-color:currentColor}
+.fbtn[data-t="M"][aria-pressed="true"]{background:var(--t-blue);color:var(--blue);border-color:var(--blue)}
+.fbtn[data-t="S"][aria-pressed="true"]{background:var(--t-red);color:var(--red);border-color:var(--red)}
+.fbtn[data-t="E"][aria-pressed="true"]{background:var(--t-yellow);color:var(--yellow);border-color:var(--yellow)}
+.fbtn[data-t="A"][aria-pressed="true"]{background:var(--t-green);color:var(--green);border-color:var(--green)}
+.txtbtn{border:0;background:transparent;color:var(--blue);font-size:12.5px;padding:4px 2px}
+.spacer{flex:1}
+
+/* chips */
+.chip{display:inline-flex;align-items:center;justify-content:center;
+  font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:500;
+  width:18px;height:18px;border-radius:4px;flex:none;border:1px solid transparent}
+.chip.M{background:var(--t-blue);color:var(--blue);border-color:var(--blue)}
+.chip.S{background:var(--t-red);color:var(--red);border-color:var(--red)}
+.chip.E{background:var(--t-yellow);color:var(--yellow);border-color:var(--yellow)}
+.chip.A{background:var(--t-green);color:var(--green);border-color:var(--green)}
+.chip.sub{opacity:.45}
+.chips{display:flex;gap:3px}
+
+/* units */
+.unit{margin-bottom:34px}
+.unit-head{display:grid;grid-template-columns:64px 1fr;gap:18px;align-items:start;
+  padding-bottom:14px;margin-bottom:12px;border-bottom:1px solid var(--line)}
+.unit-badge{width:52px;height:52px;border-radius:10px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;background:var(--panel-2);border:1px solid var(--line-2)}
+.unit-badge b{font-family:"Noto Serif SC",serif;font-size:20px;line-height:1;color:var(--ink)}
+.unit-badge span{font-family:"IBM Plex Mono",monospace;font-size:9.5px;color:var(--ink-3);margin-top:3px}
+.unit-head h2{font-size:20px;font-weight:700;margin-bottom:5px}
+.unit-head p{font-size:13.5px;color:var(--ink-2);max-width:74ch}
+
+/* lesson rows */
+.lessons{display:flex;flex-direction:column;gap:7px}
+.lesson{background:var(--panel);border:1px solid var(--line);border-radius:9px;
+  overflow:hidden;transition:border-color .12s,opacity .15s}
+.lesson.dim{opacity:.3}
+.lesson.open{border-color:var(--line-2);box-shadow:var(--shadow)}
+.lrow{display:grid;grid-template-columns:38px 168px 1fr 62px 20px;gap:14px;align-items:center;
+  width:100%;text-align:left;border:0;background:transparent;padding:13px 16px;color:inherit}
+.lrow:hover{background:var(--panel-2)}
+.lnum{font-family:"IBM Plex Mono",monospace;font-size:14px;color:var(--ink-3);
+  font-variant-numeric:tabular-nums}
+.lname{font-weight:500;font-size:14.5px;color:var(--ink)}
+.lname em{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:11px;
+  color:var(--ink-3);display:block;font-weight:400;letter-spacing:.03em}
+.lpurpose{font-size:13px;color:var(--ink-2)}
+.caret{color:var(--ink-3);font-size:11px;transition:transform .16s;justify-self:end}
+.lesson.open .caret{transform:rotate(90deg)}
+
+.ldetail{display:none;padding:4px 16px 18px;border-top:1px solid var(--line)}
+.lesson.open .ldetail{display:block}
+.kgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;
+  background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-top:14px}
+.kcell{background:var(--panel);padding:14px 15px}
+.kcell h4{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.12em;
+  text-transform:uppercase;font-weight:500;margin-bottom:7px}
+.kcell.geo h4{color:var(--blue)}
+.kcell.str h4{color:var(--yellow)}
+.kcell.sci h4{color:var(--red)}
+.kcell.crt h4{color:var(--green)}
+.crt-lead{font-size:12px;color:var(--ink-3);margin-bottom:11px}
+.crt-lead strong{color:var(--ink-2);font-weight:500}
+.crt-foot{font-size:11px;color:var(--ink-3);margin-top:11px;padding-top:8px;
+  border-top:1px dashed var(--line)}
+.crt{display:flex;flex-direction:column;gap:11px}
+.crow{display:grid;grid-template-columns:38px 1fr;gap:10px;align-items:start}
+.tier{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.02em;
+  padding:2px 0;border-radius:4px;text-align:center;border:1px solid;margin-top:2px}
+.tier.t1{color:var(--ink-3);border-color:var(--line-2)}
+.tier.t2{color:var(--green);border-color:var(--green);background:var(--t-green)}
+.tier.t3{color:var(--yellow);border-color:var(--yellow);background:var(--t-yellow)}
+.cline{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.cname{font-size:13px;font-weight:500;color:var(--ink)}
+.stars{display:inline-flex;gap:2px;font-size:7px;line-height:1;align-items:center}
+.stars i{font-style:normal;color:var(--green)}
+.stars i.off{color:var(--line-2)}
+.cmeta{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-top:3px}
+.ckit{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--ink-3);
+  border:1px solid var(--line-2);border-radius:3px;padding:1px 5px;white-space:nowrap}
+.ckit.sk{color:var(--green);border-color:var(--green);background:var(--t-green)}
+.ctime{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ink-3);
+  font-variant-numeric:tabular-nums}
+.cnote{display:block;font-size:12px;color:var(--ink-2);line-height:1.55;margin-top:4px}
+.cnote strong{color:var(--ink);font-weight:500}
+.kcell ul{margin:0;padding-left:16px;font-size:13px;color:var(--ink-2)}
+.kcell li{margin:3px 0}
+.kcell li::marker{color:var(--ink-3)}
+.kcell strong{color:var(--ink);font-weight:500}
+.extras{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.ex{flex:1 1 260px;background:var(--panel-2);border-radius:8px;padding:11px 14px;font-size:12.5px;color:var(--ink-2)}
+.ex b{display:block;font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink-3);font-weight:500;margin-bottom:3px}
+.ex.qz{background:var(--t-yellow);color:var(--ink-2)}
+.ex.qz b{color:var(--yellow)}
+.ex.qz2{background:var(--t-red);color:var(--ink-2)}
+.ex.qz2 b{color:var(--red)}
+
+/* flow view */
+#flowView{display:none}
+.steps{display:flex;flex-direction:column;gap:10px}
+.st{display:grid;grid-template-columns:190px 1fr;gap:24px;background:var(--panel);
+  border:1px solid var(--line);border-radius:10px;padding:22px 24px;
+  position:relative;overflow:hidden;box-shadow:var(--shadow)}
+.st::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--bar)}
+.st-k{display:flex;flex-direction:column;gap:5px;align-items:flex-start;padding-left:6px}
+.st-k b{font-family:"Noto Serif SC",serif;font-size:38px;line-height:1;color:var(--bar);
+  letter-spacing:.06em;margin-bottom:4px}
+.st-t{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink);
+  font-variant-numeric:tabular-nums}
+.st-w{font-size:12px;color:var(--ink-3)}
+.st-b h4{font-size:16px;font-weight:700;margin-bottom:10px}
+.st-b ul{margin:0;padding-left:18px;font-size:13.5px;color:var(--ink-2)}
+.st-b li{margin:6px 0}
+.st-b li::marker{color:var(--ink-3)}
+.st-b strong{color:var(--ink);font-weight:500}
+.out{margin-top:12px;font-size:12.5px;color:var(--ink-3);border-top:1px dashed var(--line-2);
+  padding-top:9px}
+
+/* ---- demo mocks ---- */
+.mock{background:var(--panel-2);border:1px solid var(--line-2);border-radius:9px;
+  padding:16px 18px 15px;margin:14px 0;position:relative}
+.mock-lbl{position:absolute;top:-8px;left:14px;background:var(--panel);
+  border:1px solid var(--line-2);border-radius:4px;padding:1px 8px;
+  font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.1em;color:var(--ink-3)}
+.mock .cap{font-size:11.5px;color:var(--ink-3);line-height:1.6;margin-top:8px}
+.mock .cap strong{color:var(--ink-2);font-weight:500}
+.why{font-size:12.5px;color:var(--ink-2);line-height:1.7;margin-top:12px;
+  padding-left:11px;border-left:2px solid var(--line-2)}
+.why b{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink-3);font-weight:500}
+.why strong{color:var(--ink);font-weight:500}
+
+/* 学 */
+.tl{display:flex;gap:3px;margin-top:6px}
+.tl-seg{padding:7px 10px;border-radius:5px;font-family:"IBM Plex Mono",monospace;
+  font-size:10.5px;color:var(--ink-2);display:flex;flex-direction:column;gap:2px}
+.tl-seg em{font-style:normal;font-family:"Noto Sans SC",sans-serif;font-size:11.5px;color:var(--ink-3)}
+.s-hook{background:var(--t-red);flex:0 0 auto;border:1px solid var(--red);color:var(--red)}
+.s-hook em{color:var(--red);opacity:.8}
+.s-main{background:var(--t-blue);flex:1;border:1px solid var(--blue);color:var(--blue)}
+.s-main em{color:var(--blue);opacity:.8}
+.tl-pins{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.pin{font-size:11px;color:var(--ink-2);background:var(--panel);border:1px dashed var(--line-2);
+  border-radius:4px;padding:3px 8px}
+.mv{background:var(--panel);border-style:dashed}
+.mv-n{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--ink-3);letter-spacing:.1em}
+.mv-q{font-family:"Noto Serif SC",serif;font-size:19px;font-weight:700;color:var(--ink);
+  margin:7px 0 8px;letter-spacing:.02em}
+.mv-d{font-size:12.5px;color:var(--ink-2);line-height:1.65}
+
+/* 拼 */
+.tc-head{display:flex;flex-wrap:wrap;gap:7px 10px;align-items:center;
+  padding-bottom:12px;border-bottom:1px solid var(--line-2);margin-bottom:14px}
+.tc-head b{font-family:"Noto Serif SC",serif;font-size:16px;margin-right:4px}
+.badge{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--ink-3);
+  border:1px solid var(--line-2);border-radius:3px;padding:2px 7px;white-space:nowrap}
+.badge.warn{color:var(--yellow);border-color:var(--yellow);background:var(--t-yellow)}
+.tc-cols{display:grid;grid-template-columns:minmax(220px,1fr) minmax(280px,1.5fr);gap:22px}
+.tc-cols h6{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;
+  color:var(--ink-3);font-weight:500;margin:0 0 8px}
+.bom{width:100%;border-collapse:collapse;font-size:12.5px;min-width:0}
+.bom td{padding:5px 0;border-bottom:1px dotted var(--line-2);color:var(--ink-2)}
+.bom td:last-child{text-align:right;font-family:"IBM Plex Mono",monospace;color:var(--ink);
+  font-variant-numeric:tabular-nums}
+.bom tr.sum td{border-bottom:none;color:var(--ink);font-weight:500;padding-top:7px}
+.steps-ol{margin:0;padding-left:18px;font-size:12.5px;color:var(--ink-2);line-height:1.65}
+.steps-ol li{margin:6px 0}
+.steps-ol li::marker{color:var(--ink-3);font-family:"IBM Plex Mono",monospace}
+.steps-ol em{font-style:normal;color:var(--ink-3)}
+.steps-ol li.ckpt{color:var(--ink)}
+.ckpt-tag{display:block;margin-top:4px;font-family:"IBM Plex Mono",monospace;font-size:10px;
+  color:var(--green);background:var(--t-green);border:1px solid var(--green);
+  border-radius:3px;padding:2px 7px;width:fit-content}
+.tc-warn{margin-top:14px;border-top:1px solid var(--line-2);padding-top:12px}
+.tc-warn b{display:block;font-size:12.5px;color:var(--red);margin-bottom:6px}
+.tc-warn ul{margin:0;padding-left:17px;font-size:12px;color:var(--ink-2);line-height:1.6}
+.tc-warn li{margin:4px 0}
+.tc-warn li::marker{color:var(--red)}
+.tc-warn strong{color:var(--ink);font-weight:500}
+
+/* 创 */
+.chooser{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.opt{display:grid;grid-template-columns:18px 1fr;gap:11px;background:var(--panel);
+  border:1px solid var(--line);border-radius:7px;padding:11px 13px}
+.radio{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--line-2);
+  margin-top:3px;display:block}
+.fill{margin-top:12px;background:var(--panel);border:1px dashed var(--line-2);border-radius:6px;
+  padding:11px 14px;font-size:13.5px;color:var(--ink-2)}
+.blank{display:inline-block;width:64px;border-bottom:1px solid var(--line-2);margin:0 3px}
+
+/* 秀 */
+.post{display:grid;grid-template-columns:104px 1fr;gap:14px;margin-top:6px}
+.photo{aspect-ratio:1;background:var(--panel);border:1px dashed var(--line-2);border-radius:7px;
+  display:flex;align-items:center;justify-content:center;font-size:11.5px;color:var(--ink-3)}
+.post-b{display:flex;flex-direction:column;justify-content:center}
+.input{background:var(--panel);border:1px solid var(--line-2);border-radius:6px;
+  padding:10px 13px;font-size:13px;color:var(--ink-3)}
+.keep{margin-top:9px;font-size:11.5px;color:var(--yellow);background:var(--t-yellow);
+  border-radius:5px;padding:6px 10px}
+.obs{background:var(--t-red);border-radius:6px;padding:9px 12px;margin-bottom:9px;
+  font-size:12.5px;color:var(--ink-2);line-height:1.6}
+.obs b{display:block;font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.12em;
+  color:var(--red);font-weight:500;margin-bottom:3px}
+
+/* tables (used inside 环节设计) */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;
+  background:var(--panel);box-shadow:var(--shadow)}
+table{border-collapse:collapse;width:100%;min-width:1000px;font-size:12.5px}
+th{text-align:left;font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;
+  text-transform:uppercase;font-weight:500;color:var(--ink-3);padding:12px 13px;
+  background:var(--panel-2);border-bottom:1px solid var(--line-2);position:sticky;top:53px;z-index:5}
+td{padding:11px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.6}
+tbody tr:last-child td{border-bottom:none}
+tbody tr.dim{opacity:.3}
+td.n{font-family:"IBM Plex Mono",monospace;color:var(--ink-3);font-variant-numeric:tabular-nums}
+td.nm{color:var(--ink);font-weight:500;white-space:nowrap}
+td.nm em{font-style:normal;display:block;font-family:"IBM Plex Mono",monospace;
+  font-size:10.5px;color:var(--ink-3);font-weight:400}
+tr.ub td{background:var(--panel-3);font-family:"IBM Plex Mono",monospace;font-size:10.5px;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);padding:7px 13px}
+
+/* generic sections */
+section{margin-bottom:76px;scroll-margin-top:64px}
+.sec-head{display:flex;gap:14px;align-items:baseline;border-bottom:1px solid var(--line);
+  padding-bottom:13px;margin-bottom:24px}
+.sec-num{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--blue);flex:none}
+.sec-head h2{font-size:clamp(20px,2.5vw,26px);font-weight:700}
+.prose{max-width:74ch}
+.body{color:var(--ink-2);font-size:14.5px}
+.body strong{color:var(--ink);font-weight:500}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:20px 22px;box-shadow:var(--shadow)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+
+/* flow */
+.flow{display:flex;flex-direction:column;gap:8px}
+.fstep{display:grid;grid-template-columns:96px 1fr;gap:18px;background:var(--panel);
+  border:1px solid var(--line);border-radius:9px;padding:16px 18px;position:relative;overflow:hidden}
+.fstep::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--bar)}
+.fk{padding-left:6px}
+.fk b{display:block;font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ink-3);letter-spacing:.1em}
+.fk span{font-size:12px;color:var(--ink-2)}
+.fstep h4{font-size:15px;font-weight:700;margin-bottom:5px}
+.fstep p{font-size:13.5px;color:var(--ink-2)}
+.tag{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:10px;padding:1px 6px;
+  border-radius:3px;margin-left:7px;vertical-align:2px}
+.tag.have{background:var(--t-green);color:var(--green)}
+.tag.new{background:var(--t-yellow);color:var(--yellow)}
+
+/* cut list */
+.cut{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:18px 20px;margin-bottom:10px;box-shadow:var(--shadow)}
+.cut-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.cut-h b{font-family:"Noto Serif SC",serif;font-size:17px;color:var(--ink);
+  text-decoration:line-through;text-decoration-color:var(--red);text-decoration-thickness:1.5px}
+.cut-h span{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3);
+  border:1px solid var(--line-2);border-radius:4px;padding:1px 7px}
+.cut-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.cut-g > div{font-size:13px;color:var(--ink-2);line-height:1.65}
+.cut-g b{display:block;font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.12em;
+  text-transform:uppercase;font-weight:500;margin-bottom:4px}
+.cut-g .c1 b{color:var(--red)}
+.cut-g .c2 b{color:var(--green)}
+.cut-g .c3 b{color:var(--yellow)}
+.cut-g strong{color:var(--ink);font-weight:500}
+
+/* open questions */
+.q{display:grid;grid-template-columns:26px 1fr;gap:14px;padding:16px 0;border-bottom:1px solid var(--line)}
+.q:first-of-type{border-top:1px solid var(--line)}
+.qn{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--red);padding-top:2px}
+.q h4{font-size:14.5px;font-weight:700;margin-bottom:4px}
+.q p{font-size:13.5px;color:var(--ink-2)}
+.q .who{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ink-3);
+  letter-spacing:.08em;text-transform:uppercase;margin-top:6px;display:block}
+
+footer{border-top:1px solid var(--line);padding-top:20px;color:var(--ink-3);
+  font-size:12.5px;display:flex;flex-wrap:wrap;gap:6px 24px}
+
+@media (max-width:760px){
+  .lrow{grid-template-columns:32px 1fr 20px;gap:10px}
+  .lrow .lpurpose,.lrow .chips{display:none}
+  .kgrid{grid-template-columns:1fr}
+  .st{grid-template-columns:1fr;gap:12px}
+  .st-k{flex-direction:row;align-items:baseline;gap:12px;flex-wrap:wrap}
+  .st-k b{font-size:28px;margin-bottom:0}
+  .tc-cols{grid-template-columns:1fr;gap:16px}
+  .post{grid-template-columns:1fr}
+  .photo{aspect-ratio:16/9}
+  .tl{flex-direction:column}
+  .unit-head{grid-template-columns:44px 1fr;gap:12px}
+  .unit-badge{width:44px;height:44px}
+  .fstep{grid-template-columns:1fr;gap:8px}
+  .q{grid-template-columns:1fr;gap:4px}
+  .wrap,.tb-in,.top-in{padding-left:18px;padding-right:18px}
+}
+</style>
+
+<header class="top">
+  <div class="top-in">
+    <div class="strip" aria-hidden="true">
+      <i style="background:var(--blue);width:92px"></i>
+      <i style="background:var(--red);width:50px"></i>
+      <i style="background:var(--yellow);width:32px"></i>
+      <i style="background:var(--green);width:20px"></i>
+    </div>
+    <h1>STEAM Kit 配套课包</h1>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="tb-in">
+    <div class="seg" role="group" aria-label="视图切换">
+      <button id="btnCards" aria-pressed="true">编排视图</button>
+      <button id="btnFlow" aria-pressed="false">环节设计</button>
+    </div>
+    <div class="filters" role="group" aria-label="按 STEAM 标签筛选">
+      <span class="lbl">标签</span>
+      <button class="fbtn" data-t="M" aria-pressed="false"><span class="chip M">M</span>几何</button>
+      <button class="fbtn" data-t="S" aria-pressed="false"><span class="chip S">S</span>科学</button>
+      <button class="fbtn" data-t="E" aria-pressed="false"><span class="chip E">E</span>工程</button>
+      <button class="fbtn" data-t="A" aria-pressed="false"><span class="chip A">A</span>艺术</button>
+    </div>
+    <div class="spacer"></div>
+    <button class="txtbtn" id="btnAll">全部展开</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+<section id="map" style="margin-bottom:70px">
+  <div id="cardView"></div>
+
+  <div id="flowView">
+    <div class="prose" style="margin-bottom:24px">
+      <p class="body">下面是<strong>第 12 讲「世界杯足球」的完整走一遍</strong>——不是流程说明，是用户真正会看到和拿到的四样东西。其余 14 讲结构完全一致，只换内容。</p>
+      <p class="body" style="margin-top:8px;font-size:13.5px;color:var(--ink-3)">已录视频原封不动坐在「学」里。真正新增的物料只有三张纸：招式卡、任务卡、挑战卡。</p>
+    </div>
+
+    <div class="steps">
+
+      <div class="st" style="--bar:var(--blue)">
+        <div class="st-k">
+          <b>学</b><span class="st-t">10 分钟</span><span class="st-w">孩子自己</span>
+          <span class="tag have">已有素材</span>
+        </div>
+        <div class="st-b">
+          <h4>先看懂今天要拼什么，为什么它长这样</h4>
+
+          <div class="mock">
+            <div class="mock-lbl">播放页</div>
+            <div class="tl">
+              <div class="tl-seg s-hook">0:00–0:30<em>钩子</em></div>
+              <div class="tl-seg s-main">0:30–8:10<em>正片　一刀不动</em></div>
+            </div>
+            <div class="tl-pins">
+              <span class="pin">⏸ 3:40　原理讲完　「现在暂停，去拿零件」</span>
+              <span class="pin">⏸ 6:05　开拼前　「暂停，对一下清单」</span>
+            </div>
+            <p class="cap">钩子字幕：<strong>「1970 年起连续 8 届世界杯，都是这 32 块拼皮。」</strong></p>
+          </div>
+
+          <div class="mock mv">
+            <div class="mock-lbl">招式卡 · 正面</div>
+            <div class="mv-n">第 12 招 / 共 15 招</div>
+            <p class="mv-q">五边形的邻居，永远是六边形</p>
+            <p class="mv-d">拼到一半发现两个五边形挨在了一起，就说明前面错了。<br>这是本讲唯一需要背下来的一句话。</p>
+          </div>
+
+          <p class="why"><b>为什么这么设计</b>　两个暂停点是全片唯一的改动，而且只是贴字幕不是剪辑。招式卡把可迁移的手法从正片里提出来单独成物——造型是一次性的，手法能用一辈子，而且 15 张能集齐。</p>
+        </div>
+      </div>
+
+      <div class="st" style="--bar:var(--yellow)">
+        <div class="st-k">
+          <b>拼</b><span class="st-t">60–90 分钟</span><span class="st-w">孩子为主 · 家长陪数零件</span>
+          <span class="tag new">需新增</span>
+        </div>
+        <div class="st-b">
+          <h4>照着任务卡，把它拼出来</h4>
+
+          <div class="mock">
+            <div class="mock-lbl">任务卡 · 正面</div>
+            <div class="tc-head">
+              <b>第 12 讲　世界杯足球</b>
+              <span class="badge warn">大件 · 50 球以上</span>
+              <span class="badge">约 60–90 分钟</span>
+              <span class="badge">建议 2 人分工</span>
+            </div>
+            <div class="tc-cols">
+              <div>
+                <h6>① 先数出来</h6>
+                <table class="bom">
+                  <tr><td>球（顶点）</td><td>60</td></tr>
+                  <tr><td>蓝棒，同一长度（棱）</td><td>90</td></tr>
+                  <tr><td>正五边形面</td><td>12</td></tr>
+                  <tr><td>正六边形面</td><td>20</td></tr>
+                  <tr class="sum"><td>合计面数</td><td>32</td></tr>
+                </table>
+                <p class="cap">数完再拼——这张清单等价于「这个形状有多少顶点、多少条棱」。</p>
+              </div>
+              <div>
+                <h6>② 五步拼完</h6>
+                <ol class="steps-ol">
+                  <li>拼 1 个正五边形，放桌面正中，当「北极」</li>
+                  <li>沿五条边各接 1 个正六边形，共 5 个。<em>整体开始向上弯是对的，别压平</em></li>
+                  <li class="ckpt">六边形之间的凹口补正五边形，共 5 个<span class="ckpt-tag">✓ 检查点　停下来对一次图</span></li>
+                  <li>新凹口旁边已有五边形，所以补六边形。重复到只剩一个洞</li>
+                  <li>最后一个洞盖上第 12 个五边形——「南极」，球就合上了</li>
+                </ol>
+              </div>
+            </div>
+            <div class="tc-warn">
+              <b>拼歪了？看这里</b>
+              <ul>
+                <li><strong>两个五边形挨在一起。</strong>最高频，而且拼到一半才暴露、必须大面积拆。念一遍今天那招。</li>
+                <li><strong>想把它按平。</strong>第 2 步之后它就是个碗，不是一张纸。</li>
+                <li><strong>混用了不同长度的棒。</strong>棱必须全部等长。倒零件时先把 90 根挑出来单独放一盒。</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="mock mv">
+            <div class="mock-lbl">任务卡 · 背面　拼完翻过来</div>
+            <div class="mv-n">验证题</div>
+            <p class="mv-q" style="font-size:16px">有人说「足球上有两个五边形是挨着的」。<br>检查你的球，指出他错在哪。</p>
+            <p class="mv-d">不需要标准答案页——<strong>答案在球上，看一眼就知道。</strong>这是纸质物料唯一能绕开「判分」死结的题型。</p>
+          </div>
+
+          <p class="why"><b>为什么这么设计</b>　检查点放在第 3 步——Zometool 的错误特点是<strong>错在开头、暴露在结尾、代价是全拆</strong>。「拼歪了？看这里」印在<strong>正面而不是背面</strong>：看这段的时候孩子已经拼错了正在着急，着急的人不翻背面。</p>
+        </div>
+      </div>
+
+      <div class="st" style="--bar:var(--green)">
+        <div class="st-k">
+          <b>创</b><span class="st-t">20–80 分钟</span><span class="st-w">孩子自己</span>
+          <span class="tag new">需新增</span>
+        </div>
+        <div class="st-b">
+          <h4>自己挑一个，再造一遍</h4>
+
+          <div class="mock">
+            <div class="mock-lbl">挑战卡 · 三选一</div>
+            <div class="chooser">
+              <div class="opt">
+                <span class="radio"></span>
+                <div>
+                  <div class="cline"><span class="cname">阿基米德-截角四面体</span><span class="stars"><i>●</i><i class="off">●</i><i class="off">●</i></span></div>
+                  <div class="cmeta"><span class="ckit">Creator 3 Pro</span><span class="ctime">约 20 分钟</span></div>
+                  <span class="cnote">最简单的半正多面体，先把「看面、看邻居」的方法练熟</span>
+                </div>
+              </div>
+              <div class="opt">
+                <span class="radio"></span>
+                <div>
+                  <div class="cline"><span class="cname">小斜方截半二十面体变体</span><span class="stars"><i>●</i><i>●</i><i class="off">●</i></span></div>
+                  <div class="cmeta"><span class="ckit sk">SteamKit 专属</span><span class="ctime">约 50 分钟</span></div>
+                  <span class="cnote">13 种里的另一种，方法完全一样</span>
+                </div>
+              </div>
+              <div class="opt">
+                <span class="radio"></span>
+                <div>
+                  <div class="cline"><span class="cname">截角正十二面体</span><span class="stars"><i>●</i><i>●</i><i>●</i></span></div>
+                  <div class="cmeta"><span class="ckit sk">SteamKit 专属</span><span class="ctime">约 80 分钟</span></div>
+                  <span class="cnote">浏览 246。这套套装才拼得出</span>
+                </div>
+              </div>
+            </div>
+            <div class="fill">我改了<span class="blank"></span>，结果<span class="blank"></span>变了，因为<span class="blank"></span>。</div>
+            <p class="cap">不想挑造型？也可以用通用变式：换长度 / 换孔位 / 换数量。</p>
+          </div>
+
+          <p class="why"><b>为什么这么设计</b>　<strong>选择权本身就是「创」的第一步</strong>——被指定拼什么，那还是「拼」。三个候选各标难度、套装、时长，孩子自己权衡。挑战档尽量放 STEAM Kit 专属，把高价套装的独占价值当场兑现。那句填空是全包唯一训练设计思维的地方，成本只有一行字。</p>
+        </div>
+      </div>
+
+      <div class="st" style="--bar:var(--red)">
+        <div class="st-k">
+          <b>秀</b><span class="st-t">5 分钟</span><span class="st-w">家长帮忙</span>
+          <span class="tag have">已有资产</span>
+        </div>
+        <div class="st-b">
+          <h4>拍下来，说一句你改了什么</h4>
+
+          <div class="mock">
+            <div class="mock-lbl">打卡模板</div>
+            <div class="post">
+              <div class="photo">成品照</div>
+              <div class="post-b">
+                <div class="obs"><b>观察题</b>数一数你的足球有几个五边形、几个六边形？为什么五边形正好是 12 个？</div>
+                <div class="input">我改了　　　　，结果　　　　变了</div>
+                <p class="cap" style="margin-top:9px">还想玩？　截半二十面体变形　·　阿基米德多面体星状化　·　Zometool 球</p>
+                <p class="keep">⚑ 这个先别拆——第 13 讲要用它的二十面体结构做对照</p>
+              </div>
+            </div>
+          </div>
+
+          <p class="why"><b>为什么这么设计</b>　打卡要求那句话，是为了让「创」真的发生，而不是拍个照就算。末尾那行「先别拆」是跨讲复用的设计：足球留到第 13 讲讲噬菌体头部时做对照，既省零件，又制造连续感。</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="grid2" style="margin-top:26px">
+      <div class="card">
+        <h4 style="font-family:'Noto Serif SC',serif;font-size:16px;margin-bottom:10px">两套命名，分载体使用</h4>
+        <p class="body" style="font-size:13.5px;margin-bottom:12px">课表和商详页给家长看，任务卡给孩子读。<strong>受众不同、载体不同，不算混乱——但同一张纸上只能有一套。</strong></p>
+        <div class="tablewrap" style="box-shadow:none">
+          <table style="min-width:0;font-size:13px">
+            <thead><tr><th style="width:70px">步骤</th><th>课表 / 商详（家长）</th><th>任务卡（孩子）</th></tr></thead>
+            <tbody>
+              <tr><td class="nm">学</td><td>看得懂</td><td>看一遍</td></tr>
+              <tr><td class="nm">拼</td><td>拼得出</td><td>跟着拼</td></tr>
+              <tr><td class="nm">创</td><td>改得动</td><td>改一下</td></tr>
+              <tr><td class="nm">秀</td><td>讲得清</td><td>秀出来</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note" style="margin-top:12px">最容易犯的错是混搭——「数一数 → 看得懂 → 学招 → 照图拼搭」四种词性，会让人下意识觉得这套课没做完。命名的一致性是廉价的专业感。</p>
+      </div>
+
+      <div class="card">
+        <h4 style="font-family:'Noto Serif SC',serif;font-size:16px;margin-bottom:10px">物料清单：每讲三张纸</h4>
+        <ul style="font-size:13.5px;color:var(--ink-2);padding-left:18px">
+          <li><strong>任务卡</strong>（拼）　零件清单 / 分步图 / 三个易错点 / 自检口诀 / 零件占用等级</li>
+          <li><strong>招式卡</strong>（学）　今日一招，一句口诀 ＋ 一张示意图，可集卡</li>
+          <li><strong>挑战卡</strong>（创）　三档可选造型 ＋ 那句填空</li>
+        </ul>
+        <p class="body" style="font-size:13.5px;margin-top:12px"><strong>15 讲 × 3 张 = 45 张。</strong>这是整个课包唯一的新增制作量，也是「视频不改」还能成立的原因——被砍掉的 5 讲，知识全部由这套纸质物料承接。</p>
+        <p class="note" style="margin-top:12px">印刷版任务卡手册在直播间的实物展示价值，很可能高于口播「15 节视频课」这句话。</p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <h4 style="font-family:'Noto Serif SC',serif;font-size:16px;margin-bottom:8px">编排时必须一起考虑的：零件占用</h4>
+      <p class="body">孩子拼完不舍得拆，但零件有限。按本编排，<strong>第 10 到 13 讲是连续四讲的零件高峰</strong>——第 10 讲的柏拉图五件套必须保持组装状态留到第 11 讲蘸泡泡水，紧接着第 12 讲足球要 60 球 90 棒，第 13 讲噬菌体又是一件大的。这是全包唯一一处会真正卡住的地方。<br><br>三个应对：<strong>把第 11 讲明确写成「复用第 10 讲成品，无需新拼」</strong>（课程表里已标注）；<strong>任务卡右上角标占用等级</strong>（小件 &lt;30 球 / 中件 / 大件 &gt;50 球），家长能自己错开节奏；<strong>设计一个拆解仪式</strong>——拍照存档、上传打卡，然后拆，把「拆」从损失感变成完成动作。</p>
+    </div>
+  </div>
+
+</section>
+
+<div id="mapExtras">
+<!-- ========== 砍掉的 ========== -->
+<section id="cut">
+  <div class="sec-head"><span class="sec-num">01</span><h2>砍掉的 5 讲，知识去哪了</h2></div>
+  <div class="prose" style="margin-bottom:22px">
+    <p class="body">正片不做剪辑，所以「并进相邻课」这条路走不通。取舍标准换成一条：<strong>这一讲的知识，一张纸能不能承载？</strong>能用纸替代的先砍，纸替代不了的留下。下面每一讲都给了明确的承接物料和代价，没有一条是「丢了就丢了」。</p>
+  </div>
+  <div id="cutList"></div>
+</section>
+
+<!-- ========== 片头卡 ========== -->
+<section id="anchor">
+  <div class="sec-head"><span class="sec-num">02</span><h2>不改视频的唯一代价：3 处指向错乱</h2></div>
+  <div class="prose" style="margin-bottom:20px">
+    <p class="body">第一季正片是强连续的，几乎每讲开头都有「上次我们提到⋯⋯」。<strong>顺序一重排，这些回指就会指错</strong>——这跟砍不砍课无关，只要调顺序就会发生。我把 15 讲的正片逐条核过了一遍，需要处理的只有 3 处，其余全是泛指或指向正好在前面的讲次。</p>
+    <p class="body" style="margin-top:10px">解法不是回去剪片，是<strong>每讲片头贴一张 3 秒的「本讲衔接」卡</strong>——贴片不是剪辑，成本极低，而且顺带解决了「学员不知道现在上到哪一讲」的问题。</p>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <h4 style="font-family:'Noto Serif SC',serif;font-size:15px;margin-bottom:6px">第 3 讲 · 冰晶和星星</h4>
+      <p class="body" style="font-size:13.5px">正片中段说「这个形状正是<strong>我们上次提到的</strong>轴对称图形」，而被指的第 4 课已砍。<br><span class="mono" style="font-size:11.5px;color:var(--ink-3)">片头卡：本讲同时讲轴对称与旋转对称</span></p>
+    </div>
+    <div class="card">
+      <h4 style="font-family:'Noto Serif SC',serif;font-size:15px;margin-bottom:6px">第 8 讲 · 桥</h4>
+      <p class="body" style="font-size:13.5px">正片说「在<strong>第一季第六期</strong>，认识棱柱的时候」——内容指向正确（就是上一讲），但期数称呼过时。<br><span class="mono" style="font-size:11.5px;color:var(--ink-3)">片头卡：承接第 7 讲 跨江大桥</span></p>
+    </div>
+    <div class="card">
+      <h4 style="font-family:'Noto Serif SC',serif;font-size:15px;margin-bottom:6px">第 12 讲 · 世界杯足球</h4>
+      <p class="body" style="font-size:13.5px">正片自称「很高兴在 Zometool 真好玩的<strong>第十期</strong>看到你」，与新编号不符。<br><span class="mono" style="font-size:11.5px;color:var(--ink-3)">片头卡：第 12 讲，或统一去掉期数概念</span></p>
+    </div>
+    <div class="card" style="border-color:var(--green)">
+      <h4 style="font-family:'Noto Serif SC',serif;font-size:15px;margin-bottom:6px">意外的收获</h4>
+      <p class="body" style="font-size:13.5px">2.9 正片开头「上一期我们提到，周期性密铺」——新编排里 2.8 就是它的上一讲，<strong>回指从错的变成对的</strong>。2.4 的桁架桥回放同理。重排反而修好了两处原本别扭的衔接。</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ========== 待定 ========== -->
+<section id="open">
+  <div class="sec-head"><span class="sec-num">03</span><h2>待团队拍板的 4 个问题</h2></div>
+  <div class="prose" style="margin-bottom:8px">
+    <p class="body">从原来的 7 个减到 4 个——「2.5 放哪」和「2.2 进不进包」随本次砍课已经落定，「交错编排的包装成本」由片头卡方案解决。剩下的前三个不解决就不能开印。</p>
+  </div>
+
+  <div class="q"><span class="qn">01</span><div>
+    <h4>2.4 和 2.3 的正片到底成不成</h4>
+    <p>这是本方案最大的风险点，因为<strong>两讲都在 15 讲之内，而且都是第二季成熟度最低的两支</strong>。2.4 脚本里直接写着某组镜头「好吧，没录哈哈」；2.3 连课程目标的表头都缺，是全部 20 份脚本里最残缺的一份，而它还被排成了结课大作品。<br><br>如果这两支不成，替补方案是：<strong>2.4 的位置用第 2 课炫酷风火轮回填</strong>（同在单元 C，正片完整）；<strong>2.3 的位置用 2.5 小动物回填</strong>（作为结课创作课，正片完整）。这样 15 讲的规格不变，只是 E 标签归零、大作品变小。</p>
+    <span class="who">需要：制片确认素材清单 · 最高优先级</span>
+  </div></div>
+
+  <div class="q"><span class="qn">02</span><div>
+    <h4>STEAM Kit 里到底有没有绿棒</h4>
+    <p>第 8 课脚本明确说「正四面体需要用到特殊的绿色小棒」，并给了无绿棒时的降级方案。<strong>含绿棒，那句降级方案要删</strong>（否则等于教用户做次品）；<strong>不含，这节课全程只能拼近似体</strong>，标题和讲法都得调整。这是唯一一个会让课程内容"讲错"的问题。</p>
+    <span class="who">需要：产品确认套装配件表</span>
+  </div></div>
+
+  <div class="q"><span class="qn">03</span><div>
+    <h4>2.10 的单键 / 双键表述自相矛盾</h4>
+    <p>脚本前面定义「蓝棒表示双键」，后面讲氧气分子时写的是「通过<strong>两个单键</strong>连接」。球棍模型里用两根单棒表示双键是通行做法，但同一节课两套规则并存，孩子一定会问。建议统一成一种并在任务卡上写死。</p>
+    <span class="who">需要：教研定稿 + 可能需补配音</span>
+  </div></div>
+
+  <div class="q"><span class="qn">04</span><div>
+    <h4>A（艺术）和 T（技术）的缺口补不补</h4>
+    <p>15 讲的主标签统计：<strong>M 9 讲、S 4 讲、E 2 讲、A 0、T 0</strong>。一个叫 STEAM Kit 的产品，配套课程实际是一套几何课。视频不改的前提下，两个零拍摄成本的补法：<strong>A</strong> —— 第 5 讲彭罗斯之后加一个「准晶纹样设计」创作任务，配造型库的「五重准晶盘」「复活节蛋」「春天的花环」，全是 STEAM Kit 才拼得出的高价值造型；<strong>T</strong> —— 把小程序造型库本身做成一个固定环节，教孩子看懂零件清单、按套装筛选、投稿自己的作品，纯运营动作，还直接拉动小程序活跃。</p>
+    <span class="who">需要：教研 + 运营共同定</span>
+  </div></div>
+</section>
+</div>
+
+<footer>
+  <span>数据来源：项目文件夹内 20 份课程脚本 docx、造型库 549 条记录</span>
+  <span>脚本作者：@艾兴兰</span>
+</footer>
+</div>
+
+<script>
+const UNITS=[
+ {k:"A",name:"上手",n:"2 讲",desc:"用最短路径拿到两样东西——不弄坏零件的操作规范，和用球孔定位顶点的核心手法。两讲之后孩子就具备拼出任何平面图形的能力，第三讲起做的都是真正的作品。开局越短，弃坑风险越低。"},
+ {k:"B",name:"平面的秩序",n:"4 讲",desc:"全部在桌面上完成，不要求空间想象。从对称到密铺，建立「图形是有规律的」这个认知，再在彭罗斯处亲手推翻它。收尾的陀螺让平面图形转起来、离开桌面，自然过渡到立体。"},
+ {k:"C",name:"立起来与工程",n:"3 讲",desc:"完成从平面到立体的跨越。柱体与锥体是所有复杂结构的两块基础积木，中间紧跟桥——原第一季第 6 课和第二季 2.4 讲的本是同一件事，被季节切开了，这里恢复成连续两讲，2.4 正片开头的回放反而变成了顺畅的承接。"},
+ {k:"D",name:"多面体",n:"2 讲",desc:"全包数学密度最高的一段。先攻柏拉图多面体这个制高点——「正多面体只有 5 种」是整包唯一一次让孩子体验完整推理，再把刚拼好的框架全部丢进泡泡水，用一次实验给立体阶段收口。"},
+ {k:"E",name:"一个形状，三个学科",n:"3 讲",desc:"同一个二十面体，在体育、生物、化学里各出现一次：足球是截角正二十面体，噬菌体的头部是正二十面体，C240 富勒烯是足球结构的放大。这是整个课包最能说明「为什么值这个价」的一段，也是直播最好讲的一段。"},
+ {k:"F",name:"结课大作品",n:"1 讲",desc:"不教新概念。把 14 讲积累的全部技能用在一件最大体量的建造上——旋转木马，是全包成品体积最大、最适合摆在家里和直播间的作品。"}
+];
+
+const L=[
+{n:1,u:"A",code:"第 1 课",name:"雨伞和刺猬",tags:["M"],
+ purpose:"让孩子第一次动手就不弄坏零件，并建立「孔形决定一切」的直觉",
+ geo:["角的形成——两条线相交才有角","直角、锐角、钝角的区分","<strong>角的大小与边长无关</strong>：线变长，角不变"],
+ str:["孔形与棒色的对应：黄棒→三角形孔、蓝棒→正方形孔、红棒→五边形孔","三色各有长中短三档，且不同颜色不等长","<strong>有序插满法</strong>：固定一根棒，沿其周围由上到下顺时针或逆时针走一周，防遗漏","错插会同时损坏球和棒"],
+ sci:["球珠是获得专利的设计","同一批零件因夹角不同可成刺猬球、陀螺、雨伞、飞船"],
+ skill:"有序插满法——固定一根棒，绕它走一周",
+ lib:"基础几何-平面图形 · 单色/彩色刺猬球"},
+
+{n:2,u:"A",code:"第 3 课",name:"蜂窝和圣诞树",tags:["M","S"],
+ purpose:"拿到全包的总钥匙——用球孔定位顶点。学会这一招，后面 12 节课才拼得动",
+ geo:["平面图形的定义：能全身平躺在桌面","多边形——首尾相连围成区域、无开口","<strong>边数＝顶点数＝角数</strong>","「正」多边形的两个条件：边等长、角等大","平铺 / 镶嵌的定义：无缝隙、不重叠"],
+ str:["<strong>核心手法</strong>：某洞孔朝上，沿其一周找同形状孔来定位顶点（三角孔朝上→找 3 个长方形孔→正三角形；五边形孔朝上→找 5 个三角形或长方形孔）","<strong>先定球位，再定棒长</strong>","去掉中心支柱后的独立拼法","平面密铺可加高度变立体"],
+ sci:["蜂窝是正六边形密铺","家里地板的瓷砖是正方形镶嵌"],
+ skill:"球孔定位法——洞孔朝上，沿一周找同形状孔（全包复用率最高）",
+ lib:"基础几何-平面图形（28 个） · 几何之美-几何纹样"},
+
+{n:3,u:"B",code:"第 5 课",name:"冰晶和星星",tags:["M","S","A"],
+ purpose:"一讲讲完两种对称。正片开头自带轴对称的完整定义，不需要单独一讲铺垫",
+ geo:["<strong>轴对称</strong>：对折后两侧完全重合（正片开头已完整说明，接住了被砍的第 4 课）","<strong>旋转对称</strong>：绕一点旋转<strong>小于一整圈</strong>后完全重合","旋转对称中心；旋转一整圈不算","<strong>轴对称与旋转对称互不蕴含</strong>——风扇是旋转对称但不是轴对称"],
+ str:["先定对称轴、再补两侧","用「旋转复制」分部件拼接，适合两人分工","<strong>不同冰晶的旋转中心球珠孔形不同</strong>——球心孔形与对称轴数量的对应关系（原第 4 课知识点，现由手法卡承载）"],
+ sci:["冰的性质：透明、可碎船、可瞬间融水","水结冰时析出冰晶，<strong>冰晶基本都是六角形</strong>","风扇、风车、风力发电机都是旋转对称","对称被视为有序稳定，广泛用于建筑与服饰"],
+ skill:"旋转复制——拼好一个扇区，绕中心重复｜附卡：球心孔形与对称轴数量对照表",
+ lib:"几何之美-对称美学（15 个） · 雪花窗花 · 春天的花环（STEAM Kit 专属）"},
+
+{n:4,u:"B",code:"2.8",name:"周期性密铺",tags:["M"],
+ purpose:"给第 3 课的密铺补上原理，从「我拼出来了」到「我知道为什么一定能拼出来」",
+ geo:["6 个正三角形绕一点围成正六边形","<strong>三角形内角和 180°（平角）→ 每个角交替出现两次即可绕一点无缝拼接 → 任意三角形都能密铺</strong>","<strong>任意四边形内角和 360°（周角）→ 四角轮流交替即可密铺</strong>","任意三角形旋转后与另一个拼成平行四边形，再按行列铺开","周期性密铺的定义：平移后与原图完全重合"],
+ str:["拼接时必须让等长的边贴在一起","把三角形旋转以变换拼贴的角"],
+ sci:["密铺因美观被广泛用于艺术与建筑"],
+ skill:"旋转换角拼贴——让每个角轮流出现在同一顶点",
+ lib:"几何之美-密铺与分形（16 个） · 多边形密铺 1（STEAM Kit 专属）"},
+
+{n:5,u:"B",code:"2.9",name:"彭罗斯密铺",tags:["M","A"],
+ purpose:"打破刚建立的规律感——原来不是所有漂亮图案都有周期。整个平面阶段的高潮",
+ geo:["<strong>正五边形不能单独密铺</strong>：边对边绕顶点拼到第四个就拼不下，缝隙催生一个扁菱形","两个正五边形＋一个菱形为一组的周期性密铺（平移可重合）","三个正五边形留缝 → 外拼出五角星 → <strong>五角星破坏了平移对称 → 非周期性密铺</strong>","继续外拼可围出正十边形"],
+ str:["五边形边对边沿顶点拼接","沿五边形下方两侧顶点继续拼接，均匀补齐最外侧"],
+ sci:["诺贝尔奖得主彭罗斯发现了一系列非周期性密铺，即彭罗斯密铺"],
+ skill:"留缝观察法——先不填缝，看它自己长成什么形状",
+ lib:"五重准晶盘（全库浏览第一，1912） · 里切特—彭罗斯雕塑 · 分形（STEAM Kit 专属）"},
+
+{n:6,u:"B",code:"2.7",name:"陀螺",tags:["S","M"],
+ purpose:"让平面图形转起来、离开桌面；同时是全包唯一一次完整的科学方法训练",
+ geo:["重心的位置：正方形在对角线交点、平行四边形在对角连线交点","<strong>物体重心在哪，就往哪倾倒</strong>","边数越多越接近圆"],
+ str:["陀螺的转轴与转面","<strong>三组控制变量对比实验</strong>：① 同形状转面，大面比小面稳；② 同形状转面，重心低比重心高稳；③ 不同形状转面，边多比边少稳","最优解＝大转面＋多边形（正十边形）＋低重心＋在摇晃处加支柱"],
+ sci:["陀螺在中国至少四五千年历史，是最早的民间娱乐工具之一","《玩游戏》的定义：在重心处插棒并旋转带动整体","<strong>科学方法本身：提出问题 → 控制变量 → 重复三次 → 得出结论</strong>"],
+ skill:"控制变量法——一次只改一个条件，转三次再下结论",
+ lib:"其他创意-玩具与运动（15 个） · 秋千 · 摩天轮（STEAM Kit 专属）"},
+
+{n:7,u:"C",code:"第 6 课",name:"跨江大桥",tags:["M","E"],
+ purpose:"完成从平面到立体的跨越，掌握「两个全等底面撑起来」的通法",
+ geo:["点、线、面、体四种几何元素","<strong>点动成线、线动成面、面动成体</strong>","柱体定义：上下底面全等","圆柱与棱柱；底面几边形即几棱柱","正方体与长方体都是四棱柱"],
+ str:["<strong>拼柱体的通法</strong>：拼两个全等底面，用等长棒把对应顶点支起来","柱体组合成建筑：正方体＋长方体＝板凳；3 组不同大小三棱柱侧放连接＝跨江大桥"],
+ sci:["Zometool 为至少 5 位诺贝尔奖得主的获奖研究提供灵感","知名建筑师在用"],
+ skill:"两底撑柱法——拼两个全等面，等长棒连对应顶点",
+ lib:"工程建造-建筑设施（18 个） · 塔吊（STEAM Kit 专属） · 应县木塔"},
+
+{n:8,u:"C",code:"2.4",name:"桥",tags:["E"],
+ purpose:"把上一讲顺手搭出的桥变成正式课题，认识桁架并见识五种桥型。正片开头的「第一季第六期我们拼过桁架桥」在这个位置正好成为顺畅承接",
+ geo:["三角形的稳定性","三角形与梯形组合的几何拼接"],
+ str:["<strong>桁架三要素：上弦、下弦、腹杆</strong>；腹杆竖向或斜向的搭配衍生不同桁架，最常见是三角腹杆","拼法：蓝棒作下弦 → 相邻球间找朝内且方向相对的孔连出斜杆 → 连上弦 → 两侧桁架连成梁体得路面 → 加桥墩","桁架拱桥：梯形下弦＋上弦＋腹杆","桁架结构简单、成本低、重量轻，被称为最优桥式结构"],
+ sci:["梁式桥：洛阳桥，近千年","拱桥：赵州桥，1400 年经洪涝地震仍完好","刚构桥：重庆石板坡大桥复线桥，跨度 330 米","斜拉桥：上海南浦大桥，跨 423 米，斜拉索形成稳定三角结构、抗风强","悬索桥：江苏五峰山长江大桥，可同时通行 4 列高铁","港珠澳大桥是世界最长跨海大桥；中国已建桥梁超 100 万座"],
+ skill:"找相对孔连斜杆——桁架腹杆的定位法",
+ lib:"工程建造-建筑设施 · 东方明珠塔 · 广州塔"},
+
+{n:9,u:"C",code:"第 7 课",name:"营地帐篷",tags:["M","E"],
+ purpose:"拿到第二个关键手法——沿一圈孔插满，一次得到所有侧棱。这是拼大件的效率工具",
+ geo:["锥体定义：能立在桌面、顶部尖","圆锥与棱锥；底面几边形即几棱锥","<strong>平面里的「边」在立体中改名为「棱」</strong>","四棱锥的顶点数（5）与棱数（8）推算"],
+ str:["法一：正方形四顶点各插一根斜向内的棒，交于同一顶点","<strong>法二（关键手法）</strong>：沿五边形洞孔一周插满 5 个三角孔，一次得到 5 条侧棱，再补底面","锥体之间共用棱与顶点的组合","锥体＋柱体组合：帐篷架在长方体上"],
+ sci:["埃及金字塔","伽利略论几何学在唤醒心灵上胜过逻辑"],
+ skill:"插满一圈出侧棱——大件提速的核心技巧",
+ lib:"基础几何-立体图形（30 个） · 大热气球（STEAM Kit 专属）"},
+
+{n:10,u:"D",code:"第 8 课",name:"柏拉图多面体",tags:["M"],
+ purpose:"全包的数学制高点，第一次完整体验「推理出一个结论」而不是被告知结论",
+ geo:["正多面体的四个条件：棱等长、顶点处棱间夹角相等、面为全等正多边形、相邻面夹角相等","<strong>「正多面体只有 5 种」的完整推理</strong>：每顶点至少 3 面相交；正三角形可 3/4/5 个（6 个即成平面）、正方形只能 3 个、正五边形只能 3 个、正六边形成平面","正多面体对偶"],
+ str:["正四面体需要<strong>特殊绿棒</strong>；无绿棒时的降级做法：蓝棒拼正三角形＋红/黄棒支起第四顶点，得近似三棱锥","<strong>黄色三角孔全部插满 → 20 个顶点 → 正十二面体</strong>","<strong>红色五边形孔全部插满 → 12 个顶点 → 正二十面体</strong>","一个正多面体外再套一个，体验对偶"],
+ sci:["柏拉图其人，把这类几何图形带入哲学研究，但并非他发明"],
+ skill:"插满同色孔出多面体——黄孔得十二面体、红孔得二十面体｜附卡：分层分方向观察法（原 2.1 知识点，拆解大件的第一步）",
+ lib:"拓展几何-经典多面体（23 个） · 开普勒模型（STEAM Kit，跟拼 9） · 正方体嵌套"},
+
+{n:11,u:"D",code:"第 9 课",name:"泡泡里的泡泡",tags:["S","M"],
+ purpose:"把刚拼好的多面体全部丢进泡泡水，用一次实验给立体阶段一个成就感闭环",
+ geo:["极小曲面思想：用最少的泡泡水装最大的空气","<strong>正四面体框架 → 4 个顶点连向中心一点</strong>","<strong>正方体框架 → 中心出现一个正方形面，而不是一点</strong>"],
+ str:["把 Zometool 框架当作蘸膜骨架","正方形向上拉成正方体","用干燥的手或吸管消除多余泡泡","用吸管在中心面上再吹一个泡泡，得「正方体里的正方体」"],
+ sci:["泡泡水配方：纯净水 : 洗洁精 : 胶水 ≈ <strong>6 : 2 : 1</strong>，胶水可换白糖或甘油，静置一晚更好用","薄膜厚度与反射色：厚→红、薄→紫、中→七彩","破裂前的颜色顺序：绿、蓝、红、黄、绿、白、带黑点的白、黑","最长寿的泡泡维持了 340 天"],
+ skill:"框架蘸膜法——同一个骨架，不同角度吹气改变中心面朝向",
+ lib:"<strong>复用第 10 讲拼好的正多面体，无需新拼</strong>（零件占用的关键缓冲）"},
+
+{n:12,u:"E",code:"第 10 课",name:"世界杯足球",tags:["M","A"],
+ purpose:"认识半正多面体，并完成第一件真正意义上的大作品",
+ geo:["半正多面体 / 阿基米德多面体的定义：面为边数不全相同的正多边形，<strong>共 13 种</strong>","由正多面体切顶得到：正六面体切 8 个顶点 → 半正十四面体","截角正二十面体＝12 个正五边形＋20 个正六边形＝32 面"],
+ str:["<strong>拼接铁律：每个正五边形周围全是正六边形</strong>","从一个五边形起手 → 沿五条边拼 5 个六边形 → 凹口交替补五 / 六边形 → 最后一个洞盖上第 12 个五边形","用不同长度的棒拼出不同尺寸的同结构球","<strong>先用手比划，再插棒</strong>","建议双人分工：各拼半球，赤道对接"],
+ sci:["1970 年起连续 8 届世界杯用这种 32 块拼皮设计","卡塔尔世界杯足球内嵌传感器芯片","阿基米德其人与「给我一个支点」"],
+ skill:"先比划后插棒 + 邻面口诀自检（五边形的邻居永远是六边形）",
+ lib:"阿基米德多面体-足球（浏览 816 / 跟拼 16） · 截角正十二面体 · 小斜方截半二十面体变体"},
+
+{n:13,u:"E",code:"2.6",name:"螺旋结构",tags:["S","M"],
+ purpose:"同一个二十面体第二次出现——这一次，它是一个病毒",
+ geo:["<strong>螺旋的构造条件：任意相邻小棒之间的夹角保持一致</strong>","正二十面体的顶点定位"],
+ str:["<strong>利用球的五边形孔找到二十面体的所有顶点，连接相邻顶点即围成外壳</strong>","螺旋拼法：黄色短棒起手，沿洞孔往右依次经五边形、三角形、长方形，选三角形孔，重复即成螺旋，完成五圈","红棒、蓝棒同样可成螺旋；螺旋还可再围成一圈","借鉴十边形拼法得蓝色螺旋；进阶双螺旋","噬菌体部件：红色短棒五棱锥＝颈环 → 五棱柱＝尾鞘 → 共顶点的两个五棱锥＝尾板 → 尾针与尾丝"],
+ sci:["病毒的尺度：若病毒有一个人那么大，人就有地球那么大","遇到活细胞前处于休眠状态","噬菌体是感染细菌的病毒、最小的病毒，由头部 DNA ＋尾部蛋白质构成","抗生素出现前曾用它对抗细菌感染；因抗生素滥用产生超级抗性菌株，噬菌体疗法正被重新引入医学","DNA 负责记录遗传信息"],
+ skill:"等夹角连续插棒法——螺旋结构的通用做法",
+ lib:"DNA 结构（浏览 928） · 微观结构-病毒结构 · 桁架巴基球"},
+
+{n:14,u:"E",code:"2.10",name:"化学分子",tags:["S"],
+ purpose:"同一个足球结构第三次出现——这一次，它是 240 个碳原子。建模规则从此可复用",
+ geo:["建模的比例放大：真实原子放大数十亿倍","<strong>键角决定分子形状</strong>：水是宽 V 形、二氧化碳是直线形"],
+ str:["<strong>建模编码规则：球＝原子、棒＝化学键</strong>","碳＝黑球、氢＝白球、氧＝红球、氮＝蓝球","黄棒＝单键、蓝棒＝双键、红棒＝三键","<strong>成键数约束</strong>：碳 4 键、氢 1 键、氧 2 键、氮 3 键"],
+ sci:["日常化学变化：油烟、嚼米饭发甜、削苹果变色","化学变化中分子被破坏并生成新物质","已发现超过 100 种原子，但大多数分子只由碳氢氧氮构成","空气中约 78% 氮气、20% 左右氧气","H₂O、氮气（三键）、氧气、CO₂ 的建模","人体蛋白质由 21 种氨基酸构成，多数由 C/H/O/N 组成，如丙氨酸 C₃H₇NO₂"],
+ skill:"按成键数配对建模——先数键、再连球",
+ lib:"微观结构-化学分子（53 个，全库最大分类） · C240 超级富勒烯巴基球（STEAM Kit，跟拼 9）"},
+
+{n:15,u:"F",code:"2.3",name:"圆顶建筑",tags:["E","A","M"],
+ purpose:"结课大作品。把 14 讲积累的技能用在一件大体量建造上，从「拼几何体」进到「造东西」",
+ geo:["<strong>用正多边形逼近圆</strong>：直棒拼不出曲线，用正十边形近似","圆和三角形是最稳定的结构体系"],
+ str:["<strong>关键手法</strong>：两根蓝棒接成直线，找旁边最近的长方形孔得到一个大钝角，重复即围成正十边形","在正十边形内找不同孔形向上围合，得到不同圆顶——三角孔→黄色菱形圆顶；五边形孔→红色圆顶；长方形孔配三角形＋正方形→尖屋顶；三角形＋五边形→饱满屋顶；正方形＋五边形→球状蓝顶","旋转木马整体建造：大地台正十边形＋小号正十棱柱支柱＋圆顶＋悬挂小马"],
+ sci:["圣彼得大教堂、泰姬陵、天坛都是圆顶结构","圆顶提供最大内部空间，声音反射扩散均匀，是音乐厅与教堂的理想选择","圆顶是中世纪最典型的建筑特征"],
+ skill:"双棒成直线找钝角——围出正十边形，用直棒逼近圆",
+ lib:"工程建造-游乐设施 · 摩天轮（STEAM Kit） · 天坛（STEAM Kit，跟拼 10）"}
+];
+
+const CUT=[
+{code:"第 2 课",name:"炫酷风火轮",why:"全包最像课本的一节——平行、垂直、四边形族谱都是纯概念，不是 Zometool 独有知识。而它的下游需求（第 6 课的长方形底面、2.4 的梯形下弦）在正片里都是照着拼，不需要先懂概念。",to:"做成一张<strong>四边形关系图卡</strong>：正方形 / 长方形 / 菱形 → 平行四边形 → 梯形的包含关系，一张图讲完。随第 7 讲任务卡下发。",cost:"四边形分类从一讲降级成一张卡。这是小学数学重点，家长可能会问「怎么没讲」——建议在课表页面显式标注「四边形知识卡随第 7 讲附赠」。"},
+{code:"第 4 课",name:"星星月亮船",why:"轴对称是孩子在学校已经或即将学到的概念，不是 Zometool 独有。关键是：<strong>第 5 课正片开头本身就带了完整的轴对称定义</strong>（「对折以后两边形状能完全重合的，就属于轴对称图形」）——不改一帧视频也能接住。",to:"唯一独有的「球心孔形与对称轴数量的对应关系」，在第 4 课脚本里本来也只有一行「讲解 or 特写」，做成<strong>一张对照表手法卡</strong>随第 3 讲下发。",cost:"平面圣诞树这个大成品没了，直播少一件道具。可用造型库的「春天的花环」（STEAM Kit 专属，跟拼 19，是全库 STEAM Kit 造型里跟拼最高的）替代展示。"},
+{code:"2.1",name:"叠罗汉",why:"<strong>最轻的一刀。</strong>它真正的资产是「分层、分方向」这套观察方法，而方法论不需要视频承载。内容资产（杨辉三角、三角形数）是数学彩蛋，与拼搭关系弱；成品三棱锥金字塔与第 9 讲的帐篷同类。",to:"做成<strong>一张观察法手法卡</strong>，随第 10 讲柏拉图多面体下发——正好是第一次需要拆解大件的时刻，比单独一讲更用得上。",cost:"杨辉三角这个彩蛋丢了。它本身很吸引家长，可以留给直播口播或社群内容。"},
+{code:"2.5",name:"小动物",why:"知识增量最小的一讲——辐射对称 / 两侧对称是第 3 讲对称的第三次应用，正片里的新东西只有生物进化史科普。而它的核心价值「结课创作体验」<strong>恰恰是一张纸能完全承载的</strong>。",to:"做成<strong>结课挑战卡</strong>：不给图纸，只给一张动物照片，让孩子自己找对称轴、解构、拼出来。这正是七环节里「想着拼」的标准形态，不看视频反而更纯粹。",cost:"造型库最大分类（动物世界 44 个）少了一个正片入口。补法：把这 44 个造型直接编进结课挑战卡的可选清单。"},
+{code:"2.2",name:"变形记",why:"唯一一节<strong>把 Zometool 当火柴棒用</strong>的课——不用球孔、不用棒长比例、不涉及空间，证明不了这盒东西的价值。属于奥数逻辑题，不属于 STEAM。",to:"投放为<strong>社群活动或直播暖场互动</strong>。零前置、十分钟能玩，正片可直接单独放出，不占课包课时。",cost:"几乎没有。它本来就与主线无关。"}
+];
+
+/* 「创」环节：每讲三个可选造型，用户自己挑一个（也可以都做）。
+   全部 STEAM Kit 可拼；「挑战」档尽量选 STEAM Kit 专属造型。
+   难度与时长为规划预估，需用实物校准后再印刷。 */
+const CRT={
+ 1:[["练手","角家族五连","Basic",1,"约 10 分钟","角 / 锐角 / 直角 / 钝角 / 平角，把有序插孔重复五遍，五个摆一排最好拍"],
+    ["主推","刺猬球","Creator 1",2,"约 20 分钟","插满一颗球的所有孔，本讲手法的完整版"],
+    ["挑战","狼牙棒","SteamKit 专属",3,"约 40 分钟","浏览 396。同样是插满球孔，但是这套套装才拼得出，而且孩子更想拿在手里"]],
+ 2:[["练手","正多边形全家福","Basic",1,"约 15 分钟","正五 / 六 / 八 / 十 / 十二边形，同一个定位法换五种孔"],
+    ["主推","六边形密铺","Creator 1",2,"约 30 分钟","就是正片里的蜂窝，把单个图形推成一张网"],
+    ["挑战","雪花窗花","SteamKit 专属",3,"约 45 分钟","正多边形拼成的平面纹样，同一手法换成装饰品"]],
+ 3:[["练手","雪花 1 / 2 / 3","Creator 3",1,"约 20 分钟","三片放一起，数各自有几条对称轴"],
+    ["主推","电风扇","SteamKit 专属",2,"约 25 分钟","验证「旋转对称但不是轴对称」——正片抛出的问题在这里落地"],
+    ["挑战","春天的花环","SteamKit 专属",3,"约 60 分钟","浏览 1134 / 跟拼 19，<strong>全部专属造型里跟拼第一</strong>，已被验证最受欢迎"]],
+ 4:[["练手","四边形密铺 3","Creator 1",1,"约 15 分钟","从最规则的四边形起步"],
+    ["主推","凹多边形密铺","Creator 3",2,"约 30 分钟","凹进去的图形也能密铺？这个反直觉，最值得试"],
+    ["挑战","多边形密铺 1","SteamKit 专属",3,"约 50 分钟","跟拼 3。多种正多边形混合密铺，需要先想清楚谁挨着谁"]],
+ 5:[["练手","五边形的延伸","Basic",1,"约 10 分钟","先看正五边形单独拼会留下什么缝"],
+    ["主推","彭罗斯密铺","Creator 3",2,"约 40 分钟","本讲主作品"],
+    ["挑战","分形","SteamKit 专属",3,"约 60 分钟","浏览 333。自相似结构，比周期图案更接近非周期这个主题"]],
+ 6:[["练手","陀螺 2","Basic",1,"约 10 分钟","先做一个基准陀螺，后面所有对比都跟它比"],
+    ["主推","五瓣花陀螺","Creator 3",2,"约 20 分钟","换转面形状，转转看"],
+    ["挑战","空间十边形陀螺","Creator 3",3,"约 35 分钟","验证「边越多越稳」。三个陀螺同时转，就是课上实验的重演"]],
+ 7:[["练手","棱柱家族","Basic / Creator 1",1,"约 20 分钟","三 / 四 / 五 / 六 / 十棱柱，两底撑柱法连做五遍"],
+    ["主推","扭反三棱柱","Basic",2,"约 15 分钟","上下底面转一下还算柱体吗——这个「咦」很值钱"],
+    ["挑战","卡达西太空站","SteamKit 专属",3,"约 90 分钟","浏览 735 / 跟拼 6。大量柱体桁架组合，柱体主题的天花板"]],
+ 8:[["练手","桁架梁桥","Creator 1",1,"约 25 分钟","上弦、下弦、腹杆，三要素各就各位"],
+    ["主推","拱形桥","Creator 3",2,"约 40 分钟","梯形下弦，桁架换一种几何"],
+    ["挑战","塔吊","SteamKit 专属",3,"约 75 分钟","浏览 790 / 跟拼 11。同样是桁架，换到垂直场景"]],
+ 9:[["练手","棱锥家族","Basic",1,"约 20 分钟","三 / 四 / 五 / 六棱锥，插满一圈出侧棱连做四遍"],
+    ["主推","正四棱台","Basic",2,"约 15 分钟","把锥顶切掉会变成什么——通向第 12 讲的截角"],
+    ["挑战","大热气球","SteamKit 专属",3,"约 60 分钟","跟拼 7。锥体＋球顶＋吊篮，专属造型里跟拼排第五"]],
+ 10:[["练手","正八面体","Creator 3 Pro",1,"约 15 分钟","五种正多面体里最好上手的一个"],
+     ["主推","柏拉图五件套集齐","Basic – Creator 3 Pro",2,"约 60 分钟","正四 / 正六 / 正八 / 正十二 / 正二十面体，一个都不能少"],
+     ["挑战","开普勒模型","SteamKit 专属",3,"约 90 分钟","浏览 549 / 跟拼 9。多面体嵌套的天花板"]],
+ 11:[["练手","三棱柱 ＋ 六棱柱","Basic",1,"约 10 分钟","柱体的泡泡膜长什么样，和多面体一样吗"],
+     ["主推","正八面体","Creator 3 Pro",2,"约 15 分钟","顶点连中心，还是会冒出一个面"],
+     ["挑战","立方体嵌套","Basic",3,"约 30 分钟","双层框架蘸一次，出来的膜最惊人"]],
+ 12:[["练手","阿基米德-截角四面体","Creator 3 Pro",1,"约 20 分钟","最简单的半正多面体，先把「看面、看邻居」的方法练熟"],
+     ["主推","小斜方截半二十面体变体","SteamKit 专属",2,"约 50 分钟","浏览 122。13 种里的另一种，方法完全一样"],
+     ["挑战","截角正十二面体","SteamKit 专属",3,"约 80 分钟","浏览 246。这套套装才拼得出"]],
+ 13:[["练手","螺旋结构","Creator 1",1,"约 15 分钟","先脱离病毒，单独把等夹角螺旋练出来"],
+     ["主推","DNA 结构","Basic",2,"约 35 分钟","浏览 928，全库最高的可拼造型。双螺旋"],
+     ["挑战","旋转楼梯","Creator 1",3,"约 50 分钟","同一个螺旋手法换到建筑场景"]],
+ 14:[["练手","甲烷 ＋ 乙烯 ＋ 乙炔","Basic",1,"约 15 分钟","单键、双键、三键各一个，把编码规则用满"],
+     ["主推","石墨结构 vs 金刚石结构","Creator 1 / Creator 3",2,"约 40 分钟","同样是碳原子，为什么一个软一个硬"],
+     ["挑战","C240 超级富勒烯巴基球","SteamKit 专属",3,"约 120 分钟","浏览 484 / 跟拼 9。足球结构放大到 240 个碳原子"]],
+ 15:[["练手","穹顶 ＋ 穹顶（纯蓝棍）","Creator 1",1,"约 25 分钟","同一个圆顶两种棒色，看孔形选择怎么改变结果"],
+     ["主推","旋转木马","Creator 3",2,"约 70 分钟","本讲主作品，地台＋支柱＋圆顶＋小马"],
+     ["挑战","天坛","SteamKit 专属",3,"约 90 分钟","浏览 1022 / 跟拼 10。真实地标的圆顶。想再大一点可以换复活节蛋（浏览 1493）"]]
+};
+
+/* 练习题：每讲两道。验证题印任务卡背面，观察题印打卡模板。
+   两类都不需要判分——验证题的答案在拼出来的一刻自明，观察题的答案在作品上。 */
+const QUIZ={
+ 1:["有人说「把小棒换长，角就变大了」。用两根短棒和两根长棒各拼一个角，摆在一起，证明他说错了。",
+    "数一数你的刺猬球用了多少根小棒？三角形孔、方形孔、五边形孔各插了几根？"],
+ 2:["有人说「Zometool 拼不出正六边形」。拼一个给他看，并说出你把哪种洞孔朝上。",
+    "挑三个你拼的正多边形，数一数：边数和顶点数是不是一样多？"],
+ 3:["有人说「能转着重合的图形，一定也能对折重合」。拼一个反例出来。",
+    "你的雪花有几条对称轴？转多少分之一圈会和自己重合？"],
+ 4:["随手画一个歪歪扭扭的四边形，照着它拼四个一模一样的，证明这种四边形也能密铺。",
+    "围着中间那颗球一圈，你用了几个图形？它们的角加起来是多少度？"],
+ 5:["有人说「正五边形自己就能密铺」。拼给他看——中间会留下什么？",
+    "找出你拼的图案里重复出现的一组图形，把它向旁边平移，能完全盖住另一组吗？"],
+ 6:["有人说「陀螺越高越稳」。拼两个只有高度不同的陀螺，各转三次，用结果说话。",
+    "你最稳的那个陀螺，转面是几边形？三次分别转了多少秒？"],
+ 7:["有人说「柱体的侧棱可以不一样长」。试着拼一个，看看会发生什么。",
+    "六棱柱用了几颗球、几根棒？和三棱柱比各多了多少？再拼个五棱柱验证你的规律。"],
+ 8:["先拼一座只有上弦下弦、没有腹杆的桥，用手压一压；再把腹杆补上，再压一压。",
+    "你的桁架桥上一共有多少个三角形？"],
+ 9:["有人说「四棱锥有 4 条棱」。数给他看，他错在哪。",
+    "三棱锥、四棱锥、五棱锥各用了几颗球、几根棒？填进表里，找出规律。"],
+ 10:["有人说「存在正十四面体」。用 Zometool 证明他错了——试试一个顶点周围最多能凑几个正三角形、几个正方形、几个正五边形。",
+     "你的正十二面体有几个顶点、几条棱、几个面？把这三个数加加减减，能不能凑出 2？"],
+ 11:["有人说「框架越复杂，泡泡膜就越多」。把正四面体和正方体各蘸一次，对比一下。",
+     "正方体蘸出来的膜，中间是一个点还是一个面？换个方向吹气，它会转吗？"],
+ 12:["有人说「足球上有两个五边形是挨着的」。检查你的球，指出他错在哪。",
+     "数一数你的足球有几个五边形、几个六边形？为什么五边形正好是 12 个？"],
+ 13:["拼螺旋的时候，故意把其中一处的夹角改一下，看看会发生什么。这说明了什么？",
+     "你的螺旋绕了几圈？每一圈用了几根棒？"],
+ 14:["有人递给你一个「一个氧连三个氢」的模型，说这是水。用成键数规则说明它为什么不成立。",
+     "数一数你的丙氨酸模型有几个碳、氢、氧、氮？和分子式 C₃H₇NO₂ 对得上吗？"],
+ 15:["有人说「Zometool 的棒都是直的，所以拼不出圆」。拼一个正十边形给他看，问他像不像圆。",
+     "你的圆顶从下往上数有几层？每层用了几根棒？"]
+};
+
+const TAGNAME={M:"几何",S:"科学",E:"工程",A:"艺术"};
+function chips(t){return '<div class="chips">'+t.map((x,i)=>'<span class="chip '+x+(i?' sub':'')+'">'+x+'</span>').join('')+'</div>';}
+function li(a){return '<ul>'+a.map(x=>'<li>'+x+'</li>').join('')+'</ul>';}
+const TIER={"练手":"t1","主推":"t2","挑战":"t3"};
+function stars(d){
+  let h='';
+  for(let i=1;i<=3;i++) h+='<i'+(i<=d?'':' class="off"')+'>●</i>';
+  return '<span class="stars" title="难度 '+d+' / 3" aria-label="难度 '+d+' 星，满分 3 星">'+h+'</span>';
+}
+function crt(n){
+  const rows=CRT[n]; if(!rows) return '';
+  return '<p class="crt-lead">三选一，也可以都做。<strong>孩子自己挑。</strong></p>'+
+    '<div class="crt">'+rows.map(r=>
+    '<div class="crow"><span class="tier '+TIER[r[0]]+'">'+r[0]+'</span>'+
+    '<div><div class="cline"><span class="cname">'+r[1]+'</span>'+stars(r[3])+'</div>'+
+    '<div class="cmeta"><span class="ckit'+(String(r[2]).indexOf('SteamKit')>=0?' sk':'')+'">'+r[2]+'</span>'+
+    '<span class="ctime">'+r[4]+'</span></div>'+
+    '<span class="cnote">'+r[5]+'</span></div></div>').join('')+'</div>'+
+    '<p class="crt-foot">难度与时长为规划预估，印刷前需用实物校准。</p>';
+}
+
+/* ---- card view ---- */
+const cv=document.getElementById('cardView');
+UNITS.forEach(u=>{
+  const items=L.filter(l=>l.u===u.k);
+  if(!items.length) return;
+  const sec=document.createElement('div');
+  sec.className='unit';
+  sec.innerHTML='<div class="unit-head"><div class="unit-badge"><b>'+u.k+'</b><span>'+u.n+'</span></div>'+
+    '<div><h2>'+u.name+'</h2><p>'+u.desc+'</p></div></div><div class="lessons"></div>';
+  const box=sec.querySelector('.lessons');
+  items.forEach(l=>{
+    const el=document.createElement('div');
+    el.className='lesson';
+    el.dataset.tags=l.tags.join(',');
+    el.innerHTML=
+      '<button class="lrow" aria-expanded="false">'+
+        '<span class="lnum">'+l.n+'</span>'+
+        '<span class="lname">'+l.name+'<em>'+l.code+'</em></span>'+
+        '<span class="lpurpose">'+l.purpose+'</span>'+
+        chips(l.tags)+
+        '<span class="caret" aria-hidden="true">▶</span>'+
+      '</button>'+
+      '<div class="ldetail">'+
+        '<div class="kgrid">'+
+          '<div class="kcell geo"><h4>几何 · 概念与定理</h4>'+li(l.geo)+'</div>'+
+          '<div class="kcell str"><h4>结构 · 构造手法</h4>'+li(l.str)+'</div>'+
+          '<div class="kcell sci"><h4>科普 · 跨学科背景</h4>'+li(l.sci)+'</div>'+
+          '<div class="kcell crt"><h4>创 · 自己选一个</h4>'+crt(l.n)+'</div>'+
+        '</div>'+
+        '<div class="extras">'+
+          '<div class="ex"><b>学 · 今日一招</b>'+l.skill+'</div>'+
+          '<div class="ex"><b>秀 · 造型库延伸入口</b>'+l.lib+'</div>'+
+          (QUIZ[l.n]?'<div class="ex qz"><b>验证题 · 任务卡背面</b>'+QUIZ[l.n][0]+'</div>'+
+                     '<div class="ex qz2"><b>观察题 · 打卡模板</b>'+QUIZ[l.n][1]+'</div>':'')+
+        '</div>'+
+      '</div>';
+    const btn=el.querySelector('.lrow');
+    btn.addEventListener('click',()=>{
+      const open=el.classList.toggle('open');
+      btn.setAttribute('aria-expanded',open?'true':'false');
+    });
+    box.appendChild(el);
+  });
+  cv.appendChild(sec);
+});
+
+/* ---- cut list ---- */
+const cl=document.getElementById('cutList');
+CUT.forEach(c=>{
+  const d=document.createElement('div');
+  d.className='cut';
+  d.innerHTML='<div class="cut-h"><b>'+c.name+'</b><span>'+c.code+'</span></div>'+
+    '<div class="cut-g">'+
+      '<div class="c1"><b>为什么砍</b>'+c.why+'</div>'+
+      '<div class="c2"><b>知识去哪了</b>'+c.to+'</div>'+
+      '<div class="c3"><b>代价</b>'+c.cost+'</div>'+
+    '</div>';
+  cl.appendChild(d);
+});
+
+/* ---- view switch ---- */
+const VIEWS={
+  cards:{btn:'btnCards', el:'cardView'},
+  flow: {btn:'btnFlow',  el:'flowView'}
+};
+const bAll=document.getElementById('btnAll');
+const filterBar=document.querySelector('.filters');
+function setView(v){
+  if(!VIEWS[v]) v='cards';
+  for(const k in VIEWS){
+    const on=(k===v);
+    document.getElementById(VIEWS[k].el).style.display=on?'block':'none';
+    document.getElementById(VIEWS[k].btn).setAttribute('aria-pressed',on?'true':'false');
+  }
+  bAll.style.display=(v==='cards')?'':'none';
+  filterBar.style.display=(v==='cards')?'':'none';
+  const ex=document.getElementById('mapExtras');
+  if(ex) ex.style.display=(v==='flow')?'none':'';
+  try{localStorage.setItem('zome-view',v);}catch(e){}
+}
+for(const k in VIEWS){
+  document.getElementById(VIEWS[k].btn).addEventListener('click',()=>setView(k));
+}
+try{const s=localStorage.getItem('zome-view'); if(s) setView(s);}catch(e){}
+
+/* ---- expand all ---- */
+let allOpen=false;
+bAll.addEventListener('click',()=>{
+  allOpen=!allOpen;
+  document.querySelectorAll('#cardView .lesson').forEach(el=>{
+    el.classList.toggle('open',allOpen);
+    el.querySelector('.lrow').setAttribute('aria-expanded',allOpen?'true':'false');
+  });
+  bAll.textContent=allOpen?'全部收起':'全部展开';
+});
+
+/* ---- filter ---- */
+const active=new Set();
+document.querySelectorAll('.fbtn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    const t=b.dataset.t;
+    if(active.has(t)){active.delete(t);b.setAttribute('aria-pressed','false');}
+    else{active.add(t);b.setAttribute('aria-pressed','true');}
+    applyFilter();
+  });
+});
+function applyFilter(){
+  const on=active.size>0;
+  document.querySelectorAll('#cardView .lesson').forEach(el=>{
+    if(!on){el.classList.remove('dim');return;}
+    const tags=el.dataset.tags.split(',');
+    el.classList.toggle('dim',!tags.some(t=>active.has(t)));
+  });
+}
+</script>
+
+</body>
+</html>
