@@ -1,0 +1,30 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style>.word{font-size:4rem;font-weight:900;text-align:center;padding:36px 0}</style></head>
+<body><div class="wrap"><div class="status"><span id="round"></span><span id="score"></span></div><div class="card"><div id="word" class="word"></div></div><div id="fb" class="feedback"></div><div id="choices" class="choices"></div></div>
+<script src="../../../shared/common.js" data-root="../../../"></script>
+<script>
+var PATH='games/focus/color-match/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
+
+var TITLE={en:'Color Match',zh:'看颜色'};
+Brain.topbar(TITLE);
+var COLORS=[{n:{en:'RED',zh:'红'},c:'#C62828'},{n:{en:'BLUE',zh:'蓝'},c:'#1565C0'},{n:{en:'GREEN',zh:'绿'},c:'#2E7D32'},{n:{en:'ORANGE',zh:'橙'},c:'#E65100'}];
+Brain.intro({title:TITLE,icon:'🎨',rules:{en:'You will see a color word, like <b>RED</b>, painted in some color.<br><br>Tap the <b>color of the paint</b>, not what the word says.<br><br>Example: if you see <b style="color:#1565C0">RED</b>, tap <b>BLUE</b>.',zh:'屏幕上会出现一个颜色字，比如<b>红</b>，但字本身涂着别的颜色。<br><br>请点<b>字的颜色</b>，不要管字写的是什么。<br><br>例如：看到 <b style="color:#1565C0">红</b>，应该点<b>蓝</b>。'}}).then(start);
+function start(){
+  var R=10,r=0,score=0,lock=false,fb=document.getElementById('fb');
+  function round(){
+    if(r>=R)return Brain.finish({id:'color-match',path:PATH,score:score,total:R});
+    r++;lock=false;fb.textContent='';
+    document.getElementById('round').textContent=T({en:'Question '+r+' of '+R,zh:'第 '+r+' 题 / 共 '+R+' 题'});
+    document.getElementById('score').textContent=T({en:'Correct: ',zh:'答对：'})+score;
+    var word=Brain.pick(COLORS),ink=Math.random()<.75?Brain.pick(COLORS.filter(x=>x!==word)):word;
+    var w=document.getElementById('word');w.textContent=T(word.n);w.style.color=ink.c;
+    var ch=document.getElementById('choices');ch.innerHTML='';
+    COLORS.forEach(function(c){var b=document.createElement('button');b.className='choice';b.textContent=T(c.n);b._c=c;
+      b.onclick=function(){if(lock)return;lock=true;
+        if(c===ink){score++;b.classList.add('right');Brain.say(fb,true);setTimeout(round,900)}
+        else{b.classList.add('wrong');Brain.say(fb,false,{en:'The paint color is '+ink.n.en,zh:'字的颜色是'+ink.n.zh});
+          [...ch.children].find(x=>x._c===ink).classList.add('right');setTimeout(round,1800)}};
+      ch.appendChild(b)});
+  }round();
+}
+</script></body></html>

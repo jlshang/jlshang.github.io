@@ -1,0 +1,36 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style>.bill{font-size:1.4rem}.bill .row{display:flex;justify-content:space-between;padding:6px 0}.bill .row b{font-size:1.7rem}.hint{font-size:1rem}</style></head>
+<body><div class="wrap"><div class="status"><span id="round"></span><span id="score"></span></div><div id="q" class="card bill"></div><div id="fb" class="feedback"></div><div id="choices" class="choices"></div></div>
+<script src="../../../shared/common.js" data-root="../../../"></script>
+<script>
+var PATH='games/math/tip-calculator/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
+
+/* English: restaurant tip. Chinese: store discount (打折), since tipping is not common in China. */
+var TITLE={en:'Tip Time',zh:'打折算账'};
+Brain.topbar(TITLE);
+var PLACES=ZH?['超市','服装店','鞋店','水果店','商场']:['the diner','a pizza place','the coffee shop','a family restaurant','the barber shop'];
+Brain.intro({title:TITLE,icon:ZH?'🏷️':'🍽️',rules:{en:'You finished a meal and want to leave a tip.<br><br>Look at the bill and the tip percent.<br><br>Tap the right <b>tip amount</b>.<br><br><span class="muted">Tip: 10% means move the decimal point one place left. 20% is double that.</span>',zh:'商店在搞打折活动。<br><br>看看<b>原价</b>和<b>打几折</b>。<br><br>请选出<b>打折后要付多少钱</b>。<br><br><span class="muted">小提示：打8折就是原价乘以0.8。100元打8折是80元。</span>'}}).then(start);
+function $(c){return ZH?'¥'+(c/100).toFixed(c%100?1:0):'$'+(c/100).toFixed(2)}
+function start(){
+  var R=6,r=0,score=0,fb=document.getElementById('fb');
+  function round(){
+    if(r>=R)return Brain.finish({id:'tip-calculator',path:PATH,score:score,total:R});
+    r++;fb.textContent='';
+    document.getElementById('round').textContent=T({en:'Question '+r+' of '+R,zh:'第 '+r+' 题 / 共 '+R+' 题'});document.getElementById('score').textContent=T({en:'Correct: ',zh:'答对：'})+score;
+    var ans,bill,pct,q=document.getElementById('q'),cands;
+    if(ZH){var z=r<=2?Brain.pick([9,8]):r<=4?Brain.pick([5,7,6]):Brain.pick([7.5,8.5]);bill=Brain.rand(r<=2?1:2,r<=4?10:20)*(z%1?2000:1000);ans=Math.round(bill*z/10);
+      q.innerHTML='<p style="margin-top:0">在<b>'+Brain.pick(PLACES)+'</b>买东西。</p><div class="row"><span>原价</span><b>'+$(bill)+'</b></div><div class="row"><span>折扣</span><b>打 '+z+' 折</b></div><div class="row"><span>要付</span><b>?</b></div>';
+      cands=[bill*(z-1)/10,bill*(z+1)/10,bill*(10-z)/10,ans+1000,ans-500];}
+    else{pct=r<=2?10:r<=4?20:15;bill=Brain.rand(2,9)*1000+(r>2?Brain.rand(0,1)*500:0);ans=Math.round(bill*pct/100);
+      q.innerHTML='<p style="margin-top:0">Dinner at <b>'+Brain.pick(PLACES)+'</b>.</p><div class="row"><span>Bill</span><b>'+$(bill)+'</b></div><div class="row"><span>Tip</span><b>'+pct+'%</b></div><div class="row"><span>Tip amount</span><b>?</b></div>'+(pct===15?'<p class="muted hint">15% = 10% plus half of 10%</p>':'');
+      cands=[bill*10/100,bill*20/100,bill*15/100,ans+100,ans-100,ans*2];}
+    var set=new Set([ans]);cands.forEach(v=>{v=Math.round(v);if(set.size<4&&v>0)set.add(v)});
+    var ch=document.getElementById('choices');ch.innerHTML='';var lock=false;
+    Brain.shuffle([...set]).forEach(function(v){var b=document.createElement('button');b.className='choice';b.textContent=$(v);b._v=v;
+      b.onclick=function(){if(lock)return;lock=true;
+        if(v===ans){score++;b.classList.add('right');Brain.say(fb,true);setTimeout(round,1000)}
+        else{b.classList.add('wrong');[...ch.children].find(x=>x._v===ans).classList.add('right');Brain.say(fb,false,ZH?$(bill)+' 打 '+z+' 折是 '+$(ans):pct+'% of '+$(bill)+' is '+$(ans));setTimeout(round,2500)}};
+      ch.appendChild(b)});
+  }round();
+}
+</script></body></html>

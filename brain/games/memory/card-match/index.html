@@ -1,0 +1,25 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style>.board{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}@media(min-width:560px){.board{grid-template-columns:repeat(4,1fr)}}.mc{aspect-ratio:3/4;border-radius:16px;border:3px solid var(--primary);background:var(--primary);font-size:2.8rem;cursor:pointer;color:#fff}.mc.open{background:#fff;color:inherit}.mc.gone{background:#E3F4EE;border-color:var(--good);cursor:default}</style></head>
+<body><div class="wrap"><div class="status"><span id="pairs"></span><span id="tries"></span></div><div id="board" class="board"></div><div id="fb" class="feedback"></div></div>
+<script src="../../../shared/common.js" data-root="../../../"></script>
+<script>
+var PATH='games/memory/card-match/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
+
+var TITLE={en:'Card Match',zh:'翻牌配对'};
+Brain.topbar(TITLE);
+var ICONS=ZH?['🍎','🏮','🥟','🐼','🚲','🌻','🐶','🍵']:['🍎','⚾','🥧','📮','🚌','🌻','🐶','☕'];
+Brain.intro({title:TITLE,icon:'🧩',rules:{en:'All the cards are face down.<br><br>Tap two cards to turn them over. If the pictures <b>match</b>, they stay open.<br><br>Try to remember where each picture is!',zh:'所有的牌都扣着。<br><br>每次点两张牌翻开，如果图案<b>一样</b>，就会一直翻着。<br><br>记住每张图案在哪里！'}}).then(start);
+function start(){
+  var P=6,deck=Brain.shuffle(Brain.shuffle(ICONS).slice(0,P).flatMap(x=>[x,x])),open=[],found=0,tries=0,busy=false;
+  var board=document.getElementById('board'),fb=document.getElementById('fb');
+  function upd(){document.getElementById('pairs').textContent=T({en:'Pairs found: '+found+' of '+P,zh:'找到 '+found+' / '+P+' 对'});document.getElementById('tries').textContent=T({en:'Tries: ',zh:'翻了：'})+tries+T({en:'',zh:' 次'})}
+  deck.forEach(function(icon){var b=document.createElement('button');b.className='mc';b.textContent='?';b.setAttribute('aria-label','card');
+    b.onclick=function(){if(busy||b.classList.contains('open'))return;b.classList.add('open');b.textContent=icon;open.push([b,icon]);
+      if(open.length===2){tries++;busy=true;var[a,c]=open;
+        if(a[1]===c[1]){setTimeout(function(){a[0].classList.add('gone');c[0].classList.add('gone');found++;open=[];busy=false;Brain.say(fb,true,{en:'A match!',zh:'配对成功！'});upd();
+          if(found===P)Brain.finish({id:'card-match',path:PATH,score:P,total:P,note:{en:'Found all pairs in '+tries+' tries',zh:'翻了 '+tries+' 次找到全部'}})},500)}
+        else setTimeout(function(){[a,c].forEach(x=>{x[0].classList.remove('open');x[0].textContent='?'});open=[];busy=false;fb.textContent=''},1300);
+        upd()}};
+    board.appendChild(b)});upd();
+}
+</script></body></html>

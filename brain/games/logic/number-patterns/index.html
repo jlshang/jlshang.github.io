@@ -1,0 +1,36 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style>.seq{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}.seq div{min-width:70px;padding:14px 10px;border-radius:14px;background:#fff;border:3px solid var(--line);font-size:1.9rem;font-weight:800;text-align:center}.seq .q{border-color:var(--primary);color:var(--primary)}</style></head>
+<body><div class="wrap"><div class="status"><span id="round"></span><span id="score"></span></div><div class="card"><p class="center" style="margin-top:0" id="ask"></p><div id="seq" class="seq"></div></div><div id="fb" class="feedback"></div><div id="choices" class="choices"></div></div>
+<script src="../../../shared/common.js" data-root="../../../"></script>
+<script>
+var PATH='games/logic/number-patterns/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
+
+var TITLE={en:'Number Patterns',zh:'数字规律'};
+Brain.topbar(TITLE);
+document.getElementById('ask').textContent=T({en:'What number comes next?',zh:'下一个数是几？'});
+Brain.intro({title:TITLE,icon:'🧮',rules:{en:'You will see a row of numbers that follow a <b>pattern</b>.<br><br>Example: 2, 4, 6, 8 … the next number is <b>10</b> (add 2 each time).<br><br>Tap the number that comes next.',zh:'屏幕上有一排数字，它们按<b>规律</b>排列。<br><br>例如：2、4、6、8……下一个是 <b>10</b>（每次加 2）。<br><br>请选出下一个数。'}}).then(start);
+var MAKERS=[
+ [1,function(){var a=Brain.rand(1,9),d=Brain.rand(2,5);return{s:[0,1,2,3].map(i=>a+d*i),n:a+d*4,why:{en:'Add '+d+' each time',zh:'每次加 '+d}}}],
+ [1,function(){var d=Brain.rand(2,4),a=d*Brain.rand(6,10);return{s:[0,1,2,3].map(i=>a-d*i),n:a-d*4,why:{en:'Take away '+d+' each time',zh:'每次减 '+d}}}],
+ [2,function(){var a=Brain.rand(1,3);return{s:[0,1,2,3].map(i=>a*Math.pow(2,i)),n:a*16,why:{en:'Double it each time',zh:'每次乘以 2'}}}],
+ [2,function(){var a=Brain.rand(1,5);return{s:[0,1,2,3].map(i=>a+i*(i+1)/2),n:a+10,why:{en:'Add 1, then 2, then 3, then 4',zh:'依次加 1、加 2、加 3、加 4'}}}],
+ [3,function(){var a=Brain.rand(1,5),b=Brain.rand(6,9);return{s:[a,b,a+1,b+1,a+2],n:b+2,why:{en:'Two patterns taking turns, each going up by 1',zh:'两组数字交替出现，每组每次加 1'}}}],
+ [3,function(){return{s:[1,4,9,16],n:25,why:{en:'1×1, 2×2, 3×3, 4×4, then 5×5',zh:'1×1、2×2、3×3、4×4，下一个是 5×5'}}}]
+];
+function start(){
+  var R=8,r=0,score=0,fb=document.getElementById('fb');
+  function round(){
+    if(r>=R)return Brain.finish({id:'number-patterns',path:PATH,score:score,total:R});
+    r++;fb.textContent='';var lvl=r<=3?1:r<=6?2:3,q=Brain.pick(MAKERS.filter(m=>m[0]<=lvl&&m[0]>=lvl-1))[1]();
+    document.getElementById('round').textContent=T({en:'Question '+r+' of '+R,zh:'第 '+r+' 题 / 共 '+R+' 题'});document.getElementById('score').textContent=T({en:'Correct: ',zh:'答对：'})+score;
+    document.getElementById('seq').innerHTML=q.s.map(x=>'<div>'+x+'</div>').join('')+'<div class="q">?</div>';
+    var set=new Set([q.n]);[q.n+1,q.n-1,q.n+2,q.n-2,q.n+10].forEach(v=>{if(set.size<4&&v>=0)set.add(v)});
+    var ch=document.getElementById('choices');ch.innerHTML='';var lock=false;
+    Brain.shuffle([...set]).forEach(function(v){var b=document.createElement('button');b.className='choice';b.textContent=v;
+      b.onclick=function(){if(lock)return;lock=true;
+        if(v===q.n){score++;b.classList.add('right');Brain.say(fb,true,{en:'Right! '+q.why.en,zh:'对了！'+q.why.zh});setTimeout(round,1800)}
+        else{b.classList.add('wrong');[...ch.children].find(x=>+x.textContent===q.n).classList.add('right');Brain.say(fb,false,{en:'It is '+q.n+'. '+q.why.en,zh:'答案是 '+q.n+'。'+q.why.zh});setTimeout(round,2800)}};
+      ch.appendChild(b)});
+  }round();
+}
+</script></body></html>

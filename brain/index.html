@@ -1,0 +1,41 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brain Buddy</title><link rel="stylesheet" href="shared/style.css">
+<style>
+.hero{background:var(--primary);color:#fff;border-radius:24px;padding:28px 20px;text-align:center}
+.hero h1{margin:0 0 6px;font-size:1.8rem}.hero p{margin:0 0 20px;opacity:.9}
+.hero .btn{background:#fff;color:var(--primary);border-color:#fff;width:100%;min-height:80px;font-size:1.4rem}
+.cat h2{font-size:1.3rem;margin:28px 0 12px}
+.game{display:flex;align-items:center;gap:16px;text-decoration:none;color:inherit;margin-bottom:12px;min-height:84px}
+.game b{font-size:1.2rem;display:block}.game span{color:var(--muted);font-size:1rem}
+.game .arrow{margin-left:auto;font-size:1.6rem;color:var(--primary)}
+.streak{text-align:center;margin-top:12px;color:var(--muted)}
+</style></head><body><div class="wrap">
+<div class="topbar"><span></span><span id="lang"></span></div>
+<div class="hero"><h1 id="appname"></h1><p id="today"></p>
+<button class="btn" id="daily"></button></div>
+<p class="streak" id="streak"></p>
+<div id="list"></div>
+</div>
+<script src="shared/games.js"></script><script src="shared/common.js" data-root="./"></script>
+<script>
+var T=Brain.T;document.getElementById('lang').innerHTML=Brain.langBtn();
+document.title=T({en:'Brain Buddy',zh:'脑力伙伴'});
+document.getElementById('appname').textContent='🧠 '+document.title;
+document.getElementById('today').textContent=T({en:'Your 10-minute daily brain workout',zh:'每天10分钟，动动脑'});
+document.getElementById('daily').textContent=T({en:"Start Today's Workout",zh:'开始今天的训练'});
+var list=document.getElementById('list'),all=[];
+GAMES.forEach(function(c){
+  var s='<section class="cat"><h2>'+c.icon+' '+T(c.cat)+'</h2>';
+  c.items.forEach(function(g){all.push({g:g,c:c});s+='<a class="card game" href="'+g.path+'"><div><b>'+T(g.name)+'</b><span>'+T(g.desc)+'</span></div><div class="arrow">›</div></a>'});
+  list.insertAdjacentHTML('beforeend',s+'</section>');
+});
+document.getElementById('daily').onclick=function(){
+  /* 3 games from 3 different categories */
+  var cats=Brain.shuffle(GAMES).slice(0,3),q=cats.map(function(c){return Brain.pick(c.items).path});
+  try{sessionStorage.setItem('dailyQueue',JSON.stringify(q))}catch(e){}
+  location.href=q[0];
+};
+var h=Brain.store('history')||[],days={};h.forEach(function(r){days[r.date]=1});
+var today=new Date().toISOString().slice(0,10),n=h.filter(function(r){return r.date===today}).length;
+document.getElementById('streak').textContent=Object.keys(days).length?T({en:'Games played today: '+n+'  ·  Days practiced: '+Object.keys(days).length,zh:'今天玩了 '+n+' 个游戏  ·  累计练习 '+Object.keys(days).length+' 天'}):'';
+</script></body></html>

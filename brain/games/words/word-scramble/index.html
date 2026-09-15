@@ -1,0 +1,35 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style>.slots,.tiles{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:14px 0}.tile,.slot{width:64px;height:68px;border-radius:14px;font-size:1.8rem;font-weight:800;display:flex;align-items:center;justify-content:center}.tile{background:#fff;border:3px solid var(--primary);color:var(--ink);cursor:pointer}.tile:disabled{opacity:.25}.slot{border:3px dashed var(--line);background:#fff}.slot.f{border-style:solid;border-color:var(--primary)}.clue{font-size:1.2rem;text-align:center}.row2{display:flex;gap:12px}.row2 .btn{flex:1}</style></head>
+<body><div class="wrap"><div class="status"><span id="round"></span><span id="score"></span></div><div class="card"><p class="clue" id="clue"></p><div id="slots" class="slots"></div><div id="tiles" class="tiles"></div></div><div id="fb" class="feedback"></div><div class="row2"><button class="btn secondary" id="undo"></button><button class="btn secondary" id="skip"></button></div></div>
+<script src="../../../shared/common.js" data-root="../../../"></script>
+<script>
+var PATH='games/words/word-scramble/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
+
+/* English: unscramble a word. Chinese: put idiom characters in order (成语排序). */
+var TITLE={en:'Word Scramble',zh:'成语排序'};
+Brain.topbar(TITLE);
+document.getElementById('undo').textContent=T({en:'Undo',zh:'退一步'});document.getElementById('skip').textContent=T({en:'Show answer',zh:'看答案'});
+var WORDS=ZH?[['画龙点睛','在关键地方加一笔，让整体更生动'],['守株待兔','不主动努力，只等好运上门'],['亡羊补牢','出了问题及时补救还不晚'],['对牛弹琴','说话不看对象'],['井底之蛙','见识很少的人'],['胸有成竹','做事前心里早有打算'],['半途而废','事情做到一半就放弃'],['百发百中','每次都打中目标'],['马到成功','一开始就取得成功'],['春暖花开','春天天气暖和，花儿开放'],['一石二鸟','做一件事得到两个好处'],['助人为乐','把帮助别人当成快乐']]
+ :[['CAT','A pet that says meow'],['BOOK','You read it'],['GARDEN','Where flowers grow'],['APPLE','A red or green fruit'],['PIANO','A musical instrument with keys'],['COFFEE','A morning drink'],['SUNDAY','A day of the week'],['BRIDGE','It crosses a river'],['CANDLE','It gives light on a cake'],['SUMMER','The warmest season'],['PENCIL','You write with it'],['TRAIN','It runs on tracks']];
+Brain.intro({title:TITLE,icon:ZH?'📜':'🔤',rules:{en:'The letters of a word are mixed up.<br><br>Read the <b>clue</b>, then tap the letters in the right order to spell the word.<br><br>Made a mistake? Tap <b>Undo</b>.',zh:'一个四字成语的字被打乱了。<br><br>先看<b>提示</b>，再按正确的顺序点字，拼出成语。<br><br>点错了？点<b>退一步</b>。'}}).then(start);
+function start(){
+  var list=ZH?Brain.shuffle(WORDS).slice(0,6):Brain.shuffle(WORDS.filter(w=>w[0].length<=5)).slice(0,3).concat(Brain.shuffle(WORDS.filter(w=>w[0].length>5)).slice(0,3));
+  var R=list.length,r=0,score=0,fb=document.getElementById('fb'),word,typed,used,done;
+  function round(){
+    if(r>=R)return Brain.finish({id:'word-scramble',path:PATH,score:score,total:R});
+    word=list[r][0];document.getElementById('clue').textContent=T({en:'Clue: ',zh:'提示：'})+list[r][1];r++;typed=[];used=[];done=false;fb.textContent='';
+    document.getElementById('round').textContent=T({en:'Word '+r+' of '+R,zh:'第 '+r+' 个 / 共 '+R+' 个'});document.getElementById('score').textContent=T({en:'Solved: ',zh:'答对：'})+score;
+    var letters=Array.from(word);do{letters=Brain.shuffle(letters)}while(letters.join('')===word);
+    var tiles=document.getElementById('tiles');tiles.innerHTML='';
+    letters.forEach(function(L){var b=document.createElement('button');b.className='tile';b.textContent=L;
+      b.onclick=function(){if(done)return;b.disabled=true;typed.push(L);used.push(b);draw();check()};tiles.appendChild(b)});draw();
+  }
+  function draw(){document.getElementById('slots').innerHTML=Array.from(word).map((_,i)=>'<div class="slot'+(typed[i]?' f':'')+'">'+(typed[i]||'')+'</div>').join('')}
+  function check(){if(typed.length<Array.from(word).length)return;
+    if(typed.join('')===word){done=true;score++;Brain.say(fb,true,{en:'Yes! '+word,zh:'对了！'+word});Brain.speak(word);setTimeout(round,1400)}
+    else{Brain.say(fb,false,{en:'Not quite. Tap Undo and try again.',zh:'顺序不对，点"退一步"再试试。'})}}
+  document.getElementById('undo').onclick=function(){if(done||!used.length)return;used.pop().disabled=false;typed.pop();fb.textContent='';draw()};
+  document.getElementById('skip').onclick=function(){if(done)return;done=true;typed=Array.from(word);draw();Brain.say(fb,false,{en:'The word is '+word,zh:'答案是：'+word});setTimeout(round,2000)};
+  round();
+}
+</script></body></html>

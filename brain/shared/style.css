@@ -1,0 +1,29 @@
+:root{--bg:#FFF8EE;--card:#fff;--ink:#1F2A37;--muted:#5B6675;--primary:#1E6F5C;--primary-ink:#fff;--good:#1E6F5C;--warn:#B54708;--line:#E6DCCB;--radius:18px}
+*{box-sizing:border-box}
+html{font-size:20px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.4;-webkit-tap-highlight-color:transparent}
+.wrap{max-width:720px;margin:0 auto;padding:16px 16px 48px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.topbar h1{font-size:1.4rem;margin:0}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:64px;padding:0 28px;border-radius:var(--radius);border:2px solid var(--primary);background:var(--primary);color:var(--primary-ink);font-size:1.15rem;font-weight:700;text-decoration:none;cursor:pointer;user-select:none}
+.btn.secondary{background:#fff;color:var(--primary)}
+.btn.small{min-height:52px;padding:0 18px;font-size:1rem}
+.btn.block{width:100%}
+.btn:active{transform:scale(.98)}
+.card{background:var(--card);border:2px solid var(--line);border-radius:var(--radius);padding:20px}
+.center{text-align:center}
+.stack>*+*{margin-top:16px}
+.muted{color:var(--muted)}
+.big{font-size:2.2rem;font-weight:800}
+.huge{font-size:3.2rem;font-weight:800;letter-spacing:.02em}
+.status{display:flex;justify-content:space-between;font-size:1.05rem;color:var(--muted);margin-bottom:12px}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.choice{min-height:84px;border-radius:var(--radius);border:3px solid var(--line);background:#fff;font-size:1.5rem;font-weight:700;color:var(--ink);cursor:pointer}
+.choice.right{border-color:var(--good);background:#E3F4EE}
+.choice.wrong{border-color:var(--warn);background:#FDEBDD}
+.feedback{min-height:1.8em;font-size:1.25rem;font-weight:700;text-align:center;margin:12px 0}
+.feedback.good{color:var(--good)}.feedback.try{color:var(--warn)}
+.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.overlay{position:fixed;inset:0;background:var(--bg);overflow:auto;z-index:10}
+[hidden]{display:none!important}

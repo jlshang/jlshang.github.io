@@ -1,0 +1,29 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style>.grid{display:grid;gap:10px}.cell{aspect-ratio:1;border-radius:16px;border:3px solid var(--line);background:#fff;font-size:2rem;font-weight:800;color:var(--ink);cursor:pointer}.cell.done{background:#E3F4EE;border-color:var(--good);color:var(--good)}</style></head>
+<body><div class="wrap"><div class="status"><span id="find"></span><span id="time"></span></div><div id="grid" class="grid"></div><div id="fb" class="feedback"></div></div>
+<script src="../../../shared/common.js" data-root="../../../"></script>
+<script>
+var PATH='games/focus/number-grid/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
+
+var TITLE={en:'Number Grid',zh:'数字方格'};
+Brain.topbar(TITLE);
+Brain.intro({title:TITLE,icon:'🎯',rules:{en:'Numbers are mixed up on the board.<br><br>Tap them <b>in order</b>: 1, then 2, then 3… all the way up.<br><br>Take your time. There is no rush.',zh:'方格里的数字是打乱的。<br><br>请<b>按顺序</b>点：先点 1，再点 2，再点 3……一直点到最大的数。<br><br>慢慢来，不着急。'}}).then(start);
+function start(){
+  var size=(Brain.store('ng-size')||3), N=size*size, next=1, miss=0, t0=Date.now();
+  var grid=document.getElementById('grid'), fb=document.getElementById('fb');
+  grid.style.gridTemplateColumns='repeat('+size+',1fr)';
+  Brain.shuffle(Array.from({length:N},(_,i)=>i+1)).forEach(function(n){
+    var b=document.createElement('button');b.className='cell';b.textContent=n;
+    b.onclick=function(){
+      if(n===next){b.classList.add('done');next++;fb.textContent='';
+        if(next>N){clearInterval(tm);var s=Math.round((Date.now()-t0)/1000);
+          if(miss<=1&&size<5)Brain.store('ng-size',size+1); else if(miss>4&&size>3)Brain.store('ng-size',size-1);
+          Brain.finish({id:'number-grid',path:PATH,score:N-Math.min(miss,N),total:N,note:{en:'Finished in '+s+' seconds'+(miss?' · '+miss+' extra taps':''),zh:'用时 '+s+' 秒'+(miss?' · 点错 '+miss+' 次':'')}});}
+        else upd();
+      } else if(n>next){miss++;b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');Brain.say(fb,false,{en:'Look for '+next,zh:'找一找 '+next});}
+    };grid.appendChild(b);
+  });
+  function upd(){document.getElementById('find').textContent=T({en:'Find: ',zh:'请找：'})+next}
+  var tm=setInterval(function(){document.getElementById('time').textContent=Math.round((Date.now()-t0)/1000)+T({en:'s',zh:' 秒'})},1000);upd();
+}
+</script></body></html>

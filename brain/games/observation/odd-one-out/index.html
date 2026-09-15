@@ -1,0 +1,26 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style>.og{display:grid;gap:10px}.oc{aspect-ratio:1;border-radius:14px;border:3px solid var(--line);background:#fff;cursor:pointer;font-size:2.4rem;padding:0}.oc.right{border-color:var(--good);background:#E3F4EE}.oc.wrong{border-color:var(--warn)}</style></head>
+<body><div class="wrap"><div class="status"><span id="round"></span><span id="score"></span></div><div id="grid" class="og"></div><div id="fb" class="feedback"></div></div>
+<script src="../../../shared/common.js" data-root="../../../"></script>
+<script>
+var PATH='games/observation/odd-one-out/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
+
+var TITLE={en:'Odd One Out',zh:'找不同'};
+Brain.topbar(TITLE);
+var PAIRS=[['🍎','🍏'],['🐶','🐱'],['☀️','🌙'],['🚗','🚕'],['🌷','🌹'],['⚽','🏀'],['😀','😢'],['🔑','🔒'],['🐟','🐠'],['🍋','🍊'],['🎈','🎀'],['🥛','🧃']];
+Brain.intro({title:TITLE,icon:'🔍',rules:{en:'All the pictures look the same, except <b>one</b>.<br><br>Find the picture that is <b>different</b> and tap it.',zh:'这些图片看起来都一样，只有<b>一个</b>不一样。<br><br>找出那个<b>不一样</b>的，点一下。'}}).then(start);
+function start(){
+  var R=8,r=0,score=0,miss=false,fb=document.getElementById('fb'),grid=document.getElementById('grid'),order=Brain.shuffle(PAIRS);
+  function round(){
+    if(r>=R)return Brain.finish({id:'odd-one-out',path:PATH,score:score,total:R});
+    var p=order[r%order.length];r++;miss=false;fb.textContent='';
+    var size=r<=3?3:r<=6?4:5,N=size*size,odd=Brain.rand(0,N-1),flip=Math.random()<.5,base=flip?p[1]:p[0],diff=flip?p[0]:p[1];
+    document.getElementById('round').textContent=T({en:'Picture '+r+' of '+R,zh:'第 '+r+' 题 / 共 '+R+' 题'});document.getElementById('score').textContent=T({en:'Found: ',zh:'找到：'})+score;
+    grid.style.gridTemplateColumns='repeat('+size+',1fr)';grid.style.fontSize=size>4?'.8em':'1em';grid.innerHTML='';
+    for(let i=0;i<N;i++){let b=document.createElement('button');b.className='oc';b.textContent=i===odd?diff:base;
+      b.onclick=function(){if(i===odd){if(!miss)score++;b.classList.add('right');Brain.say(fb,true);grid.querySelectorAll('.oc').forEach(x=>x.onclick=null);setTimeout(round,1000)}
+        else{miss=true;b.classList.add('wrong');Brain.say(fb,false,{en:'Look again, it is close!',zh:'再仔细看看，差一点！'})}};
+      grid.appendChild(b)}
+  }round();
+}
+</script></body></html>

@@ -1,0 +1,35 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style>.items{display:grid;grid-template-columns:1fr 1fr;gap:14px}.item{background:#fff;border:3px solid var(--line);border-radius:16px;padding:18px 8px;text-align:center;font-size:1.25rem;font-weight:700;color:var(--ink)}.item .e{font-size:2.6rem;display:block}.pick{cursor:pointer}.pick.sel{border-color:var(--primary);background:#E3F4EE}.pick.miss{border-color:var(--warn)}.pick.bad{border-color:var(--warn);background:#FDEBDD}</style></head>
+<body><div class="wrap"><div class="status"><span id="round"></span><span id="phase"></span></div><div id="stage" class="stack"></div><div id="fb" class="feedback"></div></div>
+<script src="../../../shared/common.js" data-root="../../../"></script>
+<script>
+var PATH='games/memory/shopping-list/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
+
+var TITLE={en:'Shopping List',zh:'购物清单'};
+Brain.topbar(TITLE);
+var FOOD=ZH?[['🥛','牛奶'],['🥚','鸡蛋'],['🍞','面包'],['🍌','香蕉'],['🥟','饺子'],['🍚','大米'],['🍎','苹果'],['🥬','青菜'],['🧄','大蒜'],['🐟','鱼'],['🍗','鸡腿'],['🥕','胡萝卜'],['🍵','茶叶'],['🍊','橘子'],['🥔','土豆'],['🍅','西红柿']]
+ :[['🥛','Milk'],['🥚','Eggs'],['🍞','Bread'],['🍌','Bananas'],['🧀','Cheese'],['🥓','Bacon'],['🍎','Apples'],['🥯','Bagels'],['🧈','Butter'],['🥫','Soup'],['🍗','Chicken'],['🥕','Carrots'],['☕','Coffee'],['🍊','Oranges'],['🥣','Cereal'],['🍅','Tomatoes']];
+Brain.intro({title:TITLE,icon:'🛒',rules:{en:'You will see a short <b>shopping list</b>.<br><br>Look at it carefully. When you are ready, tap <b>I\'m ready</b>.<br><br>Then tap the items that were on your list.',zh:'屏幕上会出现一张<b>购物清单</b>。<br><br>仔细看一看，记住了就点<b>我记住了</b>。<br><br>然后把清单上的东西选出来。'}}).then(start);
+function start(){
+  var R=4,r=0,score=0,total=0,stage=document.getElementById('stage'),fb=document.getElementById('fb');
+  function round(){
+    if(r>=R)return Brain.finish({id:'shopping-list',path:PATH,score:score,total:total});
+    r++;fb.textContent='';var n=2+r,pool=Brain.shuffle(FOOD),list=pool.slice(0,n),opts=Brain.shuffle(pool.slice(0,n+Math.min(4,n)));
+    document.getElementById('round').textContent=T({en:'List '+r+' of '+R,zh:'第 '+r+' 张 / 共 '+R+' 张'});document.getElementById('phase').textContent=T({en:'Remember',zh:'请记住'});
+    stage.innerHTML='<div class="items">'+list.map(f=>'<div class="item"><span class="e">'+f[0]+'</span>'+f[1]+'</div>').join('')+'</div><button class="btn block" id="ready">'+T({en:"I'm ready",zh:'我记住了'})+'</button>';
+    Brain.speak(T({en:'Remember: ',zh:'请记住：'})+list.map(f=>f[1]).join(ZH?'，':', '));
+    document.getElementById('ready').onclick=function(){
+      document.getElementById('phase').textContent=T({en:'Pick '+n+' items',zh:'选出 '+n+' 样'});
+      stage.innerHTML='<p class="center">'+T({en:'Which items were on your list? Pick <b>'+n+'</b>.',zh:'清单上有哪些东西？请选出 <b>'+n+'</b> 样。'})+'</p><div class="items">'+opts.map((f,i)=>'<button class="item pick" data-i="'+i+'"><span class="e">'+f[0]+'</span>'+f[1]+'</button>').join('')+'</div><button class="btn block" id="check">'+T({en:'Check my answer',zh:'看看答案'})+'</button>';
+      stage.querySelectorAll('.pick').forEach(b=>b.onclick=()=>b.classList.toggle('sel'));
+      document.getElementById('check').onclick=function(){
+        var got=0,wrong=0;stage.querySelectorAll('.pick').forEach(function(b){var on=list.includes(opts[b.dataset.i]),sel=b.classList.contains('sel');b.onclick=null;
+          if(on&&sel)got++;else if(on){b.classList.add('miss')}else if(sel){wrong++;b.classList.add('bad');b.classList.remove('sel')}
+          if(on)b.classList.add('sel')});
+        var pts=Math.max(0,got-wrong);score+=pts;total+=n;
+        Brain.say(fb,pts===n,pts===n?{en:'Perfect memory!',zh:'全记住了，真棒！'}:{en:'You remembered '+got+' of '+n,zh:'记住了 '+got+' 样，共 '+n+' 样'});
+        this.textContent=T(r<R?{en:'Next list',zh:'下一张'}:{en:'See results',zh:'看成绩'});this.onclick=round;};
+    };
+  }round();
+}
+</script></body></html>
