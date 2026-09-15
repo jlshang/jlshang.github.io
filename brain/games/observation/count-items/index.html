@@ -1,0 +1,24 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style>.scene{position:relative;height:300px;background:var(--surface-2);border-radius:16px;margin-top:4px}.scene span{position:absolute;width:46px;height:46px}.target{display:inline-block;width:48px;height:48px;vertical-align:middle}</style></head>
+<body><div class="wrap"></div>
+<script src="../../../shared/icons.js"></script>
+<script src="../../../shared/common.js" data-root="../../../"></script>
+<script>
+var PATH='games/observation/count-items/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
+
+Brain.run({id:'count-items',cat:'observation',icon:'dots',title:{en:'How Many?',zh:'数一数'},
+ rules:{en:'Some pictures are scattered in a box.<br><br>Count only the kind you are asked about, and tap the number.',zh:'方框里散落着一些图片。<br><br>只数题目问的那一种，点出数量。'}},
+function(L){
+  var keys=Object.keys(ITEMS);
+  Brain.quiz({rounds:8,make:function(){
+    var kinds=L<=3?1:L<=6?2:3,sel=Brain.shuffle(keys).slice(0,kinds),target=sel[0];
+    var count=L<=3?Brain.rand(2,4+L):L<=6?Brain.rand(3,8):Brain.rand(4,Math.min(12,6+L-6));
+    var list=Array(count).fill(target);for(var k=1;k<kinds;k++)for(var j=0;j<Brain.rand(2,4);j++)list.push(sel[k]);
+    /* place on a loose grid with jitter so nothing overlaps */
+    var cols=5,rows=Math.ceil(24/cols),slots=Brain.shuffle(Array.from({length:25},(_,i)=>i)).slice(0,list.length);
+    var scene='<div class="scene">'+Brain.shuffle(list).map((k,i)=>{var s=slots[i],x=(s%5)*19+2+Brain.rand(0,3),y=Math.floor(s/5)*19+2+Brain.rand(0,3);return '<span style="left:'+x+'%;top:'+y+'%">'+ITEMS[k].svg+'</span>'}).join('')+'</div>';
+    var s=new Set([count]);[count+1,count-1,count+2,count-2].forEach(v=>{if(s.size<(L<=2?3:4)&&v>0)s.add(v)});
+    return{q:'<p class="qline">'+T({en:'How many ',zh:'有几个'})+'<span class="target">'+ITEMS[target].svg+'</span>'+T({en:' '+ITEMS[target].en.toLowerCase()+'?',zh:ITEMS[target].zh+'？'})+'</p>'+scene,
+      choices:Brain.shuffle([...s]).sort((a,b)=>a-b).map(v=>({html:v,v:v})),answer:count,cols:s.size,explain:{en:'There are '+count+'.',zh:'一共有 '+count+' 个。'}}}});
+});
+</script></body></html>

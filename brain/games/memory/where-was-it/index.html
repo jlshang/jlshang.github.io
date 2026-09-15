@@ -1,0 +1,22 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style>.mem{display:grid;gap:10px;margin:0 auto;max-width:420px}.mem span{aspect-ratio:1;border-radius:14px;background:var(--surface-2);border:1.5px solid var(--line);padding:14%;display:block}</style></head>
+<body><div class="wrap"></div>
+<script src="../../../shared/icons.js"></script>
+<script src="../../../shared/common.js" data-root="../../../"></script>
+<script>
+var PATH='games/memory/where-was-it/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
+
+Brain.run({id:'where-was-it',cat:'memory',icon:'pin',title:{en:'Where Was It?',zh:'东西放在哪'},
+ rules:{en:'Some pictures are placed on a board.<br><br>Remember <b>where</b> each one is, then tap <b>I\'m ready</b>.<br><br>You will be asked where one of them was.',zh:'方格里放了几样东西。<br><br>记住每样东西<b>放在哪个位置</b>，然后点<b>我记住了</b>。<br><br>接着会问您其中一样放在哪里。'}},
+function(L){
+  var size=L<=2?2:L<=8?3:4,count=L<=2?2:L<=4?3:L<=6?4:L<=8?5:6,N=size*size;
+  Brain.quiz({rounds:6,retry:false,make:function(){
+    var keys=Brain.shuffle(Object.keys(ITEMS)).slice(0,count),slots=Brain.shuffle(Array.from({length:N},(_,i)=>i)).slice(0,count),ask=Brain.rand(0,count-1),cells=Array(N).fill('');
+    keys.forEach((k,i)=>cells[slots[i]]=ITEMS[k].svg);
+    var board='<div class="mem" style="grid-template-columns:repeat('+size+',1fr)">'+cells.map(c=>'<span>'+c+'</span>').join('')+'</div>';
+    return{study:'<p class="qline">'+T({en:'Remember where each picture is',zh:'记住每样东西的位置'})+'</p>'+board,
+      q:'<p class="qline">'+T({en:'Where was this?',zh:'这个东西刚才在哪？'})+'</p><div style="width:90px;height:90px;margin:0 auto">'+ITEMS[keys[ask]].svg+'</div>',
+      choices:Array.from({length:N},(_,i)=>({html:'',v:i})),answer:slots[ask],cols:size,tile:true,
+      explain:{en:'It was in the highlighted square.',zh:'它在标出来的那个格子里。'}}}});
+});
+</script></body></html>

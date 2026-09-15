@@ -1,0 +1,24 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style></style></head>
+<body><div class="wrap"></div>
+<script src="../../../shared/icons.js"></script>
+<script src="../../../shared/common.js" data-root="../../../"></script>
+<script>
+var PATH='games/words/opposites/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
+
+var P=[[['hot','cold','热','冷'],['big','small','大','小'],['up','down','上','下'],['fast','slow','快','慢'],['open','close','开','关'],['day','night','白天','黑夜']],
+ [['happy','sad','高兴','难过'],['full','empty','满','空'],['heavy','light','重','轻'],['early','late','早','晚'],['buy','sell','买','卖'],['long','short','长','短']],
+ [['win','lose','赢','输'],['remember','forget','记住','忘记'],['arrive','leave','到达','离开'],['clean','dirty','干净','肮脏'],['noisy','quiet','吵闹','安静'],['strong','weak','强壮','虚弱']],
+ [['ancient','modern','古代','现代'],['generous','stingy','大方','小气'],['brave','timid','勇敢','胆小'],['simple','complex','简单','复杂'],['praise','blame','表扬','批评'],['increase','decrease','增加','减少']]];
+Brain.run({id:'opposites',cat:'words',icon:'swap',title:{en:'Opposites',zh:'反义词'},
+ rules:{en:'You will see a word.<br><br>Tap the word that means the <b>opposite</b>.<br><br>Example: the opposite of <b>hot</b> is <b>cold</b>.',zh:'屏幕上会出现一个词。<br><br>请点出和它意思<b>相反</b>的词。<br><br>例如：<b>热</b>的反义词是<b>冷</b>。'}},
+function(L){
+  var tier=Math.min(3,Math.floor((L-1)*4/10)),pool=P[tier],all=P.flat(),Z=Brain.LANG==='zh',n=L<=3?3:4;
+  Brain.quiz({rounds:8,make:function(){
+    var p=Brain.pick(pool),flip=Math.random()<.5,word=Z?(flip?p[3]:p[2]):(flip?p[1]:p[0]),ans=Z?(flip?p[2]:p[3]):(flip?p[0]:p[1]);
+    var s=new Set([ans]);while(s.size<n){var o=Brain.pick(all);if(o!==p){s.add(Z?o[2+Brain.rand(0,1)]:o[Brain.rand(0,1)])}}
+    s.delete(word);while(s.size<n){var o2=Brain.pick(all);if(o2!==p)s.add(Z?o2[2]:o2[0])}
+    return{q:'<p class="qline">'+T({en:'What is the opposite of',zh:'下面这个词的反义词是？'})+'</p><div class="qbig">'+word+'</div>',
+      choices:Brain.shuffle([...s]).map(x=>({html:x,v:x})),answer:ans,cols:n===3?3:2,explain:{en:'The opposite of '+word+' is '+ans+'.',zh:word+'的反义词是'+ans+'。'}}}});
+});
+</script></body></html>

@@ -1,34 +1,26 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style>.receipt{font-size:1.4rem}.receipt .row{display:flex;justify-content:space-between;padding:6px 0}.receipt .row b{font-size:1.7rem}</style></head>
-<body><div class="wrap"><div class="status"><span id="round"></span><span id="score"></span></div><div id="q" class="card receipt"></div><div id="fb" class="feedback"></div><div id="choices" class="choices"></div></div>
+<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style>.receipt .row{display:flex;justify-content:space-between;padding:6px 2px;font-size:1.2rem}.receipt .row b{font-size:1.6rem;font-variant-numeric:tabular-nums}</style></head>
+<body><div class="wrap"></div>
 <script src="../../../shared/icons.js"></script>
 <script src="../../../shared/common.js" data-root="../../../"></script>
 <script>
 var PATH='games/math/make-change/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
 
-var TITLE={en:'Make Change',zh:'买东西找零'};
-Brain.topbar(TITLE);
-var ITEMS=ZH?['一杯豆浆','一份报纸','一斤苹果','一把青菜','一袋馒头','一张电影票','一瓶酱油','一束鲜花']:['a coffee','a newspaper','a loaf of bread','a birthday card','a bag of apples','a movie ticket','a sandwich','a bunch of flowers'];
-Brain.intro({title:TITLE,icon:'cash',cat:'math',rules:{en:'You are paying at the store.<br><br>You will see the <b>price</b> and how much money you <b>paid</b>.<br><br>Tap how much <b>change</b> you should get back.',zh:'您在商店买东西付钱。<br><br>屏幕上会显示<b>价格</b>和您<b>付了多少钱</b>。<br><br>请选出应该<b>找回多少钱</b>。'}}).then(start);
-function $(c){return ZH?'¥'+(c/100).toFixed(c%100?1:0):'$'+(c/100).toFixed(2)}
-function start(){
-  var R=8,r=0,score=0,fb=document.getElementById('fb');
-  function round(){
-    if(r>=R)return Brain.finish({id:'make-change',path:PATH,score:score,total:R});
-    r++;fb.textContent='';
-    document.getElementById('round').textContent=T({en:'Question '+r+' of '+R,zh:'第 '+r+' 题 / 共 '+R+' 题'});Brain.progress(r-1,R);document.getElementById('score').textContent=T({en:'Correct: ',zh:'答对：'})+score;
-    var price,paid;
-    if(ZH){price=Brain.rand(2,r<=3?9:r<=5?45:88)*100+(r>3?50*Brain.rand(0,1):0)+(r>6?10*Brain.rand(1,4):0);paid=[1000,2000,5000,10000].find(p=>p>price)}
-    else{price=Brain.rand(1,r<=3?9:18)*(r<=3?100:25)+(r>5?Brain.rand(1,3)*5:0);paid=[500,1000,2000].find(p=>p>price)}
+function $(c){return ZH?'¥'+(c%100?(c/100).toFixed(c%10?2:1):(c/100)):'$'+(c/100).toFixed(2)}
+function near(ans,u,n){var s=new Set([ans]);[ans+u,ans-u,ans+2*u,ans-2*u,ans+5*u,ans+10*u,ans+3*u].forEach(v=>{if(s.size<n&&v>0)s.add(v)});return Brain.shuffle([...s])}
+
+var ITEMS_EN=['a coffee','a newspaper','a loaf of bread','a birthday card','a bag of apples','a movie ticket','a sandwich','flowers'],ITEMS_ZH=['一杯豆浆','一份报纸','一斤苹果','一把青菜','一袋馒头','一张电影票','一瓶酱油','一束鲜花'];
+Brain.run({id:'make-change',cat:'math',icon:'cash',title:{en:'Make Change',zh:'买东西找零'},
+ rules:{en:'You are paying at a store.<br><br>You will see the <b>price</b> and how much you <b>paid</b>.<br><br>Tap how much <b>change</b> you get back.',zh:'您在商店买东西付钱。<br><br>会显示<b>价格</b>和您<b>付了多少</b>。<br><br>请选出应该<b>找回多少钱</b>。'}},
+function(L){
+  Brain.quiz({rounds:8,make:function(){
+    var price,paid,u;
+    if(ZH){ if(L<=2){price=Brain.rand(1,9)*100;paid=1000;u=100}else if(L<=4){price=Brain.rand(11,45)*100;paid=5000;u=100}
+      else if(L<=7){price=Brain.rand(11,45)*100+50;paid=5000;u=50}else{price=Brain.rand(12,88)*100+Brain.rand(1,9)*10;paid=10000;u=100}}
+    else{ if(L<=2){price=Brain.rand(1,4)*100;paid=500;u=100}else if(L<=4){price=Brain.rand(4,19)*25;paid=500;u=25}
+      else if(L<=7){price=Brain.rand(21,95)*10+5*Brain.rand(0,1);paid=1000;u=25}else{price=Brain.rand(501,1899);paid=2000;u=100}}
     var ans=paid-price;
-    document.getElementById('q').innerHTML='<p style="margin-top:0">'+T({en:'You buy <b>',zh:'您买了<b>'})+Brain.pick(ITEMS)+'</b>'+T({en:'.',zh:'。'})+'</p><div class="row"><span>'+T({en:'Price',zh:'价格'})+'</span><b>'+$(price)+'</b></div><div class="row"><span>'+T({en:'You pay',zh:'您付了'})+'</span><b>'+$(paid)+'</b></div><div class="row"><span>'+T({en:'Your change',zh:'应找回'})+'</span><b>?</b></div>';
-    var u=ZH?100:25,set=new Set([ans]);[ans+4*u,ans-4*u,ans+u,ans-u,ans+2*u,ans+10].forEach(v=>{if(set.size<4&&v>0)set.add(v)});
-    var ch=document.getElementById('choices');ch.innerHTML='';var lock=false;
-    Brain.shuffle([...set]).forEach(function(v){var b=document.createElement('button');b.className='choice';b.textContent=$(v);b._v=v;
-      b.onclick=function(){if(lock)return;lock=true;
-        if(v===ans){score++;b.classList.add('right');Brain.say(fb,true);setTimeout(round,1000)}
-        else{b.classList.add('wrong');[...ch.children].find(x=>x._v===ans).classList.add('right');Brain.say(fb,false,$(paid)+' − '+$(price)+' = '+$(ans));setTimeout(round,2500)}};
-      ch.appendChild(b)});
-  }round();
-}
+    return{q:'<div class="receipt" style="text-align:left"><p class="qline">'+T({en:'You buy ',zh:'您买了'})+Brain.pick(ZH?ITEMS_ZH:ITEMS_EN)+'</p><div class="row"><span>'+T({en:'Price',zh:'价格'})+'</span><b>'+$(price)+'</b></div><div class="row"><span>'+T({en:'You pay',zh:'您付了'})+'</span><b>'+$(paid)+'</b></div><div class="row"><span>'+T({en:'Change',zh:'应找回'})+'</span><b>?</b></div></div>',
+      choices:near(ans,u,L<=2?3:4).map(v=>({html:$(v),v:v})),answer:ans,cols:L<=2?3:2,explain:$(paid)+' − '+$(price)+' = '+$(ans)}}});
+});
 </script></body></html>

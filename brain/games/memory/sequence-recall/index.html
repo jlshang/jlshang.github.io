@@ -1,0 +1,34 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style>.pads{display:grid;gap:12px;margin-top:14px}.pad{aspect-ratio:1;border-radius:22px;border:0;cursor:pointer;opacity:.35;transition:opacity .15s,transform .15s}.pad.on{opacity:1;transform:scale(1.04)}.pads.wait .pad{cursor:default}.msg{text-align:center;font-weight:700;font-size:1.2rem;min-height:1.6em;margin-top:12px}</style></head>
+<body><div class="wrap"></div>
+<script src="../../../shared/icons.js"></script>
+<script src="../../../shared/common.js" data-root="../../../"></script>
+<script>
+var PATH='games/memory/sequence-recall/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
+
+Brain.run({id:'sequence-recall',cat:'memory',icon:'pads',title:{en:'Light Sequence',zh:'记住亮灯顺序'},
+ rules:{en:'Colored squares will light up one at a time.<br><br>Watch carefully, then <b>tap them in the same order</b>.<br><br>The lights go slowly, and you can watch again if you forget.',zh:'彩色方块会一个接一个亮起来。<br><br>仔细看，然后<b>按同样的顺序点</b>一遍。<br><br>亮灯速度很慢，忘了可以再看一次。'}},
+function(L){
+  var len=2+Math.floor((L-1)/2),pads=L<=6?4:6,speed=1100-L*30,R=5,r=0,score=0,seq,pos,busy,replays,w=document.querySelector('.wrap');
+  var COL=['#D0633A','#2F6DB0','#2C8468','#B9801F','#6A5AC8','#A8487A'];
+  w.insertAdjacentHTML('beforeend','<div class="status" id="st"></div><div class="msg" id="msg"></div><div class="pads wait" id="pads"></div><div id="fb" class="feedback"></div><button class="btn secondary block" id="again">'+T({en:'Show me again',zh:'再看一遍'})+'</button>');
+  var box=document.getElementById('pads'),fb=document.getElementById('fb'),msg=document.getElementById('msg');box.style.gridTemplateColumns='repeat('+(pads===4?2:3)+',1fr)';
+  for(var i=0;i<pads;i++){(function(i){var b=document.createElement('button');b.className='pad';b.style.background=COL[i];b.setAttribute('aria-label','pad '+(i+1));
+    b.onclick=function(){if(busy)return;flash(i,300);
+      if(i===seq[pos]){pos++;if(pos===seq.length){busy=true;score++;Brain.say(fb,true);setTimeout(round,1200)}}
+      else{busy=true;Brain.say(fb,false,{en:'Not quite. Watch the right order.',zh:'顺序不对，看一下正确的顺序。'});setTimeout(function(){play(round)},900)}};
+    box.appendChild(b)})(i)}
+  function flash(i,ms){var p=box.children[i];p.classList.add('on');setTimeout(()=>p.classList.remove('on'),ms)}
+  function play(done){busy=true;box.classList.add('wait');msg.textContent=T({en:'Watch...',zh:'请看……'});var k=0;
+    (function step(){if(k>=seq.length){busy=false;box.classList.remove('wait');msg.textContent=T({en:'Your turn',zh:'轮到您了'});if(done)setTimeout(done,600);return}
+      flash(seq[k],speed*.65);k++;setTimeout(step,speed)})();}
+  function round(){
+    if(r>=R)return Brain.finish({score:score,total:R});
+    r++;pos=0;replays=0;fb.textContent='';seq=Array.from({length:len},()=>Brain.rand(0,pads-1));
+    document.getElementById('st').innerHTML='<span>'+T({en:'Round '+r+' of '+R,zh:'第 '+r+' 轮 / 共 '+R+' 轮'})+'</span><span>'+T({en:len+' lights',zh:len+' 个灯'})+'</span>';Brain.progress(r-1,R);
+    setTimeout(function(){play()},700);
+  }
+  document.getElementById('again').onclick=function(){if(busy)return;pos=0;fb.textContent='';play()};
+  round();
+});
+</script></body></html>

@@ -1,0 +1,32 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style>.pg{display:grid;gap:10px;margin-top:12px}.pc{aspect-ratio:1;border-radius:16px;border:1.5px solid var(--line);background:var(--surface);box-shadow:var(--shadow);padding:18%;cursor:pointer}.pc.sel{box-shadow:0 0 0 3px var(--primary) inset;background:var(--primary-soft)}.pc.ok{box-shadow:0 0 0 3px var(--good) inset;background:var(--good-soft)}</style></head>
+<body><div class="wrap"></div>
+<script src="../../../shared/icons.js"></script>
+<script src="../../../shared/common.js" data-root="../../../"></script>
+<script>
+var PATH='games/observation/same-pair/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
+
+Brain.run({id:'same-pair',cat:'observation',icon:'twin',title:{en:'Find the Twins',zh:'找双胞胎'},
+ rules:{en:'Every picture is different, except <b>two</b> that are exactly the same.<br><br>Tap those two pictures.',zh:'这些图片各不相同，只有<b>两个</b>一模一样。<br><br>把这两个图片点出来。'}},
+function(L){
+  var N=[4,6,6,8,9,9,12,12,12,16][L-1],cols=N<=4?2:N<=9?3:4,R=5,r=0,score=0,w=document.querySelector('.wrap');
+  w.insertAdjacentHTML('beforeend','<div class="status" id="st"></div><div id="pg" class="pg"></div><div id="fb" class="feedback"></div>');
+  var pg=document.getElementById('pg'),fb=document.getElementById('fb');pg.style.gridTemplateColumns='repeat('+cols+',1fr)';
+  function round(){
+    if(r>=R)return Brain.finish({score:score,total:R});
+    r++;fb.textContent='';Brain.status(r,R,score,{en:'Board '+r+' of '+R,zh:'第 '+r+' 轮 / 共 '+R+' 轮'});
+    /* all distinct shape+color combos; later levels use fewer shapes so tiles look more alike */
+    var shapes=Brain.shuffle(Brain.SHAPES).slice(0,L>=7?3:L>=4?5:8),combos=[];
+    shapes.forEach(s=>Brain.COLORS.forEach(c=>combos.push({s:s,c:c})));
+    combos=Brain.shuffle(combos).slice(0,N-1);var twin=combos[0];combos.push(twin);
+    var sel=null,miss=false,done=false;pg.innerHTML='';
+    Brain.shuffle(combos.map((c,i)=>({c:c,t:c===twin}))).forEach(function(o){var b=document.createElement('button');b.className='pc';b.innerHTML=Brain.shape(o.c.s,o.c.c);b._o=o;
+      b.onclick=function(){if(done)return;
+        if(!sel){sel=b;b.classList.add('sel');return}
+        if(sel===b){b.classList.remove('sel');sel=null;return}
+        if(o.t&&sel._o.t){done=true;sel.classList.add('ok');b.classList.add('ok');if(!miss)score++;Brain.say(fb,true,{en:'Twins found!',zh:'找到双胞胎了！'});Brain.progress(r,R);setTimeout(round,1200)}
+        else{miss=true;sel.classList.remove('sel');[sel,b].forEach(x=>{x.classList.remove('shake');void x.offsetWidth;x.classList.add('shake')});sel=null;Brain.say(fb,false,{en:'Those two are different. Keep looking.',zh:'这两个不一样，再找找。'})}};
+      pg.appendChild(b)});
+  }round();
+});
+</script></body></html>

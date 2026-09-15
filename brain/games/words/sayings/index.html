@@ -1,0 +1,23 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style>.say{font-size:1.5rem;font-weight:700;line-height:1.5}.say u{color:var(--primary);text-decoration:none;border-bottom:3px solid var(--primary);padding:0 .3em}</style></head>
+<body><div class="wrap"></div>
+<script src="../../../shared/icons.js"></script>
+<script src="../../../shared/common.js" data-root="../../../"></script>
+<script>
+var PATH='games/words/sayings/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
+
+var EN=[['An apple a day keeps the ___ away','doctor',['teacher','baker','neighbor']],['Better late than ___','never',['sorry','early','ever']],['Practice makes ___','perfect',['money','friends','noise']],['Home is where the ___ is','heart',['food','garden','bed']],
+ ['The early bird catches the ___','worm',['bus','fish','train']],['Actions speak louder than ___','words',['songs','drums','birds']],['A picture is worth a thousand ___','words',['dollars','years','miles']],['Every cloud has a silver ___','lining',['spoon','coin','moon']],
+ ["Don't count your chickens before they ___",'hatch',['run','eat','sleep']],['Rome was not built in a ___','day',['week','hurry','box']],['Where there is a will, there is a ___','way',['wall','road','gift']],['Two heads are better than ___','one',['none','three','half']]];
+var ZW=[['早起的鸟儿有___吃','虫',['米','鱼','糖']],['一寸光阴一寸___','金',['银','铁','土']],['远亲不如近___','邻',['友','人','家']],['百闻不如一___','见',['听','想','说']],
+ ['众人拾柴火焰___','高',['大','多','亮']],['家有一老，如有一___','宝',['福','金','灯']],['冰冻三尺，非一日之___','寒',['冷','功','冰']],['千里之行，始于___','足下',['脚下','今天','眼前']],
+ ['少壮不努力，老大徒___','伤悲',['后悔','流泪','叹气']],['路遥知马力，日久见___','人心',['真情','朋友','功夫']],['三个臭皮匠，顶个___','诸葛亮',['刘备','关羽','张飞']],['饭后百步走，活到___','九十九',['一百岁','八十八','老来福']]];
+Brain.run({id:'sayings',cat:'words',icon:'quote',title:{en:'Finish the Saying',zh:'俗语接龙'},
+ rules:{en:'You will see a well-known saying with a word missing.<br><br>Tap the word that finishes it.',zh:'屏幕上是一句大家熟悉的俗语，中间缺了一部分。<br><br>请点出正确的那一项，把俗语补完整。'}},
+function(L){
+  var list=ZH?ZW:EN,end=Math.min(list.length,4+Math.ceil(L*0.8)),start=Math.max(0,end-6),pool=list.slice(start,end),n=L<=3?3:4;
+  Brain.quiz({rounds:6,make:function(){var s=Brain.pick(pool);
+    return{q:'<div class="say">'+s[0].replace('___','<u>?</u>')+'</div>',choices:Brain.shuffle([s[1]].concat(Brain.shuffle(s[2]).slice(0,n-1))).map(x=>({html:x,v:x})),answer:s[1],cols:n===3?3:2,
+      explain:{en:'"'+s[0].replace('___',s[1])+'"',zh:'「'+s[0].replace('___',s[1])+'」'}}}});
+});
+</script></body></html>

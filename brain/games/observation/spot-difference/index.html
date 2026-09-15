@@ -1,0 +1,24 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style>.pics{display:grid;gap:6px;max-width:250px;margin:0 auto}#ch .tiles-grid{max-width:340px;margin:0 auto}.pics span{aspect-ratio:1;display:block;padding:12%;border-radius:10px;background:var(--surface-2)}.lab{font-weight:700;margin:0 0 8px;color:var(--muted);font-size:1rem}</style></head>
+<body><div class="wrap"></div>
+<script src="../../../shared/icons.js"></script>
+<script src="../../../shared/common.js" data-root="../../../"></script>
+<script>
+var PATH='games/observation/spot-difference/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
+
+Brain.run({id:'spot-difference',cat:'observation',icon:'twin',title:{en:'Spot the Change',zh:'对比找变化'},
+ rules:{en:'The top picture is the <b>original</b>.<br><br>The bottom picture has <b>one square changed</b>.<br><br>Tap the square that is different in the bottom picture.',zh:'上面是<b>原图</b>。<br><br>下面的图里<b>有一格变了</b>。<br><br>在下面的图里点出变了的那一格。'}},
+function(L){
+  var size=L<=6?3:4,N=size*size;
+  Brain.quiz({rounds:6,retry:true,make:function(){
+    var cells=Array.from({length:N},()=>({s:Brain.pick(Brain.SHAPES.slice(0,L<=2?4:8)),c:Brain.pick(Brain.COLORS),r:0}));
+    var k=Brain.rand(0,N-1),b=Object.assign({},cells[k]);
+    if(L<=3){var ns=Brain.pick(Brain.SHAPES.filter(x=>x!==b.s));b.s=ns}           /* shape changes */
+    else if(L<=6){b.c=Brain.pick(Brain.COLORS.filter(x=>x!==b.c))}                  /* color changes */
+    else{if(Math.random()<.5&&['arrow','heart','triangle','drop'].includes(b.s)){b.r=180}else{b.c=Brain.pick(Brain.COLORS.filter(x=>x!==b.c))}if(L>=9&&b.r===0){b.s=['circle','hexagon'].includes(b.s)?(b.s==='circle'?'hexagon':'circle'):b.s}}
+    if(L>=7&&!['arrow','heart','triangle','drop'].includes(b.s)&&b.c===cells[k].c&&b.s===cells[k].s){b.c=Brain.pick(Brain.COLORS.filter(x=>x!==cells[k].c))}
+    var top='<p class="lab">'+T({en:'Original',zh:'原图'})+'</p><div class="pics" style="grid-template-columns:repeat('+size+',1fr)">'+cells.map(c=>'<span>'+Brain.shape(c.s,c.c,c.r)+'</span>').join('')+'</div><p class="lab" style="margin:14px 0 0">'+T({en:'Tap the change below',zh:'在下面点出变化'})+'</p>';
+    return{q:top,choices:cells.map((c,i)=>({html:i===k?Brain.shape(b.s,b.c,b.r):Brain.shape(c.s,c.c,c.r),v:i})),answer:k,cols:size,tile:true,
+      hint:{en:'Compare row by row with the original.',zh:'和原图一行一行对比看看。'}}}});
+});
+</script></body></html>

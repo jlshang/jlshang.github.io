@@ -1,0 +1,27 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style>.eq{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px;margin:8px 0;padding:10px;background:var(--surface-2);border-radius:14px}.eq span{width:42px;height:42px;display:block}.eq b{font-size:1.8rem;margin:0 6px;color:var(--muted)}.ask{font-size:1.2rem;font-weight:700;margin-top:12px;display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap}.ask span{width:40px;height:40px;display:block}</style></head>
+<body><div class="wrap"></div>
+<script src="../../../shared/icons.js"></script>
+<script src="../../../shared/common.js" data-root="../../../"></script>
+<script>
+var PATH='games/logic/balance-scale/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
+
+Brain.run({id:'balance-scale',cat:'logic',icon:'scale',title:{en:'Balance Scale',zh:'天平称重'},
+ rules:{en:'Each line shows things that <b>weigh the same</b>.<br><br>Use the lines to answer the question.<br><br>Example: if 1 apple = 2 bananas, then 2 apples = 4 bananas.',zh:'每一行表示两边<b>一样重</b>。<br><br>根据这些信息回答问题。<br><br>例如：1 个苹果 = 2 根香蕉，那么 2 个苹果 = 4 根香蕉。'}},
+function(L){
+  function many(k,n){return Array(n).fill('<span>'+ITEMS[k].svg+'</span>').join('')}
+  Brain.quiz({rounds:6,make:function(){
+    var ks=Brain.shuffle(['apple','banana','orange','pear','egg','carrot','tomato','potato']),A=ks[0],B=ks[1],C=ks[2],lines,askN,ans,unit;
+    if(L<=2){var r=2;lines=[[A,1,B,r]];askN=L===1?2:3;ans=askN*r;unit=B}
+    else if(L<=4){var r2=Brain.rand(2,3);lines=[[A,1,B,r2]];askN=Brain.rand(2,3);ans=askN*r2;unit=B}
+    else if(L<=6){var r3=Brain.rand(2,3);lines=[[A,2,B,2*r3]];askN=1;ans=r3;unit=B}
+    else if(L<=8){var p=2,q=Brain.rand(2,3);lines=[[A,1,B,p],[B,1,C,q]];askN=1;ans=p*q;unit=C}
+    else{var p2=2,q2=2;lines=[[A,1,B,p2],[B,1,C,q2]];askN=2;ans=askN*p2*q2;unit=C}
+    var html=lines.map(l=>'<div class="eq">'+many(l[0],l[1])+'<b>=</b>'+many(l[2],l[3])+'</div>').join('');
+    html+='<div class="ask">'+many(A,askN)+'<b>=</b> ? '+'<span>'+ITEMS[unit].svg+'</span></div>';
+    var s=new Set([ans]);[ans+1,ans-1,ans+2,ans*2].forEach(v=>{if(s.size<(L<=2?3:4)&&v>0)s.add(v)});
+    return{q:'<p class="qline">'+T({en:'How many are needed to balance?',zh:'需要几个才能一样重？'})+'</p>'+html,
+      choices:Brain.shuffle([...s]).sort((a,b)=>a-b).map(v=>({html:v,v:v})),answer:ans,cols:s.size===3?3:2,
+      explain:{en:'The answer is '+ans+'.',zh:'答案是 '+ans+' 个。'}}}});
+});
+</script></body></html>

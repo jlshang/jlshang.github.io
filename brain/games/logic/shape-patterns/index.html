@@ -1,0 +1,27 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style>.sseq{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}.sseq span{width:52px;height:52px;display:block;padding:4px;border-radius:12px;background:var(--surface-2)}.sseq .q{border:2px dashed var(--primary);background:var(--primary-soft);color:var(--primary);font-weight:800;font-size:1.6rem;display:flex;align-items:center;justify-content:center}</style></head>
+<body><div class="wrap"></div>
+<script src="../../../shared/icons.js"></script>
+<script src="../../../shared/common.js" data-root="../../../"></script>
+<script>
+var PATH='games/logic/shape-patterns/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
+
+Brain.run({id:'shape-patterns',cat:'logic',icon:'shapesSeq',title:{en:'Shape Patterns',zh:'图形规律'},
+ rules:{en:'The shapes repeat in a <b>pattern</b>.<br><br>Look at the row and tap the shape that comes next.',zh:'这些图形按<b>规律</b>重复出现。<br><br>看一看这一排，点出下一个应该是什么图形。'}},
+function(L){
+  /* L1-3 AB, L4-5 ABC, L6-7 AAB / ABB, L8-10 shape and color patterns running together */
+  Brain.quiz({rounds:8,make:function(){
+    var sh=Brain.shuffle(Brain.SHAPES.slice(0,7)),co=Brain.shuffle(Brain.COLORS),unit,len=L<=3?5:L<=7?7:8;
+    if(L<=3)unit=[{s:sh[0],c:co[0]},{s:sh[1],c:co[1]}];
+    else if(L<=5)unit=[{s:sh[0],c:co[0]},{s:sh[1],c:co[1]},{s:sh[2],c:co[2]}];
+    else if(L<=7){var a={s:sh[0],c:co[0]},b={s:sh[1],c:co[1]};unit=Math.random()<.5?[a,a,b]:[a,b,b]}
+    else{var ss=[sh[0],sh[1],sh[2]],cc=[co[0],co[1]];unit=null;var seq=[];for(var i=0;i<len+1;i++)seq.push({s:ss[i%3],c:cc[i%2]})}
+    if(unit){seq=[];for(var j=0;j<len+1;j++)seq.push(unit[j%unit.length])}
+    var ans=seq[len],key=o=>o.s+o.c,pool=[ans];
+    var cand=[];sh.slice(0,3).forEach(s=>co.slice(0,3).forEach(c=>cand.push({s:s,c:c})));
+    Brain.shuffle(cand).forEach(o=>{if(pool.length<(L<=3?3:4)&&!pool.some(p=>key(p)===key(o)))pool.push(o)});
+    return{q:'<p class="qline">'+T({en:'Which shape comes next?',zh:'下一个是什么图形？'})+'</p><div class="sseq">'+seq.slice(0,len).map(o=>'<span>'+Brain.shape(o.s,o.c)+'</span>').join('')+'<span class="q">?</span></div>',
+      choices:Brain.shuffle(pool).map(o=>({html:Brain.shape(o.s,o.c),v:key(o)})),answer:key(ans),cols:pool.length===3?3:2,
+      explain:L>=8?{en:'The shapes and the colors each repeat on their own.',zh:'形状和颜色各自按自己的顺序重复。'}:{en:'The highlighted shape continues the pattern.',zh:'标出来的图形能接上规律。'}}}});
+});
+</script></body></html>

@@ -1,0 +1,23 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style>.shadow svg{filter:brightness(0);opacity:.78}.hero-pic{width:110px;height:110px;margin:0 auto}</style></head>
+<body><div class="wrap"></div>
+<script src="../../../shared/icons.js"></script>
+<script src="../../../shared/common.js" data-root="../../../"></script>
+<script>
+var PATH='games/observation/shadow-match/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
+
+var SIMILAR=[['apple','tomato','orange','pear'],['banana','carrot','corn','fish'],['milk','bread','cheese','cup'],['egg','potato','grapes','rice']];
+Brain.run({id:'shadow-match',cat:'observation',icon:'shadow',title:{en:'Match the Shadow',zh:'影子配对'},
+ rules:{en:'Look at the picture at the top.<br><br>Tap the <b>shadow</b> that has exactly the same outline.',zh:'先看上面的图片。<br><br>在下面找出和它轮廓<b>完全一样的影子</b>。'}},
+function(L){
+  var n=L<=2?2:L<=5?3:4,keys=Object.keys(ITEMS);
+  Brain.quiz({rounds:8,make:function(){
+    var group=L>=6?Brain.pick(SIMILAR):null,ans=group?Brain.pick(group):Brain.pick(keys);
+    var decoys=Brain.shuffle((group&&L>=6?group:keys).filter(k=>k!==ans));
+    if(!group){var g0=SIMILAR.find(g=>g.includes(ans));decoys=decoys.filter(k=>!g0||!g0.includes(k)||L>=4)}
+    var opts=Brain.shuffle([ans].concat(decoys.slice(0,n-1)));
+    return{q:'<p class="qline">'+T({en:'Which shadow matches?',zh:'哪个影子和它一样？'})+'</p><div class="hero-pic">'+ITEMS[ans].svg+'</div>',
+      choices:opts.map(k=>({html:'<div class="shadow">'+ITEMS[k].svg+'</div>',v:k})),answer:ans,cols:n===3?3:2,
+      explain:{en:'It is the shadow of the '+ITEMS[ans].en.toLowerCase()+'.',zh:'这是'+ITEMS[ans].zh+'的影子。'}}}});
+});
+</script></body></html>

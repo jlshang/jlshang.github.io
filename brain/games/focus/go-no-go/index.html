@@ -1,0 +1,30 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style>.light{width:200px;height:200px;margin:20px auto;border-radius:50%;background:#E9E3D7;transition:background .15s}.light.go{background:#2C8468}.light.stop{background:#C9463D}.tapbtn{min-height:110px;font-size:1.6rem}</style></head>
+<body><div class="wrap"></div>
+<script src="../../../shared/icons.js"></script>
+<script src="../../../shared/common.js" data-root="../../../"></script>
+<script>
+var PATH='games/focus/go-no-go/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
+
+Brain.run({id:'go-no-go',cat:'focus',icon:'traffic',title:{en:'Green Means Go',zh:'绿灯行，红灯停'},
+ rules:{en:'A light will turn on.<br><br><b style="color:#2C8468">Green</b>: tap the big button.<br><b style="color:#C9463D">Red</b>: do nothing, just wait.<br><br>You have plenty of time for each light.',zh:'屏幕上会亮起一盏灯。<br><br><b style="color:#2C8468">绿灯</b>：点下面的大按钮。<br><b style="color:#C9463D">红灯</b>：什么都不要点，等一等。<br><br>每盏灯都有足够的时间反应。'}},
+function(L){
+  /* window shrinks gently: 3.2s at level 1 down to 1.8s at level 10; red lights become more frequent */
+  var N=12,win=3200-(L-1)*155,redRate=Math.min(.45,.2+L*.025),i=0,score=0,w=document.querySelector('.wrap'),t=null,state=null,answered=false;
+  w.insertAdjacentHTML('beforeend','<div class="status" id="st"></div><div class="light" id="lt"></div><div id="fb" class="feedback"></div><button class="btn block tapbtn" id="tap">'+T({en:'Tap',zh:'点我'})+'</button>');
+  var lt=document.getElementById('lt'),fb=document.getElementById('fb');
+  function trial(){
+    if(i>=N)return Brain.finish({score:score,total:N});
+    i++;answered=false;lt.className='light';fb.textContent='';
+    document.getElementById('st').innerHTML='<span>'+T({en:'Light '+i+' of '+N,zh:'第 '+i+' 盏 / 共 '+N+' 盏'})+'</span><span>'+T({en:'Correct: ',zh:'答对：'})+score+'</span>';Brain.progress(i-1,N);
+    setTimeout(function(){state=Math.random()<redRate?'stop':'go';lt.className='light '+state;
+      t=setTimeout(function(){if(answered)return;answered=true;
+        if(state==='stop'){score++;Brain.say(fb,true,{en:'Well waited!',zh:'等得好！'})}else Brain.say(fb,false,{en:'That was green. Tap next time.',zh:'刚才是绿灯，下次记得点。'});
+        state=null;setTimeout(trial,1100)},win)},900);
+  }
+  document.getElementById('tap').onclick=function(){if(!state||answered)return;answered=true;clearTimeout(t);
+    if(state==='go'){score++;Brain.say(fb,true)}else Brain.say(fb,false,{en:'Red means wait.',zh:'红灯要等一等。'});
+    state=null;setTimeout(trial,1100)};
+  trial();
+});
+</script></body></html>

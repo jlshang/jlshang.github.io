@@ -1,0 +1,26 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style>.money{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px;min-height:120px}.coin{display:flex;align-items:center;justify-content:center;border-radius:50%;font-weight:800;box-shadow:inset 0 -4px 0 rgba(0,0,0,.15)}.bill{display:flex;align-items:center;justify-content:center;width:120px;height:62px;border-radius:8px;color:#fff;font-weight:800;font-size:1.3rem;box-shadow:inset 0 0 0 4px rgba(255,255,255,.35)}</style></head>
+<body><div class="wrap"></div>
+<script src="../../../shared/icons.js"></script>
+<script src="../../../shared/common.js" data-root="../../../"></script>
+<script>
+var PATH='games/math/coin-count/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
+
+function $(c){return ZH?'¥'+(c%100?(c/100).toFixed(c%10?2:1):(c/100)):'$'+(c/100).toFixed(2)}
+function near(ans,u,n){var s=new Set([ans]);[ans+u,ans-u,ans+2*u,ans-2*u,ans+5*u,ans+10*u,ans+3*u].forEach(v=>{if(s.size<n&&v>0)s.add(v)});return Brain.shuffle([...s])}
+
+/* coin/bill drawings with the value written on them, so no guessing from appearance */
+var US=[{v:1,t:'1¢',s:52,c:'#C8814A',f:'#fff'},{v:5,t:'5¢',s:60,c:'#B9BFC6',f:'#1C2826'},{v:10,t:'10¢',s:50,c:'#CBD0D6',f:'#1C2826'},{v:25,t:'25¢',s:68,c:'#AEB5BD',f:'#1C2826'},{v:100,t:'$1',b:'#4E8A5B'},{v:500,t:'$5',b:'#6E7F8D'}];
+var CN=[{v:10,t:'1角',s:54,c:'#C9CED4',f:'#1C2826'},{v:50,t:'5角',s:60,c:'#D9B25A',f:'#1C2826'},{v:100,t:'1元',s:70,c:'#BFC5CC',f:'#1C2826'},{v:500,t:'5元',b:'#8A5AA8'},{v:1000,t:'10元',b:'#3F6FB0'},{v:2000,t:'20元',b:'#A8743F'}];
+function draw(m){return m.b?'<span class="bill" style="background:'+m.b+'">'+m.t+'</span>':'<span class="coin" style="width:'+m.s+'px;height:'+m.s+'px;background:'+m.c+';color:'+m.f+';font-size:'+(m.s/3.6)+'px">'+m.t+'</span>'}
+Brain.run({id:'coin-count',cat:'math',icon:'coins',title:{en:'Count the Money',zh:'数一数钱'},
+ rules:{en:'Some coins and bills are shown. The value is written on each one.<br><br>Add them up and tap the <b>total</b>.',zh:'屏幕上有一些硬币和纸币，每个上面都写着面值。<br><br>加起来，点出<b>一共多少钱</b>。'}},
+function(L){
+  var SET=ZH?CN:US;
+  Brain.quiz({rounds:8,make:function(){
+    var pool=L<=2?SET.slice(0,ZH?3:2):L<=4?SET.slice(0,4):L<=7?SET.slice(0,5):SET,n=L<=2?Brain.rand(2,3):L<=5?Brain.rand(3,4):L<=8?Brain.rand(4,5):Brain.rand(5,7);
+    var hand=Array.from({length:n},()=>Brain.pick(pool)).sort((a,b)=>b.v-a.v),tot=hand.reduce((s,m)=>s+m.v,0),u=ZH?(tot%100?10:100):(tot%25?5:25);
+    return{q:'<p class="qline">'+T({en:'How much money is this?',zh:'一共是多少钱？'})+'</p><div class="money">'+hand.map(draw).join('')+'</div>',
+      choices:near(tot,u,L<=2?3:4).map(v=>({html:$(v),v:v})),answer:tot,cols:L<=2?3:2,explain:{en:'The total is '+$(tot),zh:'一共是 '+$(tot)}}}});
+});
+</script></body></html>

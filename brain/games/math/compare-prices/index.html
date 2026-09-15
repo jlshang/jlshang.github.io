@@ -1,0 +1,28 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style>.deals{display:grid;grid-template-columns:1fr 1fr;gap:12px}.deal{background:var(--surface-2);border-radius:14px;padding:12px 6px;border:1.5px solid var(--line)}.deal b{display:block;font-size:1.6rem;font-variant-numeric:tabular-nums}.deal .pic{width:56px;height:56px;margin:0 auto 6px}.deal small{font-size:1rem;color:var(--muted)}</style></head>
+<body><div class="wrap"></div>
+<script src="../../../shared/icons.js"></script>
+<script src="../../../shared/common.js" data-root="../../../"></script>
+<script>
+var PATH='games/math/compare-prices/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
+
+function $(c){return ZH?'¥'+(c%100?(c/100).toFixed(c%10?2:1):(c/100)):'$'+(c/100).toFixed(2)}
+function near(ans,u,n){var s=new Set([ans]);[ans+u,ans-u,ans+2*u,ans-2*u,ans+5*u,ans+10*u,ans+3*u].forEach(v=>{if(s.size<n&&v>0)s.add(v)});return Brain.shuffle([...s])}
+
+Brain.run({id:'compare-prices',cat:'math',icon:'compare',title:{en:'Better Deal',zh:'哪个更划算'},
+ rules:{en:'Two shops sell the same thing.<br><br>Tap the shop with the <b>better deal</b>, the one where you pay less.<br><br>Later levels compare packs, like 3 for one price.',zh:'两家店卖同样的东西。<br><br>请点<b>更划算</b>、花钱更少的那一家。<br><br>后面的关卡会比较"几个一起卖"的价格。'}},
+function(L){
+  Brain.quiz({rounds:8,make:function(){
+    var k=Brain.pick(Object.keys(ITEMS)),it=ITEMS[k],A,B,cheaper,ex;
+    var U=ZH?100:100;
+    if(L<=3){var a=Brain.rand(3,9)*U,gap=(L===1?4:L===2?3:2)*U,b=a+gap;A={p:a,n:1};B={p:b,n:1}}
+    else if(L<=6){var unit=Brain.rand(2,6)*U;A={p:unit,n:1};B={p:unit*2+(Math.random()<.5?-1:1)*(L<=5?U:U/2),n:2}}
+    else{var u=Brain.rand(2,5)*U,n=L<=8?Brain.pick([2,3]):Brain.pick([3,4]);A={p:u,n:1};var diff=(L<=8?1:.5)*U*(Math.random()<.5?-1:1);B={p:u*n+diff,n:n}}
+    if(Math.random()<.5){var t=A;A=B;B=t}
+    var ua=A.p/A.n,ub=B.p/B.n;cheaper=ua<ub?'A':'B';
+    function card(tag,d){return '<div class="deal"><div class="pic">'+it.svg+'</div><small>'+T({en:'Shop ',zh:''})+tag+T({en:'',zh:' 店'})+'</small><b>'+$(d.p)+'</b><small>'+(d.n>1?T({en:'for '+d.n,zh:d.n+' 个'}):T({en:'for 1',zh:'1 个'}))+'</small></div>'}
+    ex=(A.n>1||B.n>1)?{en:'Price for one: A '+$(Math.round(ua))+', B '+$(Math.round(ub)),zh:'算单价：A 店 '+$(Math.round(ua))+'，B 店 '+$(Math.round(ub))}:null;
+    return{q:'<p class="qline">'+T({en:'Which is the better deal?',zh:'哪家更划算？'})+'</p><div class="deals">'+card('A',A)+card('B',B)+'</div>',
+      choices:[{html:T({en:'Shop A',zh:'A 店'}),v:'A'},{html:T({en:'Shop B',zh:'B 店'}),v:'B'}],answer:cheaper,cols:2,explain:ex}}});
+});
+</script></body></html>

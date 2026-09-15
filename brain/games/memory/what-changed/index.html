@@ -1,0 +1,22 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style></style></head>
+<body><div class="wrap"></div>
+<script src="../../../shared/icons.js"></script>
+<script src="../../../shared/common.js" data-root="../../../"></script>
+<script>
+var PATH='games/memory/what-changed/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
+
+Brain.run({id:'what-changed',cat:'memory',icon:'question',title:{en:'What Is Missing?',zh:'少了什么'},
+ rules:{en:'Look at a group of pictures and remember them.<br><br>Next, the group comes back with <b>one picture gone</b>.<br><br>Tap the picture that is missing.',zh:'先看一组图片，把它们记住。<br><br>然后这组图片会<b>少掉一样</b>。<br><br>请点出少掉的是哪一样。'}},
+function(L){
+  var n=3+Math.floor((L-1)/2);  /* 3 to 7 pictures */
+  Brain.quiz({rounds:6,make:function(){
+    var keys=Brain.shuffle(Object.keys(ITEMS)),show=keys.slice(0,n),miss=Brain.pick(show),rest=Brain.shuffle(show.filter(k=>k!==miss));
+    var opts=Brain.shuffle([miss].concat(Brain.shuffle(keys.slice(n)).slice(0,L<=3?2:3)));
+    function row(a){return '<div class="row-items">'+a.map(k=>'<span>'+ITEMS[k].svg+'</span>').join('')+'</div>'}
+    return{study:'<p class="qline">'+T({en:'Remember these '+n+' pictures',zh:'记住这 '+n+' 样东西'})+'</p>'+row(show),
+      q:'<p class="qline">'+T({en:'One is gone. Which one?',zh:'少了一样，是哪一样？'})+'</p>'+row(rest),
+      choices:opts.map(k=>({html:ITEMS[k].svg+'<div style="font-size:1rem;margin-top:4px">'+T(ITEMS[k])+'</div>',v:k})),answer:miss,cols:2,
+      explain:{en:'The missing one was '+ITEMS[miss].en+'.',zh:'少掉的是'+ITEMS[miss].zh+'。'}}}});
+});
+</script></body></html>

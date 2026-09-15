@@ -1,0 +1,21 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style>.arrowbox{width:150px;height:150px;margin:6px auto}.rule{font-size:1rem;color:var(--muted);margin:10px 0 0}</style></head>
+<body><div class="wrap"></div>
+<script src="../../../shared/icons.js"></script>
+<script src="../../../shared/common.js" data-root="../../../"></script>
+<script>
+var PATH='games/focus/follow-arrow/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
+
+Brain.run({id:'follow-arrow',cat:'focus',icon:'arrows',title:{en:'Follow the Arrow',zh:'跟着箭头走'},
+ rules:{en:'An arrow will point in a direction.<br><br>Tap the button for the <b>same direction</b>.<br><br>In later levels, an <b style="color:#D0633A">orange</b> arrow means tap the <b>opposite</b> direction.',zh:'屏幕上会出现一个箭头。<br><br>请点<b>和箭头方向一样</b>的按钮。<br><br>后面的关卡里，<b style="color:#D0633A">橙色</b>箭头要点<b>相反</b>的方向。'}},
+function(L){
+  var dirs=L<=2?['left','right']:['up','right','down','left'],ROT={up:0,right:90,down:180,left:270},OPP={up:'down',down:'up',left:'right',right:'left'};
+  var NAME={up:{en:'Up',zh:'上'},down:{en:'Down',zh:'下'},left:{en:'Left',zh:'左'},right:{en:'Right',zh:'右'}};
+  var oppRate=L<6?0:Math.min(.5,(L-5)*.1);
+  Brain.quiz({rounds:10,make:function(){
+    var d=Brain.pick(dirs),opp=Math.random()<oppRate,ans=opp?OPP[d]:d;
+    return{q:'<div class="arrowbox">'+Brain.shape('arrow',opp?'#D0633A':'#17675B',ROT[d])+'</div>'+(L>=6?'<p class="rule">'+T({en:'Green: same way. Orange: opposite way.',zh:'绿色：同方向。橙色：反方向。'})+'</p>':''),
+      choices:dirs.map(x=>({html:'<div style="width:48px;height:48px;margin:0 auto">'+Brain.shape('arrow','#1C2826',ROT[x])+'</div><div style="font-size:1rem;margin-top:4px">'+T(NAME[x])+'</div>',v:x})),answer:ans,cols:2,
+      explain:opp?{en:'Orange arrow: tap the opposite way ('+NAME[ans].en+').',zh:'橙色箭头要点反方向（'+NAME[ans].zh+'）。'}:null}}});
+});
+</script></body></html>

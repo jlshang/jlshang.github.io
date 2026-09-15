@@ -1,0 +1,27 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style>.mx{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:280px;margin:0 auto}.mx span{aspect-ratio:1;display:block;padding:14%;border-radius:12px;background:var(--surface-2);border:1.5px solid var(--line)}.mx .q{border:2px dashed var(--primary);background:var(--primary-soft);color:var(--primary);font-size:2rem;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0}</style></head>
+<body><div class="wrap"></div>
+<script src="../../../shared/icons.js"></script>
+<script src="../../../shared/common.js" data-root="../../../"></script>
+<script>
+var PATH='games/logic/missing-tile/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
+
+Brain.run({id:'missing-tile',cat:'logic',icon:'layers',title:{en:'Missing Tile',zh:'补上缺的格子'},
+ rules:{en:'The 9 squares follow a rule across each row and down each column.<br><br>One square is missing. Tap the one that fits.',zh:'九宫格里的图形，每一行、每一列都有规律。<br><br>有一格是空的，请选出应该放进去的图形。'}},
+function(L){
+  Brain.quiz({rounds:6,make:function(){
+    var sh=Brain.shuffle(Brain.SHAPES.slice(0,7)).slice(0,3),co=Brain.shuffle(Brain.COLORS).slice(0,3),g=[];
+    for(var r=0;r<3;r++)for(var c=0;c<3;c++){
+      if(L<=2)g.push({s:sh[r],c:co[r]});                 /* each row is one repeated tile */
+      else if(L<=4)g.push({s:sh[c],c:co[0]});            /* same shape down each column */
+      else if(L<=7)g.push({s:sh[c],c:co[r]});            /* shape by column, color by row */
+      else g.push({s:sh[(r+c)%3],c:co[r]});              /* shapes shift along each row */
+    }
+    var miss=L<=5?8:Brain.rand(0,8),ans=g[miss],key=o=>o.s+o.c,pool=[ans],cand=[];
+    sh.forEach(s=>co.forEach(c=>cand.push({s:s,c:c})));
+    Brain.shuffle(cand).forEach(o=>{if(pool.length<(L<=3?3:4)&&!pool.some(p=>key(p)===key(o)))pool.push(o)});
+    return{q:'<p class="qline">'+T({en:'Which tile goes in the empty square?',zh:'空格里应该放哪一个？'})+'</p><div class="mx">'+g.map((o,i)=>i===miss?'<span class="q">?</span>':'<span>'+Brain.shape(o.s,o.c)+'</span>').join('')+'</div>',
+      choices:Brain.shuffle(pool).map(o=>({html:Brain.shape(o.s,o.c),v:key(o)})),answer:key(ans),cols:pool.length===3?3:2,
+      explain:{en:'Check the row and the column the empty square is in.',zh:'看看空格所在的那一行和那一列。'}}}});
+});
+</script></body></html>

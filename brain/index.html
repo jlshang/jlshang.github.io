@@ -17,6 +17,7 @@
 .game{display:flex;align-items:center;gap:16px;text-decoration:none;color:inherit;padding:16px}
 .tile{flex:none;width:60px;height:60px;border-radius:18px;padding:15px;color:var(--c);background:color-mix(in srgb,var(--c) 13%,#fff)}
 .game b{font-size:1.15rem;display:block}.game span{color:var(--muted);font-size:.95rem}
+.game .lvinfo{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:.85rem;color:var(--muted);font-weight:600}.game .bar{flex:1;max-width:110px;height:6px;border-radius:9px;background:#EDE7DB;overflow:hidden}.game .bar i{display:block;height:100%;background:var(--c)}
 .game .chev{margin-left:auto;flex:none;width:26px;height:26px;color:#B8B0A2}
 </style></head><body><div class="wrap">
 <div class="topbar"><div class="brand"><i id="logo"></i><span id="appname"></span></div><span id="lang"></span></div>
@@ -32,7 +33,7 @@ $('lang').innerHTML=Brain.langBtn();$('logo').innerHTML=I('brain');
 document.title=T({en:'Brain Buddy',zh:'脑力伙伴'});$('appname').textContent=document.title;
 $('date').textContent=new Date().toLocaleDateString(Brain.LANG==='zh'?'zh-CN':'en-US',{weekday:'long',month:'long',day:'numeric'});
 $('headline').textContent=T({en:'Good to see you',zh:'今天也来动动脑'});
-$('today').textContent=T({en:'3 short games, about 10 minutes',zh:'3 个小游戏，大约 10 分钟'});
+$('today').textContent=T({en:'3 short games, at your own pace',zh:'3 个小游戏，按自己的节奏来'});
 $('daily').innerHTML=T({en:"Start Today's Workout",zh:'开始今天的训练'})+I('arrow');
 GAMES.forEach(function(c){
   var s='<div class="section" style="--c:var(--'+c.key+')"><i></i>'+T(c.cat)+'</div><div class="games">';

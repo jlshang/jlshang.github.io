@@ -1,0 +1,28 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style></style></head>
+<body><div class="wrap"></div>
+<script src="../../../shared/icons.js"></script>
+<script src="../../../shared/common.js" data-root="../../../"></script>
+<script>
+var PATH='games/math/quick-sums/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
+
+Brain.run({id:'quick-sums',cat:'math',icon:'plus',title:{en:'Easy Sums',zh:'口算练习'},
+ rules:{en:'A simple math problem will appear.<br><br>Work it out in your head and tap the answer.<br><br>Levels start with small numbers and grow slowly.',zh:'屏幕上会出现一道简单的算术题。<br><br>在心里算一算，点出答案。<br><br>一开始数字很小，会慢慢变大。'}},
+function(L){
+  function gen(){var a,b,op;
+    if(L<=2){a=Brain.rand(1,5);b=Brain.rand(1,4);op='+'}
+    else if(L===3){a=Brain.rand(3,9);b=Brain.rand(2,9);op='+'}
+    else if(L===4){a=Brain.rand(6,18);b=Brain.rand(1,a-1);op='−'}
+    else if(L===5){a=Brain.rand(1,4)*10+Brain.rand(0,4);b=Brain.rand(1,4)*10+Brain.rand(0,4);op='+'}
+    else if(L===6){a=Brain.rand(3,9)*10+Brain.rand(5,9);b=Brain.rand(1,4)*10+Brain.rand(0,4);op='−'}
+    else if(L===7){a=Brain.rand(15,49);b=Brain.rand(15,49);op=Brain.pick(['+','−']);if(op==='−'&&b>a){var t=a;a=b;b=t}}
+    else if(L===8){a=Brain.rand(2,5);b=Brain.rand(2,9);op='×'}
+    else if(L===9){a=Brain.rand(3,9);b=Brain.rand(3,9);op='×'}
+    else{a=Brain.rand(25,99);b=Brain.rand(15,Math.min(a-5,60));op=Brain.pick(['+','−'])}
+    var ans=op==='+'?a+b:op==='−'?a-b:a*b;return{a:a,b:b,op:op,ans:ans}}
+  Brain.quiz({rounds:10,make:function(){var g=gen(),s=new Set([g.ans]);
+    [g.ans+1,g.ans-1,g.ans+2,g.ans+10,g.ans-10,g.ans-2].forEach(v=>{if(s.size<(L<=3?3:4)&&v>=0)s.add(v)});
+    return{q:'<div class="qbig">'+g.a+' '+g.op+' '+g.b+' = ?</div>',choices:Brain.shuffle([...s]).map(v=>({html:v,v:v})),answer:g.ans,cols:L<=3?3:2,
+      explain:g.a+' '+g.op+' '+g.b+' = '+g.ans}}});
+});
+</script></body></html>

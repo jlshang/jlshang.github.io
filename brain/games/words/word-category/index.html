@@ -1,0 +1,30 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style>.qbig{font-size:1.9rem}</style></head>
+<body><div class="wrap"></div>
+<script src="../../../shared/icons.js"></script>
+<script src="../../../shared/common.js" data-root="../../../"></script>
+<script>
+var PATH='games/words/word-category/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
+
+var CATS={fruit:{n:{en:'a fruit',zh:'水果'},w:[['Apple','苹果'],['Banana','香蕉'],['Grape','葡萄'],['Peach','桃子'],['Pear','梨']]},
+ animal:{n:{en:'an animal',zh:'动物'},w:[['Dog','狗'],['Horse','马'],['Rabbit','兔子'],['Duck','鸭子'],['Sheep','羊']]},
+ color:{n:{en:'a color',zh:'颜色'},w:[['Red','红色'],['Blue','蓝色'],['Green','绿色'],['Yellow','黄色'],['Purple','紫色']]},
+ body:{n:{en:'a part of the body',zh:'身体部位'},w:[['Hand','手'],['Nose','鼻子'],['Knee','膝盖'],['Ear','耳朵'],['Shoulder','肩膀']]},
+ kitchen:{n:{en:'a kitchen item',zh:'厨房用品'},w:[['Spoon','勺子'],['Pot','锅'],['Bowl','碗'],['Plate','盘子'],['Kettle','水壶']]},
+ weather:{n:{en:'weather',zh:'天气'},w:[['Rain','下雨'],['Snow','下雪'],['Wind','刮风'],['Fog','起雾'],['Thunder','打雷']]},
+ job:{n:{en:'a job',zh:'职业'},w:[['Doctor','医生'],['Farmer','农民'],['Teacher','老师'],['Driver','司机'],['Cook','厨师']]},
+ cloth:{n:{en:'clothing',zh:'衣物'},w:[['Coat','外套'],['Sock','袜子'],['Scarf','围巾'],['Shirt','衬衫'],['Glove','手套']]}};
+Brain.run({id:'word-category',cat:'words',icon:'tagWords',title:{en:'Word Groups',zh:'词语归类'},
+ rules:{en:'You will be asked to find a word from a group, like <b>a fruit</b>.<br><br>In later levels, find the word that <b>does not belong</b>.',zh:'题目会让您找出属于某一类的词，比如<b>水果</b>。<br><br>后面的关卡，要找出<b>不属于同一类</b>的那个词。'}},
+function(L){
+  var keys=Object.keys(CATS),useK=L<=3?keys.slice(0,4):keys,W=w=>Brain.LANG==='zh'?w[1]:w[0];
+  Brain.quiz({rounds:8,make:function(){
+    var ks=Brain.shuffle(useK),a=CATS[ks[0]];
+    if(L<=6){var n=L<=2?3:4,ans=W(Brain.pick(a.w)),others=ks.slice(1,n).map(k=>W(Brain.pick(CATS[k].w)));
+      return{q:'<p class="qline">'+T({en:'Which one is',zh:'哪一个是'})+'</p><div class="qbig">'+T(a.n)+T({en:'?',zh:'？'})+'</div>',choices:Brain.shuffle([ans].concat(others)).map(x=>({html:x,v:x})),answer:ans,cols:n===3?3:2,
+        explain:{en:ans+' is '+a.n.en+'.',zh:ans+'属于'+a.n.zh+'。'}}}
+    var same=Brain.shuffle(a.w).slice(0,3).map(W),odd=W(Brain.pick(CATS[ks[L>=9?1:1]].w));
+    return{q:'<p class="qline">'+T({en:'Which one does NOT belong?',zh:'哪一个和其他的不是一类？'})+'</p>',choices:Brain.shuffle(same.concat([odd])).map(x=>({html:x,v:x})),answer:odd,cols:2,
+      explain:{en:'The others are all '+a.n.en+'.',zh:'其他几个都是'+a.n.zh+'。'}}}});
+});
+</script></body></html>

@@ -1,0 +1,23 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style>.gap{font-size:2.6rem;font-weight:800;letter-spacing:.12em}.gap u{color:var(--primary);text-decoration:none;border-bottom:4px solid var(--primary);padding:0 .1em}</style></head>
+<body><div class="wrap"></div>
+<script src="../../../shared/icons.js"></script>
+<script src="../../../shared/common.js" data-root="../../../"></script>
+<script>
+var PATH='games/words/missing-letter/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
+
+var EN=[['CAT','DOG','SUN','HAT','BUS','CUP','BED','PEN','BOX','EGG'],['BOOK','FISH','MILK','TREE','BIRD','DOOR','RAIN','SHOE','BELL','MOON'],['APPLE','HOUSE','CHAIR','BREAD','WATER','PHONE','TRAIN','CLOCK','GRASS','SMILE'],['GARDEN','WINDOW','BUTTER','ORANGE','FLOWER','PENCIL','MARKET','DOCTOR','SUMMER','SISTER'],['KITCHEN','BLANKET','PICTURE','MORNING','TEACHER','BROTHER','WEATHER','HOLIDAY','CHICKEN','LETTERS']];
+var ZW=[['一心一意','三心二意','五颜六色','七上八下','自言自语','十全十美'],['春暖花开','鸟语花香','山清水秀','风和日丽','万紫千红','四面八方'],['画龙点睛','守株待兔','亡羊补牢','对牛弹琴','井底之蛙','胸有成竹'],['半途而废','百发百中','马到成功','助人为乐','一石二鸟','心想事成'],['温故知新','水滴石穿','集思广益','举一反三','精益求精','持之以恒']];
+Brain.run({id:'missing-letter',cat:'words',icon:'book',title:{en:'Fill the Gap',zh:'补全成语'},
+ rules:{en:'A word is missing <b>one letter</b>.<br><br>Tap the letter that completes the word.',zh:'一个词语或成语里<b>缺了一个字</b>。<br><br>请点出缺少的那个字，把它补完整。'}},
+function(L){
+  var tier=Math.min(4,Math.floor((L-1)/2)),pool=(ZH?ZW:EN)[tier],opts=L<=2?3:4;
+  var ALPHA=ZH?Array.from(ZW.flat().join('')):'ABCDEFGHIKLMNOPRSTUW'.split('');
+  Brain.quiz({rounds:8,make:function(){
+    var word=Brain.pick(pool),ch=Array.from(word),i=Brain.rand(0,ch.length-1),ans=ch[i];
+    var s=new Set([ans]);while(s.size<opts){var c=Brain.pick(ALPHA);if(!ch.includes(c))s.add(c)}
+    var shown=ch.map((c,k)=>k===i?'<u>&nbsp;?&nbsp;</u>':c).join('');
+    return{q:'<p class="qline">'+T({en:'Which letter is missing?',zh:'缺的是哪个字？'})+'</p><div class="gap">'+shown+'</div>',
+      choices:Brain.shuffle([...s]).map(c=>({html:c,v:c})),answer:ans,cols:opts===3?3:2,explain:{en:'The word is '+word,zh:'完整的是：'+word}}}});
+});
+</script></body></html>
