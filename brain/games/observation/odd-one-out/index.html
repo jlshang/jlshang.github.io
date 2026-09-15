@@ -1,23 +1,42 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style>.og{display:grid;gap:10px}.oc{aspect-ratio:1;border-radius:14px;border:3px solid var(--line);background:#fff;cursor:pointer;font-size:2.4rem;padding:0}.oc.right{border-color:var(--good);background:#E3F4EE}.oc.wrong{border-color:var(--warn)}</style></head>
-<body><div class="wrap"><div class="status"><span id="round"></span><span id="score"></span></div><div id="grid" class="og"></div><div id="fb" class="feedback"></div></div>
+<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style>.og{display:grid;gap:10px}.oc{aspect-ratio:1;border-radius:16px;border:1.5px solid var(--line);background:var(--surface);box-shadow:var(--shadow);cursor:pointer;padding:18%}.oc.right{background:var(--good-soft);box-shadow:0 0 0 2.5px var(--good) inset}.oc.wrong{box-shadow:0 0 0 2.5px var(--warn) inset}</style></head>
+<body><div class="wrap"><div class="status"><span id="round"></span><span id="score"></span></div><div id="grid" class="og" style="margin-top:12px"></div><div id="fb" class="feedback"></div></div>
+<script src="../../../shared/icons.js"></script>
 <script src="../../../shared/common.js" data-root="../../../"></script>
 <script>
 var PATH='games/observation/odd-one-out/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
 
 var TITLE={en:'Odd One Out',zh:'找不同'};
 Brain.topbar(TITLE);
-var PAIRS=[['🍎','🍏'],['🐶','🐱'],['☀️','🌙'],['🚗','🚕'],['🌷','🌹'],['⚽','🏀'],['😀','😢'],['🔑','🔒'],['🐟','🐠'],['🍋','🍊'],['🎈','🎀'],['🥛','🧃']];
-Brain.intro({title:TITLE,icon:'🔍',rules:{en:'All the pictures look the same, except <b>one</b>.<br><br>Find the picture that is <b>different</b> and tap it.',zh:'这些图片看起来都一样，只有<b>一个</b>不一样。<br><br>找出那个<b>不一样</b>的，点一下。'}}).then(start);
+/* Shapes drawn in SVG. Each round changes exactly one property; later rounds make the difference subtler. */
+function shape(k,color,rot){var g;
+  if(k==='circle')g='<circle cx="50" cy="50" r="40"/>';
+  else if(k==='square')g='<rect x="12" y="12" width="76" height="76" rx="16"/>';
+  else if(k==='triangle')g='<path d="M50 10L92 86H8z" stroke-linejoin="round"/>';
+  else if(k==='arrow')g='<path d="M50 8L88 50H64v42H36V50H12z"/>';
+  else if(k==='drop')g='<path d="M50 8C66 32 82 48 82 64a32 32 0 0 1-64 0c0-16 16-32 32-56z"/>';
+  else if(k==='moon')g='<path d="M62 10a40 40 0 1 0 28 60A34 34 0 0 1 62 10z"/>';
+  return '<svg viewBox="0 0 100 100"><g fill="'+color+'" transform="rotate('+(rot||0)+' 50 50)">'+g+'</g></svg>'}
+var PALETTE=['#D0633A','#6A5AC8','#2F6DB0','#2C8468','#A8487A','#B9801F'];
+var LIGHT={'#D0633A':'#E8A184','#6A5AC8':'#A99EE3','#2F6DB0':'#86AEDB','#2C8468':'#7FC0AA','#A8487A':'#D593B6','#B9801F':'#DDB76E'};
+var NEAR={'#D0633A':'#DC8058','#6A5AC8':'#8778D6','#2F6DB0':'#5189C4','#2C8468':'#4E9F83','#A8487A':'#BD6694','#B9801F':'#CC9A42'};
+function makeRound(r){var c=Brain.pick(PALETTE);
+  if(r<=2){var pair=Brain.shuffle([['circle','square'],['triangle','circle'],['square','drop']])[0];return[shape(pair[0],c),shape(pair[1],c)]}
+  if(r<=4)return[shape('drop',c),shape('drop',LIGHT[c])];
+  if(r<=6){var k=Brain.pick(['arrow','moon']);return[shape(k,c,0),shape(k,c,r===5?180:90)]}
+  if(r===7)return[shape('triangle',c,0),shape('triangle',c,180)];
+  return[shape('circle',c),shape('circle',NEAR[c])]}
+Brain.intro({title:TITLE,icon:'observation',cat:'observation',rules:{en:'All the shapes look the same, except <b>one</b>.<br><br>It may have a different <b>shape</b>, <b>color</b>, or <b>direction</b>.<br><br>Find it and tap it.',zh:'这些图形看起来都一样，只有<b>一个</b>不一样。<br><br>可能是<b>形状</b>、<b>颜色</b>或<b>方向</b>不同。<br><br>找到它，点一下。'}}).then(start);
 function start(){
-  var R=8,r=0,score=0,miss=false,fb=document.getElementById('fb'),grid=document.getElementById('grid'),order=Brain.shuffle(PAIRS);
+  var R=8,r=0,score=0,miss=false,fb=document.getElementById('fb'),grid=document.getElementById('grid');
   function round(){
     if(r>=R)return Brain.finish({id:'odd-one-out',path:PATH,score:score,total:R});
-    var p=order[r%order.length];r++;miss=false;fb.textContent='';
-    var size=r<=3?3:r<=6?4:5,N=size*size,odd=Brain.rand(0,N-1),flip=Math.random()<.5,base=flip?p[1]:p[0],diff=flip?p[0]:p[1];
-    document.getElementById('round').textContent=T({en:'Picture '+r+' of '+R,zh:'第 '+r+' 题 / 共 '+R+' 题'});document.getElementById('score').textContent=T({en:'Found: ',zh:'找到：'})+score;
-    grid.style.gridTemplateColumns='repeat('+size+',1fr)';grid.style.fontSize=size>4?'.8em':'1em';grid.innerHTML='';
-    for(let i=0;i<N;i++){let b=document.createElement('button');b.className='oc';b.textContent=i===odd?diff:base;
+    r++;miss=false;fb.textContent='';var pr=makeRound(r),flip=Math.random()<.5,base=flip?pr[1]:pr[0],diff=flip?pr[0]:pr[1];
+    if(r>=3&&r<=4){base=pr[0];diff=pr[1]}
+    var size=r<=3?3:r<=6?4:5,N=size*size,odd=Brain.rand(0,N-1);
+    document.getElementById('round').textContent=T({en:'Round '+r+' of '+R,zh:'第 '+r+' 题 / 共 '+R+' 题'});Brain.progress(r-1,R);document.getElementById('score').textContent=T({en:'Found: ',zh:'找到：'})+score;
+    grid.style.gridTemplateColumns='repeat('+size+',1fr)';grid.innerHTML='';
+    for(let i=0;i<N;i++){let b=document.createElement('button');b.className='oc';b.innerHTML=i===odd?diff:base;b.setAttribute('aria-label','shape');
       b.onclick=function(){if(i===odd){if(!miss)score++;b.classList.add('right');Brain.say(fb,true);grid.querySelectorAll('.oc').forEach(x=>x.onclick=null);setTimeout(round,1000)}
         else{miss=true;b.classList.add('wrong');Brain.say(fb,false,{en:'Look again, it is close!',zh:'再仔细看看，差一点！'})}};
       grid.appendChild(b)}

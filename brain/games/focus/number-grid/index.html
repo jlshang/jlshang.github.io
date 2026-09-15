@@ -1,13 +1,14 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style>.grid{display:grid;gap:10px}.cell{aspect-ratio:1;border-radius:16px;border:3px solid var(--line);background:#fff;font-size:2rem;font-weight:800;color:var(--ink);cursor:pointer}.cell.done{background:#E3F4EE;border-color:var(--good);color:var(--good)}</style></head>
+<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style>.grid{display:grid;gap:10px}.cell{aspect-ratio:1;border-radius:16px;border:1.5px solid var(--line);background:var(--surface);box-shadow:var(--shadow);font-size:2rem;font-weight:800;color:var(--ink);cursor:pointer;font-family:inherit;font-variant-numeric:tabular-nums}.cell.done{background:var(--good-soft);border-color:transparent;color:var(--good);box-shadow:none}</style></head>
 <body><div class="wrap"><div class="status"><span id="find"></span><span id="time"></span></div><div id="grid" class="grid"></div><div id="fb" class="feedback"></div></div>
+<script src="../../../shared/icons.js"></script>
 <script src="../../../shared/common.js" data-root="../../../"></script>
 <script>
 var PATH='games/focus/number-grid/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
 
 var TITLE={en:'Number Grid',zh:'数字方格'};
 Brain.topbar(TITLE);
-Brain.intro({title:TITLE,icon:'🎯',rules:{en:'Numbers are mixed up on the board.<br><br>Tap them <b>in order</b>: 1, then 2, then 3… all the way up.<br><br>Take your time. There is no rush.',zh:'方格里的数字是打乱的。<br><br>请<b>按顺序</b>点：先点 1，再点 2，再点 3……一直点到最大的数。<br><br>慢慢来，不着急。'}}).then(start);
+Brain.intro({title:TITLE,icon:'grid',cat:'focus',rules:{en:'Numbers are mixed up on the board.<br><br>Tap them <b>in order</b>: 1, then 2, then 3… all the way up.<br><br>Take your time. There is no rush.',zh:'方格里的数字是打乱的。<br><br>请<b>按顺序</b>点：先点 1，再点 2，再点 3……一直点到最大的数。<br><br>慢慢来，不着急。'}}).then(start);
 function start(){
   var size=(Brain.store('ng-size')||3), N=size*size, next=1, miss=0, t0=Date.now();
   var grid=document.getElementById('grid'), fb=document.getElementById('fb');
@@ -23,7 +24,7 @@ function start(){
       } else if(n>next){miss++;b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');Brain.say(fb,false,{en:'Look for '+next,zh:'找一找 '+next});}
     };grid.appendChild(b);
   });
-  function upd(){document.getElementById('find').textContent=T({en:'Find: ',zh:'请找：'})+next}
+  function upd(){Brain.progress(next-1,N);document.getElementById('find').textContent=T({en:'Find: ',zh:'请找：'})+next}
   var tm=setInterval(function(){document.getElementById('time').textContent=Math.round((Date.now()-t0)/1000)+T({en:'s',zh:' 秒'})},1000);upd();
 }
 </script></body></html>

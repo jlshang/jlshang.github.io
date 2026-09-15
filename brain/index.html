@@ -1,41 +1,51 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Brain Buddy</title><link rel="stylesheet" href="shared/style.css">
 <style>
-.hero{background:var(--primary);color:#fff;border-radius:24px;padding:28px 20px;text-align:center}
-.hero h1{margin:0 0 6px;font-size:1.8rem}.hero p{margin:0 0 20px;opacity:.9}
-.hero .btn{background:#fff;color:var(--primary);border-color:#fff;width:100%;min-height:80px;font-size:1.4rem}
-.cat h2{font-size:1.3rem;margin:28px 0 12px}
-.game{display:flex;align-items:center;gap:16px;text-decoration:none;color:inherit;margin-bottom:12px;min-height:84px}
-.game b{font-size:1.2rem;display:block}.game span{color:var(--muted);font-size:1rem}
-.game .arrow{margin-left:auto;font-size:1.6rem;color:var(--primary)}
-.streak{text-align:center;margin-top:12px;color:var(--muted)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.1rem}
+.brand i{width:40px;height:40px;border-radius:12px;background:var(--primary);color:#fff;padding:8px;display:block}
+.hero{position:relative;overflow:hidden;background:var(--primary);color:#fff;border-radius:28px;padding:26px 22px 22px;margin-top:8px}
+.hero:after{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.07)}
+.hero .date{font-size:.9rem;opacity:.8;font-weight:600}
+.hero h1{margin:6px 0 4px;font-size:1.75rem;line-height:1.2}
+.hero p{margin:0 0 20px;opacity:.85}
+.hero .btn{position:relative;z-index:1;background:#fff;color:var(--primary);width:100%;min-height:76px;font-size:1.2rem;white-space:nowrap;padding:0 18px;box-shadow:0 3px 0 rgba(0,0,0,.18)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.stat{padding:14px 16px}.stat b{display:block;font-size:1.6rem;font-variant-numeric:tabular-nums}.stat span{color:var(--muted);font-size:.9rem;font-weight:600}
+.section{display:flex;align-items:center;gap:10px;margin:28px 2px 12px;font-size:1.15rem;font-weight:800}
+.section i{width:10px;height:10px;border-radius:3px;background:var(--c)}
+.games{display:grid;gap:12px}
+.game{display:flex;align-items:center;gap:16px;text-decoration:none;color:inherit;padding:16px}
+.tile{flex:none;width:60px;height:60px;border-radius:18px;padding:15px;color:var(--c);background:color-mix(in srgb,var(--c) 13%,#fff)}
+.game b{font-size:1.15rem;display:block}.game span{color:var(--muted);font-size:.95rem}
+.game .chev{margin-left:auto;flex:none;width:26px;height:26px;color:#B8B0A2}
 </style></head><body><div class="wrap">
-<div class="topbar"><span></span><span id="lang"></span></div>
-<div class="hero"><h1 id="appname"></h1><p id="today"></p>
+<div class="topbar"><div class="brand"><i id="logo"></i><span id="appname"></span></div><span id="lang"></span></div>
+<div class="hero"><div class="date" id="date"></div><h1 id="headline"></h1><p id="today"></p>
 <button class="btn" id="daily"></button></div>
-<p class="streak" id="streak"></p>
+<div class="stats"><div class="card stat"><b id="s1">0</b><span id="l1"></span></div><div class="card stat"><b id="s2">0</b><span id="l2"></span></div></div>
 <div id="list"></div>
 </div>
-<script src="shared/games.js"></script><script src="shared/common.js" data-root="./"></script>
+<script src="shared/icons.js"></script><script src="shared/games.js"></script><script src="shared/common.js" data-root="./"></script>
 <script>
-var T=Brain.T;document.getElementById('lang').innerHTML=Brain.langBtn();
-document.title=T({en:'Brain Buddy',zh:'脑力伙伴'});
-document.getElementById('appname').textContent='🧠 '+document.title;
-document.getElementById('today').textContent=T({en:'Your 10-minute daily brain workout',zh:'每天10分钟，动动脑'});
-document.getElementById('daily').textContent=T({en:"Start Today's Workout",zh:'开始今天的训练'});
-var list=document.getElementById('list'),all=[];
+var T=Brain.T,I=Brain.I,$=function(id){return document.getElementById(id)};
+$('lang').innerHTML=Brain.langBtn();$('logo').innerHTML=I('brain');
+document.title=T({en:'Brain Buddy',zh:'脑力伙伴'});$('appname').textContent=document.title;
+$('date').textContent=new Date().toLocaleDateString(Brain.LANG==='zh'?'zh-CN':'en-US',{weekday:'long',month:'long',day:'numeric'});
+$('headline').textContent=T({en:'Good to see you',zh:'今天也来动动脑'});
+$('today').textContent=T({en:'3 short games, about 10 minutes',zh:'3 个小游戏，大约 10 分钟'});
+$('daily').innerHTML=T({en:"Start Today's Workout",zh:'开始今天的训练'})+I('arrow');
 GAMES.forEach(function(c){
-  var s='<section class="cat"><h2>'+c.icon+' '+T(c.cat)+'</h2>';
-  c.items.forEach(function(g){all.push({g:g,c:c});s+='<a class="card game" href="'+g.path+'"><div><b>'+T(g.name)+'</b><span>'+T(g.desc)+'</span></div><div class="arrow">›</div></a>'});
-  list.insertAdjacentHTML('beforeend',s+'</section>');
+  var s='<div class="section" style="--c:var(--'+c.key+')"><i></i>'+T(c.cat)+'</div><div class="games">';
+  c.items.forEach(function(g){s+='<a class="card game" style="--c:var(--'+c.key+')" href="'+g.path+'"><div class="tile">'+I(g.icon)+'</div><div><b>'+T(g.name)+'</b><span>'+T(g.desc)+'</span></div><div class="chev">'+I('chevron')+'</div></a>'});
+  $('list').insertAdjacentHTML('beforeend',s+'</div>');
 });
-document.getElementById('daily').onclick=function(){
-  /* 3 games from 3 different categories */
-  var cats=Brain.shuffle(GAMES).slice(0,3),q=cats.map(function(c){return Brain.pick(c.items).path});
+$('daily').onclick=function(){
+  var q=Brain.shuffle(GAMES).slice(0,3).map(function(c){return Brain.pick(c.items).path});
   try{sessionStorage.setItem('dailyQueue',JSON.stringify(q))}catch(e){}
   location.href=q[0];
 };
 var h=Brain.store('history')||[],days={};h.forEach(function(r){days[r.date]=1});
-var today=new Date().toISOString().slice(0,10),n=h.filter(function(r){return r.date===today}).length;
-document.getElementById('streak').textContent=Object.keys(days).length?T({en:'Games played today: '+n+'  ·  Days practiced: '+Object.keys(days).length,zh:'今天玩了 '+n+' 个游戏  ·  累计练习 '+Object.keys(days).length+' 天'}):'';
+var today=new Date().toISOString().slice(0,10);
+$('s1').textContent=h.filter(function(r){return r.date===today}).length;$('l1').textContent=T({en:'Games today',zh:'今天玩了'});
+$('s2').textContent=Object.keys(days).length;$('l2').textContent=T({en:'Days practiced',zh:'累计练习天数'});
 </script></body></html>
