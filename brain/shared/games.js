@@ -14,7 +14,7 @@ window.GAMES=[
   {id:'what-changed',icon:'question',name:{en:'What Is Missing?',zh:'少了什么'},desc:{en:'Spot the picture that is gone',zh:'找出少掉的那一样'},path:'games/memory/what-changed/index.html'}]},
  {cat:{en:'Math',zh:'计算力'},key:'math',items:[
   {id:'quick-sums',icon:'plus',name:{en:'Easy Sums',zh:'口算练习'},desc:{en:'Simple sums in your head',zh:'简单的心算题'},path:'games/math/quick-sums/index.html'},
-  {id:'make-change',icon:'cash',name:{en:'Make Change',zh:'买东西找零'},desc:{en:'How much change do you get?',zh:'应该找回多少钱？'},path:'games/math/make-change/index.html'},
+  {id:'make-change',icon:'cash',name:{en:'Corner Shop',zh:'小小杂货铺'},desc:{en:'Serve customers and count their change',zh:'当店主，给顾客找零钱'},path:'games/math/make-change/index.html'},
   {id:'coin-count',icon:'coins',name:{en:'Count the Money',zh:'数一数钱'},desc:{en:'Add up coins and bills',zh:'把硬币和纸币加起来'},path:'games/math/coin-count/index.html'},
   {id:'tip-calculator',icon:'receipt',name:{en:'Tip Time',zh:'打折算账'},desc:{en:'Work out the tip',zh:'算算打折后多少钱'},path:'games/math/tip-calculator/index.html'},
   {id:'compare-prices',icon:'compare',name:{en:'Better Deal',zh:'哪个更划算'},desc:{en:'Pick the cheaper shop',zh:'比比哪家更便宜'},path:'games/math/compare-prices/index.html'}]},

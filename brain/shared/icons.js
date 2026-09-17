@@ -47,6 +47,10 @@
     compare:ui('<rect x="3" y="4" width="7.5" height="16" rx="1.5"/><rect x="13.5" y="4" width="7.5" height="16" rx="1.5"/><path d="M6 9h2M16 14h2"/>'),
     slide:ui('<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v12M3 9h18M3 15h12"/>'),
     shapesSeq:ui('<circle cx="5" cy="12" r="2.5"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/><path d="M19 9.5l2.5 5h-5z"/>'),
+    flame:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-2.5 1.2-4 2.5-5.2.2 1.7 1 2.7 2 3.2C11 8 11.2 5 12 2z" fill="currentColor"/></svg>',
+    piggy:'<svg viewBox="0 0 48 48" aria-hidden="true"><ellipse cx="24" cy="27" rx="17" ry="13" fill="#F2A7B0"/><circle cx="38" cy="26" r="5.5" fill="#E8909B"/><circle cx="36.8" cy="25" r="1" fill="#7A3C45"/><circle cx="39.4" cy="25" r="1" fill="#7A3C45"/><circle cx="31" cy="21" r="1.8" fill="#3A2A2A"/><path d="M26 14l4-6 3 7z" fill="#E8909B"/><rect x="13" y="36" width="5" height="7" rx="2" fill="#E8909B"/><rect x="26" y="36" width="5" height="7" rx="2" fill="#E8909B"/><rect x="18" y="13.5" width="9" height="2.6" rx="1.3" fill="#7A3C45"/><circle cx="22" cy="8" r="4.5" fill="#E0A526"/><path d="M7 27c-3 0-4-2-3-4" stroke="#E8909B" stroke-width="2" fill="none" stroke-linecap="round"/></svg>',
+    heart:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21C5 16 2 12.5 2 8.5 2 5.5 4.4 3 7.3 3c2 0 3.6 1 4.7 2.6C13.1 4 14.7 3 16.7 3 19.6 3 22 5.5 22 8.5c0 4-3 7.5-10 12.5z" fill="currentColor"/></svg>',
+    mute:ui('<path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/>'),
     back:ui('<path d="M9 7L4 12l5 5"/><path d="M4 12h11a5 5 0 0 1 0 10h-1"/>')
   };
   function item(p){return '<svg viewBox="0 0 48 48" aria-hidden="true">'+p+'</svg>'}

@@ -1,26 +1,217 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style>.receipt .row{display:flex;justify-content:space-between;padding:6px 2px;font-size:1.2rem}.receipt .row b{font-size:1.6rem;font-variant-numeric:tabular-nums}</style></head>
+<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style>
+.hud{display:flex;align-items:center;gap:8px;margin:4px 0 10px}
+.chip{display:flex;align-items:center;gap:6px;background:var(--surface);border:1.5px solid var(--line);border-radius:99px;padding:6px 12px;font-weight:800;font-size:.95rem;box-shadow:var(--shadow);font-variant-numeric:tabular-nums}
+.chip svg{width:22px;height:22px}
+.chip.streak{color:#C4561E}.chip.streak.hot{background:#FFF1E6;border-color:#F3C9A8;animation:pulse 1s ease}
+.chip.bank{margin-left:auto;color:#8A5A12}.chip.bank.bump{animation:pulse .6s ease}
+.queue{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.queue i{width:14px;height:14px;border-radius:50%;background:#E4DCCB;display:block}.queue i.done{background:var(--good)}.queue i.now{background:var(--gold);box-shadow:0 0 0 3px #F7E3B5}
+@keyframes pulse{0%{transform:scale(1)}40%{transform:scale(1.15)}100%{transform:scale(1)}}
+
+.scene{position:relative;height:268px;border-radius:24px;overflow:hidden;background:linear-gradient(#FDF7EC,#F3EAD9);border:1.5px solid var(--line);box-shadow:var(--shadow)}
+.awning{position:absolute;left:0;right:0;top:0;height:40px}
+.shelf{position:absolute;left:14px;right:14px;top:58px;height:46px;display:flex;gap:10px;justify-content:flex-end;opacity:.55}
+.shelf span{width:34px;height:34px;display:block}
+.shelf:after{content:"";position:absolute;left:0;right:0;bottom:4px;height:5px;border-radius:3px;background:#D9C7A6}
+.counter{position:absolute;left:0;right:0;bottom:0;height:78px;background:#B9885A;border-top:8px solid #9A6E45}
+.counter:before{content:"";position:absolute;left:0;right:0;top:12px;height:2px;background:rgba(255,255,255,.15)}
+.customer{position:absolute;left:22px;bottom:62px;width:120px;height:170px;transition:transform .7s cubic-bezier(.3,.8,.3,1),opacity .5s}
+.customer.out{transform:translateX(380px);opacity:0}.customer.leave{transform:translateX(-260px);opacity:0}
+.customer.bob{animation:bob .5s ease 2}
+@keyframes bob{50%{transform:translateY(-8px)}}
+.bubble{position:absolute;left:148px;right:14px;top:52px;background:#fff;border-radius:18px;padding:10px 14px;font-size:1.05rem;font-weight:700;line-height:1.35;box-shadow:0 4px 14px rgba(0,0,0,.08);opacity:0;transform:translateY(6px);transition:all .35s}
+.bubble.show{opacity:1;transform:none}
+.bubble:before{content:"";position:absolute;left:-10px;top:22px;border:10px solid transparent;border-right-color:#fff;border-left:0}
+.onCounter{position:absolute;left:150px;right:12px;bottom:10px;display:flex;align-items:flex-end;gap:10px;justify-content:space-between}
+.goods{display:flex;align-items:flex-end;gap:6px}
+.goods .pic{width:58px;height:58px}
+.tagp{background:#FFF8E6;border:2px solid #E0A526;border-radius:10px;padding:2px 8px;font-weight:900;font-size:1.15rem;color:#6B4A12;transform:rotate(-4deg);font-variant-numeric:tabular-nums}
+.paid{display:flex;flex-direction:column;align-items:center;gap:2px;color:#fff;font-weight:800;font-size:.8rem}
+.paid .m{display:flex;gap:4px}
+.hearts{position:absolute;left:60px;top:40px;pointer-events:none}
+.hearts span{position:absolute;width:26px;height:26px;animation:floatUp 1.2s ease-out forwards}
+@keyframes floatUp{0%{transform:translateY(0) scale(.6);opacity:0}20%{opacity:1}100%{transform:translateY(-90px) scale(1.1);opacity:0}}
+
+.tray{margin-top:12px;padding:12px 14px}
+.tray-head{display:flex;justify-content:space-between;align-items:center;font-weight:700}
+.tray-head b{font-size:1.9rem;font-variant-numeric:tabular-nums;color:var(--ink)}
+.tray-head b.over{color:var(--warn)}
+.traybox{min-height:64px;display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:8px;padding:8px;border-radius:14px;background:repeating-linear-gradient(90deg,#F4EEE2 0 12px,#EFE7D8 12px 24px)}
+.traybox .empty{color:var(--muted);font-size:.95rem;padding-left:4px}
+.traybox button{border:0;background:none;padding:0;cursor:pointer;animation:drop .25s ease}
+@keyframes drop{0%{transform:translateY(-14px);opacity:0}100%{transform:none;opacity:1}}
+.drawer{display:grid;gap:10px;margin-top:12px}
+.dr{min-height:92px;border-radius:18px;border:1.5px solid var(--line);background:var(--surface);box-shadow:0 3px 0 var(--line);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-family:inherit;padding:6px}
+.dr:active{transform:translateY(2px);box-shadow:0 1px 0 var(--line)}
+.dr small{font-size:.8rem;color:var(--muted);font-weight:700}
+.coin{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;font-weight:900;box-shadow:inset 0 -4px 0 rgba(0,0,0,.16),inset 0 0 0 3px rgba(255,255,255,.25)}
+.bill{display:inline-flex;align-items:center;justify-content:center;border-radius:7px;color:#fff;font-weight:900;box-shadow:inset 0 0 0 3px rgba(255,255,255,.35)}
+.actions{display:grid;grid-template-columns:1fr 2fr;gap:10px;margin-top:12px}
+.actions .btn{min-height:68px}
+.hintbox{margin-top:10px;font-size:1.05rem;line-height:1.5}
+.hintbox b{color:var(--primary)}
+.fbline{min-height:1.6em;text-align:center;font-weight:800;font-size:1.15rem;margin-top:10px}
+.fbline.good{color:var(--good)}.fbline.try{color:var(--warn)}
+.sound{margin-left:4px}
+.dayend{position:fixed;inset:0;background:rgba(28,40,38,.45);display:flex;align-items:center;justify-content:center;padding:18px;z-index:9}
+.dayend .card{width:100%;max-width:420px;text-align:center;animation:drop .35s ease}
+.dayend h2{margin:6px 0 14px;font-size:1.6rem}
+.sumrow{display:flex;justify-content:space-between;padding:10px 4px;border-bottom:1px solid var(--line);font-size:1.1rem}
+.sumrow b{font-variant-numeric:tabular-nums}
+.piggy{width:88px;height:88px;margin:0 auto}
+</style></head>
 <body><div class="wrap"></div>
 <script src="../../../shared/icons.js"></script>
 <script src="../../../shared/common.js" data-root="../../../"></script>
 <script>
 var PATH='games/math/make-change/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
 
+var I=Brain.I;
+/* ---------- money sets per language, unlocked gradually by level ---------- */
+var US=[{v:1,t:'1¢',s:46,c:'#C8814A',f:'#fff'},{v:5,t:'5¢',s:52,c:'#B9BFC6',f:'#1C2826'},{v:10,t:'10¢',s:44,c:'#CBD0D6',f:'#1C2826'},{v:25,t:'25¢',s:58,c:'#AEB5BD',f:'#1C2826'},
+        {v:100,t:'$1',b:'#4E8A5B',w:70},{v:500,t:'$5',b:'#6E7F8D',w:70},{v:1000,t:'$10',b:'#B07A3A',w:70},{v:2000,t:'$20',b:'#3F7A6A',w:70}];
+var CN=[{v:10,t:'1角',s:44,c:'#C9CED4',f:'#1C2826'},{v:50,t:'5角',s:50,c:'#D9B25A',f:'#1C2826'},{v:100,t:'1元',s:58,c:'#BFC5CC',f:'#1C2826'},
+        {v:500,t:'5元',b:'#8A5AA8',w:70},{v:1000,t:'10元',b:'#3F6FB0',w:70},{v:2000,t:'20元',b:'#A8743F',w:70},{v:5000,t:'50元',b:'#2E8468',w:70},{v:10000,t:'100元',b:'#C0453A',w:74}];
+function money(m,scale){scale=scale||1;
+  if(m.b)return '<span class="bill" style="width:'+(m.w*scale)+'px;height:'+(38*scale)+'px;background:'+m.b+';font-size:'+(15*scale)+'px">'+m.t+'</span>';
+  var s=m.s*scale;return '<span class="coin" style="width:'+s+'px;height:'+s+'px;background:'+m.c+';color:'+m.f+';font-size:'+(s/3.3)+'px">'+m.t+'</span>'}
 function $(c){return ZH?'¥'+(c%100?(c/100).toFixed(c%10?2:1):(c/100)):'$'+(c/100).toFixed(2)}
-function near(ans,u,n){var s=new Set([ans]);[ans+u,ans-u,ans+2*u,ans-2*u,ans+5*u,ans+10*u,ans+3*u].forEach(v=>{if(s.size<n&&v>0)s.add(v)});return Brain.shuffle([...s])}
 
-var ITEMS_EN=['a coffee','a newspaper','a loaf of bread','a birthday card','a bag of apples','a movie ticket','a sandwich','flowers'],ITEMS_ZH=['一杯豆浆','一份报纸','一斤苹果','一把青菜','一袋馒头','一张电影票','一瓶酱油','一束鲜花'];
-Brain.run({id:'make-change',cat:'math',icon:'cash',title:{en:'Make Change',zh:'买东西找零'},
- rules:{en:'You are paying at a store.<br><br>You will see the <b>price</b> and how much you <b>paid</b>.<br><br>Tap how much <b>change</b> you get back.',zh:'您在商店买东西付钱。<br><br>会显示<b>价格</b>和您<b>付了多少</b>。<br><br>请选出应该<b>找回多少钱</b>。'}},
+/* ---------- tiny synthesized sounds (no audio files) ---------- */
+var AC=null,muted=!!Brain.store('shop-muted');
+function tone(freq,dur,type,vol,delay){if(muted)return;try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();var t=AC.currentTime+(delay||0),o=AC.createOscillator(),g=AC.createGain();
+  o.type=type||'sine';o.frequency.value=freq;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol||.12,t+.01);g.gain.exponentialRampToValueAtTime(.001,t+dur);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+dur+.05)}catch(e){}}
+var SND={coin:()=>tone(1320,.12,'triangle',.09),remove:()=>tone(520,.1,'sine',.07),
+  ok:()=>{tone(784,.18,'triangle',.12);tone(988,.18,'triangle',.12,.1);tone(1319,.35,'triangle',.12,.2)},
+  till:()=>{tone(2093,.08,'square',.05);tone(2637,.25,'triangle',.08,.07)},
+  soft:()=>tone(330,.25,'sine',.08),bell:()=>{tone(1568,.5,'sine',.08);tone(2093,.6,'sine',.05,.02)}};
+
+/* ---------- simple drawn customers (original, generic people) ---------- */
+var SKIN=['#F2D0B4','#E3B48F','#C98F66','#8D5A3B','#F6DCC8'],HAIR=['#E8E4DC','#B9B3A8','#5A4636','#2C2522','#8C6A4F'],SHIRT=['#6A5AC8','#2F6DB0','#2C8468','#D0633A','#A8487A','#B9801F'];
+function person(p,mood){
+  var mouth=mood==='happy'?'<path d="M50 70q10 9 20 0" stroke="#5A3A2A" stroke-width="3.5" fill="none" stroke-linecap="round"/>':
+            mood==='think'?'<path d="M52 72h16" stroke="#5A3A2A" stroke-width="3.5" stroke-linecap="round"/>':
+            '<path d="M51 70q9 5 18 0" stroke="#5A3A2A" stroke-width="3.5" fill="none" stroke-linecap="round"/>';
+  var hair=p.h===0?'<path d="M32 50c0-22 12-32 28-32s28 10 28 32c-6-10-16-14-28-14s-22 4-28 14z" fill="'+p.hc+'"/>':
+           p.h===1?'<path d="M30 56c-2-26 12-40 30-40s32 14 30 40c-4-4-6-14-8-18-8 6-30 8-44 2-4 4-6 12-8 16z" fill="'+p.hc+'"/><circle cx="60" cy="16" r="9" fill="'+p.hc+'"/>':
+           p.h===2?'<path d="M34 44c2-18 12-26 26-26s24 8 26 26c-8-6-18-8-26-8s-18 2-26 8z" fill="'+p.hc+'"/><rect x="30" y="18" width="60" height="10" rx="5" fill="'+p.sh+'"/><rect x="40" y="4" width="40" height="18" rx="8" fill="'+p.sh+'"/>':
+           '<path d="M30 60c-4-30 10-44 30-44s34 14 30 44l-6 20c0-18-2-30-6-36-10 4-26 4-36 0-4 6-6 18-6 36z" fill="'+p.hc+'"/>';
+  var glasses=p.g?'<circle cx="49" cy="55" r="7" fill="none" stroke="#3A3A3A" stroke-width="2.5"/><circle cx="71" cy="55" r="7" fill="none" stroke="#3A3A3A" stroke-width="2.5"/><path d="M56 55h8" stroke="#3A3A3A" stroke-width="2.5"/>':'';
+  return '<svg viewBox="0 0 120 170"><path d="M18 170c0-44 18-66 42-66s42 22 42 66z" fill="'+p.sh+'"/><path d="M48 104l12 16 12-16" fill="#fff" opacity=".85"/>'+
+    '<rect x="52" y="84" width="16" height="22" rx="6" fill="'+p.sk+'"/><ellipse cx="60" cy="58" rx="28" ry="31" fill="'+p.sk+'"/>'+hair+
+    '<circle cx="49" cy="56" r="3.2" fill="#2C2522"/><circle cx="71" cy="56" r="3.2" fill="#2C2522"/>'+glasses+
+    '<circle cx="42" cy="67" r="5" fill="#E89A8A" opacity=".45"/><circle cx="78" cy="67" r="5" fill="#E89A8A" opacity=".45"/>'+mouth+'</svg>'}
+function newPerson(){return{sk:Brain.pick(SKIN),hc:Brain.pick(HAIR),sh:Brain.pick(SHIRT),h:Brain.rand(0,3),g:Math.random()<.4}}
+
+/* shop themes change as levels rise, to give a sense of the shop growing */
+var THEMES=[{n:{en:'Fruit Stand',zh:'水果摊'},a:['#E0493C','#FFF6E8'],goods:['apple','banana','orange','pear','grapes']},
+            {n:{en:'Bakery',zh:'面包房'},a:['#B9801F','#FFF6E8'],goods:['bread','egg','milk','cheese','cup']},
+            {n:{en:'Grocery Store',zh:'杂货铺'},a:['#2C8468','#FFF6E8'],goods:['carrot','tomato','fish','rice','potato','corn']}];
+var GREET={en:['Hello there!','Good morning!','Hi, how are you?','Lovely day, isn\'t it?'],zh:['您好呀！','早上好！','老板好！','今天天气真好！']};
+
+Brain.run({id:'make-change',cat:'math',icon:'cash',title:{en:'Corner Shop',zh:'小小杂货铺'},
+ rules:{en:'You run a little shop today.<br><br>Customers come to buy something and hand you money.<br><br>Tap coins and bills in your <b>cash drawer</b> to count out their <b>change</b>, then tap <b>Give change</b>.<br><br>No rush. If it is not right, the customer lets you fix it.',zh:'今天您是一家小店的店主。<br><br>顾客来买东西，会把钱递给您。<br><br>从下面的<b>钱箱</b>里点硬币和纸币，凑出要<b>找的零钱</b>，再点<b>找零</b>。<br><br>不着急，找错了顾客会提醒您，改过来就行。'}},
 function(L){
-  Brain.quiz({rounds:8,make:function(){
-    var price,paid,u;
-    if(ZH){ if(L<=2){price=Brain.rand(1,9)*100;paid=1000;u=100}else if(L<=4){price=Brain.rand(11,45)*100;paid=5000;u=100}
-      else if(L<=7){price=Brain.rand(11,45)*100+50;paid=5000;u=50}else{price=Brain.rand(12,88)*100+Brain.rand(1,9)*10;paid=10000;u=100}}
-    else{ if(L<=2){price=Brain.rand(1,4)*100;paid=500;u=100}else if(L<=4){price=Brain.rand(4,19)*25;paid=500;u=25}
-      else if(L<=7){price=Brain.rand(21,95)*10+5*Brain.rand(0,1);paid=1000;u=25}else{price=Brain.rand(501,1899);paid=2000;u=100}}
-    var ans=paid-price;
-    return{q:'<div class="receipt" style="text-align:left"><p class="qline">'+T({en:'You buy ',zh:'您买了'})+Brain.pick(ZH?ITEMS_ZH:ITEMS_EN)+'</p><div class="row"><span>'+T({en:'Price',zh:'价格'})+'</span><b>'+$(price)+'</b></div><div class="row"><span>'+T({en:'You pay',zh:'您付了'})+'</span><b>'+$(paid)+'</b></div><div class="row"><span>'+T({en:'Change',zh:'应找回'})+'</span><b>?</b></div></div>',
-      choices:near(ans,u,L<=2?3:4).map(v=>({html:$(v),v:v})),answer:ans,cols:L<=2?3:2,explain:$(paid)+' − '+$(price)+' = '+$(ans)}}});
+  var SET=ZH?CN:US,theme=THEMES[L<=3?0:L<=6?1:2],N=L<=2?4:L<=6?5:6;
+  /* which denominations are in the drawer at this level */
+  var drawer=ZH?(L<=2?[100,500]:L<=4?[100,500,1000,2000]:L<=7?[50,100,500,1000,2000]:[10,50,100,500,1000,2000,5000])
+               :(L<=2?[100]:L<=4?[25,100]:L<=7?[5,10,25,100]:[1,5,10,25,100,500,1000]);
+  drawer=drawer.map(v=>SET.find(m=>m.v===v));
+  function makeSale(){var price,paid;
+    if(ZH){if(L<=2){price=Brain.rand(1,9)*100;paid=1000}else if(L<=4){price=Brain.rand(11,45)*100;paid=5000}
+      else if(L<=7){price=Brain.rand(11,45)*100+50;paid=5000}else{price=Brain.rand(12,88)*100+Brain.rand(1,9)*10;paid=10000}}
+    else{if(L<=2){price=Brain.rand(1,4)*100;paid=500}else if(L<=4){price=Brain.rand(4,19)*25;paid=500}
+      else if(L<=7){price=Brain.rand(21,95)*10+5*Brain.rand(0,1);paid=1000}else{price=Brain.rand(501,1899);paid=2000}}
+    return{price:price,paid:paid,item:Brain.pick(theme.goods)}}
+
+  var bank=Brain.store('shop-bank')||0,served=0,firstTry=0,streak=0,best=0,earned=0,tips=0,i=0,sale,tray=[],tries=0,busy=false,cust;
+  var w=document.querySelector('.wrap');
+  var stripes='<svg class="awning" viewBox="0 0 400 40" preserveAspectRatio="none">'+Array.from({length:10},(_,k)=>'<path d="M'+(k*40)+' 0h40v28a20 12 0 0 1-40 0z" fill="'+(k%2?theme.a[1]:theme.a[0])+'"/>').join('')+'</svg>';
+  w.insertAdjacentHTML('beforeend',
+   '<div class="hud"><div class="queue" id="queue"></div><span class="chip streak" id="streak">'+I('flame')+'<span>0</span></span><span class="chip bank" id="bank">'+I('piggy')+'<span></span></span>'+
+   '<button class="icon-btn sound" id="snd" aria-label="sound"></button></div>'+
+   '<div class="scene" id="scene">'+stripes+'<div class="shelf">'+theme.goods.slice(0,5).map(k=>'<span>'+ITEMS[k].svg+'</span>').join('')+'</div>'+
+     '<div class="counter"></div><div class="customer out" id="cust"></div><div class="bubble" id="bubble"></div><div class="onCounter" id="onc"></div><div class="hearts" id="hearts"></div></div>'+
+   '<div class="fbline" id="fb"></div>'+
+   '<div class="card tray"><div class="tray-head"><span>'+T({en:'Change to give',zh:'要找给顾客'})+'</span><b id="tot"></b></div><div class="traybox" id="traybox"></div><div class="hintbox" id="hint" hidden></div></div>'+
+   '<div class="drawer" id="drawer"></div>'+
+   '<div class="actions"><button class="btn secondary" id="hintBtn">'+T({en:'Help',zh:'提示'})+'</button><button class="btn" id="give">'+T({en:'Give change',zh:'找零'})+'</button></div>');
+  var $id=x=>document.getElementById(x),fb=$id('fb');
+  var bankShow=function(bump){$id('bank').querySelector('span').textContent=$(bank);if(bump){$id('bank').classList.remove('bump');void $id('bank').offsetWidth;$id('bank').classList.add('bump')}};bankShow();
+  function sndIcon(){$id('snd').innerHTML=I(muted?'mute':'speaker')}sndIcon();
+  $id('snd').onclick=function(){muted=!muted;Brain.store('shop-muted',muted);sndIcon();if(!muted)SND.coin()};
+
+  var dr=$id('drawer');dr.style.gridTemplateColumns='repeat('+(drawer.length<=4?drawer.length:drawer.length<=6?3:4)+',1fr)';
+  drawer.forEach(function(m){var b=document.createElement('button');b.className='dr';b.innerHTML=money(m,.9)+'<small>'+T({en:'add',zh:'放入'})+'</small>';
+    b.onclick=function(){if(busy)return;tray.push(m);SND.coin();drawTray()};dr.appendChild(b)});
+
+  function queue(){$id('queue').innerHTML=Array.from({length:N},(_,k)=>'<i class="'+(k<i-1||(k===i-1&&busy&&served===i)?'done':k===i-1?'now':'')+'"></i>').join('');Brain.progress(served,N)}
+  function drawTray(){var sum=tray.reduce((s,m)=>s+m.v,0),need=sale?sale.paid-sale.price:0;
+    $id('tot').textContent=$(sum);$id('tot').className=sum>need?'over':'';
+    var tb=$id('traybox');tb.innerHTML=tray.length?'':'<span class="empty">'+T({en:'Tap the money below to add it here. Tap a coin here to take it back.',zh:'点下面的钱放到这里。点这里的钱可以拿回去。'})+'</span>';
+    tray.slice().sort((a,b)=>b.v-a.v).forEach(function(m){var b=document.createElement('button');b.innerHTML=money(m,.8);b.onclick=function(){if(busy)return;tray.splice(tray.indexOf(m),1);SND.remove();drawTray()};tb.appendChild(b)})}
+
+  function say(html){var b=$id('bubble');b.classList.remove('show');setTimeout(function(){b.innerHTML=html;b.classList.add('show')},120)}
+  function streakShow(){var s=$id('streak');s.querySelector('span').textContent=streak;s.classList.toggle('hot',streak>=2)}
+
+  function nextCustomer(){
+    if(i>=N)return dayEnd();
+    i++;tries=0;tray=[];busy=false;sale=makeSale();cust=newPerson();fb.textContent='';fb.className='fbline';$id('hint').hidden=true;
+    var c=$id('cust');c.className='customer out';c.innerHTML=person(cust,'smile');$id('onc').innerHTML='';$id('bubble').classList.remove('show');
+    drawTray();queue();
+    setTimeout(function(){SND.bell();c.className='customer bob'},250);
+    setTimeout(function(){
+      var it=ITEMS[sale.item],paidM=SET.find(m=>m.v===sale.paid);
+      say(Brain.pick(T(GREET))+'<br>'+T({en:'I\'ll take the '+it.en.toLowerCase()+'. Here is '+$(sale.paid)+'.',zh:'我要'+it.zh+'，给您 '+$(sale.paid)+'。'}));
+      $id('onc').innerHTML='<div class="goods"><div class="pic">'+it.svg+'</div><span class="tagp">'+$(sale.price)+'</span></div><div class="paid"><div class="m">'+money(paidM,.85)+'</div>'+T({en:'paid',zh:'付款'})+'</div>';
+      Brain.speak(T({en:'That is '+$(sale.price)+'. Here is '+$(sale.paid)+'.',zh:'价格 '+$(sale.price)+'，顾客付了 '+$(sale.paid)+'。'}));
+    },900);
+  }
+
+  function give(){
+    if(busy||!sale)return;var sum=tray.reduce((s,m)=>s+m.v,0),need=sale.paid-sale.price;
+    if(!tray.length){fb.className='fbline try';fb.textContent=T({en:'Add some money to the tray first.',zh:'先从钱箱里拿钱放进托盘。'});return}
+    if(sum===need){
+      busy=true;served++;if(tries===0){firstTry++;streak++;best=Math.max(best,streak)}else streak=0;streakShow();
+      var tip=tries===0&&streak>=2?Math.min(streak,4)*(ZH?50:25):0;tips+=tip;earned+=sale.price;bank+=sale.price+tip;Brain.store('shop-bank',bank);
+      $id('cust').innerHTML=person(cust,'happy');SND.ok();setTimeout(SND.till,450);
+      say(T(tries===0?{en:'Perfect, thank you!',zh:'正好，谢谢老板！'}:{en:'That is right now. Thank you!',zh:'这下对了，谢谢！'})+(tip?'<br><span style="color:#8A5A12">'+T({en:'Keep '+$(tip)+' as a tip!',zh:'多给您 '+$(tip)+' 小费！'})+'</span>':''));
+      fb.className='fbline good';fb.textContent=tries===0?(streak>=2?T({en:streak+' in a row!',zh:'连续 '+streak+' 位答对！'}):T({en:'Great job!',zh:'真棒！'})):T({en:'Well done!',zh:'做得好！'});
+      var h=$id('hearts');h.innerHTML=Array.from({length:4},(_,k)=>'<span style="left:'+(k*22)+'px;animation-delay:'+(k*.12)+'s;color:#E0493C">'+I('heart')+'</span>').join('');
+      setTimeout(function(){bankShow(true)},500);queue();
+      setTimeout(function(){$id('cust').className='customer leave';$id('bubble').classList.remove('show');$id('onc').innerHTML='';h.innerHTML=''},2300);
+      setTimeout(nextCustomer,3100);
+    }else{
+      tries++;streak=0;streakShow();SND.soft();$id('cust').innerHTML=person(cust,'think');
+      var msg=sum<need?{en:'Hmm, I think I should get a little more back.',zh:'嗯……好像找少了一点。'}:{en:'Oh, that is a bit too much. Let me give some back.',zh:'哎呀，好像找多了。'};
+      say(T(msg));fb.className='fbline try';fb.textContent=T({en:'Adjust the tray and try again.',zh:'调整一下托盘里的钱，再试一次。'});
+      if(tries>=2)showHint(true);
+    }
+  }
+  /* "count up" method: start at the price and add money until you reach what was paid */
+  function showHint(strong){var need=sale.paid-sale.price,h=$id('hint');h.hidden=false;
+    var plan=[],left=need;drawer.slice().sort((a,b)=>b.v-a.v).forEach(m=>{while(left>=m.v){plan.push(m);left-=m.v}});
+    var steps=[],run=sale.price;plan.slice().reverse().forEach(m=>{run+=m.v;steps.push($(run))});
+    h.innerHTML=T({en:'Count up from the price: start at <b>'+$(sale.price)+'</b> and add money until you reach <b>'+$(sale.paid)+'</b>.',zh:'从价格往上数：从 <b>'+$(sale.price)+'</b> 开始加钱，一直加到 <b>'+$(sale.paid)+'</b>。'})+
+      (strong?'<br>'+T({en:'Change needed: ',zh:'需要找：'})+'<b>'+$(need)+'</b> = '+plan.map(m=>m.t).join(' + '):'');
+    Brain.speak(h.textContent)}
+  $id('give').onclick=give;
+  $id('hintBtn').onclick=function(){if(!sale||busy)return;tries=Math.max(tries,1);showHint($id('hint').hidden===false)};
+
+  function dayEnd(){
+    SND.ok();var d=document.createElement('div');d.className='dayend';
+    d.innerHTML='<div class="card"><div class="piggy">'+I('piggy')+'</div><h2>'+T({en:'Shop closed for today!',zh:'今天打烊啦！'})+'</h2>'+
+      '<div class="sumrow"><span>'+T({en:'Customers served',zh:'接待顾客'})+'</span><b>'+served+'</b></div>'+
+      '<div class="sumrow"><span>'+T({en:'Right on the first try',zh:'一次就找对'})+'</span><b>'+firstTry+' / '+N+'</b></div>'+
+      '<div class="sumrow"><span>'+T({en:'Best streak',zh:'最多连续答对'})+'</span><b>'+best+'</b></div>'+
+      '<div class="sumrow"><span>'+T({en:'Sales + tips',zh:'营业额 + 小费'})+'</span><b>'+$(earned)+' + '+$(tips)+'</b></div>'+
+      '<div class="sumrow" style="border:0"><span>'+T({en:'Piggy bank savings',zh:'存钱罐总额'})+'</span><b style="color:#8A5A12">'+$(bank)+'</b></div>'+
+      '<button class="btn block" id="toRes" style="margin-top:14px">'+T({en:'See my stars',zh:'看看得了几颗星'})+'</button></div>';
+    document.body.appendChild(d);Brain.speak(T({en:'Shop closed for today!',zh:'今天打烊啦！'}));
+    $id('toRes').onclick=function(){d.remove();Brain.finish({score:firstTry,total:N,note:{en:'Sales '+$(earned)+' · Tips '+$(tips)+' · Savings '+$(bank),zh:'营业额 '+$(earned)+' · 小费 '+$(tips)+' · 存钱罐 '+$(bank)}})};
+  }
+  streakShow();setTimeout(nextCustomer,300);
 });
+
 </script></body></html>
