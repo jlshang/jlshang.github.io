@@ -1,21 +1,124 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style>.word{font-size:4.2rem;font-weight:900;letter-spacing:.02em;padding:22px 0}</style></head>
+<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style>
+.studio{position:relative;margin-top:10px;border-radius:26px;padding:14px 14px 12px;background:linear-gradient(#F3E9D8,#EADBC2);box-shadow:var(--shadow);overflow:hidden}
+.studio:before{content:"";position:absolute;left:0;right:0;bottom:0;height:40px;background:repeating-linear-gradient(90deg,#C9A57A 0 36px,#BE9A6E 36px 72px)}
+.easel{position:relative;background:#fff;border-radius:10px;border:8px solid #9A6E45;box-shadow:0 6px 0 #7E5836;max-width:360px;margin:0 auto}
+.easel svg{display:block;width:100%;height:auto}
+.easel path.r{fill:#FAFAF7;stroke:#B9B2A4;stroke-width:1.2;transition:fill .6s ease}
+.easel path.r.target{stroke:#E0A526;stroke-width:3;stroke-dasharray:5 4;animation:dash 1s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-18}}
+.cardword{position:relative;z-index:1;margin:14px auto 0;max-width:300px;background:#FFFDF8;border-radius:16px;padding:10px 10px 12px;text-align:center;box-shadow:0 4px 0 #DCCBB0;transition:transform .25s}
+.cardword small{display:block;color:var(--muted);font-weight:700;font-size:.9rem}
+.cardword b{display:block;font-size:3.2rem;line-height:1.1;font-weight:900;letter-spacing:.02em}
+.cardword.wordmode{outline:4px dashed #6A5AC8;outline-offset:-6px}
+.cardword.no{animation:shake .4s}
+.cardword.flyout{transform:translateY(-40px) scale(.85);opacity:0;transition:all .35s}
+.pots{display:grid;gap:10px;margin-top:14px}
+.pot{border:0;background:none;padding:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font-family:inherit}
+.pot svg{width:78px;height:74px;transition:transform .2s}
+.pot:active svg{transform:translateY(3px)}
+.pot span{font-weight:800;font-size:1.05rem;color:var(--ink)}
+.pot.hint svg{animation:beat 1s ease-in-out 2}
+@keyframes beat{50%{transform:scale(1.15)}}
+.brush{position:absolute;width:44px;height:44px;pointer-events:none;z-index:4;transition:all .5s cubic-bezier(.4,.1,.3,1)}
+.splat{position:absolute;pointer-events:none;width:50px;height:30px;opacity:.85}
+.say2{text-align:center;font-weight:800;font-size:1.15rem;min-height:1.6em;margin-top:10px}.say2.good{color:var(--good)}.say2.try{color:var(--warn)}
+.framed path.r{fill:#FAFAF7;stroke:#B9B2A4;stroke-width:1.2}
+.framed svg{display:block;width:100%;height:auto}
+.framed{max-width:300px;margin:0 auto 6px;border:8px solid #9A6E45;border-radius:8px}
+</style></head>
 <body><div class="wrap"></div>
 <script src="../../../shared/icons.js"></script>
 <script src="../../../shared/common.js" data-root="../../../"></script>
 <script>
 var PATH='games/focus/color-match/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
 
-var COLORS=[{n:{en:'RED',zh:'红'},c:'#C62828'},{n:{en:'BLUE',zh:'蓝'},c:'#1565C0'},{n:{en:'GREEN',zh:'绿'},c:'#2E7D32'},{n:{en:'ORANGE',zh:'橙'},c:'#E65100'}];
-Brain.run({id:'color-match',cat:'focus',icon:'colors',title:{en:'Color Match',zh:'看颜色'},
- rules:{en:'You will see a color word painted in some color.<br><br>Tap the <b>color of the paint</b>, not what the word says.<br><br>Example: if you see <b style="color:#1565C0">RED</b>, tap <b>BLUE</b>.',zh:'屏幕上的颜色字，本身涂着某种颜色。<br><br>请点<b>字的颜色</b>，不要管字写的是什么。<br><br>例如：看到 <b style="color:#1565C0">红</b>，应该点<b>蓝</b>。'}},
+var I=Brain.I;
+var COLORS=[{k:'red',n:{en:'RED',zh:'红'},c:'#D8413A',t:'#F0A29B'},{k:'blue',n:{en:'BLUE',zh:'蓝'},c:'#2D6CC0',t:'#9CC0EA'},{k:'green',n:{en:'GREEN',zh:'绿'},c:'#2E8B4E',t:'#9DD2AA'},
+            {k:'orange',n:{en:'ORANGE',zh:'橙'},c:'#E67517',t:'#F6BE8A'},{k:'purple',n:{en:'PURPLE',zh:'紫'},c:'#7B4FC0',t:'#C3AEE6'}];
+/* outline pictures made of paintable regions (viewBox 200x150) */
+var PICS=[
+ {n:{en:'Balloon over the hills',zh:'山丘上的热气球'},r:[
+  'M0 0H200V96C160 84 120 90 90 98 60 106 30 100 0 92Z',
+  'M150 18a14 14 0 1 0 .1 0Z',
+  'M20 30c4-8 16-8 20-2 6-4 16 0 14 8H18c-4 0-4-6 2-6Z',
+  'M0 92c30 8 60 14 90 6 30-8 70-14 110-2V120H0Z',
+  'M0 120c40-14 90-14 130-2 26 8 50 6 70 0V150H0Z',
+  'M100 22c-18 0-30 14-30 30 0 14 10 26 22 34h8Z',
+  'M100 22c18 0 30 14 30 30 0 14-10 26-22 34h-8Z',
+  'M92 86h16l-2 8H94Z',
+  'M92 98h16v10H92Z',
+  'M30 118c0-10 6-18 10-18s10 8 10 18Z',
+  'M160 132a8 8 0 1 0 .1 0Z',
+  'M172 116c0-12 8-22 12-22s12 10 12 22Z']},
+ {n:{en:'Sailing boat at sea',zh:'海上的小帆船'},r:[
+  'M0 0H200V92H0Z',
+  'M40 22a15 15 0 1 0 .1 0Z',
+  'M130 26c4-8 16-8 20-2 6-4 16 0 14 8h-36c-4 0-4-6 2-6Z',
+  'M0 92h200v18c-30 6-60 6-100 0S30 104 0 110Z',
+  'M0 110c30-6 60-6 100 0s70 6 100 0V150H0Z',
+  'M100 30v52H62Z',
+  'M104 38v44h34Z',
+  'M100 18h14l-4 5 4 5h-14Z',
+  'M58 86h88l-12 16H70Z',
+  'M150 92c6-10 22-12 34-4 6 4 10 4 16 4Z',
+  'M20 128c6-4 14-4 20 0Z',
+  'M160 132c6-4 14-4 20 0Z']}];
+function potSVG(c){return '<svg viewBox="0 0 78 74"><path d="M14 26h50l-5 40H19Z" fill="#E9E4DA" stroke="#B9B2A4" stroke-width="2"/><ellipse cx="39" cy="26" rx="26" ry="8" fill="'+c.c+'"/><path d="M26 26c0 8 4 14 6 22 2-8 4-12 3-22Z" fill="'+c.c+'"/><ellipse cx="33" cy="24" rx="7" ry="2.4" fill="#fff" opacity=".45"/></svg>'}
+var BRUSH='<svg viewBox="0 0 44 44"><path d="M30 4l10 10-16 16-10-10Z" fill="#B9885A"/><path d="M14 20l10 10-6 6c-4 4-12 6-14 4s0-10 4-14Z" fill="currentColor"/></svg>';
+
+Brain.run({id:'color-match',cat:'focus',icon:'colors',title:{en:'Paint Studio',zh:'彩色画室'},
+ rules:{en:'Help finish a painting in the studio.<br><br>Each card shows a color word written in colored ink. Dip the brush in the pot that matches the <b>ink color</b>, not the word.<br><br>Example: <b style="color:#2D6CC0">RED</b> written in blue ink means tap the <b>blue</b> pot.',zh:'在画室里一起完成一幅画。<br><br>每张卡片上写着一个颜色字，字是用某种颜色写的。请点和<b>字的颜色</b>一样的颜料罐，不要看字的意思。<br><br>例如：用蓝色写的 <b style="color:#2D6CC0">红</b>，要点<b>蓝色</b>罐子。'},
+ goal:{en:'Color every part of the painting, with at least 6 in 10 right on the first try.',zh:'把画的每一块都涂上颜色，且第一次就选对的要达到六成。'}},
 function(L){
-  /* more colors and more "tricky" words as levels rise */
-  var k=L<=2?2:L<=5?3:4,trick=Math.min(.85,.25+L*.06),set=COLORS.slice(0,k);
-  Brain.quiz({rounds:10,make:function(){
-    var word=Brain.pick(set),ink=Math.random()<trick?Brain.pick(set.filter(x=>x!==word)):word;
-    return{q:'<p class="qline">'+T({en:'What color is the paint?',zh:'这个字是什么颜色？'})+'</p><div class="word" style="color:'+ink.c+'">'+T(word.n)+'</div>',
-      choices:set.map(c=>({html:T(c.n),v:c.n.en})),answer:ink.n.en,cols:k===3?3:2,
-      explain:{en:'The paint color is '+ink.n.en,zh:'字的颜色是'+ink.n.zh}}}});
+  var nC=L<=2?2:L<=5?3:L<=8?4:5,set=COLORS.slice(0,nC),pic=Brain.pick(PICS),REG=L<=3?8:L<=7?10:12,order=Brain.shuffle(pic.r.map((_,i)=>i)).slice(0,REG);
+  var trick=Math.min(.85,.3+L*.06),wordRate=L>=9?.25:0,step=0,first=0,tried=false,card,w=document.querySelector('.wrap');
+  w.insertAdjacentHTML('beforeend','<div class="hud" id="hud"><span class="chip" id="prog">'+I('colors')+'<span></span></span><span class="chip" id="acc">'+I('check')+'<span></span></span></div>'+
+    '<div class="studio" id="studio"><div class="easel"><svg viewBox="0 0 200 150" id="canvas">'+pic.r.map((d,i)=>'<path class="r" data-i="'+i+'" d="'+d+'"/>').join('')+'</svg></div>'+
+    '<div class="cardword" id="card"></div><div class="pots" id="pots" style="grid-template-columns:repeat('+nC+',1fr)"></div></div><div class="say2" id="say"></div>');
+  document.getElementById('hud').appendChild(Brain.soundBtn());
+  var say=document.getElementById('say'),studio=document.getElementById('studio'),cardEl=document.getElementById('card');
+  set.forEach(function(c){var b=document.createElement('button');b.className='pot';b.innerHTML=potSVG(c)+'<span>'+T(c.n)+'</span>';b._c=c;b.onclick=function(){pick(b)};document.getElementById('pots').appendChild(b)});
+  function hud(){document.querySelector('#prog span').textContent=step+' / '+REG;document.querySelector('#acc span').textContent=T({en:'First try ',zh:'一次选对 '})+first;Brain.progress(step,REG)}
+  function deal(){
+    if(step>=REG)return done();
+    tried=false;var word=Brain.pick(set),ink=Math.random()<trick?Brain.pick(set.filter(x=>x!==word)):word,wm=Math.random()<wordRate;
+    card={word:word,ink:ink,wm:wm,ans:wm?word:ink};
+    cardEl.className='cardword'+(wm?' wordmode':'');
+    cardEl.innerHTML='<small>'+T(wm?{en:'Dashed frame: follow the WORD',zh:'虚线框：这次按字的意思选'}:{en:'Pick the ink color',zh:'选字的颜色'})+'</small><b style="color:'+ink.c+'">'+T(word.n)+'</b>';
+    document.querySelectorAll('#canvas path').forEach(p=>p.classList.remove('target'));
+    document.querySelector('#canvas path[data-i="'+order[step]+'"]').classList.add('target');hud();
+  }
+  function pick(b){
+    if(!card)return;var c=b._c,rect=studio.getBoundingClientRect();
+    if(c===card.ans){
+      if(!tried)first++;var target=document.querySelector('#canvas path[data-i="'+order[step]+'"]');
+      /* brush flies from the pot to the region */
+      var br=document.createElement('div');br.className='brush';br.style.color=c.c;br.innerHTML=BRUSH;var pb=b.getBoundingClientRect(),tb=target.getBoundingClientRect();
+      br.style.left=(pb.left-rect.left+18)+'px';br.style.top=(pb.top-rect.top)+'px';studio.appendChild(br);
+      requestAnimationFrame(()=>{br.style.left=(tb.left-rect.left+tb.width/2-22)+'px';br.style.top=(tb.top-rect.top+tb.height/2-22)+'px'});
+      Brain.sfx('pop');card=null;cardEl.classList.add('flyout');
+      setTimeout(function(){target.style.fill=c.t;target.classList.remove('target');Brain.sfx('sparkle');br.remove();step++;hud();
+        say.className='say2 good';say.textContent=tried?T({en:'There it is!',zh:'涂上啦！'}):Brain.pick(T({en:['Lovely color!','Beautiful!','Perfect stroke!'],zh:['颜色真好看！','漂亮！','这一笔真棒！']}));
+        setTimeout(deal,450)},560);
+    }else{
+      tried=true;Brain.sfx('soft');cardEl.classList.remove('no');void cardEl.offsetWidth;cardEl.classList.add('no');
+      var sp=document.createElement('div');sp.className='splat';sp.style.left=Brain.rand(20,rect.width-70)+'px';sp.style.bottom=Brain.rand(6,24)+'px';
+      sp.innerHTML='<svg viewBox="0 0 50 30"><path d="M8 16c-6-8 8-14 14-8 6-8 22-4 18 6 8 2 8 12-2 12-6 6-20 6-24 0-8 2-12-4-6-10Z" fill="'+c.c+'"/></svg>';studio.appendChild(sp);
+      say.className='say2 try';say.textContent=card.wm?T({en:'Dashed frame means follow the word this time.',zh:'虚线框的卡片要按字的意思选哦。'}):T({en:'Look at the color of the letters, not the word.',zh:'看字是用什么颜色写的，不看字的意思。'});
+      if(tried){document.querySelectorAll('.pot').forEach(p=>{if(p._c===card.ans){p.classList.remove('hint');void p.offsetWidth;p.classList.add('hint')}})}
+    }
+  }
+  function done(){
+    Brain.sfx('win');cardEl.style.display='none';document.getElementById('pots').style.display='none';
+    say.className='say2 good';say.textContent=T({en:'Your painting is finished!',zh:'您的画完成啦！'});
+    Brain.toast(T({en:'Masterpiece!',zh:'大作完成！'}),studio,1600);
+    var acc=first/REG,pass=acc>=.6,stars=acc>=.9?3:acc>=.75?2:pass?1:0,art=document.getElementById('canvas').outerHTML;
+    setTimeout(function(){Brain.finish({pass:pass,stars:stars,score:first,total:REG,note:{en:'"'+pic.n.en+'" · right on the first try: '+first+' of '+REG,zh:'《'+pic.n.zh+'》 · 一次选对 '+first+' / '+REG},
+      failMsg:{en:'The painting is done! Get 6 in 10 right on the first try to pass.',zh:'画完成了！第一次就选对达到六成就能过关。'}});
+      var big=document.querySelector('.overlay .card');if(big)big.insertAdjacentHTML('afterbegin','<div class="framed">'+art+'</div>')},2000);
+  }
+  deal();
 });
+
 </script></body></html>

@@ -66,7 +66,7 @@
       var q=dailyQueue(), step=q.length?'<p class="muted" style="margin:0">'+T({en:"Today's workout",zh:'今日训练'})+'</p>':'';
       var ov=el('<div class="overlay"><div class="wrap stack center intro"><div style="display:flex;justify-content:flex-end">'+langBtn()+'</div>'+step+
         '<div class="badge" style="--c:var(--'+(o.cat||'primary')+')">'+I(o.icon||'brain')+'</div><h1>'+title+'</h1>'+
-        '<div class="card rules">'+rules+'</div>'+
+        '<div class="card rules">'+rules+(o.goal?'<div class="goal">'+I('flag')+'<span>'+T(o.goal)+'</span></div>':'')+'</div>'+
         '<button class="btn secondary block" data-a="hear">'+I('speaker')+T({en:'Hear the instructions',zh:'听一听规则'})+'</button>'+
         '<div class="card"><div class="levels-head"><b>'+T({en:'Choose a level',zh:'选择关卡'})+'</b><span class="muted">'+T({en:'Unlocked ',zh:'已解锁 '})+p.max+' / '+MAXL+'</span></div><div class="levels"></div></div>'+
         '<button class="btn block" data-a="go"></button>'+
@@ -130,17 +130,17 @@
     /* End screen with level progression. Passing = 60% or more. */
     finish:function(o){
       var g=Brain.cur||{},id=o.id||g.id,path=o.path||g.path,L=Brain.level||1;
-      var pct=o.total?o.score/o.total:1,pass=pct>=0.6,stars=pct>=.9?3:pct>=.75?2:pass?1:0;
+      var pct=o.total?o.score/o.total:1,pass=o.pass!==undefined?o.pass:pct>=0.6,stars=o.stars!==undefined?o.stars:(pct>=.9?3:pct>=.75?2:pass?1:0);
       var p=prog(id);if(stars>(p.stars[L]||0))p.stars[L]=stars;var unlocked=false;
       if(pass&&L>=p.max&&L<MAXL){p.max=L+1;unlocked=true}store('prog-'+id,p);
-      var hist=store('history')||[];var today=new Date().toISOString().slice(0,10);
+      if(o.big!==undefined){}var hist=store('history')||[];var today=new Date().toISOString().slice(0,10);
       hist.push({game:id,level:L,score:o.score,total:o.total,date:today});store('history',hist.slice(-800));
       var playedToday=hist.filter(function(h){return h.date===today}).length;
       var q=dailyQueue(), wasDaily=q[0]===path; if(wasDaily) q.shift();
       try{sessionStorage.setItem('dailyQueue',JSON.stringify(q))}catch(e){}
       var head=T(pct>=.9?{en:'Excellent work!',zh:'太棒了！'}:pass?{en:'Level complete!',zh:'过关啦！'}:{en:'Good practice!',zh:'练得不错！'});
       var sub=pass?(unlocked?T({en:'Level '+(L+1)+' is now unlocked.',zh:'第 '+(L+1)+' 关已经解锁。'}):(L===MAXL?T({en:'You have finished every level!',zh:'所有关卡都完成啦！'}):'')):
-        T({en:'Get '+Math.ceil(o.total*.6)+' right to pass. Take your time, you can try again.',zh:'答对 '+Math.ceil(o.total*.6)+' 题就能过关，慢慢来，可以再试一次。'});
+        T(o.failMsg||{en:'Get '+Math.ceil(o.total*.6)+' right to pass. Take your time, you can try again.',zh:'答对 '+Math.ceil(o.total*.6)+' 题就能过关，慢慢来，可以再试一次。'});
       var base=ROOT+path,btns='';
       if(q.length)btns+='<a class="btn block" href="'+ROOT+q[0]+'">'+T({en:'Next game',zh:'下一个游戏'})+I('arrow')+'</a>';
       else if(pass&&L<MAXL)btns+='<a class="btn block" href="'+base+'?level='+(L+1)+'&go=1">'+T({en:'Play Level '+(L+1),zh:'玩第 '+(L+1)+' 关'})+I('arrow')+'</a>';
@@ -150,7 +150,7 @@
       var done=wasDaily&&!q.length?'<div class="card rest" style="color:var(--primary)">'+I('flag')+'<span>'+T({en:"You finished today's workout!",zh:'今天的训练完成啦！'})+'</span></div>':'';
       var ov=el('<div class="overlay"><div class="wrap stack center intro"><div class="stars">'+[1,2,3].map(function(k){return '<span class="'+(stars>=k?'on':'')+'">'+I('star')+'</span>'}).join('')+'</div>'+
         '<h1>'+head+'</h1><p class="muted" style="margin:4px 0 0">'+T({en:'Level ',zh:'第 '})+L+T({en:'',zh:' 关'})+'</p>'+
-        '<div class="card"><div class="big">'+o.score+' / '+o.total+'</div>'+(o.note?'<p class="muted" style="margin:6px 0 0">'+T(o.note)+'</p>':'')+(sub?'<p style="margin:8px 0 0;font-weight:600">'+sub+'</p>':'')+'</div>'+
+        '<div class="card"><div class="big">'+(o.big!==undefined?o.big:o.score+' / '+o.total)+'</div>'+(o.note?'<p class="muted" style="margin:6px 0 0">'+T(o.note)+'</p>':'')+(sub?'<p style="margin:8px 0 0;font-weight:600">'+sub+'</p>':'')+'</div>'+
         done+rest+btns+'<a class="btn ghost block" href="'+ROOT+'index.html">'+T({en:'Home',zh:'首页'})+'</a></div></div>');
       document.body.appendChild(ov); speak(head+' '+sub);
     }

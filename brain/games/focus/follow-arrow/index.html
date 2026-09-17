@@ -1,21 +1,102 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style>.arrowbox{width:150px;height:150px;margin:6px auto}.rule{font-size:1rem;color:var(--muted);margin:10px 0 0}</style></head>
+<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style>
+.town{position:relative;margin-top:10px;border-radius:26px;background:#9FCB86;box-shadow:var(--shadow);padding:46px 10px 10px}
+.grid5{position:relative;display:grid;gap:4px;max-width:330px;margin:0 auto}
+.tile{border-radius:12px;overflow:hidden;background:#A9D491;position:relative}
+.tile.alt{background:#A1CD88}
+.tile .deco{position:absolute;inset:14%}
+.tile.trail{background:#E6D3A6}
+.tile.trail:after{content:"";position:absolute;left:44%;top:44%;width:12%;height:12%;border-radius:50%;background:#C9AE76}
+.tile.goal{background:#F3E6C4}
+.hog{position:absolute;left:0;top:0;z-index:3;transition:transform .45s cubic-bezier(.3,.7,.4,1);pointer-events:none}
+.hog .body{width:100%;height:100%;transition:transform .2s}
+.hog.bump .body{animation:shake .4s}
+.hog.step .body{animation:hop .45s}
+@keyframes hop{50%{transform:translateY(-10px)}}
+.sign{position:absolute;left:50%;bottom:92%;transform:translateX(-50%);background:#FFF8E6;border:3px solid #9A6E45;border-radius:12px;padding:3px 6px;display:flex;gap:4px;box-shadow:0 3px 0 #7E5836;white-space:nowrap}
+.sign span{width:34px;height:34px;display:block}
+.sign.rev{background:#EFE6FF;border-color:#6A5AC8;box-shadow:0 3px 0 #4E3F9E}
+.sign.pop{animation:toastIn2 .35s}
+.pad4{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:10px;margin-top:14px}
+.pad4 button{min-height:70px;border-radius:20px;border:1.5px solid var(--line);background:var(--surface);box-shadow:0 4px 0 var(--line);cursor:pointer;padding:14px;display:flex;align-items:center;justify-content:center}
+.pad4 button svg{width:44px;height:44px}
+.pad4 button:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+.pad4 .up{grid-column:2;grid-row:1}.pad4 .left{grid-column:1;grid-row:2}.pad4 .down{grid-column:2;grid-row:2}.pad4 .right{grid-column:3;grid-row:2}
+.pad4.two .up{grid-column:1/2;grid-row:1/3}.pad4.two .right{grid-column:2/4;grid-row:1/3}
+.letters{display:flex;gap:4px}.letters span{width:24px;height:24px;display:block;opacity:.3}.letters span.on{opacity:1}
+.rulebar{margin-top:10px;display:flex;align-items:center;gap:10px;background:#EFE6FF;color:#4E3F9E;border-radius:14px;padding:8px 12px;font-weight:700;font-size:1rem}
+.rulebar span{width:30px;height:30px;flex:none}
+</style></head>
 <body><div class="wrap"></div>
 <script src="../../../shared/icons.js"></script>
 <script src="../../../shared/common.js" data-root="../../../"></script>
 <script>
 var PATH='games/focus/follow-arrow/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
 
-Brain.run({id:'follow-arrow',cat:'focus',icon:'arrows',title:{en:'Follow the Arrow',zh:'跟着箭头走'},
- rules:{en:'An arrow will point in a direction.<br><br>Tap the button for the <b>same direction</b>.<br><br>In later levels, an <b style="color:#D0633A">orange</b> arrow means tap the <b>opposite</b> direction.',zh:'屏幕上会出现一个箭头。<br><br>请点<b>和箭头方向一样</b>的按钮。<br><br>后面的关卡里，<b style="color:#D0633A">橙色</b>箭头要点<b>相反</b>的方向。'}},
+var I=Brain.I;
+var HOG='<svg class="body" viewBox="0 0 80 70"><path d="M8 50C6 26 24 10 44 10c18 0 30 12 32 28l-6 16H14Z" fill="#8A6143"/><path d="M14 22l-8-6 10 0-4-8 10 5 0-9 7 8 3-9 4 9 6-7 1 9 8-5-2 9 10-3-5 8" fill="#6E4B33"/><path d="M50 26c14 0 24 10 24 22 0 10-8 14-20 14H30c-6 0-8-6-4-10Z" fill="#E9CFA8"/><circle cx="62" cy="38" r="4" fill="#1C2826"/><circle cx="63.4" cy="36.6" r="1.2" fill="#fff"/><circle cx="76" cy="48" r="4" fill="#3A2A22"/><path d="M58 50q6 4 12 0" stroke="#6E4B33" stroke-width="2.5" fill="none" stroke-linecap="round"/><rect x="22" y="40" width="26" height="18" rx="3" fill="#fff" stroke="#D0633A" stroke-width="2.5"/><path d="M22 42l13 9 13-9" stroke="#D0633A" stroke-width="2.5" fill="none"/><circle cx="24" cy="64" r="5" fill="#6E4B33"/><circle cx="56" cy="64" r="5" fill="#6E4B33"/></svg>';
+var HOUSE=function(c){return '<svg viewBox="0 0 60 60"><path d="M6 28L30 8l24 20" fill="'+c+'"/><rect x="12" y="26" width="36" height="28" rx="2" fill="#FFF3DC"/><rect x="25" y="36" width="10" height="18" rx="1" fill="#9A6E45"/><rect x="15" y="31" width="8" height="8" rx="1" fill="#8FC3E8"/><rect x="37" y="31" width="8" height="8" rx="1" fill="#8FC3E8"/><rect x="48" y="38" width="8" height="7" rx="1.5" fill="#D0633A"/><path d="M52 45v9" stroke="#8A6143" stroke-width="2"/></svg>'};
+var DECO=['<svg viewBox="0 0 40 40"><circle cx="20" cy="18" r="14" fill="#5FA052"/><circle cx="12" cy="24" r="9" fill="#6DB05E"/><circle cx="28" cy="24" r="9" fill="#6DB05E"/></svg>',
+  '<svg viewBox="0 0 40 40"><circle cx="12" cy="16" r="5" fill="#F4B6C2"/><circle cx="26" cy="24" r="5" fill="#F2C744"/><circle cx="16" cy="30" r="4" fill="#fff"/><circle cx="12" cy="16" r="1.8" fill="#F2C744"/><circle cx="26" cy="24" r="1.8" fill="#D0633A"/></svg>',
+  '<svg viewBox="0 0 40 40"><ellipse cx="20" cy="26" rx="14" ry="9" fill="#B9B2A4"/><ellipse cx="16" cy="23" rx="5" ry="2" fill="#D8D2C4"/></svg>',''];
+var ROT={up:0,right:90,down:180,left:270},OPP={up:'down',down:'up',left:'right',right:'left'},DV={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]};
+function arrow(d,col){return Brain.shape('arrow',col||'#1C2826',ROT[d])}
+
+Brain.run({id:'follow-arrow',cat:'focus',icon:'arrows',title:{en:'Hedgehog Post',zh:'小刺猬送信'},
+ rules:{en:'Hazel the hedgehog is delivering letters around the village.<br><br>A little <b>signpost</b> above her shows which way to walk. Tap the matching direction button.<br><br>On later levels, a <b style="color:#6A5AC8">purple sign</b> is a joke sign: walk the <b>opposite</b> way.',zh:'小刺猬海泽要把信送到村子里的人家。<br><br>它头上的<b>小路牌</b>会告诉您往哪边走，点相同方向的按钮就行。<br><br>后面的关卡里，<b style="color:#6A5AC8">紫色路牌</b>是调皮的反向牌，要往<b>相反</b>方向走。'},
+ goal:{en:'Deliver all the letters. Stars depend on how few times Hazel bumps into things.',zh:'把所有的信都送到就过关。碰壁的次数越少，星星越多。'}},
 function(L){
-  var dirs=L<=2?['left','right']:['up','right','down','left'],ROT={up:0,right:90,down:180,left:270},OPP={up:'down',down:'up',left:'right',right:'left'};
-  var NAME={up:{en:'Up',zh:'上'},down:{en:'Down',zh:'下'},left:{en:'Left',zh:'左'},right:{en:'Right',zh:'右'}};
-  var oppRate=L<6?0:Math.min(.5,(L-5)*.1);
-  Brain.quiz({rounds:10,make:function(){
-    var d=Brain.pick(dirs),opp=Math.random()<oppRate,ans=opp?OPP[d]:d;
-    return{q:'<div class="arrowbox">'+Brain.shape('arrow',opp?'#D0633A':'#17675B',ROT[d])+'</div>'+(L>=6?'<p class="rule">'+T({en:'Green: same way. Orange: opposite way.',zh:'绿色：同方向。橙色：反方向。'})+'</p>':''),
-      choices:dirs.map(x=>({html:'<div style="width:48px;height:48px;margin:0 auto">'+Brain.shape('arrow','#1C2826',ROT[x])+'</div><div style="font-size:1rem;margin-top:4px">'+T(NAME[x])+'</div>',v:x})),answer:ans,cols:2,
-      explain:opp?{en:'Orange arrow: tap the opposite way ('+NAME[ans].en+').',zh:'橙色箭头要点反方向（'+NAME[ans].zh+'）。'}:null}}});
+  var COLS=5,ROWS=5,LEN=[3,4,4,5,5,6,6,7,7,8][L-1],DELIV=3,two=L<=2,revRate=L<6?0:Math.min(.45,(L-5)*.09),combo=L>=9;
+  var dirs=two?['up','right']:['up','right','down','left'],deliv=0,bumps=0,path,pos,stepI,signs,house,w=document.querySelector('.wrap');
+  w.insertAdjacentHTML('beforeend','<div class="hud" id="hud"><span class="chip"><span class="letters" id="letters"></span></span><span class="chip" id="bumps">'+I('flag')+'<span></span></span></div>'+
+    '<div class="town"><div class="grid5" id="g"></div></div>'+(revRate?'<div class="rulebar"><span>'+arrow('right','#6A5AC8')+'</span>'+T({en:'Purple sign = walk the opposite way',zh:'紫色路牌 = 往相反方向走'})+'</div>':'')+
+    '<div class="pad4'+(two?' two':'')+'" id="pad"></div><div class="say2" id="say" style="text-align:center;font-weight:800;min-height:1.6em;margin-top:10px"></div>');
+  document.getElementById('hud').appendChild(Brain.soundBtn());
+  document.getElementById('letters').innerHTML=Array.from({length:DELIV},()=>'<span>'+I('receipt')+'</span>').join('');
+  var g=document.getElementById('g'),say=document.getElementById('say');function sizeGrid(){var avail=Math.min(330,document.querySelector('.town').clientWidth-20),ts=Math.floor((avail-4*(COLS-1))/COLS);g.style.gridTemplateColumns='repeat('+COLS+','+ts+'px)';g.style.gridAutoRows=ts+'px';g.style.width=(ts*COLS+4*(COLS-1))+'px'}sizeGrid();
+  dirs.forEach(function(d){var b=document.createElement('button');b.className=d;b.innerHTML=arrow(d);b.setAttribute('aria-label',d);b.onclick=function(){press(d)};document.getElementById('pad').appendChild(b)});
+  function genPath(){for(var t=0;t<300;t++){
+      var sx=two?Brain.rand(0,1):Brain.rand(0,COLS-1),sy=two?ROWS-1-Brain.rand(0,1):Brain.rand(0,ROWS-1),p=[[sx,sy]],seen={},ok=true;seen[sx+','+sy]=1;
+      for(var i=0;i<LEN;i++){var cur=p[p.length-1],opts=Brain.shuffle(dirs).filter(d=>{var nx=cur[0]+DV[d][0],ny=cur[1]+DV[d][1];return nx>=0&&ny>=0&&nx<COLS&&ny<ROWS&&!seen[nx+','+ny]});
+        if(!opts.length){ok=false;break}var d=opts[0];var n=[cur[0]+DV[d][0],cur[1]+DV[d][1],d];seen[n[0]+','+n[1]]=1;p.push(n)}
+      if(ok)return p}return null}
+  function tileEl(x,y){return g.children[y*COLS+x]}
+  function place(){var t=tileEl(pos[0],pos[1]),r=g.getBoundingClientRect(),tr=t.getBoundingClientRect(),hog=document.getElementById('hog');
+    hog.style.width=tr.width+'px';hog.style.height=tr.height+'px';hog.style.transform='translate('+(tr.left-r.left)+'px,'+(tr.top-r.top)+'px)'}
+  function street(){
+    path=genPath();pos=[path[0][0],path[0][1]];stepI=1;var goal=path[path.length-1];
+    g.innerHTML='';for(var y=0;y<ROWS;y++)for(var x=0;x<COLS;x++){var t=document.createElement('div');t.className='tile'+((x+y)%2?' alt':'');
+      var onPath=path.some(p=>p[0]===x&&p[1]===y);if(!onPath&&Math.random()<.45)t.innerHTML='<div class="deco">'+Brain.pick(DECO)+'</div>';g.appendChild(t)}
+    var gt=tileEl(goal[0],goal[1]);gt.classList.add('goal');gt.innerHTML='<div class="deco" style="inset:4%">'+HOUSE(Brain.pick(['#D0633A','#2F6DB0','#2C8468','#A8487A']))+'</div>';
+    tileEl(pos[0],pos[1]).classList.add('trail');
+    /* each step gets a sign; purple signs mean the opposite way */
+    signs=path.slice(1).map(p=>{var rev=Math.random()<revRate&&!two;return{rev:rev,show:rev?OPP[p[2]]:p[2],need:p[2]}});
+    g.insertAdjacentHTML('beforeend','<div class="hog" id="hog">'+HOG+'<div class="sign" id="sign"></div></div>');
+    requestAnimationFrame(place);showSign();
+    say.textContent=T(deliv===0?{en:'Follow the signs to the house.',zh:'跟着路牌走，把信送到小房子。'}:{en:'Next letter! Follow the signs.',zh:'下一封信！继续跟着路牌走。'});say.style.color='var(--muted)';
+    Brain.progress(deliv,DELIV);
+  }
+  function showSign(){var s=signs[stepI-1],el=document.getElementById('sign'),k=combo&&stepI<signs.length&&!s.rev&&!signs[stepI].rev;
+    el.className='sign pop'+(s.rev?' rev':'');el.innerHTML='<span>'+arrow(s.show,s.rev?'#6A5AC8':'#1C2826')+'</span>';
+    if(combo&&stepI<signs.length){var s2=signs[stepI];el.innerHTML+='<span style="opacity:.45">'+arrow(s2.show,s2.rev?'#6A5AC8':'#1C2826')+'</span>'}}
+  function press(d){
+    if(!path||stepI>=path.length)return;var s=signs[stepI-1],hog=document.getElementById('hog');
+    if(d===s.need){var n=path[stepI];pos=[n[0],n[1]];tileEl(pos[0],pos[1]).classList.add('trail');Brain.sfx('tap');
+      hog.classList.remove('step');void hog.offsetWidth;hog.classList.add('step');place();stepI++;
+      say.style.color='var(--good)';say.textContent=s.rev?T({en:'Ha! You saw through the joke sign.',zh:'哈！识破了调皮的反向牌。'}):'';
+      if(stepI>=path.length){arrive()}else setTimeout(showSign,250)}
+    else{bumps++;hog.classList.remove('bump');void hog.offsetWidth;hog.classList.add('bump');Brain.sfx('soft');document.querySelector('#bumps span').textContent=T({en:'Bumps ',zh:'碰壁 '})+bumps;
+      say.style.color='var(--warn)';say.textContent=s.rev?T({en:'Purple sign: go the opposite way.',zh:'紫色路牌要往反方向走哦。'}):T({en:'Oops, bumped into a bush. Check the sign.',zh:'哎呀，撞到树丛了，看看路牌。'})}
+  }
+  function arrive(){document.getElementById('sign').style.display='none';deliv++;Brain.sfx('ok');
+    document.querySelectorAll('#letters span')[deliv-1].classList.add('on');Brain.progress(deliv,DELIV);
+    Brain.toast(T({en:'Letter delivered!',zh:'信送到啦！'}),document.querySelector('.town'),1300);
+    setTimeout(function(){if(deliv>=DELIV)end();else street()},1700)}
+  function end(){Brain.sfx('win');var stars=bumps<=1?3:bumps<=4?2:1;
+    Brain.finish({pass:true,stars:stars,score:DELIV,total:DELIV,big:T({en:DELIV+' letters delivered',zh:'送达 '+DELIV+' 封信'}),note:{en:'Bumps: '+bumps+(stars<3?' · Fewer bumps earn more stars':''),zh:'碰壁 '+bumps+' 次'+(stars<3?' · 碰壁越少星星越多':'')}})}
+  document.querySelector('#bumps span').textContent=T({en:'Bumps ',zh:'碰壁 '})+0;
+  window.addEventListener('resize',()=>{sizeGrid();if(path)place()});
+  street();
 });
+
 </script></body></html>

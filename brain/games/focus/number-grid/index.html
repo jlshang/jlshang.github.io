@@ -1,27 +1,106 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style>.grid{display:grid;gap:10px;margin-top:6px}.cell{aspect-ratio:1;border-radius:16px;border:1.5px solid var(--line);background:var(--surface);box-shadow:var(--shadow);font-size:1.9rem;font-weight:800;color:var(--ink);cursor:pointer;font-family:inherit;font-variant-numeric:tabular-nums}.cell.done{background:var(--good-soft);border-color:transparent;color:var(--good);box-shadow:none}.find{display:flex;justify-content:space-between;align-items:center;font-size:1.1rem;font-weight:700}.find b{font-size:2rem;color:var(--primary)}</style></head>
+<title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style>
+.sky{position:relative;height:470px;border-radius:28px;overflow:hidden;margin-top:10px;touch-action:manipulation;
+  background:radial-gradient(120% 90% at 70% 0%,#3B4C8C 0%,#26305E 45%,#161C3A 100%);box-shadow:var(--shadow)}
+.sky .tw{position:absolute;border-radius:50%;background:#fff;animation:tw 3s ease-in-out infinite}
+@keyframes tw{50%{opacity:.25}}
+.sky .moon{position:absolute;right:22px;top:18px;width:54px;height:54px}
+.sky .hill{position:absolute;left:0;right:0;bottom:0;height:70px}
+.sky svg.lines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.sky svg.lines line{stroke:#FFE9A8;stroke-width:4;stroke-linecap:round;filter:drop-shadow(0 0 6px #FFD66B)}
+.sky svg.lines line.fin{stroke:#FFF6D6}
+.star{position:absolute;width:70px;height:70px;margin:-35px 0 0 -35px;border:0;background:none;cursor:pointer;padding:0}
+.star i{position:absolute;left:50%;top:50%;width:30px;height:30px;margin:-15px 0 0 -15px;display:block;transition:transform .3s}
+.star i svg{width:100%;height:100%}
+.star b{position:absolute;left:0;right:0;top:48px;text-align:center;color:#E8ECFF;font-size:1.15rem;font-weight:900;text-shadow:0 1px 3px #000}
+.star.lit i{transform:scale(1.35)}.star.lit b{color:#FFE9A8}
+.star.next i{animation:beat 1.4s ease-in-out infinite}
+@keyframes beat{50%{transform:scale(1.2)}}
+.star.decoy b{display:none}.star.decoy i{opacity:.55}
+.star.no i{animation:shake .4s}
+.reveal{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;transition:opacity .8s}
+.reveal.show{opacity:1}
+.reveal span{background:rgba(255,255,255,.95);border-radius:18px;padding:10px 18px;font-weight:900;font-size:1.3rem;color:#26305E;box-shadow:0 8px 30px rgba(0,0,0,.35);margin-top:-30px}
+.owl-row{margin-top:10px}
+.nights{display:flex;gap:4px}.nights span{width:22px;height:22px;display:block;opacity:.3;color:#E0A526}.nights span.on{opacity:1}
+</style></head>
 <body><div class="wrap"></div>
 <script src="../../../shared/icons.js"></script>
 <script src="../../../shared/common.js" data-root="../../../"></script>
 <script>
 var PATH='games/focus/number-grid/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
 
-Brain.run({id:'number-grid',cat:'focus',icon:'grid',title:{en:'Number Grid',zh:'数字方格'},
- rules:{en:'Numbers are mixed up on the board.<br><br>Tap them <b>in order</b>, starting from the number shown at the top.<br><br>There is no clock. Take your time.',zh:'方格里的数字是打乱的。<br><br>请从上方提示的数字开始，<b>按顺序</b>一个一个点。<br><br>不计时，慢慢来。'}},
+var I=Brain.I;
+var OWL='<svg viewBox="0 0 64 64"><ellipse cx="32" cy="38" rx="22" ry="22" fill="#8A6F55"/><ellipse cx="32" cy="44" rx="13" ry="14" fill="#D9C4A4"/><path d="M12 22l8 6M52 22l-8 6" stroke="#8A6F55" stroke-width="6" stroke-linecap="round"/><circle cx="23" cy="30" r="9" fill="#fff"/><circle cx="41" cy="30" r="9" fill="#fff"/><circle cx="24" cy="30" r="4.5" fill="#1C2826"/><circle cx="40" cy="30" r="4.5" fill="#1C2826"/><path d="M29 37l3 4 3-4z" fill="#E0A526"/><path d="M22 60l2-5M42 60l-2-5" stroke="#E0A526" stroke-width="3" stroke-linecap="round"/></svg>';
+var STAR='<svg viewBox="0 0 24 24"><path d="M12 1.5l2.9 7 7.6.6-5.8 5 1.8 7.4L12 17.6l-6.5 3.9 1.8-7.4-5.8-5 7.6-.6z" fill="#FFE9A8"/></svg>';
+/* constellation outlines (x,y in 0..100), all everyday and universal shapes */
+var SHAPES=[
+ {n:{en:'Sailboat',zh:'帆船'},p:[[50,8],[78,62],[50,62],[50,70],[88,70],[76,88],[24,88],[12,70],[50,70],[50,62],[26,58]]},
+ {n:{en:'House',zh:'小房子'},p:[[20,45],[50,14],[80,45],[80,88],[60,88],[60,64],[40,64],[40,88],[20,88]]},
+ {n:{en:'Kite',zh:'风筝'},p:[[50,8],[80,40],[50,72],[20,40],[50,8],[50,72],[44,84],[56,92]]},
+ {n:{en:'Fish',zh:'小鱼'},p:[[12,50],[34,28],[62,24],[82,40],[92,50],[82,60],[62,76],[34,72],[12,50],[4,34],[4,66]]},
+ {n:{en:'Heart',zh:'爱心'},p:[[50,88],[16,52],[12,30],[28,14],[50,28],[72,14],[88,30],[84,52]]},
+ {n:{en:'Tree',zh:'大树'},p:[[50,6],[74,36],[62,36],[84,62],[56,62],[56,90],[44,90],[44,62],[16,62],[38,36],[26,36]]},
+ {n:{en:'Umbrella',zh:'雨伞'},p:[[8,50],[22,26],[50,14],[78,26],[92,50],[50,50],[50,82],[42,90],[34,84]]},
+ {n:{en:'Mountain',zh:'山峰'},p:[[4,88],[30,40],[42,58],[62,18],[80,50],[96,88]]},
+ {n:{en:'Teacup',zh:'茶杯'},p:[[16,34],[76,34],[72,70],[58,84],[34,84],[20,70],[16,34],[76,42],[90,50],[76,62]]},
+ {n:{en:'Bird',zh:'小鸟'},p:[[8,52],[30,40],[44,20],[52,40],[74,34],[92,44],[74,56],[52,62],[32,64]]}];
+function resample(pts,n){var seg=[],tot=0;for(var i=1;i<pts.length;i++){var d=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);seg.push(d);tot+=d}
+  var out=[pts[0]],step=tot/(n-1),acc=0,k=0,cur=pts[0];for(var j=1;j<n-1;j++){var want=step*j;while(acc+seg[k]<want){acc+=seg[k];k++}var t=(want-acc)/seg[k];out.push([pts[k][0]+(pts[k+1][0]-pts[k][0])*t,pts[k][1]+(pts[k+1][1]-pts[k][1])*t])}
+  out.push(pts[pts.length-1]);return out}
+
+Brain.run({id:'number-grid',cat:'focus',icon:'grid',title:{en:'Starry Night',zh:'星空连线'},
+ rules:{en:'Oliver the owl is drawing pictures in the night sky.<br><br>Tap the stars <b>in number order</b>. A glowing line joins them, and a picture appears when you finish.<br><br>The next star to find gently pulses on early levels.',zh:'猫头鹰奥利在夜空里画画。<br><br>请<b>按数字顺序</b>点星星，星星之间会连出发光的线，连完就会出现一幅图画。<br><br>前几关里，下一颗星星会轻轻闪动提示您。'},
+ goal:{en:'Finish all the pictures of the night. Stars depend on how few wrong stars you tap.',zh:'把今晚的图画全部连完就过关。点错得越少，星星越多。'}},
 function(L){
-  /* L1-3: 3x3, L4-6: 4x4, L7-8: 5x5, L9-10: 5x5 counting down */
-  var size=L<=3?3:L<=6?4:5,N=size*size,down=L>=9,next=down?N:1,done=0,miss=0,w=document.querySelector('.wrap');
-  var start=L===1||L===4||L===7?1:1;
-  w.insertAdjacentHTML('beforeend','<div class="card find"><span>'+T(down?{en:'Count down. Find:',zh:'倒着数，请找：'}:{en:'Find the number:',zh:'请找数字：'})+'</span><b id="nx"></b></div><div id="grid" class="grid"></div><div id="fb" class="feedback"></div>');
-  var grid=document.getElementById('grid'),fb=document.getElementById('fb');grid.style.gridTemplateColumns='repeat('+size+',1fr)';
-  function upd(){document.getElementById('nx').textContent=next;Brain.progress(done,N)}
-  Brain.shuffle(Array.from({length:N},(_,i)=>i+1)).forEach(function(n){
-    var b=document.createElement('button');b.className='cell';b.textContent=n;
-    b.onclick=function(){if(b.classList.contains('done'))return;
-      if(n===next){b.classList.add('done');done++;next+=down?-1:1;fb.textContent='';upd();
-        if(done===N)Brain.finish({score:Math.max(0,N-miss),total:N,note:miss?{en:miss+' extra taps',zh:'点错 '+miss+' 次'}:{en:'No mistakes!',zh:'一次都没点错！'}})}
-      else{miss++;b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');Brain.say(fb,false,{en:'Look for '+next,zh:'找一找 '+next})}};
-    grid.appendChild(b)});
-  upd();
+  var COUNT=[5,6,7,8,9,10,11,12,12,13][L-1],NIGHT=L<=4?2:3,hintPulse=L<=3,decoys=L<=4?0:L<=7?2:4,step=L===9?2:1,down=L===10;
+  var night=0,next,idx,miss=0,pts,labels,lit,shapes=Brain.shuffle(SHAPES),w=document.querySelector('.wrap');
+  w.insertAdjacentHTML('beforeend','<div class="hud" id="hud"><span class="chip"><span class="nights" id="nights"></span></span><span class="chip" id="miss">'+I('star')+'<span></span></span></div>'+
+    '<div class="sky" id="sky"></div><div class="mascot owl-row"><div class="who">'+OWL+'</div><div class="talk" id="talk"></div></div>');
+  document.getElementById('hud').appendChild(Brain.soundBtn());
+  document.getElementById('nights').innerHTML=Array.from({length:NIGHT},()=>'<span>'+I('star')+'</span>').join('');
+  var sky=document.getElementById('sky'),talk=document.getElementById('talk');
+  function owl(t){talk.textContent=T(t)}
+  function draw(){
+    night++;idx=0;var sh=shapes[night-1];pts=resample(sh.p,COUNT);
+    labels=pts.map((_,i)=>down?(COUNT-i)*step:(i+1)*step);next=labels[0];
+    var W=sky.clientWidth,H=sky.clientHeight-60,pad=40;
+    var bg='';for(var k=0;k<40;k++)bg+='<i class="tw" style="left:'+Brain.rand(0,100)+'%;top:'+Brain.rand(0,85)+'%;width:'+(Math.random()<.2?3:2)+'px;height:'+(Math.random()<.2?3:2)+'px;animation-delay:'+(Math.random()*3)+'s"></i>';
+    bg+='<svg class="moon" viewBox="0 0 54 54"><path d="M36 4a24 24 0 1 0 14 34A20 20 0 0 1 36 4z" fill="#FFF3C4"/></svg><svg class="hill" viewBox="0 0 400 70" preserveAspectRatio="none"><path d="M0 40C80 10 160 20 220 36S340 30 400 18V70H0z" fill="#10152C"/></svg><svg class="lines" id="lines"></svg><div class="reveal" id="rev"><span></span></div>';
+    sky.innerHTML=bg;
+    var P=pts.map(p=>[pad+(W-2*pad)*p[0]/100,pad+(H-2*pad)*p[1]/100]);
+    /* push apart any stars that land too close, so every star is easy to tap */
+    for(var it=0;it<60;it++)for(var a=0;a<P.length;a++)for(var c=a+1;c<P.length;c++){var dx=P[c][0]-P[a][0],dy=P[c][1]-P[a][1],dd=Math.hypot(dx,dy)||1;if(dd<66){var push=(66-dd)/2,ux=dx/dd,uy=dy/dd;if(dd===1){ux=1;uy=0}
+      P[a][0]-=ux*push;P[a][1]-=uy*push;P[c][0]+=ux*push;P[c][1]+=uy*push;[P[a],P[c]].forEach(q=>{q[0]=Math.max(pad,Math.min(W-pad,q[0]));q[1]=Math.max(pad-10,Math.min(H-pad+20,q[1]))})}}
+    sky._P=P;
+    /* keep stars from sitting on top of each other */
+    P.forEach((p,i)=>{var b=document.createElement('button');b.className='star';b.style.left=p[0]+'px';b.style.top=p[1]+'px';b.innerHTML='<i>'+STAR+'</i><b>'+labels[i]+'</b>';b._i=i;b.onclick=function(){tap(b)};sky.appendChild(b)});
+    for(var d=0;d<decoys;d++){var b2=document.createElement('button');b2.className='star decoy';var ok=false,x,y,t=0;do{x=Brain.rand(pad,W-pad);y=Brain.rand(pad,H-pad);ok=P.every(p=>Math.hypot(p[0]-x,p[1]-y)>70);t++}while(!ok&&t<40);
+      b2.style.left=x+'px';b2.style.top=y+'px';b2.innerHTML='<i>'+STAR+'</i><b></b>';b2._i=-1;b2.onclick=function(){tap(this)};sky.appendChild(b2)}
+    mark();owl(night===1?{en:down?'Tonight we count down. Start with '+next+'.':step===2?'Count by twos tonight: '+labels.slice(0,3).join(', ')+'...':'Let\'s start with star number 1.',zh:down?'今晚倒着数，从 '+next+' 开始。':step===2?'今晚两个两个地数：'+labels.slice(0,3).join('、')+'……':'我们从 1 号星星开始吧。'}:{en:'A new picture. Start with '+next+'.',zh:'新的一幅画，从 '+next+' 开始。'});
+    document.querySelectorAll('#nights span').forEach((s,i)=>s.classList.toggle('on',i<night-1));Brain.progress(night-1,NIGHT);
+  }
+  function mark(){sky.querySelectorAll('.star').forEach(b=>b.classList.toggle('next',hintPulse&&b._i===idx));document.querySelector('#miss span').textContent=T({en:'Misses ',zh:'点错 '})+miss}
+  function tap(b){
+    if(b._i===idx){b.classList.add('lit');Brain.sfx('sparkle');
+      if(idx>0){var P=sky._P,l=document.createElementNS('http://www.w3.org/2000/svg','line');l.setAttribute('x1',P[idx-1][0]);l.setAttribute('y1',P[idx-1][1]);l.setAttribute('x2',P[idx][0]);l.setAttribute('y2',P[idx][1]);document.getElementById('lines').appendChild(l)}
+      idx++;Brain.progress(night-1+idx/COUNT,NIGHT);
+      if(idx>=COUNT){finishPic()}else{next=labels[idx];mark();if(idx===Math.floor(COUNT/2))owl({en:'Halfway there! Next is '+next+'.',zh:'已经一半啦！下一颗是 '+next+'。'})}}
+    else if(!b.classList.contains('lit')){miss++;b.classList.remove('no');void b.offsetWidth;b.classList.add('no');Brain.sfx('soft');mark();
+      owl(b._i<0?{en:'That star has no number. Look for '+next+'.',zh:'那颗星星没有数字哦，找一找 '+next+'。'}:{en:'Not that one yet. Look for '+next+'.',zh:'还没轮到它，先找 '+next+'。'})}
+  }
+  function finishPic(){
+    var sh=shapes[night-1];sky.querySelectorAll('.star').forEach(b=>{b.onclick=null;if(b.classList.contains('decoy'))b.style.opacity=0});
+    document.querySelectorAll('#lines line').forEach(l=>l.classList.add('fin'));Brain.sfx('ok');
+    var r=document.getElementById('rev');r.querySelector('span').textContent=T(sh.n);r.classList.add('show');
+    owl({en:'Wonderful! You drew a '+sh.n.en.toLowerCase()+'.',zh:'太美了！这幅画是：'+sh.n.zh+'。'});
+    Brain.speak(T({en:'You drew a '+sh.n.en,zh:'您画出了'+sh.n.zh}));
+    document.querySelectorAll('#nights span')[night-1].classList.add('on');
+    setTimeout(function(){if(night>=NIGHT)end();else draw()},2800);
+  }
+  function end(){Brain.sfx('win');var stars=miss<=1?3:miss<=4?2:1;
+    Brain.finish({pass:true,stars:stars,score:NIGHT,total:NIGHT,big:T({en:NIGHT+' pictures',zh:NIGHT+' 幅图画'}),note:{en:'Wrong stars tapped: '+miss+(stars<3?' · Fewer misses earn more stars':''),zh:'点错 '+miss+' 次'+(stars<3?' · 点错越少星星越多':'')}})}
+  draw();
 });
+
 </script></body></html>

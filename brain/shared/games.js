@@ -1,11 +1,11 @@
 /* Game registry: add a new game here and it appears on the Home screen. Text is {en, zh}. */
 window.GAMES=[
  {cat:{en:'Focus',zh:'专注力'},key:'focus',items:[
-  {id:'number-grid',icon:'grid',name:{en:'Number Grid',zh:'数字方格'},desc:{en:'Tap the numbers in order',zh:'按顺序点数字'},path:'games/focus/number-grid/index.html'},
-  {id:'color-match',icon:'colors',name:{en:'Color Match',zh:'看颜色'},desc:{en:'Pick the ink color, not the word',zh:'选字的颜色，不看字的意思'},path:'games/focus/color-match/index.html'},
-  {id:'follow-arrow',icon:'arrows',name:{en:'Follow the Arrow',zh:'跟着箭头走'},desc:{en:'Tap the way the arrow points',zh:'按箭头方向点按钮'},path:'games/focus/follow-arrow/index.html'},
+  {id:'number-grid',icon:'star',name:{en:'Starry Night',zh:'星空连线'},desc:{en:'Join the stars in order to draw a picture',zh:'按顺序连星星，画出图画'},path:'games/focus/number-grid/index.html'},
+  {id:'color-match',icon:'colors',name:{en:'Paint Studio',zh:'彩色画室'},desc:{en:'Paint by the ink color, not the word',zh:'看字的颜色来上色'},path:'games/focus/color-match/index.html'},
+  {id:'follow-arrow',icon:'arrows',name:{en:'Hedgehog Post',zh:'小刺猬送信'},desc:{en:'Follow the signposts to deliver letters',zh:'跟着路牌把信送到'},path:'games/focus/follow-arrow/index.html'},
   {id:'find-target',icon:'fish',name:{en:'Pond Catch',zh:'池塘捞鱼'},desc:{en:'Scoop up the fish on your order',zh:'按订单捞对的小鱼'},path:'games/focus/find-target/index.html'},
-  {id:'go-no-go',icon:'traffic',name:{en:'Green Means Go',zh:'绿灯行，红灯停'},desc:{en:'Tap on green, wait on red',zh:'绿灯点，红灯等'},path:'games/focus/go-no-go/index.html'}]},
+  {id:'go-no-go',icon:'cart',name:{en:'Apple Orchard',zh:'果园收苹果'},desc:{en:'Pick good apples, let bruised ones roll by',zh:'摘好苹果，放过烂苹果'},path:'games/focus/go-no-go/index.html'}]},
  {cat:{en:'Memory',zh:'记忆力'},key:'memory',items:[
   {id:'card-match',icon:'memory',name:{en:'Card Match',zh:'翻牌配对'},desc:{en:'Find the matching pairs',zh:'找出一样的两张牌'},path:'games/memory/card-match/index.html'},
   {id:'shopping-list',icon:'cart',name:{en:'Shopping List',zh:'购物清单'},desc:{en:'Remember what to buy',zh:'记住要买什么'},path:'games/memory/shopping-list/index.html'},
