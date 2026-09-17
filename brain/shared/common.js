@@ -19,7 +19,19 @@
   var MAXL=10;
   function prog(id){var p=store('prog-'+id)||{max:1,stars:{}};p.stars=p.stars||{};return p}
 
+  /* soft synthesized sound effects shared by the games (no audio files) */
+  var AC=null,MUTED=!!store('muted');
+  function tone(f,d,type,vol,delay,slide){if(MUTED)return;try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();var t=AC.currentTime+(delay||0),o=AC.createOscillator(),g=AC.createGain();
+    o.type=type||'sine';o.frequency.setValueAtTime(f,t);if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+d);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol||.1,t+.012);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d+.05)}catch(e){}}
+  var SFX={tap:()=>tone(880,.08,'triangle',.07),pop:()=>{tone(600,.12,'sine',.1,0,1400)},splash:()=>{tone(300,.25,'sine',.08,0,120);tone(900,.15,'triangle',.04,.03,300)},
+    hop:()=>tone(420,.22,'sine',.1,0,900),soft:()=>tone(260,.3,'sine',.08,0,200),
+    ok:()=>{tone(784,.16,'triangle',.1);tone(988,.16,'triangle',.1,.09);tone(1319,.3,'triangle',.1,.18)},
+    win:()=>{[523,659,784,1047,1319].forEach((f,i)=>tone(f,.25,'triangle',.09,i*.1))},sparkle:()=>{tone(1760,.12,'sine',.05);tone(2349,.2,'sine',.05,.06)}};
   var Brain={ROOT:ROOT,LANG:LANG,T:T,speak:speak,shuffle:shuffle,rand:rand,pick:pick,el:el,store:store,langBtn:langBtn,I:I,MAXL:MAXL,prog:prog,
+    sfx:function(n){SFX[n]&&SFX[n]()},
+    soundBtn:function(){var b=el('<button class="icon-btn" aria-label="sound"></button>');function d(){b.innerHTML=I(MUTED?'mute':'speaker')}d();
+      b.onclick=function(){MUTED=!MUTED;store('muted',MUTED);d();if(!MUTED)SFX.tap()};return b},
+    toast:function(html,host,ms){var t=el('<div class="toast">'+html+'</div>');(host||document.body).appendChild(t);setTimeout(function(){t.classList.add('bye')},ms||1600);setTimeout(function(){t.remove()},(ms||1600)+500)},
     toggleLang:function(){store('lang',LANG==='zh'?'en':'zh');location.reload()},
 
     /* SVG shapes for observation/logic games */

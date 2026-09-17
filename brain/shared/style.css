@@ -71,3 +71,18 @@ h1,h2{letter-spacing:-.01em}
 .row-items>span{width:64px;height:64px;display:block}
 .rest{display:flex;align-items:center;gap:12px;text-align:left;font-weight:600}
 .rest svg{width:30px;height:30px;flex:none}
+
+/* v4: shared game feel */
+.hud{display:flex;align-items:center;gap:8px;margin:2px 0 10px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1.5px solid var(--line);border-radius:99px;padding:6px 12px;font-weight:800;font-size:.95rem;box-shadow:var(--shadow);font-variant-numeric:tabular-nums}
+.chip svg{width:22px;height:22px}.chip.hot{background:#FFF1E6;border-color:#F3C9A8;color:#C4561E}
+.chip.bump{animation:pulse .5s ease}
+@keyframes pulse{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(1)}}
+.toast{position:absolute;left:50%;top:38%;transform:translate(-50%,-50%);background:rgba(255,255,255,.96);border-radius:20px;padding:12px 20px;font-weight:800;font-size:1.25rem;box-shadow:0 10px 30px rgba(0,0,0,.18);text-align:center;z-index:5;animation:toastIn .35s cubic-bezier(.3,1.4,.5,1);white-space:nowrap}
+.toast.bye{opacity:0;transform:translate(-50%,-70%);transition:all .45s}
+@keyframes toastIn{0%{transform:translate(-50%,-30%) scale(.7);opacity:0}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
+.modal{position:fixed;inset:0;background:rgba(28,40,38,.45);display:flex;align-items:center;justify-content:center;padding:18px;z-index:9}
+.modal .card{width:100%;max-width:420px;text-align:center;animation:toastIn2 .4s cubic-bezier(.3,1.4,.5,1)}
+@keyframes toastIn2{0%{transform:scale(.8);opacity:0}100%{transform:none;opacity:1}}
+.modal h2{margin:6px 0 12px;font-size:1.6rem}
+.sumrow{display:flex;justify-content:space-between;padding:10px 4px;border-bottom:1px solid var(--line);font-size:1.1rem}.sumrow b{font-variant-numeric:tabular-nums}

@@ -4,7 +4,7 @@ window.GAMES=[
   {id:'number-grid',icon:'grid',name:{en:'Number Grid',zh:'数字方格'},desc:{en:'Tap the numbers in order',zh:'按顺序点数字'},path:'games/focus/number-grid/index.html'},
   {id:'color-match',icon:'colors',name:{en:'Color Match',zh:'看颜色'},desc:{en:'Pick the ink color, not the word',zh:'选字的颜色，不看字的意思'},path:'games/focus/color-match/index.html'},
   {id:'follow-arrow',icon:'arrows',name:{en:'Follow the Arrow',zh:'跟着箭头走'},desc:{en:'Tap the way the arrow points',zh:'按箭头方向点按钮'},path:'games/focus/follow-arrow/index.html'},
-  {id:'find-target',icon:'eyeTarget',name:{en:'Find Them All',zh:'全部找出来'},desc:{en:'Find every matching shape',zh:'找出所有一样的图形'},path:'games/focus/find-target/index.html'},
+  {id:'find-target',icon:'fish',name:{en:'Pond Catch',zh:'池塘捞鱼'},desc:{en:'Scoop up the fish on your order',zh:'按订单捞对的小鱼'},path:'games/focus/find-target/index.html'},
   {id:'go-no-go',icon:'traffic',name:{en:'Green Means Go',zh:'绿灯行，红灯停'},desc:{en:'Tap on green, wait on red',zh:'绿灯点，红灯等'},path:'games/focus/go-no-go/index.html'}]},
  {cat:{en:'Memory',zh:'记忆力'},key:'memory',items:[
   {id:'card-match',icon:'memory',name:{en:'Card Match',zh:'翻牌配对'},desc:{en:'Find the matching pairs',zh:'找出一样的两张牌'},path:'games/memory/card-match/index.html'},
@@ -31,7 +31,7 @@ window.GAMES=[
   {id:'same-pair',icon:'layers',name:{en:'Find the Twins',zh:'找双胞胎'},desc:{en:'Find the two that are the same',zh:'找出一模一样的两个'},path:'games/observation/same-pair/index.html'},
   {id:'count-items',icon:'dots',name:{en:'How Many?',zh:'数一数'},desc:{en:'Count one kind of picture',zh:'数出某一种东西的数量'},path:'games/observation/count-items/index.html'}]},
  {cat:{en:'Logic',zh:'逻辑力'},key:'logic',items:[
-  {id:'number-patterns',icon:'sequence',name:{en:'Number Patterns',zh:'数字规律'},desc:{en:'What number comes next?',zh:'下一个数是几？'},path:'games/logic/number-patterns/index.html'},
+  {id:'number-patterns',icon:'frog',name:{en:'Frog Crossing',zh:'青蛙过河'},desc:{en:'Hop on the next number in the pattern',zh:'踩着有规律的数字过河'},path:'games/logic/number-patterns/index.html'},
   {id:'shape-patterns',icon:'shapesSeq',name:{en:'Shape Patterns',zh:'图形规律'},desc:{en:'What shape comes next?',zh:'下一个是什么图形？'},path:'games/logic/shape-patterns/index.html'},
   {id:'missing-tile',icon:'slide',name:{en:'Missing Tile',zh:'补上缺的格子'},desc:{en:'Complete the 3×3 grid',zh:'补全九宫格'},path:'games/logic/missing-tile/index.html'},
   {id:'balance-scale',icon:'scale',name:{en:'Balance Scale',zh:'天平称重'},desc:{en:'How many make it balance?',zh:'几个才能一样重？'},path:'games/logic/balance-scale/index.html'},
