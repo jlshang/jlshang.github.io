@@ -63,6 +63,7 @@
 </style></head>
 <body><div class="wrap"></div>
 <script src="../../../shared/icons.js"></script>
+<script src="../../../shared/audio.js"></script>
 <script src="../../../shared/common.js" data-root="../../../"></script>
 <script>
 var PATH='games/math/make-change/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
@@ -110,7 +111,7 @@ var THEMES=[{n:{en:'Fruit Stand',zh:'水果摊'},a:['#E0493C','#FFF6E8'],goods:[
             {n:{en:'Grocery Store',zh:'杂货铺'},a:['#2C8468','#FFF6E8'],goods:['carrot','tomato','fish','rice','potato','corn']}];
 var GREET={en:['Hello there!','Good morning!','Hi, how are you?','Lovely day, isn\'t it?'],zh:['您好呀！','早上好！','老板好！','今天天气真好！']};
 
-Brain.run({id:'make-change',cat:'math',icon:'cash',title:{en:'Corner Shop',zh:'小小杂货铺'},
+Brain.run({id:'make-change',music:'shop',cat:'math',icon:'cash',title:{en:'Corner Shop',zh:'小小杂货铺'},
  rules:{en:'You run a little shop today.<br><br>Customers come to buy something and hand you money.<br><br>Tap coins and bills in your <b>cash drawer</b> to count out their <b>change</b>, then tap <b>Give change</b>.<br><br>No rush. If it is not right, the customer lets you fix it.',zh:'今天您是一家小店的店主。<br><br>顾客来买东西，会把钱递给您。<br><br>从下面的<b>钱箱</b>里点硬币和纸币，凑出要<b>找的零钱</b>，再点<b>找零</b>。<br><br>不着急，找错了顾客会提醒您，改过来就行。'}},
 function(L){
   var SET=ZH?CN:US,theme=THEMES[L<=3?0:L<=6?1:2],N=L<=2?4:L<=6?5:6;
@@ -129,7 +130,7 @@ function(L){
   var w=document.querySelector('.wrap');
   var stripes='<svg class="awning" viewBox="0 0 400 40" preserveAspectRatio="none">'+Array.from({length:10},(_,k)=>'<path d="M'+(k*40)+' 0h40v28a20 12 0 0 1-40 0z" fill="'+(k%2?theme.a[1]:theme.a[0])+'"/>').join('')+'</svg>';
   w.insertAdjacentHTML('beforeend',
-   '<div class="hud"><div class="queue" id="queue"></div><span class="chip streak" id="streak">'+I('flame')+'<span>0</span></span><span class="chip bank" id="bank">'+I('piggy')+'<span></span></span>'+
+   '<div class="hud" id="hud"><div class="queue" id="queue"></div><span class="chip streak" id="streak">'+I('flame')+'<span>0</span></span><span class="chip bank" id="bank">'+I('piggy')+'<span></span></span>'+
    '<button class="icon-btn sound" id="snd" aria-label="sound"></button></div>'+
    '<div class="scene" id="scene">'+stripes+'<div class="shelf">'+theme.goods.slice(0,5).map(k=>'<span>'+ITEMS[k].svg+'</span>').join('')+'</div>'+
      '<div class="counter"></div><div class="customer out" id="cust"></div><div class="bubble" id="bubble"></div><div class="onCounter" id="onc"></div><div class="hearts" id="hearts"></div></div>'+
@@ -139,6 +140,7 @@ function(L){
    '<div class="actions"><button class="btn secondary" id="hintBtn">'+T({en:'Help',zh:'提示'})+'</button><button class="btn" id="give">'+T({en:'Give change',zh:'找零'})+'</button></div>');
   var $id=x=>document.getElementById(x),fb=$id('fb');
   var bankShow=function(bump){$id('bank').querySelector('span').textContent=$(bank);if(bump){$id('bank').classList.remove('bump');void $id('bank').offsetWidth;$id('bank').classList.add('bump')}};bankShow();
+  var musicOnlyBtn=Brain.soundBtn();musicOnlyBtn.removeChild(musicOnlyBtn.lastChild);$id('hud').insertBefore(musicOnlyBtn,$id('snd'));
   function sndIcon(){$id('snd').innerHTML=I(muted?'mute':'speaker')}sndIcon();
   $id('snd').onclick=function(){muted=!muted;Brain.store('shop-muted',muted);sndIcon();if(!muted)SND.coin()};
 
@@ -175,7 +177,7 @@ function(L){
     if(sum===need){
       busy=true;served++;if(tries===0){firstTry++;streak++;best=Math.max(best,streak)}else streak=0;streakShow();
       var tip=tries===0&&streak>=2?Math.min(streak,4)*(ZH?50:25):0;tips+=tip;earned+=sale.price;bank+=sale.price+tip;Brain.store('shop-bank',bank);
-      $id('cust').innerHTML=person(cust,'happy');SND.ok();setTimeout(SND.till,450);
+      $id('cust').innerHTML=person(cust,'happy');SND.ok();setTimeout(SND.till,450);Brain.sfx('register');
       say(T(tries===0?{en:'Perfect, thank you!',zh:'正好，谢谢老板！'}:{en:'That is right now. Thank you!',zh:'这下对了，谢谢！'})+(tip?'<br><span style="color:#8A5A12">'+T({en:'Keep '+$(tip)+' as a tip!',zh:'多给您 '+$(tip)+' 小费！'})+'</span>':''));
       fb.className='fbline good';fb.textContent=tries===0?(streak>=2?T({en:streak+' in a row!',zh:'连续 '+streak+' 位答对！'}):T({en:'Great job!',zh:'真棒！'})):T({en:'Well done!',zh:'做得好！'});
       var h=$id('hearts');h.innerHTML=Array.from({length:4},(_,k)=>'<span style="left:'+(k*22)+'px;animation-delay:'+(k*.12)+'s;color:#E0493C">'+I('heart')+'</span>').join('');

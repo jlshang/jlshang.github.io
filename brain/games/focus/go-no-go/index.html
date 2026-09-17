@@ -2,7 +2,15 @@
 <title>Brain Buddy</title><link rel="stylesheet" href="../../../shared/style.css"><style>
 .orchard{position:relative;height:330px;margin-top:10px;border-radius:26px;overflow:hidden;box-shadow:var(--shadow);background:linear-gradient(#CFE8F2 0%,#E8F3E4 55%,#9FCB86 56%,#8DBE74 100%)}
 .orchard .trees{position:absolute;left:0;right:0;top:40px;height:140px}
-.orchard .sunx{position:absolute;right:26px;top:16px;width:46px;height:46px;border-radius:50%;background:#F7D774;box-shadow:0 0 0 10px rgba(247,215,116,.3)}
+.orchard .tree{transform-box:fill-box;transform-origin:50% 100%;animation:treeSway 5s ease-in-out infinite}
+@keyframes treeSway{50%{transform:rotate(1.6deg)}}
+.cloud{position:absolute;height:22px;border-radius:20px;background:#fff;opacity:.9;pointer-events:none;animation:cloud 40s linear infinite}
+.cloud:before,.cloud:after{content:"";position:absolute;background:#fff;border-radius:50%}
+.cloud:before{width:30px;height:30px;left:14px;top:-14px}.cloud:after{width:22px;height:22px;left:36px;top:-8px}
+@keyframes cloud{0%{transform:translateX(-120px)}100%{transform:translateX(480px)}}
+.leaf{position:absolute;width:12px;height:8px;border-radius:0 8px 0 8px;background:#6DB05E;pointer-events:none;animation:leaf 4s ease-in forwards}
+@keyframes leaf{0%{transform:translate(0,0) rotate(0);opacity:0}10%{opacity:1}100%{transform:translate(60px,130px) rotate(540deg);opacity:0}}
+.orchard .sunx{animation:sunPulse 4s ease-in-out infinite;position:absolute;right:26px;top:16px;width:46px;height:46px;border-radius:50%;background:#F7D774;box-shadow:0 0 0 10px rgba(247,215,116,.3)}
 .chute{position:absolute;left:0;right:0;top:206px;height:26px;background:#B9885A;border-top:6px solid #9A6E45;border-bottom:6px solid #7E5836}
 .zone{position:absolute;top:150px;width:120px;height:90px;border:4px dashed rgba(255,255,255,.9);border-radius:18px;background:rgba(255,255,255,.18);transition:background .2s}
 .zone.has{background:rgba(255,236,150,.45);border-color:#FFE066}
@@ -11,7 +19,12 @@
 .apple.picked{transition:transform .6s cubic-bezier(.4,-0.4,.6,1),opacity .6s;opacity:0}
 .basket{position:absolute;left:50%;bottom:6px;width:110px;height:76px;margin-left:-55px}
 .basket b{position:absolute;left:0;right:0;top:34px;text-align:center;color:#fff;font-size:1.2rem;font-weight:900;text-shadow:0 1px 2px rgba(0,0,0,.4)}
-.basket.bump{animation:pulse .5s}
+.basket.bump{animation:squash .45s}
+@keyframes squash{30%{transform:scale(1.12,.86)}60%{transform:scale(.95,1.06)}100%{transform:none}}
+@keyframes sunPulse{50%{box-shadow:0 0 0 18px rgba(247,215,116,.18)}}
+.compost.gulp{animation:squash .4s}
+.bee{position:absolute;width:22px;height:18px;pointer-events:none;animation:bee 11s ease-in-out infinite}
+@keyframes bee{0%,100%{transform:translate(40px,120px)}30%{transform:translate(200px,70px)}60%{transform:translate(300px,130px)}80%{transform:translate(150px,100px)}}
 .compost{position:absolute;right:8px;bottom:10px;width:70px;height:60px}
 .wantcard{display:flex;align-items:center;gap:12px;padding:10px 14px;background:#FFFBF2;border:1.5px solid #EAD9B8;border-radius:18px;box-shadow:var(--shadow)}
 .wantcard .pics{display:flex;gap:4px}.wantcard .pics span{width:40px;height:40px;display:block}
@@ -24,6 +37,7 @@
 </style></head>
 <body><div class="wrap"></div>
 <script src="../../../shared/icons.js"></script>
+<script src="../../../shared/audio.js"></script>
 <script src="../../../shared/common.js" data-root="../../../"></script>
 <script>
 var PATH='games/focus/go-no-go/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
@@ -37,7 +51,7 @@ function appleSVG(kind){var body=kind==='green'?'#7DBA3E':kind==='yellow'?'#F2C7
 var BASKET='<svg class="basket-svg" viewBox="0 0 110 76"><path d="M8 26h94l-10 46H18Z" fill="#C9914F"/><path d="M8 26h94" stroke="#9A6E45" stroke-width="6" stroke-linecap="round"/><path d="M14 40h82M16 54h78" stroke="#A8743F" stroke-width="3"/><path d="M34 26V70M55 26v46M76 26V70" stroke="#A8743F" stroke-width="3"/><path d="M22 26C22 2 88 2 88 26" stroke="#9A6E45" stroke-width="5" fill="none"/></svg>';
 var BIN='<svg viewBox="0 0 70 60"><path d="M8 18h54l-6 40H14Z" fill="#6E8A5A"/><path d="M4 18h62" stroke="#556E44" stroke-width="6" stroke-linecap="round"/><path d="M28 30l6 6 8-10" stroke="#C9E0B4" stroke-width="3" fill="none" stroke-linecap="round"/></svg>';
 
-Brain.run({id:'go-no-go',cat:'focus',icon:'traffic',title:{en:'Apple Orchard',zh:'果园收苹果'},
+Brain.run({id:'go-no-go',music:'orchard',cat:'focus',icon:'traffic',title:{en:'Apple Orchard',zh:'果园收苹果'},
  rules:{en:'Apples roll slowly down the wooden chute.<br><br>When a <b>good apple</b> is inside the dashed box, tap <b>Pick</b> to put it in the basket.<br><br>Let <b>bruised apples</b> roll past into the compost bin. Do nothing for those.',zh:'苹果会沿着木槽慢慢滚过来。<br><br><b>好苹果</b>滚进虚线框时，点<b>摘下</b>放进篮子。<br><br><b>有烂斑的苹果</b>让它滚过去，进堆肥桶，不用点。'},
  goal:{en:'Fill the basket. Pass with at least 6 in 10 good choices; stars for fewer mistakes.',zh:'把篮子装满就结束。判断对的要达到六成才能过关，错得越少星星越多。'}},
 function(L){
@@ -47,7 +61,7 @@ function(L){
   w.insertAdjacentHTML('beforeend','<div class="hud" id="hud"><span class="chip" style="flex:1;min-width:0">'+I('cart')+'<span class="cratebar"><i id="bar"></i></span><span id="cnt"></span></span></div>'+
     '<div class="wantcard" id="want"></div>'+
     '<div class="orchard" id="or"><div class="sunx"></div><svg class="trees" viewBox="0 0 400 140" preserveAspectRatio="none">'+
-      [30,120,230,330].map((x,i)=>'<rect x="'+(x+26)+'" y="80" width="12" height="60" fill="#8A6143"/><circle cx="'+(x+32)+'" cy="60" r="'+(38+i%2*6)+'" fill="'+(i%2?'#6DB05E':'#5FA052')+'"/>'+[0,1,2].map(k=>'<circle cx="'+(x+14+k*18)+'" cy="'+(50+k%2*20)+'" r="5" fill="#D8413A"/>').join('')).join('')+'</svg>'+
+      [30,120,230,330].map((x,i)=>'<g class="tree" style="animation-delay:'+(i*.7)+'s"><rect x="'+(x+26)+'" y="80" width="12" height="60" fill="#8A6143"/><circle cx="'+(x+32)+'" cy="60" r="'+(38+i%2*6)+'" fill="'+(i%2?'#6DB05E':'#5FA052')+'"/>'+[0,1,2].map(k=>'<circle cx="'+(x+14+k*18)+'" cy="'+(50+k%2*20)+'" r="5" fill="#D8413A"/>').join('')).join('')+'</svg>'+
     '<div class="chute"></div><div class="zone" id="zone"><b>'+T({en:'Pick zone',zh:'摘果区'})+'</b></div><div class="basket" id="basket">'+BASKET+'<b id="bk">0</b></div><div class="compost">'+BIN+'</div></div>'+
     '<button class="btn pickbtn" id="pick">'+I('cart')+T({en:'Pick',zh:'摘下'})+'</button><div class="say2" id="say"></div>');
   document.getElementById('hud').appendChild(Brain.soundBtn());
@@ -70,7 +84,8 @@ function(L){
     var inZone=false;
     apples.forEach(function(a){if(a.picked)return;a.x+=speed*dt;var rot=a.x*1.6;a.el.style.transform='translateX('+a.x+'px) rotate('+rot+'deg)';
       var c=a.x+30;a.inZone=c>ZX&&c<ZX+ZW;if(a.inZone)inZone=true;
-      if(!a.done&&c>ZX+ZW){a.done=true;decisions++;if(isGood(a.k)){wrong++;say.className='say2 try';say.textContent=T({en:'A good apple rolled away. Next one!',zh:'一个好苹果滚走了，下一个接住！'});Brain.sfx('soft')}else{right++;say.className='say2 good';say.textContent=T({en:'Good, you let that one go.',zh:'对，这个不要。'})}}
+      if(!a.done&&c>ZX+ZW){a.done=true;decisions++;if(isGood(a.k)){wrong++;say.className='say2 try';say.textContent=T({en:'A good apple rolled away. Next one!',zh:'一个好苹果滚走了，下一个接住！'});Brain.sfx('thud')}else{Brain.sfx('whoosh')}if(!isGood(a.k)){right++;say.className='say2 good';say.textContent=T({en:'Good, you let that one go.',zh:'对，这个不要。'})}}
+      if(a.x>W-70&&!a.binned){a.binned=true;var cb=or.querySelector('.compost');cb.classList.remove('gulp');void cb.offsetWidth;cb.classList.add('gulp')}
       if(a.x>W+10){a.el.remove();a.gone=true}});
     apples=apples.filter(a=>!a.gone);zone.classList.toggle('has',inZone);
     requestAnimationFrame(loop)}
@@ -78,7 +93,7 @@ function(L){
     var a=apples.find(q=>q.inZone&&!q.done&&!q.picked);
     if(!a){say.className='say2';say.style.color='var(--muted)';say.textContent=T({en:'Wait until an apple is in the dashed box.',zh:'等苹果滚进虚线框再点。'});return}
     say.style.color='';a.done=true;decisions++;
-    if(isGood(a.k)){a.picked=true;right++;got++;Brain.sfx('pop');var bx=W/2-30-a.x;a.el.style.transform='translate('+(a.x+bx)+'px,120px) scale(.5)';a.el.classList.add('picked');setTimeout(()=>{a.el.remove();a.gone=true},650);
+    if(isGood(a.k)){a.picked=true;right++;got++;Brain.sfx('pop');var tx=W/2-30;a.el.animate([{transform:'translate('+a.x+'px,0) rotate(0)'},{transform:'translate('+((a.x+tx)/2)+'px,-70px) rotate(200deg)',offset:.45},{transform:'translate('+tx+'px,120px) rotate(360deg) scale(.6)'}],{duration:650,easing:'ease-in-out',fill:'forwards'});setTimeout(()=>{a.el.remove();a.gone=true},660);
       var bk=document.getElementById('basket');bk.classList.remove('bump');void bk.offsetWidth;bk.classList.add('bump');document.getElementById('bk').textContent=got;
       say.className='say2 good';say.textContent=Brain.pick(T({en:['Lovely apple!','Into the basket!','Nice pick!'],zh:['好苹果！','放进篮子！','摘得好！']}));hud();
       if(got===switchAt){running=false;want='green';setTimeout(function(){Brain.sfx('sparkle');wantCard(true);hud();Brain.toast(T({en:'New order: green apples!',zh:'换订单：改摘绿苹果！'}),or,1800);Brain.speak(T({en:'Now pick good green apples',zh:'现在改摘好的绿苹果'}));apples.forEach(q=>{q.el.remove()});apples=[];setTimeout(()=>{running=true;last=performance.now()},1900)},500)}
@@ -89,6 +104,7 @@ function(L){
   function end(){Brain.sfx('win');var acc=decisions?right/decisions:1,pass=acc>=.6,stars=!pass?0:wrong<=1?3:wrong<=3?2:1;
     Brain.toast(T({en:'Basket full!',zh:'篮子装满啦！'}),or,1500);
     setTimeout(function(){Brain.finish({pass:pass,stars:stars,score:right,total:decisions,big:T({en:got+' apples',zh:got+' 个苹果'}),note:{en:'Good choices '+right+' of '+decisions+' · mistakes '+wrong,zh:'判断正确 '+right+' / '+decisions+' · 失误 '+wrong+' 次'},failMsg:{en:'Try to get at least 6 in 10 choices right.',zh:'判断正确要达到六成才能过关，再来一次吧。'}})},1600)}
+  setInterval(function(){if(!running)return;var lf=document.createElement('i');lf.className='leaf';lf.style.left=Brain.rand(10,85)+'%';lf.style.top=Brain.rand(50,90)+'px';or.appendChild(lf);setTimeout(()=>lf.remove(),4100)},2600);
   wantCard();hud();requestAnimationFrame(loop);
 });
 

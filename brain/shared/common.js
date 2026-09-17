@@ -7,7 +7,7 @@
   var LANG=store('lang')==='zh'?'zh':'en';
   document.documentElement.lang=LANG==='zh'?'zh-CN':'en';
   function T(o){return (o&&typeof o==='object'&&!Array.isArray(o)&&('en' in o))?o[LANG]:o}
-  function speak(t){try{speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t);u.rate=0.85;u.lang=LANG==='zh'?'zh-CN':'en-US';speechSynthesis.speak(u)}catch(e){}}
+  function speak(t){try{speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t);u.rate=0.85;u.lang=LANG==='zh'?'zh-CN':'en-US';u.onstart=function(){window.BrainMusic&&BrainMusic.duck(true)};u.onend=u.onerror=function(){window.BrainMusic&&BrainMusic.duck(false)};speechSynthesis.speak(u)}catch(e){}}
   function el(html){var d=document.createElement('div');d.innerHTML=html.trim();return d.firstChild}
   function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
   function rand(a,b){return a+Math.floor(Math.random()*(b-a+1))}
@@ -21,16 +21,30 @@
 
   /* soft synthesized sound effects shared by the games (no audio files) */
   var AC=null,MUTED=!!store('muted');
-  function tone(f,d,type,vol,delay,slide){if(MUTED)return;try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();var t=AC.currentTime+(delay||0),o=AC.createOscillator(),g=AC.createGain();
+  function tone(f,d,type,vol,delay,slide){if(MUTED)return;try{AC=AC||(window.BrainMusic&&BrainMusic.ctx())||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();var t=AC.currentTime+(delay||0),o=AC.createOscillator(),g=AC.createGain();
     o.type=type||'sine';o.frequency.setValueAtTime(f,t);if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+d);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol||.1,t+.012);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d+.05)}catch(e){}}
   var SFX={tap:()=>tone(880,.08,'triangle',.07),pop:()=>{tone(600,.12,'sine',.1,0,1400)},splash:()=>{tone(300,.25,'sine',.08,0,120);tone(900,.15,'triangle',.04,.03,300)},
     hop:()=>tone(420,.22,'sine',.1,0,900),soft:()=>tone(260,.3,'sine',.08,0,200),
     ok:()=>{tone(784,.16,'triangle',.1);tone(988,.16,'triangle',.1,.09);tone(1319,.3,'triangle',.1,.18)},
-    win:()=>{[523,659,784,1047,1319].forEach((f,i)=>tone(f,.25,'triangle',.09,i*.1))},sparkle:()=>{tone(1760,.12,'sine',.05);tone(2349,.2,'sine',.05,.06)}};
+    win:()=>{[523,659,784,1047,1319].forEach((f,i)=>tone(f,.25,'triangle',.09,i*.1))},sparkle:()=>{tone(1760,.12,'sine',.05);tone(2349,.2,'sine',.05,.06)},
+    twinkle:()=>{[1568,2093,2637].forEach((f,i)=>tone(f,.25,'sine',.045,i*.06))},
+    thud:()=>{tone(140,.18,'sine',.14,0,70);tone(90,.12,'triangle',.06)},
+    step:()=>{tone(700,.05,'triangle',.05);tone(520,.06,'triangle',.04,.12)},
+    brush:()=>{noise(.35,1800,.9,.06)},
+    bubble:()=>{tone(420,.08,'sine',.08,0,1100);tone(620,.07,'sine',.05,.09,1500)},
+    croak:()=>{tone(170,.12,'square',.035,0,140);tone(160,.14,'square',.035,.15,120)},
+    chirp:()=>{[0,.08,.16].forEach(d=>tone(2600,.06,'sine',.04,d,3400))},
+    register:()=>{tone(2093,.08,'square',.04);tone(2637,.3,'triangle',.08,.07)},
+    whoosh:()=>{noise(.4,900,.7,.05)}};
+  function noise(dur,f,q,v){if(MUTED)return;try{AC=AC||(window.BrainMusic&&BrainMusic.ctx())||new (window.AudioContext||window.webkitAudioContext)();var t=AC.currentTime,len=Math.floor(AC.sampleRate*dur),b=AC.createBuffer(1,len,AC.sampleRate),d=b.getChannelData(0);for(var i=0;i<len;i++)d[i]=Math.random()*2-1;
+    var src=AC.createBufferSource(),bp=AC.createBiquadFilter(),g=AC.createGain();src.buffer=b;bp.type='bandpass';bp.frequency.value=f;bp.Q.value=q;g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(v,t+dur*.3);g.gain.linearRampToValueAtTime(.0001,t+dur);src.connect(bp);bp.connect(g);g.connect(AC.destination);src.start(t)}catch(e){}}
   var Brain={ROOT:ROOT,LANG:LANG,T:T,speak:speak,shuffle:shuffle,rand:rand,pick:pick,el:el,store:store,langBtn:langBtn,I:I,MAXL:MAXL,prog:prog,
     sfx:function(n){SFX[n]&&SFX[n]()},
-    soundBtn:function(){var b=el('<button class="icon-btn" aria-label="sound"></button>');function d(){b.innerHTML=I(MUTED?'mute':'speaker')}d();
-      b.onclick=function(){MUTED=!MUTED;store('muted',MUTED);d();if(!MUTED)SFX.tap()};return b},
+    soundBtn:function(){var wrap=el('<span class="snd-group"></span>');
+      var mb=el('<button class="icon-btn" aria-label="music"></button>');function dm(){var on=window.BrainMusic&&BrainMusic.on();mb.innerHTML=I(on?'music':'musicOff');mb.classList.toggle('off',!on)}dm();
+      mb.onclick=function(){if(window.BrainMusic)BrainMusic.toggle();dm()};
+      var b=el('<button class="icon-btn" aria-label="sound effects"></button>');function d(){b.innerHTML=I(MUTED?'mute':'speaker');b.classList.toggle('off',MUTED)}d();
+      b.onclick=function(){MUTED=!MUTED;store('muted',MUTED);d();if(!MUTED)SFX.tap()};wrap.appendChild(mb);wrap.appendChild(b);return wrap},
     toast:function(html,host,ms){var t=el('<div class="toast">'+html+'</div>');(host||document.body).appendChild(t);setTimeout(function(){t.classList.add('bye')},ms||1600);setTimeout(function(){t.remove()},(ms||1600)+500)},
     toggleLang:function(){store('lang',LANG==='zh'?'en':'zh');location.reload()},
 
@@ -55,8 +69,9 @@
       Brain.cur=o; o.path=window.PATH;
       Brain.topbar(o.title);
       var L=+param('level');
-      if(L&&param('go')){Brain.level=L;Brain.setLevelLabel();return start(L)}
-      Brain.intro(o).then(function(l){Brain.level=l;Brain.setLevelLabel();start(l)});
+      function music(){if(o.music&&window.BrainMusic){BrainMusic.start(o.music);var kick=function(){var c=BrainMusic.ctx();if(c&&c.state==='suspended')c.resume();document.removeEventListener('pointerdown',kick)};document.addEventListener('pointerdown',kick)}}
+      if(L&&param('go')){Brain.level=L;Brain.setLevelLabel();music();return start(L)}
+      Brain.intro(o).then(function(l){Brain.level=l;Brain.setLevelLabel();music();start(l)});
     },
     setLevelLabel:function(){var h=document.querySelector('.topbar h1');if(h)h.innerHTML=T(Brain.cur.title)+' <span class="lv">'+T({en:'Level ',zh:'第 '})+Brain.level+T({en:'',zh:' 关'})+'</span>'},
 
@@ -129,6 +144,7 @@
 
     /* End screen with level progression. Passing = 60% or more. */
     finish:function(o){
+      if(window.BrainMusic)BrainMusic.stop(1.6);
       var g=Brain.cur||{},id=o.id||g.id,path=o.path||g.path,L=Brain.level||1;
       var pct=o.total?o.score/o.total:1,pass=o.pass!==undefined?o.pass:pct>=0.6,stars=o.stars!==undefined?o.stars:(pct>=.9?3:pct>=.75?2:pass?1:0);
       var p=prog(id);if(stars>(p.stars[L]||0))p.stars[L]=stars;var unlocked=false;

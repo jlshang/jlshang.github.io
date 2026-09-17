@@ -16,6 +16,18 @@
 .pond .reed{position:absolute;bottom:-6px;pointer-events:none}
 .fish{position:absolute;left:0;top:0;width:96px;height:64px;padding:6px;cursor:pointer;will-change:transform}
 .fish svg{width:100%;height:100%;overflow:visible}
+.fish .tail{transform-box:view-box;transform-origin:22px 32px;animation:tail .5s ease-in-out infinite alternate}
+.fish .fbody{transform-box:view-box;transform-origin:60px 32px;animation:undul 1s ease-in-out infinite alternate}
+@keyframes tail{from{transform:rotate(-14deg)}to{transform:rotate(14deg)}}
+@keyframes undul{from{transform:scaleY(.97)}to{transform:scaleY(1.03)}}
+.pond .pad{animation:padBob 5s ease-in-out infinite}
+@keyframes padBob{50%{transform:translateY(3px) rotate(2deg)}}
+.caustic{position:absolute;inset:-40%;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.10) 0 8%,transparent 9%),radial-gradient(circle at 70% 60%,rgba(255,255,255,.08) 0 6%,transparent 7%),radial-gradient(circle at 45% 80%,rgba(255,255,255,.07) 0 7%,transparent 8%);background-size:180px 180px;pointer-events:none;animation:caust 18s linear infinite}
+@keyframes caust{to{transform:translate(180px,90px)}}
+.dfly{position:absolute;width:54px;height:30px;pointer-events:none;z-index:4;animation:dfly 16s linear infinite}
+.dfly .wing{transform-box:fill-box;transform-origin:center;animation:dwing .12s linear infinite alternate}
+@keyframes dwing{to{transform:scaleY(.35)}}
+@keyframes dfly{0%{transform:translate(-80px,40px)}20%{transform:translate(90px,20px)}24%{transform:translate(90px,20px)}50%{transform:translate(220px,90px)}54%{transform:translate(220px,90px)}100%{transform:translate(480px,30px)}}
 .fish.caught{transition:transform .7s cubic-bezier(.4,-0.3,.6,1),opacity .7s;opacity:0;pointer-events:none}
 .fish.dart{pointer-events:none}
 .splash{position:absolute;width:90px;height:90px;margin:-45px 0 0 -45px;pointer-events:none}
@@ -36,6 +48,7 @@
 </style></head>
 <body><div class="wrap"></div>
 <script src="../../../shared/icons.js"></script>
+<script src="../../../shared/audio.js"></script>
 <script src="../../../shared/common.js" data-root="../../../"></script>
 <script>
 var PATH='games/focus/find-target/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
@@ -50,13 +63,13 @@ function fishSVG(f){var id='fc'+(fid++),pat='';
   if(f.p==='stripes')pat='<g clip-path="url(#'+id+')" fill="'+f.col.d+'" opacity=".85"><rect x="34" y="0" width="7" height="60"/><rect x="50" y="0" width="7" height="60"/><rect x="66" y="0" width="7" height="60"/></g>';
   if(f.p==='spots')pat='<g clip-path="url(#'+id+')" fill="#fff" opacity=".85"><circle cx="40" cy="24" r="4.5"/><circle cx="56" cy="36" r="5"/><circle cx="68" cy="22" r="3.5"/><circle cx="46" cy="40" r="3"/></g>';
   return '<svg viewBox="0 0 120 64"><defs><clipPath id="'+id+'"><path d="M18 32C28 8 70 4 96 20c6 4 10 8 12 12-2 4-6 8-12 12C70 60 28 56 18 32z"/></clipPath></defs>'+
-    '<path d="M24 32L2 12c-2 12-2 28 0 40z" fill="'+f.col.d+'"/>'+
-    '<path d="M18 32C28 8 70 4 96 20c6 4 10 8 12 12-2 4-6 8-12 12C70 60 28 56 18 32z" fill="'+f.col.c+'"/>'+pat+
+    '<path class="tail" d="M24 32L2 12c-2 12-2 28 0 40z" fill="'+f.col.d+'"/>'+
+    '<g class="fbody"><path d="M18 32C28 8 70 4 96 20c6 4 10 8 12 12-2 4-6 8-12 12C70 60 28 56 18 32z" fill="'+f.col.c+'"/>'+pat+
     '<path d="M54 10c6-8 18-10 26-6-6 2-12 6-14 12z" fill="'+f.col.d+'"/><path d="M58 50c4 6 12 8 18 6-4-2-8-6-8-10z" fill="'+f.col.d+'"/>'+
-    '<circle cx="92" cy="27" r="5.5" fill="#fff"/><circle cx="93.5" cy="27" r="3" fill="#1C2826"/><path d="M104 36q-4 3-8 2" stroke="#1C2826" stroke-width="2" fill="none" stroke-linecap="round"/></svg>'}
+    '<circle cx="92" cy="27" r="5.5" fill="#fff"/><circle cx="93.5" cy="27" r="3" fill="#1C2826"/><path d="M104 36q-4 3-8 2" stroke="#1C2826" stroke-width="2" fill="none" stroke-linecap="round"/></g></svg>'}
 function fname(f){return T({en:(f.pat.n.en?f.pat.n.en+' ':'')+f.col.n.en+' fish',zh:f.col.n.zh+(f.pat.n.zh?f.pat.n.zh:'')+'小鱼'})}
 
-Brain.run({id:'find-target',cat:'focus',icon:'eyeTarget',title:{en:'Pond Catch',zh:'池塘捞鱼'},
+Brain.run({id:'find-target',music:'pond',cat:'focus',icon:'eyeTarget',title:{en:'Pond Catch',zh:'池塘捞鱼'},
  rules:{en:'Fish are swimming slowly in the pond.<br><br>The <b>order card</b> shows which fish to catch. Tap those fish to scoop them into your bucket.<br><br>Leave the other fish alone. The fish never run out, so take your time.',zh:'池塘里的小鱼慢慢游着。<br><br>上面的<b>订单</b>写着要捞哪种鱼，点一下就能捞进小桶。<br><br>别的鱼不要捞。鱼会一直游，不用着急。'}},
 function(L){
   /* difficulty: number of fish, swim speed, and how alike the other fish look */
@@ -69,7 +82,7 @@ function(L){
   document.getElementById('hud').appendChild(Brain.soundBtn());
   var pond=document.getElementById('pond'),say=document.getElementById('say'),card=document.getElementById('card');
   /* scenery */
-  var scen='';
+  var scen='<div class="caustic"></div><svg class="dfly" viewBox="0 0 54 30"><path d="M6 16h40" stroke="#2F6DB0" stroke-width="4" stroke-linecap="round"/><circle cx="46" cy="16" r="4" fill="#2F6DB0"/><ellipse class="wing" cx="30" cy="8" rx="12" ry="5" fill="#CFE8F7" opacity=".85"/><ellipse class="wing" cx="30" cy="24" rx="12" ry="5" fill="#CFE8F7" opacity=".85"/></svg>';
   [[18,60,120],[240,300,90],[60,340,70]].forEach(function(p,k){scen+='<svg class="pad" style="left:'+p[0]+'px;top:'+p[1]+'px;width:'+p[2]+'px;height:'+p[2]*.7+'px" viewBox="0 0 100 70"><path d="M50 35L96 30A46 32 0 1 1 90 18z" fill="#5FA052"/><path d="M50 35L20 20M50 35L30 60M50 35L78 58" stroke="#4A8A40" stroke-width="2"/>'+(k===0?'<circle cx="40" cy="30" r="9" fill="#F4B6C2"/><circle cx="40" cy="30" r="4" fill="#F2C744"/>':'')+'</svg>'});
   for(var r=0;r<4;r++)scen+='<div class="ripple" style="left:'+(40+r*80)+'px;top:'+(80+(r%2)*190)+'px;width:80px;height:40px;animation-delay:'+(r*1.5)+'s"></div>';
   for(var b=0;b<6;b++)scen+='<div class="bubble2" style="left:'+(30+b*60)+'px;bottom:-10px;width:'+(6+b%3*3)+'px;height:'+(6+b%3*3)+'px;animation-delay:'+(b*1.1)+'s"></div>';
@@ -112,7 +125,7 @@ function(L){
       var n=document.createElement('div');n.className='net';n.innerHTML='<svg viewBox="0 0 70 70"><circle cx="30" cy="30" r="22" fill="rgba(255,255,255,.35)" stroke="#8A6F55" stroke-width="4"/><path d="M14 18l32 24M14 42l32-24M30 8v44M8 30h44" stroke="#fff" stroke-width="1.5" opacity=".7"/><path d="M46 46l20 20" stroke="#8A6F55" stroke-width="6" stroke-linecap="round"/></svg>';
       n.style.left=x+'px';n.style.top=y+'px';pond.appendChild(n);setTimeout(()=>n.remove(),500);
       fx(x,y,true);Brain.sfx('pop');setTimeout(()=>Brain.sfx('splash'),120);
-      var bx=W-60-f.x,by=H-60-f.y;f.el.style.transform='translate('+(f.x+bx)+'px,'+(f.y+by)+'px) scale(.3) rotate(-30deg)';f.el.classList.add('caught');
+      f.el.animate([{transform:'translate('+f.x+'px,'+f.y+'px)'},{transform:'translate('+((f.x+W-60)/2)+'px,'+(Math.min(f.y,H-160)-90)+'px) rotate(-200deg) scale(.9)',offset:.5},{transform:'translate('+(W-70)+'px,'+(H-70)+'px) rotate(-360deg) scale(.3)'}],{duration:650,easing:'ease-in-out',fill:'forwards'});f.el.style.pointerEvents='none';
       setTimeout(function(){f.el.remove();fishes=fishes.filter(q=>q!==f);var bk=document.getElementById('bucket');bk.classList.remove('bump');void bk.offsetWidth;bk.classList.add('bump');document.getElementById('bk').textContent=caughtTotal;
         if(got<need&&fishes.filter(q=>q.t).length<minTargets+1)spawn(true,true);spawn(false,true);if(fishes.length>nFish)trim()},650);
       document.querySelectorAll('#ttxt .dots i').forEach((d,i)=>d.classList.toggle('on',i<got));
@@ -123,7 +136,7 @@ function(L){
         setTimeout(function(){if(order>=ORDERS)end();else{running=true;newOrder()}},1900)}
     }else{
       miss++;combo=0;var cc2=document.getElementById('combo');cc2.querySelector('span').textContent=0;cc2.classList.remove('hot');
-      fx(x,y,false);Brain.sfx('soft');f.v=speed*4;f.dir=x<W/2?-1:1;f.dart=true;setTimeout(function(){f.v=speed*(.8+Math.random()*.4);f.dart=false},900);
+      fx(x,y,false);Brain.sfx('splash');setTimeout(()=>Brain.sfx('bubble'),150);f.v=speed*4;f.dir=x<W/2?-1:1;f.dart=true;setTimeout(function(){f.v=speed*(.8+Math.random()*.4);f.dart=false},900);
       card.classList.remove('wiggle');void card.offsetWidth;card.classList.add('wiggle');
       say.className='say2 try';say.textContent=T({en:'Oops, it swam away. Check the order card.',zh:'哎呀，这条不对，看看订单上的鱼。'});
     }

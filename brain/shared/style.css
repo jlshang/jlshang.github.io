@@ -95,3 +95,7 @@ h1,h2{letter-spacing:-.01em}
 .mascot .talk:before{content:"";position:absolute;left:-9px;bottom:14px;border:9px solid transparent;border-right-color:#fff;border-left:0}
 
 .lang-btn{white-space:nowrap;flex:none}.topbar .tools{flex:none}
+
+.snd-group{display:inline-flex;gap:6px}.icon-btn.off{opacity:.55}
+
+.hud .snd-group{margin-left:auto}.hud .chip[style*="margin-left:auto"]{margin-left:0!important}.hud .chip{padding:6px 10px}

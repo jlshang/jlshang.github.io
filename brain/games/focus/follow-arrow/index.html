@@ -9,14 +9,33 @@
 .tile.trail:after{content:"";position:absolute;left:44%;top:44%;width:12%;height:12%;border-radius:50%;background:#C9AE76}
 .tile.goal{background:#F3E6C4}
 .hog{position:absolute;left:0;top:0;z-index:3;transition:transform .45s cubic-bezier(.3,.7,.4,1);pointer-events:none}
-.hog .body{width:100%;height:100%;transition:transform .2s}
-.hog.bump .body{animation:shake .4s}
-.hog.step .body{animation:hop .45s}
+.hog .inner,.hog .face{width:100%;height:100%}
+.hog .face{transition:transform .25s}.hog.left .face{transform:scaleX(-1)}
+.hog .body{width:100%;height:100%;transform-origin:50% 100%;animation:breathe 2.6s ease-in-out infinite}
+@keyframes breathe{50%{transform:scaleY(1.04) scaleX(.98)}}
+.hog.bump .inner{animation:bumpy .45s}
+@keyframes bumpy{20%{transform:translateX(-7px) rotate(-6deg)}50%{transform:translateX(6px) rotate(5deg)}80%{transform:translateX(-3px)}}
+.hog.step .inner{animation:hop .45s}
+.tile .deco.sway svg{transform-origin:50% 100%;animation:sway 3.4s ease-in-out infinite}
+@keyframes sway{50%{transform:rotate(4deg)}}
+.tile.trail.new:after{animation:toastIn2 .35s}
+.cloudshade{position:absolute;width:160px;height:90px;border-radius:50%;background:rgba(40,70,40,.10);filter:blur(8px);pointer-events:none;z-index:2;animation:shade 26s linear infinite}
+@keyframes shade{0%{transform:translate(-200px,40px)}100%{transform:translate(460px,120px)}}
+.sign{transform-origin:50% 100%;animation:signSwing 2.8s ease-in-out infinite}
+@keyframes signSwing{0%,100%{transform:translateX(-50%) rotate(-3deg)}50%{transform:translateX(-50%) rotate(3deg)}}
+.goal.open .deco{animation:houseJoy .6s ease 2}
+@keyframes houseJoy{50%{transform:translateY(-6px) scale(1.08)}}
+.floatup{position:absolute;width:34px;height:34px;pointer-events:none;z-index:5;animation:floatUp2 1.4s ease-out forwards}
+@keyframes floatUp2{0%{transform:translateY(0) scale(.5);opacity:0}25%{opacity:1;transform:translateY(-20px) scale(1.1)}100%{transform:translateY(-70px) scale(1);opacity:0}}
+.butterfly{position:absolute;width:26px;height:22px;pointer-events:none;z-index:4;animation:bfly 14s ease-in-out infinite}
+.butterfly .w{transform-origin:13px 11px;animation:wing .25s ease-in-out infinite alternate}
+@keyframes wing{to{transform:scaleX(.3)}}
+@keyframes bfly{0%{transform:translate(10px,300px)}25%{transform:translate(120px,160px)}50%{transform:translate(260px,220px)}75%{transform:translate(180px,40px)}100%{transform:translate(10px,300px)}}
 @keyframes hop{50%{transform:translateY(-10px)}}
-.sign{position:absolute;left:50%;bottom:92%;transform:translateX(-50%);background:#FFF8E6;border:3px solid #9A6E45;border-radius:12px;padding:3px 6px;display:flex;gap:4px;box-shadow:0 3px 0 #7E5836;white-space:nowrap}
+.sign{position:absolute;left:50%;bottom:92%;background:#FFF8E6;border:3px solid #9A6E45;border-radius:12px;padding:3px 6px;display:flex;gap:4px;box-shadow:0 3px 0 #7E5836;white-space:nowrap}
 .sign span{width:34px;height:34px;display:block}
 .sign.rev{background:#EFE6FF;border-color:#6A5AC8;box-shadow:0 3px 0 #4E3F9E}
-.sign.pop{animation:toastIn2 .35s}
+
 .pad4{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:10px;margin-top:14px}
 .pad4 button{min-height:70px;border-radius:20px;border:1.5px solid var(--line);background:var(--surface);box-shadow:0 4px 0 var(--line);cursor:pointer;padding:14px;display:flex;align-items:center;justify-content:center}
 .pad4 button svg{width:44px;height:44px}
@@ -29,6 +48,7 @@
 </style></head>
 <body><div class="wrap"></div>
 <script src="../../../shared/icons.js"></script>
+<script src="../../../shared/audio.js"></script>
 <script src="../../../shared/common.js" data-root="../../../"></script>
 <script>
 var PATH='games/focus/follow-arrow/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
@@ -42,7 +62,7 @@ var DECO=['<svg viewBox="0 0 40 40"><circle cx="20" cy="18" r="14" fill="#5FA052
 var ROT={up:0,right:90,down:180,left:270},OPP={up:'down',down:'up',left:'right',right:'left'},DV={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]};
 function arrow(d,col){return Brain.shape('arrow',col||'#1C2826',ROT[d])}
 
-Brain.run({id:'follow-arrow',cat:'focus',icon:'arrows',title:{en:'Hedgehog Post',zh:'小刺猬送信'},
+Brain.run({id:'follow-arrow',music:'post',cat:'focus',icon:'arrows',title:{en:'Hedgehog Post',zh:'小刺猬送信'},
  rules:{en:'Hazel the hedgehog is delivering letters around the village.<br><br>A little <b>signpost</b> above her shows which way to walk. Tap the matching direction button.<br><br>On later levels, a <b style="color:#6A5AC8">purple sign</b> is a joke sign: walk the <b>opposite</b> way.',zh:'小刺猬海泽要把信送到村子里的人家。<br><br>它头上的<b>小路牌</b>会告诉您往哪边走，点相同方向的按钮就行。<br><br>后面的关卡里，<b style="color:#6A5AC8">紫色路牌</b>是调皮的反向牌，要往<b>相反</b>方向走。'},
  goal:{en:'Deliver all the letters. Stars depend on how few times Hazel bumps into things.',zh:'把所有的信都送到就过关。碰壁的次数越少，星星越多。'}},
 function(L){
@@ -66,12 +86,12 @@ function(L){
   function street(){
     path=genPath();pos=[path[0][0],path[0][1]];stepI=1;var goal=path[path.length-1];
     g.innerHTML='';for(var y=0;y<ROWS;y++)for(var x=0;x<COLS;x++){var t=document.createElement('div');t.className='tile'+((x+y)%2?' alt':'');
-      var onPath=path.some(p=>p[0]===x&&p[1]===y);if(!onPath&&Math.random()<.45)t.innerHTML='<div class="deco">'+Brain.pick(DECO)+'</div>';g.appendChild(t)}
+      var onPath=path.some(p=>p[0]===x&&p[1]===y);if(!onPath&&Math.random()<.45){var dk=Brain.rand(0,2);t.innerHTML='<div class="deco'+(dk<2?' sway':'')+'" style="animation-delay:'+Math.random()*2+'s">'+DECO[dk]+'</div>'}g.appendChild(t)}
     var gt=tileEl(goal[0],goal[1]);gt.classList.add('goal');gt.innerHTML='<div class="deco" style="inset:4%">'+HOUSE(Brain.pick(['#D0633A','#2F6DB0','#2C8468','#A8487A']))+'</div>';
     tileEl(pos[0],pos[1]).classList.add('trail');
     /* each step gets a sign; purple signs mean the opposite way */
     signs=path.slice(1).map(p=>{var rev=Math.random()<revRate&&!two;return{rev:rev,show:rev?OPP[p[2]]:p[2],need:p[2]}});
-    g.insertAdjacentHTML('beforeend','<div class="hog" id="hog">'+HOG+'<div class="sign" id="sign"></div></div>');
+    g.insertAdjacentHTML('beforeend','<div class="hog" id="hog"><div class="inner"><div class="face">'+HOG+'</div></div><div class="sign" id="sign"></div></div><div class="cloudshade"></div><svg class="butterfly" viewBox="0 0 26 22"><g class="w"><path d="M13 11C8 0 0 2 2 9c1 4 7 4 11 2zM13 11c5-11 13-9 11-2-1 4-7 4-11 2z" fill="#F2A7B0"/><path d="M13 11c-4 2-9 6-7 9 2 2 6-2 7-9zM13 11c4 2 9 6 7 9-2 2-6-2-7-9z" fill="#F4C27A"/></g><path d="M13 6v12" stroke="#5A3A2A" stroke-width="1.6"/></svg>');
     requestAnimationFrame(place);showSign();
     say.textContent=T(deliv===0?{en:'Follow the signs to the house.',zh:'跟着路牌走，把信送到小房子。'}:{en:'Next letter! Follow the signs.',zh:'下一封信！继续跟着路牌走。'});say.style.color='var(--muted)';
     Brain.progress(deliv,DELIV);
@@ -81,14 +101,14 @@ function(L){
     if(combo&&stepI<signs.length){var s2=signs[stepI];el.innerHTML+='<span style="opacity:.45">'+arrow(s2.show,s2.rev?'#6A5AC8':'#1C2826')+'</span>'}}
   function press(d){
     if(!path||stepI>=path.length)return;var s=signs[stepI-1],hog=document.getElementById('hog');
-    if(d===s.need){var n=path[stepI];pos=[n[0],n[1]];tileEl(pos[0],pos[1]).classList.add('trail');Brain.sfx('tap');
+    if(d===s.need){var n=path[stepI];pos=[n[0],n[1]];tileEl(pos[0],pos[1]).classList.add('trail','new');if(d==='left')hog.classList.add('left');if(d==='right')hog.classList.remove('left');Brain.sfx('step');
       hog.classList.remove('step');void hog.offsetWidth;hog.classList.add('step');place();stepI++;
       say.style.color='var(--good)';say.textContent=s.rev?T({en:'Ha! You saw through the joke sign.',zh:'哈！识破了调皮的反向牌。'}):'';
       if(stepI>=path.length){arrive()}else setTimeout(showSign,250)}
-    else{bumps++;hog.classList.remove('bump');void hog.offsetWidth;hog.classList.add('bump');Brain.sfx('soft');document.querySelector('#bumps span').textContent=T({en:'Bumps ',zh:'碰壁 '})+bumps;
+    else{bumps++;hog.classList.remove('bump');void hog.offsetWidth;hog.classList.add('bump');Brain.sfx('thud');document.querySelector('#bumps span').textContent=T({en:'Bumps ',zh:'碰壁 '})+bumps;
       say.style.color='var(--warn)';say.textContent=s.rev?T({en:'Purple sign: go the opposite way.',zh:'紫色路牌要往反方向走哦。'}):T({en:'Oops, bumped into a bush. Check the sign.',zh:'哎呀，撞到树丛了，看看路牌。'})}
   }
-  function arrive(){document.getElementById('sign').style.display='none';deliv++;Brain.sfx('ok');
+  function arrive(){document.getElementById('sign').style.display='none';var gt=tileEl(pos[0],pos[1]);gt.classList.add('open');var tr=gt.getBoundingClientRect(),gr=g.getBoundingClientRect();[0,1,2].forEach(function(k){var f=document.createElement('div');f.className='floatup';f.style.left=(tr.left-gr.left+tr.width/2-17+(k-1)*22)+'px';f.style.top=(tr.top-gr.top-10)+'px';f.style.animationDelay=(k*.15)+'s';f.style.color='#E0493C';f.innerHTML=k===1?I('receipt'):I('heart');g.appendChild(f);setTimeout(()=>f.remove(),1700)});deliv++;Brain.sfx('ok');setTimeout(()=>Brain.sfx('chirp'),400);
     document.querySelectorAll('#letters span')[deliv-1].classList.add('on');Brain.progress(deliv,DELIV);
     Brain.toast(T({en:'Letter delivered!',zh:'信送到啦！'}),document.querySelector('.town'),1300);
     setTimeout(function(){if(deliv>=DELIV)end();else street()},1700)}

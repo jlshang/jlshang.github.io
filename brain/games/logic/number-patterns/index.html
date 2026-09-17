@@ -34,6 +34,7 @@
 </style></head>
 <body><div class="wrap"></div>
 <script src="../../../shared/icons.js"></script>
+<script src="../../../shared/audio.js"></script>
 <script src="../../../shared/common.js" data-root="../../../"></script>
 <script>
 var PATH='games/logic/number-patterns/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
@@ -56,7 +57,7 @@ var RULES=[
  function(n){var s=Brain.rand(1,2);return{s:Array.from({length:n},(_,i)=>(i+s)*(i+s)),why:{en:'1×1, 2×2, 3×3...',zh:'依次是 1×1、2×2、3×3……'}}},
  function(n){var a=1,b=Brain.rand(1,2),s=[a,b];while(s.length<n)s.push(s[s.length-1]+s[s.length-2]);return{s:s,why:{en:'Add the two numbers before',zh:'每个数等于前两个数相加'}}}];
 
-Brain.run({id:'number-patterns',cat:'logic',icon:'frog',title:{en:'Frog Crossing',zh:'青蛙过河'},
+Brain.run({id:'number-patterns',music:'frog',cat:'logic',icon:'frog',title:{en:'Frog Crossing',zh:'青蛙过河'},
  rules:{en:'Help the frog cross the river on lily pads.<br><br>The numbers on the pads behind the frog follow a <b>rule</b>. Tap the lily pad with the <b>next number</b> to hop.<br><br>A wrong pad just wobbles. The frog waits for you.',zh:'帮小青蛙踩着荷叶过河。<br><br>青蛙走过的荷叶上的数字有<b>规律</b>，请点写着<b>下一个数</b>的荷叶，青蛙就会跳过去。<br><br>点错了荷叶只会晃一晃，青蛙会耐心等您。'}},
 function(L){
   var CROSS=L<=3?3:4,HOPS=L<=2?2:L<=6?3:4,PADS=L<=2?2:3,GIVEN=3,ROW=118;
@@ -116,7 +117,7 @@ function(L){
   function landBank(){
     busy=true;var H=parseFloat(world.style.height);
     setTimeout(function(){Brain.sfx('hop');frog.classList.remove('jump');void frog.offsetWidth;frog.classList.add('jump');frog.style.left=(RW/2)+'px';frog.style.top='70px';world.style.transform='translateY('+(H-RH)+'px)';},250);
-    setTimeout(function(){Brain.sfx('ok');lotus++;Brain.store('frog-lotus',lotus);document.getElementById('lotus').textContent=lotus;
+    setTimeout(function(){Brain.sfx('ok');Brain.sfx('croak');lotus++;Brain.store('frog-lotus',lotus);document.getElementById('lotus').textContent=lotus;
       var f=document.querySelectorAll('#flies span')[cross-1];if(f)f.classList.add('on');Brain.progress(cross,CROSS);
       Brain.toast(T({en:'Made it across!',zh:'过河成功！'})+'<br><small style="font-size:.95rem;color:var(--muted)">'+T(rule.why)+'</small>',river,1900);
       Brain.speak(T({en:'Made it across! ',zh:'过河成功！'})+T(rule.why))},900);

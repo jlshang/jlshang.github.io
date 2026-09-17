@@ -5,6 +5,8 @@
 .easel{position:relative;background:#fff;border-radius:10px;border:8px solid #9A6E45;box-shadow:0 6px 0 #7E5836;max-width:360px;margin:0 auto}
 .easel svg{display:block;width:100%;height:auto}
 .easel path.r{fill:#FAFAF7;stroke:#B9B2A4;stroke-width:1.2;transition:fill .6s ease}
+.easel path.r.painted{transform-box:fill-box;transform-origin:center;animation:paintIn .7s ease}
+@keyframes paintIn{0%{transform:scale(.94);filter:brightness(1.35)}60%{transform:scale(1.02)}100%{transform:none;filter:none}}
 .easel path.r.target{stroke:#E0A526;stroke-width:3;stroke-dasharray:5 4;animation:dash 1s linear infinite}
 @keyframes dash{to{stroke-dashoffset:-18}}
 .cardword{position:relative;z-index:1;margin:14px auto 0;max-width:300px;background:#FFFDF8;border-radius:16px;padding:10px 10px 12px;text-align:center;box-shadow:0 4px 0 #DCCBB0;transition:transform .25s}
@@ -12,11 +14,25 @@
 .cardword b{display:block;font-size:3.2rem;line-height:1.1;font-weight:900;letter-spacing:.02em}
 .cardword.wordmode{outline:4px dashed #6A5AC8;outline-offset:-6px}
 .cardword.no{animation:shake .4s}
+.cardword.dealt{animation:dealIn .45s cubic-bezier(.3,1.4,.5,1)}
+@keyframes dealIn{0%{transform:perspective(500px) rotateX(70deg) translateY(20px);opacity:0}100%{transform:none;opacity:1}}
 .cardword.flyout{transform:translateY(-40px) scale(.85);opacity:0;transition:all .35s}
 .pots{display:grid;gap:10px;margin-top:14px}
 .pot{border:0;background:none;padding:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font-family:inherit}
 .pot svg{width:78px;height:74px;transition:transform .2s}
 .pot:active svg{transform:translateY(3px)}
+.pot svg{animation:potIdle 3s ease-in-out infinite}.pot:nth-child(2) svg{animation-delay:.5s}.pot:nth-child(3) svg{animation-delay:1s}.pot:nth-child(4) svg{animation-delay:1.5s}.pot:nth-child(5) svg{animation-delay:2s}
+@keyframes potIdle{50%{transform:translateY(-3px)}}
+.pot.dip svg{animation:dip .45s ease}
+@keyframes dip{40%{transform:rotate(-12deg) translateY(4px)}}
+.beam{position:absolute;left:-40px;top:-20px;width:180px;height:420px;background:linear-gradient(180deg,rgba(255,250,220,.55),rgba(255,250,220,0));transform:rotate(-24deg);pointer-events:none;animation:beam 6s ease-in-out infinite}
+@keyframes beam{50%{opacity:.55}}
+.mote{position:absolute;width:4px;height:4px;border-radius:50%;background:rgba(255,245,210,.9);pointer-events:none;animation:mote 9s linear infinite}
+@keyframes mote{0%{transform:translate(0,0);opacity:0}20%{opacity:1}100%{transform:translate(40px,-160px);opacity:0}}
+.confetti{position:absolute;top:-10px;width:9px;height:14px;border-radius:2px;pointer-events:none;animation:conf 2.2s ease-in forwards}
+@keyframes conf{100%{transform:translate(var(--dx),420px) rotate(var(--r));opacity:.9}}
+.drip{position:absolute;width:8px;height:8px;border-radius:50%;pointer-events:none;animation:drip .5s ease-in forwards}
+@keyframes drip{100%{transform:translateY(30px);opacity:0}}
 .pot span{font-weight:800;font-size:1.05rem;color:var(--ink)}
 .pot.hint svg{animation:beat 1s ease-in-out 2}
 @keyframes beat{50%{transform:scale(1.15)}}
@@ -29,6 +45,7 @@
 </style></head>
 <body><div class="wrap"></div>
 <script src="../../../shared/icons.js"></script>
+<script src="../../../shared/audio.js"></script>
 <script src="../../../shared/common.js" data-root="../../../"></script>
 <script>
 var PATH='games/focus/color-match/index.html',T=Brain.T,ZH=Brain.LANG==='zh';
@@ -67,14 +84,14 @@ var PICS=[
 function potSVG(c){return '<svg viewBox="0 0 78 74"><path d="M14 26h50l-5 40H19Z" fill="#E9E4DA" stroke="#B9B2A4" stroke-width="2"/><ellipse cx="39" cy="26" rx="26" ry="8" fill="'+c.c+'"/><path d="M26 26c0 8 4 14 6 22 2-8 4-12 3-22Z" fill="'+c.c+'"/><ellipse cx="33" cy="24" rx="7" ry="2.4" fill="#fff" opacity=".45"/></svg>'}
 var BRUSH='<svg viewBox="0 0 44 44"><path d="M30 4l10 10-16 16-10-10Z" fill="#B9885A"/><path d="M14 20l10 10-6 6c-4 4-12 6-14 4s0-10 4-14Z" fill="currentColor"/></svg>';
 
-Brain.run({id:'color-match',cat:'focus',icon:'colors',title:{en:'Paint Studio',zh:'彩色画室'},
+Brain.run({id:'color-match',music:'paint',cat:'focus',icon:'colors',title:{en:'Paint Studio',zh:'彩色画室'},
  rules:{en:'Help finish a painting in the studio.<br><br>Each card shows a color word written in colored ink. Dip the brush in the pot that matches the <b>ink color</b>, not the word.<br><br>Example: <b style="color:#2D6CC0">RED</b> written in blue ink means tap the <b>blue</b> pot.',zh:'在画室里一起完成一幅画。<br><br>每张卡片上写着一个颜色字，字是用某种颜色写的。请点和<b>字的颜色</b>一样的颜料罐，不要看字的意思。<br><br>例如：用蓝色写的 <b style="color:#2D6CC0">红</b>，要点<b>蓝色</b>罐子。'},
  goal:{en:'Color every part of the painting, with at least 6 in 10 right on the first try.',zh:'把画的每一块都涂上颜色，且第一次就选对的要达到六成。'}},
 function(L){
   var nC=L<=2?2:L<=5?3:L<=8?4:5,set=COLORS.slice(0,nC),pic=Brain.pick(PICS),REG=L<=3?8:L<=7?10:12,order=Brain.shuffle(pic.r.map((_,i)=>i)).slice(0,REG);
   var trick=Math.min(.85,.3+L*.06),wordRate=L>=9?.25:0,step=0,first=0,tried=false,card,w=document.querySelector('.wrap');
   w.insertAdjacentHTML('beforeend','<div class="hud" id="hud"><span class="chip" id="prog">'+I('colors')+'<span></span></span><span class="chip" id="acc">'+I('check')+'<span></span></span></div>'+
-    '<div class="studio" id="studio"><div class="easel"><svg viewBox="0 0 200 150" id="canvas">'+pic.r.map((d,i)=>'<path class="r" data-i="'+i+'" d="'+d+'"/>').join('')+'</svg></div>'+
+    '<div class="studio" id="studio"><div class="beam"></div>'+[0,1,2,3].map(k=>'<i class="mote" style="left:'+(10+k*22)+'%;top:'+(40+k*12)+'%;animation-delay:'+(k*2.1)+'s"></i>').join('')+'<div class="easel"><svg viewBox="0 0 200 150" id="canvas">'+pic.r.map((d,i)=>'<path class="r" data-i="'+i+'" d="'+d+'"/>').join('')+'</svg></div>'+
     '<div class="cardword" id="card"></div><div class="pots" id="pots" style="grid-template-columns:repeat('+nC+',1fr)"></div></div><div class="say2" id="say"></div>');
   document.getElementById('hud').appendChild(Brain.soundBtn());
   var say=document.getElementById('say'),studio=document.getElementById('studio'),cardEl=document.getElementById('card');
@@ -84,7 +101,7 @@ function(L){
     if(step>=REG)return done();
     tried=false;var word=Brain.pick(set),ink=Math.random()<trick?Brain.pick(set.filter(x=>x!==word)):word,wm=Math.random()<wordRate;
     card={word:word,ink:ink,wm:wm,ans:wm?word:ink};
-    cardEl.className='cardword'+(wm?' wordmode':'');
+    cardEl.className='cardword dealt'+(wm?' wordmode':'');
     cardEl.innerHTML='<small>'+T(wm?{en:'Dashed frame: follow the WORD',zh:'虚线框：这次按字的意思选'}:{en:'Pick the ink color',zh:'选字的颜色'})+'</small><b style="color:'+ink.c+'">'+T(word.n)+'</b>';
     document.querySelectorAll('#canvas path').forEach(p=>p.classList.remove('target'));
     document.querySelector('#canvas path[data-i="'+order[step]+'"]').classList.add('target');hud();
@@ -97,8 +114,9 @@ function(L){
       var br=document.createElement('div');br.className='brush';br.style.color=c.c;br.innerHTML=BRUSH;var pb=b.getBoundingClientRect(),tb=target.getBoundingClientRect();
       br.style.left=(pb.left-rect.left+18)+'px';br.style.top=(pb.top-rect.top)+'px';studio.appendChild(br);
       requestAnimationFrame(()=>{br.style.left=(tb.left-rect.left+tb.width/2-22)+'px';br.style.top=(tb.top-rect.top+tb.height/2-22)+'px'});
-      Brain.sfx('pop');card=null;cardEl.classList.add('flyout');
-      setTimeout(function(){target.style.fill=c.t;target.classList.remove('target');Brain.sfx('sparkle');br.remove();step++;hud();
+      Brain.sfx('brush');card=null;cardEl.classList.add('flyout');b.classList.remove('dip');void b.offsetWidth;b.classList.add('dip');
+      var trail=setInterval(function(){var bb=br.getBoundingClientRect(),dr=document.createElement('i');dr.className='drip';dr.style.background=c.c;dr.style.left=(bb.left-rect.left+10)+'px';dr.style.top=(bb.top-rect.top+34)+'px';studio.appendChild(dr);setTimeout(()=>dr.remove(),520)},90);setTimeout(()=>clearInterval(trail),480);
+      setTimeout(function(){target.style.fill=c.t;target.classList.remove('target');target.classList.add('painted');Brain.sfx('sparkle');br.remove();step++;hud();
         say.className='say2 good';say.textContent=tried?T({en:'There it is!',zh:'涂上啦！'}):Brain.pick(T({en:['Lovely color!','Beautiful!','Perfect stroke!'],zh:['颜色真好看！','漂亮！','这一笔真棒！']}));
         setTimeout(deal,450)},560);
     }else{
@@ -113,6 +131,7 @@ function(L){
     Brain.sfx('win');cardEl.style.display='none';document.getElementById('pots').style.display='none';
     say.className='say2 good';say.textContent=T({en:'Your painting is finished!',zh:'您的画完成啦！'});
     Brain.toast(T({en:'Masterpiece!',zh:'大作完成！'}),studio,1600);
+    var CC=['#D8413A','#2D6CC0','#2E8B4E','#E67517','#7B4FC0','#F2C744'];for(var k=0;k<36;k++){var cf=document.createElement('i');cf.className='confetti';cf.style.left=Brain.rand(0,100)+'%';cf.style.background=Brain.pick(CC);cf.style.setProperty('--dx',Brain.rand(-60,60)+'px');cf.style.setProperty('--r',Brain.rand(-400,400)+'deg');cf.style.animationDelay=(Math.random()*.6)+'s';studio.appendChild(cf)}
     var acc=first/REG,pass=acc>=.6,stars=acc>=.9?3:acc>=.75?2:pass?1:0,art=document.getElementById('canvas').outerHTML;
     setTimeout(function(){Brain.finish({pass:pass,stars:stars,score:first,total:REG,note:{en:'"'+pic.n.en+'" · right on the first try: '+first+' of '+REG,zh:'《'+pic.n.zh+'》 · 一次选对 '+first+' / '+REG},
       failMsg:{en:'The painting is done! Get 6 in 10 right on the first try to pass.',zh:'画完成了！第一次就选对达到六成就能过关。'}});

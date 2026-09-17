@@ -54,6 +54,8 @@
     fish:'<svg viewBox="0 0 48 32" aria-hidden="true"><path d="M12 16L2 6c-1 6-1 14 0 20z" fill="#2A5F92"/><path d="M9 16C14 4 34 2 44 12c2 2 3 3 3 4s-1 2-3 4C34 30 14 28 9 16z" fill="#3E86C6"/><circle cx="38" cy="14" r="2.6" fill="#fff"/><circle cx="38.6" cy="14" r="1.4" fill="#1C2826"/></svg>',
     frog:'<svg viewBox="0 0 48 48" aria-hidden="true"><ellipse cx="24" cy="30" rx="18" ry="13" fill="#5DAA6E"/><circle cx="15" cy="16" r="7" fill="#5DAA6E"/><circle cx="33" cy="16" r="7" fill="#5DAA6E"/><circle cx="15" cy="15" r="4" fill="#fff"/><circle cx="33" cy="15" r="4" fill="#fff"/><circle cx="15" cy="15" r="2" fill="#1C2826"/><circle cx="33" cy="15" r="2" fill="#1C2826"/><path d="M16 32q8 6 16 0" stroke="#2F6B3E" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>',
     lotus:'<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 8c6 8 6 18 0 26-6-8-6-18 0-26z" fill="#F4B6C2"/><path d="M24 34C14 32 8 24 8 16c8 2 14 8 16 18z" fill="#EE9AAE"/><path d="M24 34c10-2 16-10 16-18-8 2-14 8-16 18z" fill="#EE9AAE"/><path d="M8 36c6 4 26 4 32 0" stroke="#5FA052" stroke-width="4" fill="none" stroke-linecap="round"/></svg>',
+    music:ui('<path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/>'),
+    musicOff:ui('<path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/><path d="M3 3l18 18"/>'),
     back:ui('<path d="M9 7L4 12l5 5"/><path d="M4 12h11a5 5 0 0 1 0 10h-1"/>')
   };
   function item(p){return '<svg viewBox="0 0 48 48" aria-hidden="true">'+p+'</svg>'}
