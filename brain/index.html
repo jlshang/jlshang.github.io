@@ -1,52 +1,156 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Brain Buddy</title><link rel="stylesheet" href="shared/style.css">
 <style>
-.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.1rem}
-.brand i{width:40px;height:40px;border-radius:12px;background:var(--primary);color:#fff;padding:8px;display:block}
-.hero{position:relative;overflow:hidden;background:var(--primary);color:#fff;border-radius:28px;padding:26px 22px 22px;margin-top:8px}
-.hero:after{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.07)}
-.hero .date{font-size:.9rem;opacity:.8;font-weight:600}
-.hero h1{margin:6px 0 4px;font-size:1.75rem;line-height:1.2}
-.hero p{margin:0 0 20px;opacity:.85}
-.hero .btn{position:relative;z-index:1;background:#fff;color:var(--primary);width:100%;min-height:76px;font-size:1.2rem;white-space:nowrap;padding:0 18px;box-shadow:0 3px 0 rgba(0,0,0,.18)}
-.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
-.stat{padding:14px 16px}.stat b{display:block;font-size:1.6rem;font-variant-numeric:tabular-nums}.stat span{color:var(--muted);font-size:.9rem;font-weight:600}
-.section{display:flex;align-items:center;gap:10px;margin:28px 2px 12px;font-size:1.15rem;font-weight:800}
-.section i{width:10px;height:10px;border-radius:3px;background:var(--c)}
-.games{display:grid;gap:12px}
-.game{display:flex;align-items:center;gap:16px;text-decoration:none;color:inherit;padding:16px}
-.tile{flex:none;width:60px;height:60px;border-radius:18px;padding:15px;color:var(--c);background:color-mix(in srgb,var(--c) 13%,#fff)}
-.game b{font-size:1.15rem;display:block}.game span{color:var(--muted);font-size:.95rem}
-.game .lvinfo{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:.85rem;color:var(--muted);font-weight:600}.game .bar{flex:1;max-width:110px;height:6px;border-radius:9px;background:#EDE7DB;overflow:hidden}.game .bar i{display:block;height:100%;background:var(--c)}
-.game .chev{margin-left:auto;flex:none;width:26px;height:26px;color:#B8B0A2}
+body{background:var(--bg)}
+.wrap{max-width:720px;padding:14px 18px 40px}
+/* ---- top bar ---- */
+.brandbar{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.brandbar .mark{width:44px;height:44px;border-radius:14px;padding:9px;color:#fff;background:linear-gradient(145deg,#1E7A6B,#14584E);box-shadow:0 4px 12px -4px rgba(20,88,78,.6)}
+.brandbar .name{font-weight:800;font-size:1.15rem;letter-spacing:-.01em}
+.brandbar .name small{display:block;font-size:.78rem;font-weight:600;color:var(--muted);letter-spacing:.02em}
+.brandbar .right{margin-left:auto;display:flex;gap:8px}
+/* ---- hero ---- */
+.hero{position:relative;overflow:hidden;border-radius:30px;padding:22px 22px 20px;color:#fff;box-shadow:0 18px 36px -22px rgba(20,40,38,.7)}
+.hero.day{background:linear-gradient(160deg,#2E8F9E 0%,#1C6E78 55%,#17675B 100%)}
+.hero.dusk{background:linear-gradient(160deg,#E08A4B 0%,#C2603F 50%,#8A4A46 100%)}
+.hero.night{background:linear-gradient(160deg,#3A4A86 0%,#27305E 55%,#1A2044 100%)}
+.hero .art{position:absolute;inset:0;pointer-events:none;opacity:.95}
+.hero .glow{position:absolute;width:210px;height:210px;border-radius:50%;right:-50px;top:-70px;background:radial-gradient(circle,rgba(255,255,255,.28),rgba(255,255,255,0) 70%)}
+.hero .date{font-size:.9rem;font-weight:700;opacity:.85;letter-spacing:.02em}
+.hero h1{margin:8px 0 6px;font-size:1.9rem;line-height:1.18;font-weight:800;letter-spacing:-.02em;position:relative}
+.hero p{margin:0 0 18px;opacity:.9;font-size:1.02rem;position:relative}
+.hero .cta{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:74px;border:0;border-radius:22px;background:#fff;color:var(--primary);font-family:inherit;font-size:1.22rem;font-weight:800;cursor:pointer;box-shadow:0 6px 0 rgba(0,0,0,.14);white-space:nowrap}
+.hero .cta:active{transform:translateY(3px);box-shadow:0 3px 0 rgba(0,0,0,.14)}
+.hero .cta svg{width:26px;height:26px}
+.hero .sub{margin:12px 0 0;font-size:.92rem;opacity:.85;text-align:center;position:relative}
+/* ---- week strip + stats ---- */
+.week{display:flex;gap:6px;margin:14px 0 0;padding:12px 14px;border-radius:20px;background:var(--surface);border:1.5px solid var(--line);box-shadow:var(--shadow)}
+.week .d{flex:1;text-align:center;font-size:.76rem;font-weight:700;color:var(--muted)}
+.week .d i{display:block;width:26px;height:26px;margin:5px auto 0;border-radius:50%;background:#EFE9DD;border:2px solid transparent}
+.week .d i.on{background:var(--primary);border-color:var(--primary)}
+.week .d.today i{border-color:var(--gold);box-shadow:0 0 0 3px #FBEFD0}
+.week .d.today{color:var(--ink)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+.stat{padding:12px 10px;text-align:center;border-radius:20px;background:var(--surface);border:1.5px solid var(--line);box-shadow:var(--shadow)}
+.stat svg{width:24px;height:24px;margin:0 auto 4px}
+.stat b{display:block;font-size:1.5rem;font-variant-numeric:tabular-nums;line-height:1.1}
+.stat span{font-size:.82rem;color:var(--muted);font-weight:700}
+.stat.s1{color:var(--focus)}.stat.s2{color:var(--math)}.stat.s3{color:var(--memory)}
+.stat b,.stat span{color:var(--ink)}
+/* ---- continue ---- */
+.resume{display:flex;align-items:center;gap:14px;margin-top:14px;padding:14px;border-radius:22px;background:linear-gradient(135deg,#FFF6E4,#FDECD2);border:1.5px solid #EFDCB8;box-shadow:var(--shadow);text-decoration:none;color:inherit}
+.resume .tile{width:52px;height:52px;flex:none;border-radius:16px;padding:12px;background:#fff;color:var(--c);box-shadow:0 2px 6px rgba(0,0,0,.06)}
+.resume b{display:block;font-size:1.08rem}
+.resume span{font-size:.9rem;color:var(--muted);font-weight:600}
+.resume .go{margin-left:auto;width:26px;height:26px;color:var(--gold)}
+/* ---- sections ---- */
+.sechead{display:flex;align-items:center;gap:12px;margin:30px 2px 12px}
+.sechead .ic{width:40px;height:40px;flex:none;border-radius:13px;padding:9px;color:#fff;background:var(--c);box-shadow:0 6px 14px -8px var(--c)}
+.sechead h2{margin:0;font-size:1.22rem;font-weight:800;letter-spacing:-.01em}
+.sechead small{display:block;font-weight:600;font-size:.82rem;color:var(--muted)}
+.sechead .line{flex:1;height:1.5px;background:linear-gradient(90deg,var(--line),transparent)}
+.games{display:grid;gap:10px}
+.game{display:flex;align-items:center;gap:14px;padding:14px;border-radius:22px;background:var(--surface);border:1.5px solid var(--line);box-shadow:var(--shadow);text-decoration:none;color:inherit;position:relative;overflow:hidden}
+.game:before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--c);opacity:.85}
+.game:active{transform:translateY(1px)}
+.game .tile{width:58px;height:58px;flex:none;border-radius:18px;padding:13px;color:var(--c);background:color-mix(in srgb,var(--c) 12%,#fff)}
+.game .body{flex:1;min-width:0}
+.game b{display:block;font-size:1.1rem;line-height:1.25}
+.game .desc{display:block;font-size:.92rem;color:var(--muted);font-weight:600;margin-top:1px}
+.pips{display:flex;align-items:center;gap:4px;margin-top:7px}
+.pips i{width:12px;height:6px;border-radius:3px;background:#E9E2D5;display:block}
+.pips i.on{background:var(--c)}
+.pips em{font-style:normal;font-size:.8rem;font-weight:700;color:var(--muted);margin-left:4px}
+.game .chev{flex:none;width:24px;height:24px;color:#C4BCAC}
+/* ---- footer ---- */
+.foot{margin-top:34px;text-align:center;color:var(--muted);font-size:.88rem;line-height:1.6}
+.foot .tools{display:flex;justify-content:center;gap:10px;margin-bottom:12px}
+.foot hr{border:0;border-top:1.5px solid var(--line);margin:0 0 14px}
+@media(min-width:620px){.games{grid-template-columns:1fr 1fr}.hero h1{font-size:2.1rem}}
 </style></head><body><div class="wrap">
-<div class="topbar"><div class="brand"><i id="logo"></i><span id="appname"></span></div><span id="lang"></span></div>
-<div class="hero"><div class="date" id="date"></div><h1 id="headline"></h1><p id="today"></p>
-<button class="btn" id="daily"></button></div>
-<div class="stats"><div class="card stat"><b id="s1">0</b><span id="l1"></span></div><div class="card stat"><b id="s2">0</b><span id="l2"></span></div></div>
-<div id="list"></div>
+
+<div class="brandbar">
+  <div class="mark" id="mark"></div>
+  <div class="name"><span id="appname"></span><small id="tagline"></small></div>
+  <div class="right" id="tools"></div>
 </div>
-<script src="shared/icons.js"></script><script src="shared/games.js"></script><script src="shared/common.js" data-root="./"></script>
+
+<section class="hero" id="hero">
+  <div class="art" id="art"></div><div class="glow"></div>
+  <div class="date" id="date"></div>
+  <h1 id="headline"></h1>
+  <p id="today"></p>
+  <button class="cta" id="daily"></button>
+  <p class="sub" id="pickinfo"></p>
+</section>
+
+<div class="week" id="week"></div>
+<div class="stats" id="stats"></div>
+<div id="resume"></div>
+<div id="list"></div>
+
+<footer class="foot"><hr><div class="tools" id="foottools"></div><div id="footnote"></div></footer>
+</div>
+<script src="shared/icons.js"></script><script src="shared/audio.js"></script><script src="shared/games.js"></script><script src="shared/common.js" data-root="./"></script>
 <script>
-var T=Brain.T,I=Brain.I,$=function(id){return document.getElementById(id)};
-$('lang').innerHTML=Brain.langBtn();$('logo').innerHTML=I('brain');
-document.title=T({en:'Brain Buddy',zh:'脑力伙伴'});$('appname').textContent=document.title;
-$('date').textContent=new Date().toLocaleDateString(Brain.LANG==='zh'?'zh-CN':'en-US',{weekday:'long',month:'long',day:'numeric'});
-$('headline').textContent=T({en:'Good to see you',zh:'今天也来动动脑'});
-$('today').textContent=T({en:'3 short games, at your own pace',zh:'3 个小游戏，按自己的节奏来'});
-$('daily').innerHTML=T({en:"Start Today's Workout",zh:'开始今天的训练'})+I('arrow');
+var T=Brain.T,I=Brain.I,$=function(id){return document.getElementById(id)},ZH=Brain.LANG==='zh';
+var now=new Date(),hour=now.getHours(),phase=hour<11?'day':hour<18?'day':hour<20?'dusk':'night';
+document.title=T({en:'Brain Buddy',zh:'脑力伙伴'});
+$('mark').innerHTML=I('brain');$('appname').textContent=document.title;
+$('tagline').textContent=T({en:'A few minutes of play a day',zh:'每天玩一会儿，动动脑'});
+$('tools').appendChild(Brain.el(Brain.langBtn()));$('foottools').appendChild(Brain.soundBtn());
+
+/* ---- hero: greeting and a small scene that follows the time of day ---- */
+$('hero').className='hero '+phase;
+$('date').textContent=now.toLocaleDateString(ZH?'zh-CN':'en-US',{weekday:'long',month:'long',day:'numeric'});
+$('headline').textContent=hour<11?T({en:'Good morning',zh:'早上好'}):hour<18?T({en:'Good afternoon',zh:'下午好'}):T({en:'Good evening',zh:'晚上好'});
+$('today').textContent=T({en:'Ready for a little brain workout?',zh:'今天也来动动脑吧'});
+$('daily').innerHTML=T({en:"Start Today's Games",zh:'开始今天的游戏'})+I('arrow');
+var art={
+ day:'<svg viewBox="0 0 400 220" preserveAspectRatio="none" style="width:100%;height:100%"><circle cx="336" cy="38" r="26" fill="#FFE9A8" opacity=".9"/><path d="M0 168c46-26 86-10 128 2s86 6 130-14 96-16 142 6V220H0Z" fill="rgba(255,255,255,.14)"/><path d="M0 196c50-20 96-6 140 6s92 2 134-16 84-12 126 4V220H0Z" fill="rgba(255,255,255,.12)"/><g fill="rgba(255,255,255,.2)"><ellipse cx="268" cy="34" rx="30" ry="11"/><ellipse cx="292" cy="27" rx="20" ry="9"/><ellipse cx="238" cy="86" rx="22" ry="9"/></g></svg>',
+ dusk:'<svg viewBox="0 0 400 220" preserveAspectRatio="none" style="width:100%;height:100%"><circle cx="322" cy="54" r="32" fill="#FFE3B0" opacity=".85"/><path d="M0 150c60-8 110 14 168 20s108-8 154-22 78-6 78-6V220H0Z" fill="rgba(0,0,0,.14)"/><path d="M0 186c70-14 120 6 176 12s104-6 148-16 76-4 76-4V220H0Z" fill="rgba(0,0,0,.18)"/><g fill="rgba(255,255,255,.18)"><ellipse cx="250" cy="102" rx="32" ry="10"/><ellipse cx="276" cy="94" rx="20" ry="8"/></g></svg>',
+ night:'<svg viewBox="0 0 400 220" preserveAspectRatio="none" style="width:100%;height:100%"><path d="M348 26a22 22 0 1 0 13 31 18 18 0 0 1-13-31Z" fill="#FFF3C4" opacity=".9"/><g fill="#fff">'+[[248,26,2],[292,56,1.6],[268,92,1.8],[318,104,1.6],[356,74,2],[228,62,1.4],[338,140,1.8],[300,22,1.6],[380,44,1.8],[246,132,1.5]].map(function(s){return '<circle cx="'+s[0]+'" cy="'+s[1]+'" r="'+s[2]+'" opacity=".85"/>'}).join('')+'</g><path d="M0 176c56-16 104 8 158 14s104-8 148-20 94-4 94-4V220H0Z" fill="rgba(0,0,0,.22)"/></svg>'}[phase];
+$('art').innerHTML=art;
+
+/* ---- history ---- */
+var hist=Brain.store('history')||[],days={};hist.forEach(function(r){days[r.date]=(days[r.date]||0)+1});
+function key(d){return d.toISOString().slice(0,10)}
+var today=key(now),playedToday=days[today]||0;
+/* last 7 days strip */
+var WD=ZH?['日','一','二','三','四','五','六']:['Su','Mo','Tu','We','Th','Fr','Sa'],wk='';
+for(var i=6;i>=0;i--){var d=new Date(now.getTime()-i*864e5),k=key(d);
+  wk+='<div class="d'+(i===0?' today':'')+'">'+WD[d.getDay()]+'<i class="'+(days[k]?'on':'')+'"></i></div>'}
+$('week').innerHTML=wk;
+/* day streak */
+var streak=0;for(var j=0;j<400;j++){var kk=key(new Date(now.getTime()-j*864e5));if(days[kk])streak++;else if(j>0)break}
+/* stars collected across all games */
+var stars=0,maxStars=0;GAMES.forEach(function(c){c.items.forEach(function(g){var p=Brain.prog(g.id);maxStars+=Brain.MAXL*3;Object.keys(p.stars).forEach(function(k){stars+=p.stars[k]})})});
+$('stats').innerHTML=
+ '<div class="stat s1">'+I('check')+'<b>'+playedToday+'</b><span>'+T({en:'Played today',zh:'今天玩了'})+'</span></div>'+
+ '<div class="stat s2">'+I('flame')+'<b>'+streak+'</b><span>'+T({en:'Day streak',zh:'连续天数'})+'</span></div>'+
+ '<div class="stat s3">'+I('star')+'<b>'+stars+'</b><span>'+T({en:'Stars earned',zh:'获得星星'})+'</span></div>';
+
+/* ---- continue where you left off ---- */
+var last=hist[hist.length-1],lastG=null,lastCat=null;
+GAMES.forEach(function(c){c.items.forEach(function(g){if(last&&g.id===last.game){lastG=g;lastCat=c}})});
+if(lastG){var p=Brain.prog(lastG.id);
+  $('resume').innerHTML='<a class="resume" style="--c:var(--'+lastCat.key+')" href="'+lastG.path+'"><div class="tile">'+I(lastG.icon)+'</div><div><b>'+T({en:'Continue: ',zh:'继续玩：'})+T(lastG.name)+'</b><span>'+T({en:'Level ',zh:'第 '})+p.max+T({en:' of 10',zh:' 关 / 共 10 关'})+'</span></div><div class="go">'+I('arrow')+'</div></a>'}
+
+/* ---- categories and games ---- */
 GAMES.forEach(function(c){
-  var s='<div class="section" style="--c:var(--'+c.key+')"><i></i>'+T(c.cat)+'</div><div class="games">';
-  c.items.forEach(function(g){s+='<a class="card game" style="--c:var(--'+c.key+')" href="'+g.path+'"><div class="tile">'+I(g.icon)+'</div><div><b>'+T(g.name)+'</b><span>'+T(g.desc)+'</span></div><div class="chev">'+I('chevron')+'</div></a>'});
+  var s='<div class="sechead" style="--c:var(--'+c.key+')"><div class="ic">'+I(c.key)+'</div><div><h2>'+T(c.cat)+'</h2><small>'+T({en:c.items.length+' games',zh:c.items.length+' 个游戏'})+'</small></div><div class="line"></div></div><div class="games">';
+  c.items.forEach(function(g){var p=Brain.prog(g.id),pips='';
+    for(var i=1;i<=Brain.MAXL;i++)pips+='<i class="'+(i<=p.max?'on':'')+'"></i>';
+    s+='<a class="game" style="--c:var(--'+c.key+')" href="'+g.path+'"><div class="tile">'+I(g.icon)+'</div><div class="body"><b>'+T(g.name)+'</b><span class="desc">'+T(g.desc)+'</span><span class="pips">'+pips+'<em>'+T({en:'Level ',zh:'第 '})+p.max+T({en:'',zh:' 关'})+'</em></span></div><div class="chev">'+I('chevron')+'</div></a>'});
   $('list').insertAdjacentHTML('beforeend',s+'</div>');
 });
+
+/* ---- daily workout: three games from three different skills ---- */
+var pickCats=Brain.shuffle(GAMES).slice(0,3);
+$('pickinfo').textContent=T({en:'Today: '+pickCats.map(function(c){return T(c.cat)}).join(' · '),zh:'今天练：'+pickCats.map(function(c){return T(c.cat)}).join(' · ')});
 $('daily').onclick=function(){
-  var q=Brain.shuffle(GAMES).slice(0,3).map(function(c){return Brain.pick(c.items).path});
+  var q=pickCats.map(function(c){var items=c.items.slice().sort(function(a,b){return Brain.prog(a.id).max-Brain.prog(b.id).max});return Brain.pick(items.slice(0,3)).path});
   try{sessionStorage.setItem('dailyQueue',JSON.stringify(q))}catch(e){}
-  location.href=q[0];
-};
-var h=Brain.store('history')||[],days={};h.forEach(function(r){days[r.date]=1});
-var today=new Date().toISOString().slice(0,10);
-$('s1').textContent=h.filter(function(r){return r.date===today}).length;$('l1').textContent=T({en:'Games today',zh:'今天玩了'});
-$('s2').textContent=Object.keys(days).length;$('l2').textContent=T({en:'Days practiced',zh:'累计练习天数'});
+  location.href=q[0]};
+$('footnote').innerHTML=T({en:'Brain Buddy · games for a sharp mind<br>No ads, no sign-up, works offline',zh:'脑力伙伴 · 陪您每天动动脑<br>没有广告，不用注册，离线也能玩'});
 </script></body></html>
