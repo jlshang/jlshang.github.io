@@ -728,23 +728,30 @@ class Coins{
     el("rect",{x:0,y:0,width:1386,height:466,rx:24,fill:"#FFFDF8",stroke:"#E3D9C4","stroke-width":3},g);
     const bank=y=>{for(const x of [x0-110,x1+30])for(let k=0;k<4;k++)el("rect",{x,y:y+6+k*15,width:80,height:13,rx:3,fill:"#D9BE8E",stroke:"#B8975F","stroke-width":2},g)};
     const label=(x,y,t,c="#1E2A44",anchor="start")=>{const e=el("text",{x,y,"font-size":24,"font-weight":900,fill:c,"text-anchor":anchor,"font-family":"Microsoft YaHei, Noto Sans SC, sans-serif"},g);e.textContent=t};
-    const truss=(t,b,col)=>{[t,b].forEach(p=>el("path",{d:path(p),stroke:col,"stroke-width":8,fill:"none","stroke-linejoin":"round"},g));
-      for(let i=0;i<t.length;i++)el("line",{x1:t[i][0],y1:t[i][1],x2:b[i][0],y2:b[i][1],stroke:col,"stroke-width":8},g);
-      [...t,...b].forEach(p=>el("circle",{cx:p[0],cy:p[1],r:7,fill:"#fff",stroke:"#1E2A44","stroke-width":3},g))};
+    /* Zometool look: three-tone rounded struts + real Zome ball picture */
+    const ZC={blue:["#0b3a73","#1d6fd0","#9cc8f7"],green:["#0a451c","#17963d","#8fe0a6"]};
+    const strut=(a,b,c)=>{const [d,m,h]=ZC[c],dx=b[0]-a[0],dy=b[1]-a[1],l=Math.hypot(dx,dy)||1,nx=-dy/l*2.6,ny=dx/l*2.6;
+      el("line",{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:d,"stroke-width":13,"stroke-linecap":"round"},g);
+      el("line",{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:m,"stroke-width":9,"stroke-linecap":"round"},g);
+      el("line",{x1:a[0]+nx,y1:a[1]+ny,x2:b[0]+nx,y2:b[1]+ny,stroke:h,"stroke-width":2.6,"stroke-linecap":"round",opacity:.85},g)};
+    const ball=p=>el("image",{href:"a/ball.png",x:p[0]-17,y:p[1]-17,width:34,height:34},g);
+    const truss=(t,b,col)=>{for(let i=0;i<t.length-1;i++){strut(t[i],t[i+1],col);strut(b[i],b[i+1],col)}
+      for(let i=0;i<t.length;i++)strut(t[i],b[i],col);
+      [...t,...b].forEach(ball)};
     const by=80,bh=58;bank(by+bh-4);label(40,by+8,"箱子桥");
     const bt=[],bb=[];for(let i=0;i<=N;i++){const x=x0+i*pw,s=sag(x,this.box);bt.push([x,by+s]);bb.push([x,by+bh+s])}
     if(this.broken){const h=N/2,gap=p=>p.map((q,i)=>i===h?[q[0]-12,q[1]]:q),gapR=p=>p.map((q,i)=>i===0?[q[0]+12,q[1]]:q);
-      truss(rot(gap(bt.slice(0,h+1)),x0,by,this.ang),rot(gap(bb.slice(0,h+1)),x0,by,this.ang),"#2F6BD8");
-      truss(rot(gapR(bt.slice(h)),x1,by,-this.ang),rot(gapR(bb.slice(h)),x1,by,-this.ang),"#2F6BD8");
+      truss(rot(gap(bt.slice(0,h+1)),x0,by,this.ang),rot(gap(bb.slice(0,h+1)),x0,by,this.ang),"blue");
+      truss(rot(gapR(bt.slice(h)),x1,by,-this.ang),rot(gapR(bb.slice(h)),x1,by,-this.ang),"blue");
       const cy=by+bh/2+this.box;for(let k=0;k<8;k++){const a=k*Math.PI/4,r0=22+6*Math.sin(performance.now()/90+k);el("line",{x1:mid+Math.cos(a)*r0,y1:cy+Math.sin(a)*r0,x2:mid+Math.cos(a)*(r0+22),y2:cy+Math.sin(a)*(r0+22),stroke:"#D64545","stroke-width":5,"stroke-linecap":"round"},g)}
       this.fall.forEach(f=>{if(f.y<520)el("ellipse",{cx:f.x,cy:f.y,rx:22,ry:7,fill:"#FFC60A",stroke:"#B88A10","stroke-width":2.5},g)})}
     else{const ga=Math.min(1,this.box/55);if(ga>.05){[bt,bb].forEach(p=>el("path",{d:path(p),stroke:this.box>70?"#F3A0A0":GLOW,"stroke-width":22,fill:"none",opacity:ga,"stroke-linecap":"round"},g))}
-      truss(bt,bb,"#2F6BD8");this.coins.forEach((c,i)=>el("ellipse",{cx:mid,cy:by+sag(mid,this.box)-10-i*11+c.y,rx:22,ry:7,fill:"#FFC60A",stroke:"#B88A10","stroke-width":2.5},g))}
+      truss(bt,bb,"blue");this.coins.forEach((c,i)=>el("ellipse",{cx:mid,cy:by+sag(mid,this.box)-10-i*11+c.y,rx:22,ry:7,fill:"#FFC60A",stroke:"#B88A10","stroke-width":2.5},g))}
     const sy=300,sh=58;bank(sy+sh-4);label(40,sy+8,"空间桥");
     const sb=[],st=[];for(let i=0;i<=N;i++){const x=x0+i*pw;sb.push([x,sy+sh+sag(x,this.sp)])}for(let i=0;i<N;i++){const x=x0+(i+.5)*pw;st.push([x,sy+sag(x,this.sp)])}
-    [sb,st].forEach(p=>el("path",{d:path(p),stroke:"#3A9A5B","stroke-width":8,fill:"none"},g));
-    for(let i=0;i<N;i++){el("line",{x1:sb[i][0],y1:sb[i][1],x2:st[i][0],y2:st[i][1],stroke:"#3A9A5B","stroke-width":8},g);el("line",{x1:st[i][0],y1:st[i][1],x2:sb[i+1][0],y2:sb[i+1][1],stroke:"#3A9A5B","stroke-width":8},g)}
-    [...sb,...st].forEach(p=>el("circle",{cx:p[0],cy:p[1],r:7,fill:"#fff",stroke:"#1E2A44","stroke-width":3},g));
+    for(let i=0;i<N;i++)strut(sb[i],sb[i+1],"green");for(let i=0;i<N-1;i++)strut(st[i],st[i+1],"green");
+    for(let i=0;i<N;i++){strut(sb[i],st[i],"green");strut(st[i],sb[i+1],"green")}
+    [...sb,...st].forEach(ball);
     this.coins.forEach((c,i)=>el("ellipse",{cx:mid,cy:sy+sag(mid-pw/2,this.sp)-8-i*6.5+c.y,rx:22,ry:6,fill:"#FFC60A",stroke:"#B88A10","stroke-width":2.5},g));
     const s1=this.broken?["断了！","#D64545"]:this.box>55?["快撑不住了！","#D64545"]:this.box>30?["弯下去了！","#D64545"]:this.box>14?["开始弯了…","#E8742A"]:["还平平的","#3A9A5B"];
     label(1350,by-22,s1[0],s1[1],"end");label(1350,sy-24,"还很平！","#3A9A5B","end");
