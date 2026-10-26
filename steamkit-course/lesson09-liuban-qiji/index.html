@@ -737,13 +737,15 @@ slides.forEach((s,i)=>{const host=s.querySelector(".z3dhost");if(!host)return;le
   const show=()=>{if(!s.classList.contains("z3d-on")){s.classList.add("z3d-on");play("whoosh")}};
   const ensure=()=>loading||(loading=z3dLoad().then(()=>{view=Zome3D.mount(host,host.dataset.kind,{fitW:+host.dataset.fitw,fitH:+host.dataset.fith,onInteract:show,
       onAngle:a=>{if(!sliding){let d=((a+180)%360+360)%360-180;ang.value=Math.round(d)}}});return view}));
-  s._z3dEnter=()=>{ensure()};
+  const pic=s.querySelector(".model");
+  s._z3dEnter=()=>{ensure().then(v=>{s.classList.add("z3d-on");play("whoosh");v.intro();setTimeout(()=>play("ding"),2900)})
+    .catch(()=>{s.classList.remove("z3d-on");pic&&pic._spin&&pic._spin(0)})};
   s._z3dOff=()=>{s.classList.remove("z3d-on");ang.value=0;if(view){view.dispose();view=null}loading=null};
   ang.addEventListener("input",async()=>{A();sliding=true;const v=await ensure();show();v.setAngle(+ang.value)});
   ang.addEventListener("change",()=>{sliding=false});
   const lab=s.querySelector(".z3ctl label");lab.addEventListener("click",async ev=>{if(ev.target===ang)return;ev.preventDefault();A();play("whoosh");const v=await ensure();show();v.spin()});
   s.querySelector(".z3top")&&s.querySelector(".z3top").addEventListener("click",async()=>{A();play("tick");const v=await ensure();show();v.top()});
-  s.querySelector(".z3home").addEventListener("click",async()=>{A();const v=await ensure();v.home();setTimeout(()=>s.classList.remove("z3d-on"),1250)});
+  s.querySelector(".z3home").addEventListener("click",async()=>{A();play("tick");const v=await ensure();show();v.home()});
 });
 // tap feedback on characters
 stage.addEventListener("click",e=>{const t=e.target.closest(".tap");if(!t)return;A();t.classList.remove("jiggle");void t.offsetWidth;t.classList.add("jiggle");setTimeout(()=>t.classList.remove("jiggle"),650);
@@ -772,8 +774,8 @@ function go(i){i=Math.max(0,Math.min(N-1,i));
   s.classList.remove("revealed");s.querySelectorAll(".judge .badge").forEach(b=>b.remove());
   if(s.dataset.sfx)setTimeout(()=>play(s.dataset.sfx),250);
   entranceSfx(s);
-  s._z3dEnter&&setTimeout(s._z3dEnter,150);
-  s.querySelectorAll(".model").forEach(m=>m._spin&&m._spin(700));
+  s._z3dEnter&&setTimeout(s._z3dEnter,250);
+  if(!s.querySelector(".z3dhost"))s.querySelectorAll(".model").forEach(m=>m._spin&&m._spin(700));
   if(s.dataset.confetti)setTimeout(()=>confetti(),600);
   if(s.dataset.shake){setTimeout(()=>{stage.classList.remove("shake");void stage.offsetWidth;stage.classList.add("shake");const f=document.getElementById("flash");f.classList.remove("go");void f.offsetWidth;f.classList.add("go")},700)}
   countEl.textContent=`${i+1} / ${N}`;bar.style.width=((i+1)/N*100)+"%";
