@@ -116,8 +116,13 @@ button:focus-visible,input:focus-visible{outline:4px solid var(--orange);outline
 @keyframes pairpop{0%{opacity:0;transform:scale(.25) rotate(-14deg)}55%{opacity:1;transform:scale(1.1) rotate(3deg)}75%{transform:scale(.97) rotate(-1deg)}100%{transform:none}}
 .slide.revealed .after.burst-after{animation:burst .9s cubic-bezier(.2,1.7,.4,1) both}
 .model{cursor:pointer;overflow:visible!important}
-.model .im{transition:opacity .35s}
-.model.spinning .im{opacity:0}
+.model .im{opacity:0}
+.model.glow .im{animation:modelpop .8s cubic-bezier(.2,1.5,.4,1) both}
+@keyframes modelpop{0%{opacity:0;transform:scale(.55)}100%{opacity:1;transform:none}}
+.model .glint{position:absolute;pointer-events:none;-webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  background:linear-gradient(110deg,transparent 32%,rgba(255,250,215,.9) 46%,#fff 50%,rgba(255,250,215,.9) 54%,transparent 68%);background-size:260% 100%;background-position:120% 0;opacity:0}
+.model.glow .glint{animation:glint 1.5s ease-in-out .7s both}
+@keyframes glint{0%{opacity:1;background-position:120% 0}100%{opacity:1;background-position:-20% 0}}
 .model svg.m3d{position:absolute;inset:0;width:100%;height:100%;overflow:visible;opacity:0;transition:opacity .35s;pointer-events:none}
 .model.spinning svg.m3d{opacity:1}
 .ctl output{color:var(--orange);min-width:3em}
@@ -222,8 +227,6 @@ button:focus-visible,input:focus-visible{outline:4px solid var(--orange);outline
 <div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">动手搭：三角形和正方形</span></p></div></div>
 <div class="el pic in-fade" data-k="1"  style="left:275.1px;top:203.4px;width:1049.9px;height:537.2px;"><img class="im" src="a/image17.webp" alt="" draggable="false" style="width:1049.9px;height:537.2px;left:-0.0px;top:-0.0px;"></div>
 <div class="el sp in-up d3" data-k="2"  style="left:106.7px;top:787.4px;width:1386.7px;height:59.1px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;"><p style="text-align:center;line-height:1.20;"><span style="font-size:40.0px;color:#2459B8;font-family:var(--body);font-weight:900;">准备：白球 7 个 · 长蓝棍 7 根</span></p></div></div>
-<div class="el pic in-pop d2 floaty tap" data-k="3"  style="left:1044.7px;top:536.9px;width:142.9px;height:146.1px;border-radius:50%;"><img class="im" src="a/image18.webp" alt="" draggable="false" style="width:840.6px;height:307.1px;left:-0.0px;top:-99.5px;"></div>
-<div class="el pic in-pop d1 floaty f2 tap" data-k="4"  style="left:486.8px;top:472.0px;width:178.0px;height:165.4px;border-radius:50%;"><img class="im" src="a/image18.webp" alt="" draggable="false" style="width:883.3px;height:322.7px;left:-424.1px;top:-109.3px;"></div>
 </section>
 <section class="slide" data-n="10" style="background:#FBF6EC"  hidden>
 <div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">推一推①：竖着压</span></p></div></div>
@@ -243,8 +246,8 @@ button:focus-visible,input:focus-visible{outline:4px solid var(--orange);outline
 <section class="slide" data-n="16" style="background:#EAF1FA"  hidden>
 <div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">说一说：</span><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">手感有什么不同，</span><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">哪个</span><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">易</span><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">变形，哪个</span><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">更稳定？</span></p></div></div>
 <div class="el pic pairpop tap" data-k="1"  style="left:251.6px;top:270.1px;width:947.5px;height:386.2px;border-radius:0.0px;"><img class="im" src="a/image17.webp" alt="" draggable="false" style="width:947.5px;height:484.8px;left:-0.0px;top:-98.7px;"></div>
-<div class="el pic dance tap" data-k="2"  style="left:1126.2px;top:740.0px;width:462.3px;height:160.0px;border-radius:0.0px;"><img class="im" src="a/image26.webp" alt="" draggable="false" style="width:947.4px;height:315.8px;left:-485.1px;top:-84.5px;"></div>
-<div class="el pic dance f2 tap" data-k="3"  style="left:5.9px;top:740.0px;width:491.6px;height:160.0px;border-radius:0.0px;"><img class="im" src="a/image26.webp" alt="" draggable="false" style="width:947.4px;height:315.8px;left:-0.0px;top:-84.5px;"></div>
+<div class="el pic tap" data-k="2"  style="left:1126.2px;top:740.0px;width:462.3px;height:160.0px;border-radius:0.0px;"><img class="im" src="a/image26.webp" alt="" draggable="false" style="width:947.4px;height:315.8px;left:-485.1px;top:-84.5px;"></div>
+<div class="el pic tap" data-k="3"  style="left:5.9px;top:740.0px;width:491.6px;height:160.0px;border-radius:0.0px;"><img class="im" src="a/image26.webp" alt="" draggable="false" style="width:947.4px;height:315.8px;left:-0.0px;top:-84.5px;"></div>
 </section>
 <section class="slide" data-n="17" style="background:#FBF6EC"  hidden>
 <div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">刚才发生了什么？</span></p></div></div>
@@ -337,7 +340,7 @@ button:focus-visible,input:focus-visible{outline:4px solid var(--orange);outline
 <div class="el sp " data-k="0"  style="left:-2.2px;top:-0.9px;width:1605.9px;height:908.1px;background:#FFFFFF;border-radius:0.0px;"></div>
 <div class="el sp " data-k="1"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">一</span><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">点一点加重量</span></p></div></div>
 <div class="el coinlab" style="left:97.3px;top:233.5px;width:1386.7px;height:466.7px;"></div>
-<div class="el pic dance tap" data-k="3"  style="left:-1.1px;top:747.7px;width:791.7px;height:159.5px;border-radius:0.0px;"><img class="im" src="a/image18.webp" alt="" draggable="false" style="width:791.7px;height:289.2px;left:-0.0px;top:-80.0px;"></div><div class="ctl"><button class="go addcoin">放一枚硬币</button><output class="coincount">硬币：0 枚</output><button class="again resetcoin">重来</button></div>
+<div class="el pic tap" data-k="3"  style="left:-1.1px;top:747.7px;width:791.7px;height:159.5px;border-radius:0.0px;"><img class="im" src="a/image18.webp" alt="" draggable="false" style="width:791.7px;height:289.2px;left:-0.0px;top:-80.0px;"></div><div class="ctl"><button class="go addcoin">放一枚硬币</button><output class="coincount">硬币：0 枚</output><button class="again resetcoin">重来</button></div>
 </section>
 <section class="slide" data-n="34" style="background:#FBF6EC"  hidden>
 <div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">真的有人这样造桥：印度「四面体桥」</span></p></div></div>
@@ -383,13 +386,13 @@ button:focus-visible,input:focus-visible{outline:4px solid var(--orange);outline
 <div class="el sp " data-k="10"  style="left:106.7px;top:681.3px;width:1386.7px;height:85.3px;background:#FFF3E6;border-radius:28.1px;"></div>
 <div class="el sp " data-k="11"  style="left:140.0px;top:705.7px;width:191.7px;height:36.7px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:36.7px;"><span style="font-size:36.7px;color:#B9541A;font-family:var(--display);font-weight:400;">想一想</span></p></div></div>
 <div class="el sp " data-k="12"  style="left:285.0px;top:704.7px;width:416.0px;height:38.7px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:38.7px;"><span style="font-size:26.7px;color:#1E2A44;font-family:var(--body);font-weight:900;">你家里还有哪里藏着三角形？</span></p></div></div>
-<div class="el pic march tap" data-k="13"  style="left:788.0px;top:663.2px;width:733.8px;height:206.8px;border-radius:0.0px;"><img class="im" src="a/image65.webp" alt="" draggable="false" style="width:733.8px;height:244.6px;left:-0.0px;top:-37.7px;"></div>
+<div class="el pic tap" data-k="13"  style="left:788.0px;top:663.2px;width:733.8px;height:206.8px;border-radius:0.0px;"><img class="im" src="a/image65.webp" alt="" draggable="false" style="width:733.8px;height:244.6px;left:-0.0px;top:-37.7px;"></div>
 </section>
 <section class="slide" data-n="38" style="background:#FBF6EC"  data-sfx="fanfare-soft" hidden>
 <div class="el sp in-left" data-k="0"  style="left:67.9px;top:258.4px;width:871.1px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:43.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">任务 1：观察发现你生活中出现的三角形（至少 3 种）。</span></p></div></div>
 <div class="el sp in-left d2" data-k="1"  style="left:67.9px;top:363.4px;width:871.1px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:43.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">任务 2：搭建一座最稳的桥。</span></p></div></div>
 <div class="el sp in-left d4" data-k="2"  style="left:67.9px;top:468.4px;width:871.1px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:43.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">任务 3：三角形的胖瘦影响稳定性吗？你来研究。</span></p></div></div>
-<div class="el pic march tap" data-k="3"  style="left:208.9px;top:614.4px;width:688.2px;height:229.4px;"><img class="im" src="a/image66.webp" alt="" draggable="false" style="width:688.2px;height:229.4px;left:0.0px;top:0.0px;"></div>
+<div class="el pic tap" data-k="3"  style="left:208.9px;top:614.4px;width:688.2px;height:229.4px;"><img class="im" src="a/image66.webp" alt="" draggable="false" style="width:688.2px;height:229.4px;left:0.0px;top:0.0px;"></div>
 <div class="el pic rabbit tap" data-k="4"  style="left:1059.7px;top:164.4px;width:526.7px;height:486.7px;"><img class="im" src="a/image67.webp" alt="" draggable="false" style="width:526.7px;height:486.7px;left:0.0px;top:0.0px;"></div>
 </section>
     <canvas id="burst" width="1600" height="900" aria-hidden="true"></canvas>
@@ -620,7 +623,7 @@ class ZShape{
     dx/=sw;dy/=sw;if(this.a.sag!==undefined){const x0=N.TL[0],y0=N.TL[1],u=(p[0]-x0)/L,v=(p[1]-y0)/L;if(u>0&&u<1)dy+=this.a.sag*4*u*(1-u)*clamp(1.05-v)*amp}
     return[p[0]+dx,p[1]+dy]}
   strain(){const a=this.a,k=this.d.key;if(k==="sq")return clamp(Math.max(Math.abs(a.sway)/90,Math.abs(a.sag)/26));if(k==="pe")return clamp(Math.max(Math.abs(a.sway)/100,Math.abs(a.squash)/60));return 0}
-  drawChar(){const g=this.gChar;g.replaceChildren();const T=performance.now()/1000,k=this.d.key,s=this.strain();
+  drawChar(){const g=this.gChar;g.replaceChildren();if(this.braced)return;const T=performance.now()/1000,k=this.d.key,s=this.strain();
     if(k==="sq")drawSq(this,g,T,s,this.ctx);else if(k==="tri")drawTri(this,g,T,this.ctx);else drawPe(this,g,T,s,this.ctx)}
   draw(){const d=this.d;this.drawChar();this.gGlow.replaceChildren();this.gBars.replaceChildren();this.gBalls.replaceChildren();
     const list=d.edges.map(e=>[e,false]).concat(this.braced?d.braces.map(e=>[e,true]):[]);
@@ -750,23 +753,10 @@ function project(P,yaw,pitch){const cy=Math.cos(yaw),sy=Math.sin(yaw),cp=Math.co
 function rotAxis(P,ax,t){const c=Math.cos(t),s=Math.sin(t),[kx,ky,kz]=ax;return P.map(([x,y,z])=>{const d=kx*x+ky*y+kz*z,cx=ky*z-kz*y,cy=kz*x-kx*z,cz=kx*y-ky*x;
   return[x*c+cx*s+kx*d*(1-c),y*c+cy*s+ky*d*(1-c),z*c+cz*s+kz*d*(1-c)]})}
 const TILT=(()=>{const v=[.55,1,.35],l=Math.hypot(...v);return v.map(x=>x/l)})();
-function setupModel(m){const spec=JSON.parse(m.dataset.model),G=modelGeom(spec.kind),[yd,pd]=POSE[spec.kind],yaw0=yd*Math.PI/180,pitch=pd*Math.PI/180;
-  const w=m.clientWidth||parseFloat(m.style.width),hgt=m.clientHeight||parseFloat(m.style.height);
-  const svg=el("svg",{class:"m3d",viewBox:`0 0 ${w} ${hgt}`},m),g=el("g",{},svg);
-  const Q=project(G.P,yaw0,pitch);let mnx=1e9,mny=1e9,mxx=-1e9,mxy=-1e9;Q.forEach(q=>{mnx=Math.min(mnx,q[0]);mxx=Math.max(mxx,q[0]);mny=Math.min(mny,q[1]);mxy=Math.max(mxy,q[1])});
-  const bb=spec.bb,bx0=bb[0]*w,by0=bb[1]*hgt,bw=(bb[2]-bb[0])*w,bh=(bb[3]-bb[1])*hgt,pad=.08;
-  const sc=Math.min(bw*(1-pad)/(mxx-mnx),bh*(1-pad)/(mxy-mny)),ox=bx0+bw/2-sc*(mnx+mxx)/2,oy=by0+bh/2-sc*(mny+mxy)/2;
-  const draw=th=>{g.replaceChildren();const R=project(rotAxis(G.P,TILT,th),yaw0,pitch).map(q=>[ox+q[0]*sc,oy+q[1]*sc,q[2],q[3]]);
-    const items=G.E.map(e=>({z:(R[e[0]][2]+R[e[1]][2])/2,e})).concat(R.map((r,i)=>({z:r[2]-.02,b:i}))).sort((a,b)=>b.z-a.z);
-    for(const it of items){if(it.e){const a=R[it.e[0]],b=R[it.e[1]],k=(a[3]+b[3])/2;
-        el("line",{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:"#0B4D1B","stroke-width":sc*.05*k,"stroke-linecap":"round"},g);
-        el("line",{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:"#1FA544","stroke-width":sc*.028*k,"stroke-linecap":"round"},g)}
-      else{const r=R[it.b],s=sc*.17*r[3];el("image",{href:"a/ball.png",x:r[0]-s/2,y:r[1]-s/2,width:s,height:s},g)}}};
-  let raf=0;
-  m._spin=(delay=0)=>{cancelAnimationFrame(raf);clearTimeout(m._t);draw(2*Math.PI);
-    m._t=setTimeout(()=>{m.classList.add("spinning");play("whoosh");const t0=performance.now(),dur=2600;
-      const tick=now=>{const t=Math.min(1,(now-t0)/dur),e=1-Math.pow(1-t,3);draw(2*Math.PI*(1-e));
-        if(t<1)raf=requestAnimationFrame(tick);else{play("tick");setTimeout(()=>m.classList.remove("spinning"),250)}};raf=requestAnimationFrame(tick)},delay)};
+function setupModel(m){const img=m.querySelector(".im"),gl=document.createElement("div");gl.className="glint";
+  const u=`url("${img.getAttribute("src")}")`;gl.style.cssText=`left:${img.style.left};top:${img.style.top};width:${img.style.width};height:${img.style.height};-webkit-mask-image:${u};mask-image:${u}`;m.appendChild(gl);
+  m._spin=(delay=0)=>{clearTimeout(m._t);m.classList.remove("glow");void m.offsetWidth;
+    m._t=setTimeout(()=>{m.classList.add("glow");play("pop");setTimeout(()=>play("ding"),900)},delay)};
   m.addEventListener("click",()=>{A();m._spin(0)})}
 
 /* ================= slides ================= */
