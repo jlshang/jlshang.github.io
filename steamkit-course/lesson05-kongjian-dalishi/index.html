@@ -1,0 +1,797 @@
+<title>空间大力士</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;700;900&display=swap">
+<style>
+/* Layout: the finished PPT rebuilt 1:1 on a 1600×900 stage, scaled to the window; a slim control rail sits under it. */
+:root{
+  --ink:#1E2A44; --ink2:#121827; --paper:#FBF6EC; --orange:#E8742A; --orange-d:#B95717; --blue:#2459B8; --green:#3A9A5B; --sun:#FFC60A;
+  --display:"ZCOOL KuaiLe","Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
+  --body:"Microsoft YaHei","Noto Sans SC","PingFang SC",system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--ink2);color:#EEF2FA;font-family:var(--body);overflow:hidden;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px}
+button{font:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:4px solid var(--orange);outline-offset:3px}
+#app{height:100%;display:flex;flex-direction:column;gap:8px}
+#viewport{flex:1;min-height:0;position:relative}
+#stage{position:absolute;left:50%;top:50%;width:1600px;height:900px;transform-origin:center;border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.45);background:#000}
+#stage.shake{animation:shake .5s}
+@keyframes shake{0%,100%{translate:0 0}20%{translate:-14px 6px}40%{translate:12px -8px}60%{translate:-8px 4px}80%{translate:6px -2px}}
+.slide{position:absolute;inset:0;overflow:hidden}
+[hidden]{display:none!important}
+.slide.on{animation:slideIn .45s ease-out}
+@keyframes slideIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}
+.el{position:absolute}
+.pic{overflow:hidden}
+.pic .im{position:absolute;max-width:none;user-select:none;-webkit-user-drag:none}
+.tx{position:absolute;inset:0;display:flex;flex-direction:column}
+.tx p{margin:0;line-height:1.2}
+.tap{cursor:pointer}
+.zoomable{cursor:zoom-in;transition:transform .25s,box-shadow .25s}
+.zoomable:hover{transform:scale(1.03);box-shadow:0 12px 30px rgba(0,0,0,.3);z-index:5}
+
+/* ---------- entrance & idle motion (run when the slide turns on) ---------- */
+.slide.on .in-pop{animation:pop .7s cubic-bezier(.2,1.6,.4,1) both}
+.slide.on .in-up{animation:up .6s cubic-bezier(.2,1.2,.4,1) both}
+.slide.on .in-fade{animation:fade .6s ease both}
+.slide.on .in-left{animation:fromL .6s cubic-bezier(.2,1.2,.4,1) both}
+.slide.on .in-right{animation:fromR .7s cubic-bezier(.2,1.2,.4,1) both}
+.slide.on .in-drop{animation:drop .7s cubic-bezier(.2,1.5,.4,1) both}
+.slide.on .d1{animation-delay:.15s}.slide.on .d2{animation-delay:.3s}.slide.on .d3{animation-delay:.45s}.slide.on .d4{animation-delay:.6s}.slide.on .d5{animation-delay:.75s}
+@keyframes pop{0%{opacity:0;transform:scale(.3)}100%{opacity:1;transform:scale(1)}}
+@keyframes up{0%{opacity:0;transform:translateY(50px)}100%{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes fromL{0%{opacity:0;transform:translateX(-120px)}100%{opacity:1;transform:none}}
+@keyframes fromR{0%{opacity:0;transform:translateX(160px)}100%{opacity:1;transform:none}}
+@keyframes drop{0%{opacity:0;transform:translateY(-120px)}100%{opacity:1;transform:none}}
+.floaty{animation:float 3s ease-in-out infinite}
+.floaty.f2{animation-duration:3.6s;animation-delay:-1s}.floaty.f3{animation-duration:3.3s;animation-delay:-2s}
+.slide.on .floaty.in-pop,.slide.on .floaty.in-up,.slide.on .floaty.in-right{animation:pop .7s cubic-bezier(.2,1.6,.4,1) both,float 3s ease-in-out .8s infinite}
+@keyframes float{0%,100%{translate:0 0}50%{translate:0 -14px}}
+.title-wobble{transform-origin:center}
+.slide.on .title-wobble{animation:pop .8s cubic-bezier(.2,1.6,.4,1) .3s both,wobble 2.8s ease-in-out 1.2s infinite}
+@keyframes wobble{0%,100%{rotate:0deg}25%{rotate:-2deg}75%{rotate:2deg}}
+.peek{animation:peek 3.2s ease-in-out infinite}
+@keyframes peek{0%,100%{translate:0 0}40%{translate:0 -18px;rotate:-6deg}60%{translate:0 -18px;rotate:6deg}}
+.wave{animation:wave 1.8s ease-in-out infinite;transform-origin:50% 90%}
+@keyframes wave{0%,100%{rotate:0deg}30%{rotate:-6deg}60%{rotate:5deg}}
+.dance{animation:dance 1.2s ease-in-out infinite}
+.dance.f2{animation-delay:-.6s}
+@keyframes dance{0%,100%{translate:0 0}25%{translate:0 -10px}50%{translate:0 0}75%{translate:0 -6px}}
+.march{animation:march 1s steps(2) infinite}
+@keyframes march{0%{translate:0 0}50%{translate:0 -8px}}
+.jump{animation:jump 1.1s cubic-bezier(.3,.0,.4,1) infinite;transform-origin:50% 100%}
+@keyframes jump{0%,100%{translate:0 0;scale:1 1}10%{scale:1.08 .92}40%{translate:0 -36px;scale:.96 1.05}70%{translate:0 0;scale:1.06 .94}}
+.react-sad{animation:tremble .28s linear infinite}
+.slide.on .react-sad.late-pop{animation:pop .6s cubic-bezier(.2,1.6,.4,1) 1.2s both,tremble .28s linear 1.9s infinite}
+@keyframes tremble{0%,100%{translate:0 0}25%{translate:-4px 1px}50%{translate:3px -1px}75%{translate:-2px 2px}}
+.react-proud{animation:proud 1.4s ease-in-out infinite;transform-origin:50% 100%}
+.slide.on .react-proud.late-pop{animation:pop .6s cubic-bezier(.2,1.6,.4,1) 1.5s both,proud 1.4s ease-in-out 2.2s infinite}
+@keyframes proud{0%,100%{translate:0 0;scale:1}50%{translate:0 -12px;scale:1.04}}
+.slide.on .burst-in{animation:burst .9s cubic-bezier(.2,1.7,.4,1) .5s both}
+@keyframes burst{0%{opacity:0;transform:scale(.1) rotate(-25deg)}70%{opacity:1;transform:scale(1.12) rotate(3deg)}100%{transform:none}}
+.slide.on .slam{animation:slam .55s cubic-bezier(.5,0,.8,1) .25s both,vsPulse 1.6s ease-in-out 1s infinite}
+@keyframes slam{0%{opacity:0;transform:scale(2.6);filter:blur(8px)}100%{opacity:1;transform:scale(1);filter:none}}
+@keyframes vsPulse{0%,100%{scale:1}50%{scale:1.04}}
+.slide.on .spin-in{animation:spin 1s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes spin{0%{opacity:0;transform:scale(.2) rotate(-180deg)}100%{opacity:1;transform:none}}
+.slide.on .king{animation:king 1.2s cubic-bezier(.2,1.3,.4,1) both}
+@keyframes king{0%{opacity:0;transform:scale(1.25)}100%{opacity:1;transform:none}}
+.jiggle{animation:jiggle .6s !important}
+@keyframes jiggle{0%,100%{transform:none}20%{transform:rotate(-8deg) scale(1.08)}40%{transform:rotate(7deg) scale(1.1)}60%{transform:rotate(-4deg) scale(1.04)}80%{transform:rotate(2deg)}}
+
+/* decorative feedback */
+.fx{position:absolute;pointer-events:none;width:120px;height:120px}
+.fx.sweat::before,.fx.sweat::after{content:"";position:absolute;width:22px;height:30px;background:#7FB6F0;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;animation:drip 1.4s ease-in infinite}
+.fx.sweat::before{left:10px;top:0}.fx.sweat::after{left:60px;top:10px;animation-delay:.7s}
+@keyframes drip{0%{opacity:0;translate:0 0}20%{opacity:1}100%{opacity:0;translate:0 60px}}
+.fx.stars::before,.fx.stars::after{content:"✦";position:absolute;color:var(--sun);font-size:46px;animation:twinkle 1.2s ease-in-out infinite}
+.fx.stars::before{left:0;top:0}.fx.stars::after{left:70px;top:50px;animation-delay:.6s;font-size:34px}
+@keyframes twinkle{0%,100%{opacity:.2;scale:.6}50%{opacity:1;scale:1.2}}
+.qmark{position:absolute;left:1120px;top:250px;font-family:var(--display);font-size:150px;color:var(--orange);animation:qm 2s ease-in-out infinite;pointer-events:none}
+@keyframes qm{0%,100%{rotate:-8deg;translate:0 0}50%{rotate:8deg;translate:0 -16px}}
+.bubble{position:absolute;padding:10px 22px;border-radius:999px;background:#fff;border:3px solid var(--ink);font-family:var(--display);font-size:34px;color:var(--ink);pointer-events:none;animation:bub 1.6s ease-out forwards;white-space:nowrap;z-index:10}
+.bubble.good{border-color:var(--green);color:var(--green)}.bubble.bad{border-color:#D64545;color:#D64545}
+@keyframes bub{0%{opacity:0;transform:translateY(20px) scale(.6)}20%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0;transform:translateY(-30px)}}
+
+/* controls on interactive slides */
+.ctl{position:absolute;right:40px;bottom:30px;display:flex;align-items:center;gap:14px;background:rgba(255,255,255,.92);border:3px solid var(--ink);border-radius:22px;padding:10px 16px;z-index:8;color:var(--ink);font-weight:900;font-size:22px}
+.ctl input{width:180px;accent-color:var(--orange)}
+.ctl.side{right:22px;bottom:auto;top:50%;transform:translateY(-50%);flex-direction:column;width:156px;padding:14px 10px;gap:12px;text-align:center}
+.ctl.side label{display:flex;flex-direction:column;align-items:center;gap:6px}
+.ctl.side input{width:128px}
+.ctl.side .go{font-size:24px;padding:6px 8px;width:100%;white-space:nowrap}
+/* reveal-on-same-page characters */
+.slide:not(.revealed) .after{opacity:0;pointer-events:none;animation:none}
+.slide.revealed .after.react-sad{animation:pop .6s cubic-bezier(.2,1.6,.4,1) both,tremble .28s linear .7s infinite}
+.slide.revealed .after.react-proud{animation:pop .6s cubic-bezier(.2,1.6,.4,1) .45s both,proud 1.4s ease-in-out 1.1s infinite}
+.slide.revealed .after.fx{animation:fadein .4s .5s both}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.ctl output{color:var(--orange);min-width:3em}
+.ctl .go{font-family:var(--display);font-size:32px;background:var(--orange);color:#fff;border:none;border-radius:16px;padding:4px 26px;box-shadow:0 5px 0 var(--orange-d)}
+.ctl .go:active{transform:translateY(3px);box-shadow:0 2px 0 var(--orange-d)}
+.ctl .again{font-size:20px;font-weight:900;background:#fff;border:2px solid var(--ink);border-radius:12px;padding:6px 14px;color:var(--ink)}
+.zlab svg,.coinlab svg{width:100%;height:100%;overflow:visible;touch-action:none;display:block}
+
+/* rail, notes, overview, lightbox */
+#rail{display:flex;align-items:center;gap:10px;font-size:14px;flex-wrap:wrap;justify-content:center}
+#rail button{background:#26324F;border:1px solid #3A4870;border-radius:10px;padding:6px 12px;color:#EEF2FA;font-weight:700}
+#rail button[aria-pressed="true"]{background:var(--orange);border-color:var(--orange)}
+#rail #next.nudge{animation:nudge 1s ease-in-out infinite;background:var(--orange)}
+@keyframes nudge{50%{transform:translateX(6px)}}
+#count{font-variant-numeric:tabular-nums;min-width:5.5em;text-align:center;font-weight:700}
+#progress{flex:1 1 200px;max-width:480px;height:6px;border-radius:99px;background:#26324F;overflow:hidden}
+#progress i{display:block;height:100%;background:var(--orange);width:0;transition:width .3s}
+.keys{opacity:.6;font-size:12px}
+#notes{position:absolute;left:0;right:0;bottom:0;max-height:40%;overflow:auto;background:rgba(18,24,39,.96);color:#F1F4FB;padding:14px 22px;font-size:18px;line-height:1.7;border-top:3px solid var(--orange);z-index:40}
+#notes h3{margin:0 0 4px;font-size:15px;color:var(--orange)}
+#notes p{margin:0 0 6px}
+#overview{position:absolute;inset:0;background:rgba(18,24,39,.97);z-index:50;overflow:auto;padding:24px 30px}
+#overview h2{font-family:var(--display);font-weight:400;font-size:30px;margin:0 0 8px;color:#fff}
+#overview .sec{color:var(--orange);font-weight:900;margin:16px 0 8px;font-size:16px}
+#overview .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+#overview button{background:#26324F;border:1px solid #3A4870;border-radius:12px;padding:10px;text-align:left;color:#EEF2FA;min-height:60px;font-size:16px}
+#overview button b{color:var(--orange);margin-right:6px}
+#overview button[aria-current="true"]{outline:3px solid var(--orange)}
+#lightbox{position:absolute;inset:0;background:rgba(0,0,0,.85);z-index:45;display:flex;align-items:center;justify-content:center;cursor:zoom-out}
+#lightbox img{max-width:92%;max-height:88%;border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+#burst{position:absolute;inset:0;pointer-events:none;z-index:30}
+#flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:31}
+#flash.go{animation:flash .45s ease-out}
+@keyframes flash{0%{opacity:.85}100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.floaty,.peek,.wave,.dance,.march,.jump,.react-sad,.react-proud,.qmark{animation:none!important}}
+</style>
+
+<div id="app">
+  <div id="viewport"><div id="stage" role="region" aria-label="课件">
+<section class="slide" data-n="1" style="background:#1E2A44"  data-sfx="hello" hidden>
+<div class="el pic floaty in-pop" data-k="0"  style="left:170.4px;top:53.4px;width:1189.7px;height:793.1px;"><img class="im" src="a/image1.webp" alt="" draggable="false" style="width:1189.7px;height:793.1px;left:0.0px;top:0.0px;"></div>
+<div class="el pic in-drop" data-k="1"  style="left:92.7px;top:78.2px;width:285.3px;height:62.6px;"><img class="im" src="a/image2.webp" alt="" draggable="false" style="width:285.3px;height:62.6px;left:-0.0px;top:-0.0px;"></div>
+<div class="el sp in-pop d2 title-wobble" data-k="2"  style="left:578.9px;top:486.6px;width:988.0px;height:110.0px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:110.0px;"><span style="font-size:100.0px;color:#1E2A44;font-family:var(--display);font-weight:900;">空间大力士</span></p></div></div>
+</section>
+<section class="slide" data-n="2" style="background:#1E2A44"  hidden>
+<div class="el sp " data-k="0"  style="left:114.3px;top:171.4px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#FBF6EC;font-family:var(--display);font-weight:400;">桥梁 欣赏：</span></p></div></div>
+<div class="el pic zoomable in-up" data-k="1"  style="left:114.3px;top:287.3px;width:680.0px;height:366.7px;"><img class="im" src="a/image3.webp" alt="" draggable="false" style="width:680.0px;height:366.7px;left:-0.0px;top:-0.0px;"></div>
+<div class="el sp in-fade d1" data-k="2"  style="left:114.3px;top:667.3px;width:884.0px;height:33.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:30.3px;"><span style="font-size:23.3px;color:#FFFDF8;font-family:var(--body);font-weight:400;">苏格兰福斯铁路桥 · 1890 年通车，今天还在跑火车</span></p></div></div>
+<div class="el pic zoomable in-up d1" data-k="3"  style="left:820.9px;top:287.3px;width:680.0px;height:366.7px;"><img class="im" src="a/image4.webp" alt="" draggable="false" style="width:680.0px;height:366.9px;left:-0.0px;top:-0.1px;"></div>
+<div class="el sp in-fade d2" data-k="4"  style="left:820.9px;top:667.3px;width:884.0px;height:33.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:30.3px;"><span style="font-size:23.3px;color:#FFFDF8;font-family:var(--body);font-weight:400;">英国一座旧铁路桥 · 现在是步行道</span></p></div></div>
+</section>
+<section class="slide" data-n="3" style="background:#1E2A44"  hidden>
+<div class="el sp " data-k="0"  style="left:114.3px;top:171.4px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#FBF6EC;font-family:var(--display);font-weight:400;">桥梁 欣赏：</span></p></div></div>
+<div class="el pic zoomable in-up" data-k="1"  style="left:102.9px;top:271.0px;width:326.7px;height:333.3px;border-radius:11.7px;"><img class="im" src="a/image5.webp" alt="" draggable="false" style="width:342.0px;height:333.3px;left:-7.7px;top:-0.0px;"></div>
+<div class="el sp " data-k="2"  style="left:102.9px;top:617.7px;width:424.7px;height:48.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:43.3px;"><span style="font-size:33.3px;color:#1E2A44;font-family:var(--body);font-weight:900;">埃菲尔铁塔</span></p></div></div>
+<div class="el pic zoomable in-up d1" data-k="3"  style="left:456.2px;top:271.0px;width:326.7px;height:333.3px;border-radius:11.7px;"><img class="im" src="a/image6.webp" alt="" draggable="false" style="width:342.0px;height:333.3px;left:-7.7px;top:-0.0px;"></div>
+<div class="el sp " data-k="4"  style="left:456.2px;top:617.7px;width:424.7px;height:48.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:43.3px;"><span style="font-size:33.3px;color:#1E2A44;font-family:var(--body);font-weight:900;">输电铁塔</span></p></div></div>
+<div class="el pic zoomable in-up d2" data-k="5"  style="left:809.5px;top:271.0px;width:326.7px;height:333.3px;border-radius:11.7px;"><img class="im" src="a/image7.webp" alt="" draggable="false" style="width:342.0px;height:333.3px;left:-7.7px;top:-0.0px;"></div>
+<div class="el sp " data-k="6"  style="left:809.5px;top:617.7px;width:424.7px;height:48.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:43.3px;"><span style="font-size:33.3px;color:#1E2A44;font-family:var(--body);font-weight:900;">电视发射塔</span></p></div></div>
+<div class="el pic zoomable in-up d3" data-k="7"  style="left:1162.9px;top:271.0px;width:326.7px;height:333.3px;border-radius:11.7px;"><img class="im" src="a/image8.webp" alt="" draggable="false" style="width:342.0px;height:333.3px;left:-7.7px;top:-0.0px;"></div>
+<div class="el sp " data-k="8"  style="left:1162.9px;top:617.7px;width:424.7px;height:48.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:43.3px;"><span style="font-size:33.3px;color:#1E2A44;font-family:var(--body);font-weight:900;">老房子屋顶</span></p></div></div>
+<div class="el sp " data-k="9"  style="left:102.9px;top:641.9px;width:429.9px;height:48.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:43.3px;"><span style="font-size:33.3px;color:#FFFFFF;font-family:var(--body);font-weight:900;">南京长江大桥
+</span><br><br></p></div></div>
+<div class="el sp " data-k="10"  style="left:460.5px;top:641.9px;width:429.9px;height:48.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:43.3px;"><span style="font-size:33.3px;color:#FFFFFF;font-family:var(--body);font-weight:900;">钱塘江大桥
+</span><br><br></p></div></div>
+<div class="el sp " data-k="11"  style="left:818.2px;top:641.9px;width:429.9px;height:48.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:43.3px;"><span style="font-size:33.3px;color:#FFFFFF;font-family:var(--body);font-weight:900;">苏格兰福斯铁路桥
+</span><br><br></p></div></div>
+<div class="el sp " data-k="12"  style="left:1162.9px;top:641.9px;width:424.7px;height:48.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:43.3px;"><span style="font-size:33.3px;color:#FFFFFF;font-family:var(--body);font-weight:900;">加拿大魁北克大桥
+</span><br><br></p></div></div>
+<div class="el sp " data-k="13"  style="left:102.9px;top:703.5px;width:176.7px;height:140.0px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:1.50;"><span style="font-size:31.1px;color:#4A5568;font-family:var(--body);font-weight:400;">1968 年通车</span><br><br></p></div></div>
+<div class="el sp " data-k="14"  style="left:469.6px;top:666.0px;width:176.7px;height:86.7px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:1.50;"><br><span style="font-size:31.1px;color:#4A5568;font-family:var(--body);font-weight:400;">1937 年建成</span></p></div></div>
+<div class="el pic peek tap" data-k="15"  style="left:880.9px;top:151.5px;width:176.7px;height:134.4px;"><img class="im" src="a/image9.webp" alt="" draggable="false" style="width:176.7px;height:134.4px;left:0.0px;top:0.0px;"></div>
+</section>
+<section class="slide" data-n="4" style="background:#1E2A44"  hidden>
+<div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#FBF6EC;font-family:var(--display);font-weight:400;">他们都用到了哪个图形？</span></p></div></div>
+<div class="el pic in-up" data-k="1"  style="left:106.7px;top:208.6px;width:636.2px;height:338.5px;"><img class="im" src="a/image3.webp" alt="" draggable="false" style="width:636.2px;height:338.5px;left:-0.0px;top:-0.0px;"></div>
+<div class="el pic in-up d1" data-k="2"  style="left:767.8px;top:208.6px;width:636.2px;height:338.5px;"><img class="im" src="a/image10.webp" alt="" draggable="false" style="width:636.2px;height:338.5px;left:-0.0px;top:-0.0px;"></div>
+<div class="el pic in-up d2" data-k="3"  style="left:106.7px;top:571.3px;width:305.6px;height:272.9px;border-radius:11.7px;"><img class="im" src="a/image5.webp" alt="" draggable="false" style="width:319.9px;height:272.9px;left:-7.2px;top:-0.0px;"></div>
+<div class="el pic in-up d3" data-k="4"  style="left:437.2px;top:571.3px;width:305.6px;height:272.9px;border-radius:11.7px;"><img class="im" src="a/image6.webp" alt="" draggable="false" style="width:319.9px;height:272.9px;left:-7.2px;top:-0.0px;"></div>
+<div class="el pic in-up d4" data-k="5"  style="left:767.8px;top:571.3px;width:305.6px;height:272.9px;border-radius:11.7px;"><img class="im" src="a/image7.webp" alt="" draggable="false" style="width:319.9px;height:272.9px;left:-7.2px;top:-0.0px;"></div>
+<div class="el pic in-up d5" data-k="6"  style="left:1098.4px;top:571.3px;width:305.6px;height:272.9px;border-radius:11.7px;"><img class="im" src="a/image8.webp" alt="" draggable="false" style="width:319.9px;height:272.9px;left:-7.2px;top:-0.0px;"></div>
+</section>
+<section class="slide" data-n="5" style="background:#1E2A44" data-confetti="1" data-sfx="fanfare" hidden>
+<div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#FBF6EC;font-family:var(--display);font-weight:400;">他们都用到了哪个图形？</span></p></div></div>
+<div class="el pic " data-k="1"  style="left:106.7px;top:208.6px;width:636.2px;height:338.5px;"><img class="im" src="a/image3.webp" alt="" draggable="false" style="width:636.2px;height:338.5px;left:-0.0px;top:-0.0px;"></div>
+<div class="el pic " data-k="2"  style="left:767.8px;top:208.6px;width:636.2px;height:338.5px;"><img class="im" src="a/image10.webp" alt="" draggable="false" style="width:636.2px;height:338.5px;left:-0.0px;top:-0.0px;"></div>
+<div class="el pic " data-k="3"  style="left:106.7px;top:571.3px;width:305.6px;height:272.9px;border-radius:11.7px;"><img class="im" src="a/image5.webp" alt="" draggable="false" style="width:319.9px;height:272.9px;left:-7.2px;top:-0.0px;"></div>
+<div class="el pic " data-k="4"  style="left:437.2px;top:571.3px;width:305.6px;height:272.9px;border-radius:11.7px;"><img class="im" src="a/image6.webp" alt="" draggable="false" style="width:319.9px;height:272.9px;left:-7.2px;top:-0.0px;"></div>
+<div class="el pic " data-k="5"  style="left:767.8px;top:571.3px;width:305.6px;height:272.9px;border-radius:11.7px;"><img class="im" src="a/image7.webp" alt="" draggable="false" style="width:319.9px;height:272.9px;left:-7.2px;top:-0.0px;"></div>
+<div class="el pic " data-k="6"  style="left:1098.4px;top:571.3px;width:305.6px;height:272.9px;border-radius:11.7px;"><img class="im" src="a/image8.webp" alt="" draggable="false" style="width:319.9px;height:272.9px;left:-7.2px;top:-0.0px;"></div>
+<div class="el pic burst-in tap" data-k="7"  style="left:340.2px;top:364.0px;width:805.2px;height:492.5px;"><img class="im" src="a/image11.webp" alt="" draggable="false" style="width:805.2px;height:492.5px;left:0.0px;top:0.0px;"></div>
+</section>
+<section class="slide" data-n="6" style="background:#1E2A44"  hidden>
+<div class="el sp in-pop" data-k="0"  style="left:63.5px;top:182.8px;width:163.7px;height:266.7px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:266.7px;"><span style="font-size:266.7px;color:#E8742A;font-family:var(--display);font-weight:400;">1</span></p></div></div>
+<div class="el sp in-left d1" data-k="1"  style="left:209.5px;top:273.6px;width:910.4px;height:85.0px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:92.0px;"><span style="font-size:80.0px;color:#FBF6EC;font-family:var(--display);font-weight:400;">为什么是三角形呢</span><span style="font-size:80.0px;color:#FBF6EC;font-family:var(--display);font-weight:400;">？</span></p></div></div>
+<div class="el pic in-right" data-k="2"  style="left:428.3px;top:182.8px;width:1171.7px;height:717.2px;"><img class="im" src="a/image12.webp" alt="" draggable="false" style="width:1171.7px;height:717.2px;left:0.0px;top:0.0px;"></div>
+</section>
+<section class="slide" data-n="7" style="background:#1E2A44"  data-sfx="drum" hidden>
+<div class="el sp " data-k="0"  style="left:-1.6px;top:455.6px;width:1603.2px;height:332.6px;background:#DEE0E3a8;border-radius:0.0px;"></div>
+<div class="el sp in-pop" data-k="1"  style="left:363.6px;top:199.1px;width:910.4px;height:85.0px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:92.0px;"><span style="font-size:80.0px;color:#FBF6EC;font-family:var(--display);font-weight:400;">为什么不是四边形？五边形？</span></p><p style="text-align:left;line-height:92.0px;"><span style="font-size:80.0px;color:#FFC60A;font-family:var(--display);font-weight:400;">谁会是稳定性之王呢？</span></p></div></div>
+<div class="el pic in-up d1 floaty tap" data-k="2"  style="left:181.9px;top:525.8px;width:382.1px;height:272.5px;"><img class="im" src="a/image13.webp" alt="" draggable="false" style="width:382.1px;height:272.5px;left:0.0px;top:0.0px;"></div>
+<div class="el pic in-up d3 floaty f2 tap" data-k="3"  style="left:1116.1px;top:485.3px;width:315.7px;height:300.3px;"><img class="im" src="a/image14.webp" alt="" draggable="false" style="width:315.7px;height:300.3px;left:0.0px;top:0.0px;"></div>
+<div class="el pic in-up d2 floaty f3 tap" data-k="4"  style="left:636.0px;top:513.1px;width:408.7px;height:272.5px;"><img class="im" src="a/image15.webp" alt="" draggable="false" style="width:408.7px;height:272.5px;left:0.0px;top:0.0px;"></div>
+</section>
+<section class="slide" data-n="8" style="background:#1E2A44" data-shake="1" data-sfx="boom" hidden>
+<div class="el sp in-left" data-k="0"  style="left:223.3px;top:129.5px;width:910.4px;height:85.0px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:92.0px;"><span style="font-size:80.0px;color:#FBF6EC;font-family:var(--display);font-weight:400;">Round 1</span></p></div></div>
+<div class="el pic slam" data-k="1"  style="left:271.9px;top:326.7px;width:1009.4px;height:465.9px;"><img class="im" src="a/image16.webp" alt="" draggable="false" style="width:1009.4px;height:465.9px;left:0.0px;top:0.0px;"></div>
+</section>
+<section class="slide" data-n="9" style="background:#FBF6EC"  hidden>
+<div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">动手搭：三角形和正方形</span></p></div></div>
+<div class="el pic in-fade" data-k="1"  style="left:275.1px;top:203.4px;width:1049.9px;height:537.2px;"><img class="im" src="a/image17.webp" alt="" draggable="false" style="width:1049.9px;height:537.2px;left:-0.0px;top:-0.0px;"></div>
+<div class="el sp in-up d3" data-k="2"  style="left:106.7px;top:787.4px;width:1386.7px;height:59.1px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;"><p style="text-align:center;line-height:1.20;"><span style="font-size:40.0px;color:#2459B8;font-family:var(--body);font-weight:900;">准备：白球 7 个 · 长蓝棍 7 根</span></p></div></div>
+<div class="el pic in-pop d2 floaty tap" data-k="3"  style="left:1044.7px;top:536.9px;width:142.9px;height:146.1px;border-radius:50%;"><img class="im" src="a/image18.webp" alt="" draggable="false" style="width:840.6px;height:307.1px;left:-0.0px;top:-99.5px;"></div>
+<div class="el pic in-pop d1 floaty f2 tap" data-k="4"  style="left:486.8px;top:472.0px;width:178.0px;height:165.4px;border-radius:50%;"><img class="im" src="a/image18.webp" alt="" draggable="false" style="width:883.3px;height:322.7px;left:-424.1px;top:-109.3px;"></div>
+</section>
+<section class="slide" data-n="10" style="background:#FBF6EC"  hidden>
+<div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">推一推①：竖着压</span></p></div></div>
+<div class="el zlab" style="left:183.2px;top:200.0px;width:1233.6px;height:631.3px;" data-lab='{"pair": true, "dir": "down"}'></div>
+<div class="ctl side"><label>力气 <input type="range" min="1" max="5" value="4" class="force" aria-label="力气"></label><output>用力</output><button class="go">推一下！</button><button class="again">再来</button></div>
+</section>
+<section class="slide" data-n="12" style="background:#FBF6EC"  hidden>
+<div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">推一推②：横着推</span></p></div></div>
+<div class="el zlab" style="left:183.2px;top:200.0px;width:1233.6px;height:631.3px;" data-lab='{"pair": true, "dir": "side"}'></div>
+<div class="ctl side"><label>力气 <input type="range" min="1" max="5" value="4" class="force" aria-label="力气"></label><output>用力</output><button class="go">推一下！</button><button class="again">再来</button></div>
+</section>
+<section class="slide" data-n="14" style="background:#FBF6EC"  hidden>
+<div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">推一推③：斜着推一个角</span></p></div></div>
+<div class="el zlab" style="left:183.2px;top:200.0px;width:1233.6px;height:631.3px;" data-lab='{"pair": true, "dir": "corner"}'></div>
+<div class="ctl side"><label>力气 <input type="range" min="1" max="5" value="4" class="force" aria-label="力气"></label><output>用力</output><button class="go">推一下！</button><button class="again">再来</button></div>
+</section>
+<section class="slide" data-n="16" style="background:#EAF1FA"  hidden>
+<div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">说一说：</span><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">手感有什么不同，</span><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">哪个</span><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">易</span><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">变形，哪个</span><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">更稳定？</span></p></div></div>
+<div class="el pic in-fade" data-k="1"  style="left:251.6px;top:270.1px;width:947.5px;height:386.2px;border-radius:0.0px;"><img class="im" src="a/image17.webp" alt="" draggable="false" style="width:947.5px;height:484.8px;left:-0.0px;top:-98.7px;"></div>
+<div class="el pic dance tap" data-k="2"  style="left:1126.2px;top:740.0px;width:462.3px;height:160.0px;border-radius:0.0px;"><img class="im" src="a/image26.webp" alt="" draggable="false" style="width:947.4px;height:315.8px;left:-485.1px;top:-84.5px;"></div>
+<div class="el pic dance f2 tap" data-k="3"  style="left:5.9px;top:740.0px;width:491.6px;height:160.0px;border-radius:0.0px;"><img class="im" src="a/image26.webp" alt="" draggable="false" style="width:947.4px;height:315.8px;left:-0.0px;top:-84.5px;"></div>
+</section>
+<section class="slide" data-n="17" style="background:#FBF6EC"  hidden>
+<div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">刚才发生了什么？</span></p></div></div>
+<div class="el pic " data-k="1"  style="left:94.1px;top:236.6px;width:667.0px;height:426.9px;"><video class="im" src="a/media1.mp4" poster="a/image27.webp" muted loop playsinline preload="auto" style="width:667.0px;height:426.9px;left:0.0px;top:0.0px;"></video></div>
+<div class="el pic " data-k="2"  style="left:779.8px;top:236.6px;width:667.0px;height:426.9px;"><video class="im" src="a/media2.mp4" poster="a/image28.webp" muted loop playsinline preload="auto" style="width:667.0px;height:426.9px;left:0.0px;top:0.0px;"></video></div>
+<div class="el pic after react-sad tap" data-k="m3"  style="left:126.4px;top:186.4px;width:602.3px;height:508.0px;"><img class="im" src="a/image29.webp" alt="" draggable="false" style="width:602.3px;height:508.0px;left:0.0px;top:0.0px;"></div>
+<div class="el pic after react-proud tap" data-k="m4"  style="left:779.8px;top:250.0px;width:667.0px;height:400.0px;border-radius:0.0px;"><img class="im" src="a/image30.webp" alt="" draggable="false" style="width:1600.0px;height:800.0px;left:-809.6px;top:-400.0px;"></div>
+<div class="ctl"><button class="go reveal">揭晓！</button></div>
+</section>
+<section class="slide" data-n="19" style="background:#FBF6EC" data-confetti="1" data-sfx="fanfare" hidden>
+<div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">三角形更稳定！</span></p></div></div>
+<div class="el pic spin-in" data-k="1"  style="left:375.5px;top:183.1px;width:897.2px;height:616.8px;"><img class="im" src="a/image31.webp" alt="" draggable="false" style="width:897.2px;height:616.8px;left:-0.0px;top:-0.0px;"></div>
+<div class="el pic jump tap" data-k="2"  style="left:654.8px;top:397.6px;width:338.6px;height:334.8px;"><img class="im" src="a/image32.webp" alt="" draggable="false" style="width:338.6px;height:334.8px;left:0.0px;top:0.0px;"></div>
+</section>
+<section class="slide" data-n="20" style="background:#FBF6EC"  hidden>
+<div class="el sp in-fade" data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">猜想：五边形会更稳定还是更不稳定？</span><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">拼搭出来试一试！</span></p></div></div>
+<div class="el pic in-fade" data-k="1"  style="left:504.8px;top:233.5px;width:590.4px;height:564.3px;"><img class="im" src="a/image33.webp" alt="" draggable="false" style="width:590.4px;height:564.3px;left:-0.0px;top:-0.0px;"></div>
+<div class="el pic in-pop d1 floaty tap" data-k="2"  style="left:567.1px;top:318.3px;width:465.9px;height:436.7px;clip-path:polygon(50% 0,100% 38%,81% 100%,19% 100%,0 38%);"><img class="im" src="a/image34.webp" alt="" draggable="false" style="width:465.9px;height:436.7px;left:-0.0px;top:-0.0px;"></div><div class="qmark">?</div>
+</section>
+<section class="slide" data-n="21" style="background:#1E2A44" data-shake="1" data-sfx="boom" hidden>
+<div class="el sp in-left" data-k="0"  style="left:223.3px;top:129.5px;width:910.4px;height:85.0px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:92.0px;"><span style="font-size:80.0px;color:#FBF6EC;font-family:var(--display);font-weight:400;">Round 2</span></p></div></div>
+<div class="el pic slam" data-k="1"  style="left:295.3px;top:307.6px;width:1009.4px;height:465.9px;"><img class="im" src="a/image35.webp" alt="" draggable="false" style="width:1081.8px;height:465.9px;left:-36.2px;top:-0.0px;"></div>
+</section>
+<section class="slide" data-n="22" style="background:#FBF6EC"  hidden>
+<div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">刚才发生了什么？</span></p></div></div>
+<div class="el pic " data-k="1"  style="left:779.8px;top:236.6px;width:667.0px;height:426.9px;"><video class="im" src="a/media2.mp4" poster="a/image28.webp" muted loop playsinline preload="auto" style="width:667.0px;height:426.9px;left:0.0px;top:0.0px;"></video></div>
+<div class="el pic " data-k="2"  style="left:93.5px;top:236.6px;width:667.0px;height:426.9px;background:#DEE0E3;"><video class="im" src="a/media3.mp4" poster="a/image36.webp" muted loop playsinline preload="auto" style="width:667.0px;height:426.9px;left:0.0px;top:0.0px;"></video></div>
+<div class="el pic after react-sad tap" data-k="m3"  style="left:156.5px;top:236.6px;width:512.2px;height:426.9px;"><img class="im" src="a/image37.webp" alt="" draggable="false" style="width:512.2px;height:426.9px;left:0.0px;top:0.0px;"></div>
+<div class="el pic after react-proud tap" data-k="m4"  style="left:825.7px;top:297.8px;width:575.2px;height:355.4px;border-radius:0.0px;"><img class="im" src="a/image30.webp" alt="" draggable="false" style="width:1421.5px;height:710.8px;left:-127.0px;top:-355.4px;"></div>
+<div class="ctl"><button class="go reveal">揭晓！</button></div>
+</section>
+<section class="slide" data-n="24" style="background:#1E2A44" data-confetti="1" data-sfx="fanfare" hidden>
+<div class="el pic king tap" data-k="0"  style="left:0.0px;top:0.0px;width:1600.0px;height:938.3px;"><img class="im" src="a/image38.webp" alt="" draggable="false" style="width:1600.0px;height:939.3px;left:-0.0px;top:-0.5px;"></div>
+</section>
+<section class="slide" data-n="25" style="background:#FBF6EC"  hidden>
+<div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">稳定性原理：棍子只被推拉</span></p></div></div>
+<div class="el pic " data-k="1"  style="left:106.7px;top:258.3px;width:1386.7px;height:466.7px;"><video class="im" src="a/media4.mp4" poster="a/image39.webp" muted loop playsinline preload="auto" style="width:1386.7px;height:466.7px;left:0.0px;top:0.0px;"></video></div>
+</section>
+<section class="slide" data-n="26" style="background:#FBF6EC"  hidden>
+<div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">如何更稳定？</span></p></div></div>
+<div class="el zlab" style="left:250.3px;top:229.7px;width:459.3px;height:459.3px;" data-lab='{"key": "sq", "dir": "side", "fit": "sq"}'></div>
+<div class="el zlab" style="left:879.7px;top:229.7px;width:480.6px;height:459.3px;" data-lab='{"key": "pe", "dir": "side", "fit": "pe"}'></div>
+<div class="el sp " data-k="3"  style="left:283.1px;top:715.2px;width:393.7px;height:59.1px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;"><p style="text-align:center;line-height:1.20;"><span style="font-size:36.7px;color:#1E2A44;font-family:var(--body);font-weight:900;">正方形</span></p></div></div>
+<div class="el sp " data-k="4"  style="left:923.1px;top:715.2px;width:393.7px;height:59.1px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;"><p style="text-align:center;line-height:1.20;"><span style="font-size:36.7px;color:#1E2A44;font-family:var(--body);font-weight:900;">五边形</span></p></div></div><div class="ctl"><button class="go">推一推看！</button></div>
+</section>
+<section class="slide" data-n="27" style="background:#FBF6EC"  hidden>
+<div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">加斜棍：切成三角形</span></p></div></div>
+<div class="el zlab" style="left:250.3px;top:229.7px;width:459.3px;height:459.3px;" data-lab='{"key": "sq", "dir": "side", "brace": true, "fit": "sq"}'></div>
+<div class="el zlab" style="left:879.7px;top:229.7px;width:480.6px;height:459.3px;" data-lab='{"key": "pe", "dir": "side", "brace": true, "fit": "pe"}'></div><div class="ctl"><button class="go">推一推看！</button></div>
+</section>
+<section class="slide" data-n="28" style="background:#FBF6EC"  hidden>
+<div class="el sp " data-k="0"  style="left:106.7px;top:162.5px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">切成三角形，真的有人这么做</span></p></div></div>
+<div class="el pic zoomable in-up" data-k="1"  style="left:106.7px;top:331.8px;width:680.0px;height:366.7px;"><img class="im" src="a/image43.webp" alt="" draggable="false" style="width:680.0px;height:366.7px;left:-0.0px;top:-0.0px;"></div>
+<div class="el sp " data-k="2"  style="left:106.7px;top:711.8px;width:884.0px;height:48.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:43.3px;"><span style="font-size:33.3px;color:#1E2A44;font-family:var(--body);font-weight:900;">农场木门</span></p></div></div>
+<div class="el sp " data-k="3"  style="left:106.7px;top:773.4px;width:884.0px;height:33.8px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:33.8px;"><span style="font-size:23.3px;color:#4A5568;font-family:var(--body);font-weight:400;">钉一根斜木条</span></p></div></div>
+<div class="el pic zoomable in-up d1" data-k="4"  style="left:813.3px;top:331.8px;width:680.0px;height:366.7px;"><img class="im" src="a/image44.webp" alt="" draggable="false" style="width:680.0px;height:366.7px;left:-0.0px;top:-0.0px;"></div>
+<div class="el sp " data-k="5"  style="left:813.3px;top:711.8px;width:884.0px;height:48.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:43.3px;"><span style="font-size:33.3px;color:#1E2A44;font-family:var(--body);font-weight:900;">老储气罐钢架</span></p></div></div>
+<div class="el sp " data-k="6"  style="left:813.3px;top:773.4px;width:884.0px;height:33.8px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:33.8px;"><span style="font-size:23.3px;color:#4A5568;font-family:var(--body);font-weight:400;">每格拉一个「×」</span></p></div></div>
+<div class="el pic peek tap" data-k="7"  style="left:641.0px;top:504.2px;width:145.7px;height:194.3px;"><img class="im" src="a/image45.webp" alt="" draggable="false" style="width:145.7px;height:194.3px;left:0.0px;top:0.0px;"></div>
+</section>
+<section class="slide" data-n="29" style="background:#1E2A44"  hidden>
+<div class="el pic in-right floaty tap" data-k="0"  style="left:661.3px;top:289.2px;width:961.9px;height:588.3px;"><img class="im" src="a/image46.webp" alt="" draggable="false" style="width:961.9px;height:588.3px;left:0.0px;top:0.0px;"></div>
+<div class="el sp in-pop" data-k="1"  style="left:106.7px;top:316.7px;width:242.4px;height:266.7px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:266.7px;"><span style="font-size:266.7px;color:#E8742A;font-family:var(--display);font-weight:400;">2</span></p></div></div>
+<div class="el sp in-left d1" data-k="2"  style="left:342.4px;top:365.0px;width:1496.2px;height:92.0px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:92.0px;"><span style="font-size:80.0px;color:#FBF6EC;font-family:var(--display);font-weight:400;">亲自造一座桥</span></p></div></div>
+<div class="el sp in-left d2" data-k="3"  style="left:342.4px;top:483.7px;width:1496.2px;height:51.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:51.3px;"><span style="font-size:36.7px;color:#D6DEEB;font-family:var(--body);font-weight:400;">搭一座能走的空间桥</span></p></div></div>
+</section>
+<section class="slide" data-n="30" style="background:#EAF1FA"  hidden>
+<div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">第 1 步：搭一个绿色等边三角形</span></p></div></div>
+<div class="el pic in-pop" data-k="1"  style="left:106.7px;top:260.7px;width:533.3px;height:471.4px;"><img class="im" src="a/image47.webp" alt="" draggable="false" style="width:533.3px;height:471.4px;left:-0.0px;top:-0.0px;"></div>
+<div class="el sp " data-k="2"  style="left:780.9px;top:722.8px;width:1040.0px;height:65.6px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:40.0px;"><span style="font-size:40.0px;color:#2459B8;font-family:var(--body);font-weight:900;">准备：白球 3 个 · 长绿棍 3 根</span></p></div></div>
+<div class="el pic jump tap" data-k="3"  style="left:769.5px;top:304.0px;width:566.0px;height:403.6px;"><img class="im" src="a/image13.webp" alt="" draggable="false" style="width:566.0px;height:403.6px;left:0.0px;top:0.0px;"></div><div class="ctl"><button class="go built">搭好啦！</button></div>
+</section>
+<section class="slide" data-n="31" style="background:#EAF1FA"  hidden>
+<div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">第 2 步：变成四棱锥</span></p></div></div>
+<div class="el pic in-pop" data-k="1"  style="left:856.9px;top:205.6px;width:533.3px;height:466.7px;"><img class="im" src="a/image48.webp" alt="" draggable="false" style="width:533.3px;height:466.7px;left:-0.0px;top:-0.0px;"></div>
+<div class="el sp " data-k="2"  style="left:117.9px;top:710.0px;width:1040.0px;height:65.6px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:40.0px;"><span style="font-size:40.0px;color:#2459B8;font-family:var(--body);font-weight:900;">再准备：白球 2 个 · 长绿棍 5 根</span></p></div></div>
+<div class="el pic jump tap" data-k="3"  style="left:92.7px;top:310.7px;width:707.3px;height:314.1px;border-radius:0.0px;"><img class="im" src="a/image49.webp" alt="" draggable="false" style="width:1600.0px;height:800.0px;left:-0.0px;top:-415.8px;"></div><div class="ctl"><button class="go built">搭好啦！</button></div>
+</section>
+<section class="slide" data-n="32" style="background:#EAF1FA"  hidden>
+<div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">第 3 步：再拼两节</span></p></div></div>
+<div class="el pic in-pop" data-k="1"  style="left:78.7px;top:301.8px;width:590.6px;height:271.4px;"><img class="im" src="a/image50.webp" alt="" draggable="false" style="width:590.6px;height:271.4px;left:-0.0px;top:-0.0px;"></div>
+<div class="el sp " data-k="2"  style="left:758.9px;top:689.6px;width:698.9px;height:65.6px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:42.7px;"><span style="font-size:40.0px;color:#2459B8;font-family:var(--body);font-weight:900;">再准备：白球 6 个 · 长绿棍 16 根</span></p></div></div>
+<div class="el pic jump tap" data-k="3"  style="left:610.0px;top:258.7px;width:795.9px;height:399.3px;border-radius:0.0px;"><img class="im" src="a/image30.webp" alt="" draggable="false" style="width:1600.0px;height:800.0px;left:-0.0px;top:-400.7px;"></div><div class="ctl"><button class="go built">搭好啦！</button></div>
+</section>
+<section class="slide" data-n="33" style="background:#FBF6EC"  hidden>
+<div class="el sp " data-k="0"  style="left:-2.2px;top:-0.9px;width:1605.9px;height:908.1px;background:#FFFFFF;border-radius:0.0px;"></div>
+<div class="el sp " data-k="1"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">一</span><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">点一点加重量</span></p></div></div>
+<div class="el coinlab" style="left:97.3px;top:233.5px;width:1386.7px;height:466.7px;"></div>
+<div class="el pic dance tap" data-k="3"  style="left:-1.1px;top:747.7px;width:791.7px;height:159.5px;border-radius:0.0px;"><img class="im" src="a/image18.webp" alt="" draggable="false" style="width:791.7px;height:289.2px;left:-0.0px;top:-80.0px;"></div><div class="ctl"><button class="go addcoin">放一枚硬币</button><output class="coincount">硬币：0 枚</output><button class="again resetcoin">重来</button></div>
+</section>
+<section class="slide" data-n="34" style="background:#FBF6EC"  hidden>
+<div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">真的有人这样造桥：印度「四面体桥」</span></p></div></div>
+<div class="el pic zoomable in-up" data-k="1"  style="left:106.7px;top:389.9px;width:444.2px;height:333.3px;"><img class="im" src="a/image52.webp" alt="" draggable="false" style="width:444.2px;height:333.3px;left:-0.0px;top:-0.0px;"></div>
+<div class="el pic zoomable in-up d1" data-k="2"  style="left:577.5px;top:389.9px;width:444.2px;height:333.3px;"><img class="im" src="a/image53.webp" alt="" draggable="false" style="width:444.2px;height:333.3px;left:-0.0px;top:-0.0px;"></div>
+<div class="el pic zoomable in-up d2" data-k="3"  style="left:1048.3px;top:389.9px;width:444.2px;height:333.3px;"><img class="im" src="a/image54.webp" alt="" draggable="false" style="width:444.2px;height:333.3px;left:-0.0px;top:-0.0px;"></div>
+<div class="el pic peek tap" data-k="4"  style="left:636.5px;top:193.9px;width:292.6px;height:222.6px;"><img class="im" src="a/image9.webp" alt="" draggable="false" style="width:292.6px;height:222.6px;left:0.0px;top:0.0px;"></div>
+</section>
+<section class="slide" data-n="35" style="background:#1E2A44"  hidden>
+<div class="el sp " data-k="0"  style="left:114.3px;top:171.4px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#FBF6EC;font-family:var(--display);font-weight:400;">更多三角形</span></p></div></div>
+<div class="el pic zoomable in-up" data-k="1"  style="left:166.5px;top:320.4px;width:326.7px;height:324.9px;"><img class="im" src="a/image55.webp" alt="" draggable="false" style="width:326.7px;height:324.9px;left:-0.0px;top:-0.0px;"></div>
+<div class="el pic zoomable in-up d1" data-k="3"  style="left:519.9px;top:320.4px;width:326.7px;height:324.9px;"><img class="im" src="a/image56.webp" alt="" draggable="false" style="width:326.7px;height:324.9px;left:-0.0px;top:-0.0px;"></div>
+<div class="el pic zoomable in-up d2" data-k="5"  style="left:873.2px;top:320.4px;width:326.7px;height:324.9px;"><img class="im" src="a/image57.webp" alt="" draggable="false" style="width:326.7px;height:324.9px;left:-0.0px;top:-0.0px;"></div>
+<div class="el pic zoomable in-up d3" data-k="7"  style="left:1226.5px;top:320.4px;width:326.7px;height:324.9px;"><img class="im" src="a/image58.webp" alt="" draggable="false" style="width:326.7px;height:324.9px;left:-0.0px;top:-0.0px;"></div>
+<div class="el sp " data-k="9"  style="left:249.8px;top:693.6px;width:429.9px;height:48.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:43.3px;"><span style="font-size:33.3px;color:#FFFFFF;font-family:var(--body);font-weight:900;">埃菲尔铁塔</span></p></div></div>
+<div class="el sp " data-k="10"  style="left:607.5px;top:693.6px;width:429.9px;height:48.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:43.3px;"><span style="font-size:33.3px;color:#FFFFFF;font-family:var(--body);font-weight:900;">输电铁塔</span></p></div></div>
+<div class="el sp " data-k="11"  style="left:965.2px;top:693.6px;width:429.9px;height:48.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:43.3px;"><span style="font-size:33.3px;color:#FFFFFF;font-family:var(--body);font-weight:900;">电视发射塔</span></p></div></div>
+<div class="el sp " data-k="12"  style="left:1309.8px;top:693.6px;width:424.7px;height:48.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:43.3px;"><span style="font-size:33.3px;color:#FFFFFF;font-family:var(--body);font-weight:900;">老房子屋顶</span></p></div></div>
+<div class="el pic wave tap" data-k="13"  style="left:9.8px;top:442.6px;width:211.7px;height:275.1px;transform:rotate(180.00deg) scaleY(-1);"><img class="im" src="a/image45.webp" alt="" draggable="false" style="width:211.7px;height:275.1px;left:0.0px;top:0.0px;"></div>
+</section>
+<section class="slide" data-n="36" style="background:#FBF6EC"  hidden>
+<div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">空间桥摊平，就是大屋顶</span></p></div></div>
+<div class="el pic zoomable in-up" data-k="1"  style="left:106.7px;top:227.7px;width:400.0px;height:466.7px;"><img class="im" src="a/image59.webp" alt="" draggable="false" style="width:400.0px;height:466.7px;left:-0.0px;top:-0.0px;"></div>
+<div class="el sp " data-k="2"  style="left:106.7px;top:704.4px;width:520.0px;height:29.2px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:26.0px;"><span style="font-size:20.0px;color:#4A5568;font-family:var(--body);font-weight:400;">桃园机场第二航厦</span></p></div></div>
+<div class="el pic zoomable in-up d1" data-k="3"  style="left:540.0px;top:227.7px;width:466.7px;height:466.7px;"><img class="im" src="a/image60.webp" alt="" draggable="false" style="width:466.7px;height:466.7px;left:-0.0px;top:-0.0px;"></div>
+<div class="el sp " data-k="4"  style="left:540.0px;top:704.4px;width:606.7px;height:29.2px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:26.0px;"><span style="font-size:20.0px;color:#4A5568;font-family:var(--body);font-weight:400;">高铁台中站顶棚</span></p></div></div>
+<div class="el sp " data-k="5"  style="left:1008.0px;top:275.3px;width:453.3px;height:132.0px;background:#FFF3E6;border-radius:18.2px;"><div class="tx" style="justify-content:flex-start;padding:6.0px 12.0px 6.0px 12.0px;"><p style="text-align:center;line-height:1.20;"><span style="font-size:23.3px;color:#000000;font-family:var(--body);font-weight:400;"> </span></p></div></div>
+<div class="el sp " data-k="6"  style="left:1050.8px;top:304.7px;width:191.7px;height:36.7px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:36.7px;"><span style="font-size:36.7px;color:#B9541A;font-family:var(--display);font-weight:400;">想一想</span></p></div></div>
+<div class="el sp " data-k="7"  style="left:1050.8px;top:359.7px;width:416.0px;height:38.7px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:38.7px;"><span style="font-size:26.7px;color:#1E2A44;font-family:var(--body);font-weight:900;">钢管汇合处，像不像小球？</span></p></div></div>
+<div class="el pic floaty tap" data-k="8"  style="left:1157.3px;top:372.3px;width:359.9px;height:346.7px;"><img class="im" src="a/image61.webp" alt="" draggable="false" style="width:359.9px;height:346.7px;left:0.0px;top:0.0px;"></div>
+</section>
+<section class="slide" data-n="37" style="background:#FBF6EC"  hidden>
+<div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">生活中</span><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">的三角形</span></p></div></div>
+<div class="el pic zoomable in-up" data-k="1"  style="left:106.7px;top:194.7px;width:444.2px;height:316.7px;"><img class="im" src="a/image62.webp" alt="" draggable="false" style="width:444.2px;height:316.7px;left:-0.0px;top:-0.0px;"></div>
+<div class="el sp " data-k="2"  style="left:106.7px;top:524.7px;width:577.4px;height:48.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:43.3px;"><span style="font-size:33.3px;color:#1E2A44;font-family:var(--body);font-weight:900;">工地上的塔吊</span></p></div></div>
+<div class="el sp " data-k="3"  style="left:106.7px;top:586.3px;width:577.4px;height:33.8px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:33.8px;"><span style="font-size:23.3px;color:#4A5568;font-family:var(--body);font-weight:400;">吊臂那么长也不弯</span></p></div></div>
+<div class="el pic zoomable in-up d1" data-k="4"  style="left:577.5px;top:194.7px;width:444.2px;height:316.7px;"><img class="im" src="a/image63.webp" alt="" draggable="false" style="width:444.2px;height:316.7px;left:-0.0px;top:-0.0px;"></div>
+<div class="el sp " data-k="5"  style="left:577.5px;top:524.7px;width:577.4px;height:48.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:43.3px;"><span style="font-size:33.3px;color:#1E2A44;font-family:var(--body);font-weight:900;">人字梯</span></p></div></div>
+<div class="el sp " data-k="6"  style="left:577.5px;top:586.3px;width:577.4px;height:33.8px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:33.8px;"><span style="font-size:23.3px;color:#4A5568;font-family:var(--body);font-weight:400;">腿一张开就站稳</span></p></div></div>
+<div class="el pic zoomable in-up d2" data-k="7"  style="left:1048.3px;top:194.7px;width:444.2px;height:316.7px;"><img class="im" src="a/image64.webp" alt="" draggable="false" style="width:444.2px;height:316.7px;left:-0.0px;top:-0.0px;"></div>
+<div class="el sp " data-k="8"  style="left:1048.3px;top:524.7px;width:577.4px;height:48.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:43.3px;"><span style="font-size:33.3px;color:#1E2A44;font-family:var(--body);font-weight:900;">自行车</span></p></div></div>
+<div class="el sp " data-k="9"  style="left:1048.3px;top:586.3px;width:577.4px;height:33.8px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:33.8px;"><span style="font-size:23.3px;color:#4A5568;font-family:var(--body);font-weight:400;">使劲踩也不变形</span></p></div></div>
+<div class="el sp " data-k="10"  style="left:106.7px;top:681.3px;width:1386.7px;height:85.3px;background:#FFF3E6;border-radius:28.1px;"></div>
+<div class="el sp " data-k="11"  style="left:140.0px;top:705.7px;width:191.7px;height:36.7px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:36.7px;"><span style="font-size:36.7px;color:#B9541A;font-family:var(--display);font-weight:400;">想一想</span></p></div></div>
+<div class="el sp " data-k="12"  style="left:285.0px;top:704.7px;width:416.0px;height:38.7px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:38.7px;"><span style="font-size:26.7px;color:#1E2A44;font-family:var(--body);font-weight:900;">你家里还有哪里藏着三角形？</span></p></div></div>
+<div class="el pic march tap" data-k="13"  style="left:788.0px;top:663.2px;width:733.8px;height:206.8px;border-radius:0.0px;"><img class="im" src="a/image65.webp" alt="" draggable="false" style="width:733.8px;height:244.6px;left:-0.0px;top:-37.7px;"></div>
+</section>
+<section class="slide" data-n="38" style="background:#FBF6EC"  data-sfx="fanfare-soft" hidden>
+<div class="el sp in-left" data-k="0"  style="left:67.9px;top:258.4px;width:871.1px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:43.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">任务 1：观察发现你生活中出现的三角形（至少 3 种）。</span></p></div></div>
+<div class="el sp in-left d2" data-k="1"  style="left:67.9px;top:363.4px;width:871.1px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:43.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">任务 2：搭建一座最稳的桥。</span></p></div></div>
+<div class="el sp in-left d4" data-k="2"  style="left:67.9px;top:468.4px;width:871.1px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:43.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">任务 3：三角形的胖瘦影响稳定性吗？你来研究。</span></p></div></div>
+<div class="el pic march tap" data-k="3"  style="left:208.9px;top:614.4px;width:688.2px;height:229.4px;"><img class="im" src="a/image66.webp" alt="" draggable="false" style="width:688.2px;height:229.4px;left:0.0px;top:0.0px;"></div>
+<div class="el pic wave tap" data-k="4"  style="left:1059.7px;top:164.4px;width:526.7px;height:486.7px;"><img class="im" src="a/image67.webp" alt="" draggable="false" style="width:526.7px;height:486.7px;left:0.0px;top:0.0px;"></div>
+</section>
+    <canvas id="burst" width="1600" height="900" aria-hidden="true"></canvas>
+    <div id="flash" aria-hidden="true"></div>
+    <div id="lightbox" hidden></div>
+    <div id="notes" hidden></div>
+    <div id="overview" hidden></div>
+  </div></div>
+  <nav id="rail" aria-label="翻页和工具">
+    <button id="prev">← 上一页</button><span id="count">1 / 38</span><button id="next">下一页 →</button>
+    <div id="progress"><i></i></div>
+    <button id="btnGrid" aria-pressed="false">目录</button>
+    <button id="btnNotes" aria-pressed="false">讲师备注</button>
+    <button id="btnSound" aria-pressed="true">声音：开</button>
+    <button id="btnFull">全屏</button>
+    <span class="keys">← → 翻页 · P 推一下 · N 备注 · G 目录 · F 全屏</span>
+  </nav>
+</div>
+<script>const META=[{"n": 1, "title": "空间大力士", "sec": "开场", "notes": ""}, {"n": 2, "title": "桥梁 欣赏：", "sec": "开场", "notes": ""}, {"n": 3, "title": "桥梁 欣赏：", "sec": "开场", "notes": ""}, {"n": 4, "title": "他们都用到了哪个图形？", "sec": "开场", "notes": ""}, {"n": 5, "title": "他们都用到了哪个图形？", "sec": "开场", "notes": ""}, {"n": 6, "title": "1", "sec": "第一部分 · 为什么是三角形", "notes": ""}, {"n": 7, "title": "为什么不是四边形？五边形？谁会是稳定性之王呢？", "sec": "第一部分 · 为什么是三角形", "notes": ""}, {"n": 8, "title": "Round 1", "sec": "第一部分 · 为什么是三角形", "notes": ""}, {"n": 9, "title": "动手搭：三角形和正方形", "sec": "第一部分 · 为什么是三角形", "notes": "接下来我们先搭三角形和四边形，三角形孔朝上的时候是三角形，长方形孔朝上的时候是正方形。"}, {"n": 10, "title": "推一推①：竖着压", "sec": "第一部分 · 为什么是三角形", "notes": "一只手按住底下那根棍，另一只手从顶上往下压。哪个硬？哪个晃？轻轻用力就够了。\n一只手按住底下那根棍，另一只手从顶上往下压。哪个硬？哪个晃？轻轻用力就够了。"}, {"n": 12, "title": "推一推②：横着推", "sec": "第一部分 · 为什么是三角形", "notes": "这次从侧面横着推，眼睛盯着棍子，看它弯没弯。\n预期：正方形整个往旁边晃，竖棍会弯；三角形整体不晃，只是被推的那根棍会被按弯一点点（推在棍子中间，不是推在球上）。\n这次从侧面横着推，眼睛盯着棍子，看它弯没弯。\n预期：正方形整个往旁边晃，竖棍会弯；三角形整体不晃，只是被推的那根棍会被按弯一点点（推在棍子中间，不是推在球上）。"}, {"n": 14, "title": "推一推③：斜着推一个角", "sec": "第一部分 · 为什么是三角形", "notes": "按住底边，两个形状都从左上方斜着往下推：正方形推左上角，三角形推顶点，方向一样。\n换一个方向，斜着推上面的角。哪个会动？\n预期：正方形会晃；三角形不动。\n按住底边，两个形状都从左上方斜着往下推：正方形推左上角，三角形推顶点，方向一样。\n换一个方向，斜着推上面的角。哪个会动？\n预期：正方形会晃；三角形不动。"}, {"n": 16, "title": "说一说：手感有什么不同，哪个易变形，哪个更稳定？", "sec": "第一部分 · 为什么是三角形", "notes": "请三四个孩子开麦或在评论区说说推的感受，老师复述、鼓励用自己的话说。\n引导的方向：两个的手感有什么不同？哪个更结实？哪个容易变形？\n常见回答：正方形横着推、斜着推都会晃，竖着的棍子会弯；三角形不管从哪个方向推都很硬。如果有孩子说“三角形也动了一点点”，一定要表扬：这是很仔细的观察！讲“稳定性原理”时再回答。"}, {"n": 17, "title": "刚才发生了什么？", "sec": "第一部分 · 为什么是三角形", "notes": "动画自动循环（变形放大示意）：竖着压、横着推、斜着推一个角，三个方向轮流来。唤起孩子刚才亲手推的记忆。\n还记得刚才推正方形的感觉吗？我们把它放大、放慢看一看。竖着压，顶上的棍子被压弯一点；横着推，整个晃了，竖着的棍子弯成了 S 形；斜着推一个角，也晃了。和你刚才的手感一样吗？\n动画自动循环（变形放大示意）：竖着压、横着推、斜着推一个角，三个方向轮流来。唤起孩子刚才亲手推的记忆。\n还记得刚才推正方形的感觉吗？我们把它放大、放慢看一看。竖着压，顶上的棍子被压弯一点；横着推，整个晃了，竖着的棍子弯成了 S 形；斜着推一个角，也晃了。和你刚才的手感一样吗？"}, {"n": 19, "title": "三角形更稳定！", "sec": "第一部分 · 为什么是三角形", "notes": "三角形、正方形、五边形，一样的球、一样长的棍子，推一推就知道了：三角形最稳！\n怎么推都不变形。正方形和五边形都会晃。这就是三角形的稳定性，所以大桥都爱用三角形！\n接着问：为什么三角形这么稳？一起回顾下，看原理。"}, {"n": 20, "title": "猜想：五边形会更稳定还是更不稳定？拼搭出来试一试", "sec": "第一部分 · 为什么是三角形", "notes": "先猜，不急着揭晓。\n三角形很稳，正方形会晃。那边更多的五边形呢？会更稳，还是更不稳？\n可以动手验证：5 个白球、5 根长蓝棍连成五边形（五边形孔朝上），立在桌上推一推。\n预期：五边形也会晃，而且常常比正方形晃得更厉害。"}, {"n": 21, "title": "Round 2", "sec": "Round 2", "notes": ""}, {"n": 22, "title": "刚才发生了什么？", "sec": "Round 2", "notes": "动画自动循环（变形放大示意）：竖着压、横着推、斜着推一个角，三个方向轮流来。唤起孩子刚才亲手推的记忆。\n还记得刚才推正方形的感觉吗？我们把它放大、放慢看一看。竖着压，顶上的棍子被压弯一点；横着推，整个晃了，竖着的棍子弯成了 S 形；斜着推一个角，也晃了。和你刚才的手感一样吗？\n动画自动循环（变形放大示意）：竖着压、横着推、斜着推一个角，三个方向轮流来。唤起孩子刚才亲手推的记忆。\n还记得刚才推正方形的感觉吗？我们把它放大、放慢看一看。竖着压，顶上的棍子被压弯一点；横着推，整个晃了，竖着的棍子弯成了 S 形；斜着推一个角，也晃了。和你刚才的手感一样吗？"}, {"n": 24, "title": "稳定性之王", "sec": "Round 2", "notes": ""}, {"n": 25, "title": "稳定性原理：棍子只被推拉", "sec": "原理和改造", "notes": "紫色箭头表示被推，橙色箭头表示被拉。\n三角形为什么这么稳？它的棍子为什么不弯？左边：重物压在一根棍子中间，棍子弯成弧形（红色发光）。\n右边：重物压在三角形的顶点（接头）上，两条斜边被推（紫色箭头往里挤），底边被拉（橙色箭头往外拉），棍子一点都不弯。\n棍子最怕什么？最怕横着压在中间，一压就弯。棍子最不怕什么？最不怕顺着它的方向推和拉。\n三角形厉害的地方，就是把压下来的力，全都变成了推和拉。你看紫色箭头的两根被推，橙色的一根被拉，没有一根被掰弯。\n(可以拿一根长蓝棍现场演示：两头托住中间压，一压就弯；两头顺着推，很难弯。)\n回答「三角形为什么也动了一点点」：顺着推，棍子会被挤短一丁点；顺着拉，会被拉长一丁点；棍子插在球里的地方也有一点点松，会挤一挤。\n这些都比被掰弯小得多，所以三角形摸起来硬多了。真正的大桥也会这样动一丁点，工程师早就算好了。"}, {"n": 26, "title": "如何更稳定？", "sec": "原理和改造", "notes": "先让孩子想办法，不急着给答案。\n话术：正方形和五边形都会晃，怎么让它们也变得稳稳的？只能加棍子，不能换形状。你会把棍子加在哪里？请孩子在评论区说，或者在纸上画一画。\n预期：斜着加棍子，把它们切成三角形。"}, {"n": 27, "title": "加斜棍：切成三角形", "sec": "原理和改造", "notes": "孩子动手。正方形：拿 1 根长绿棍（长蓝棍正方形的对角线，正好是一根长绿棍），斜着连住两个对角。\n再从各个方向推一推，还晃吗？不晃了！\n五边形：从同一个顶点出发，连到对面的两个顶点，一共 2 条对角线。五边形的对角线是边长的 1.618 倍（黄金比例），一根长蓝棍不够长，要用一根长蓝棍和一根中蓝棍，中间用一个白球接起来，就正好连上：长棍那头接在出发的顶点上。连好后五边形被切成 3 个三角形，再推推看。\n三角形要加几根？0 根。正方形 1 根，五边形 2 根。那六边形呢？请孩子在纸上画一画，评论区报答案……3 根！规律：边数减 3。只要全部切成三角形，就稳了。"}, {"n": 28, "title": "切成三角形，真的有人这么做", "sec": "原理和改造", "notes": "紧接着动手加斜棍，看真实运用。\n多边形加斜杆、切成三角形就稳了，生活里真的这么用。\n刚才我们发现，正方形加一根斜棍、切成三角形就不歪了。\n你看，农场的木门钉一根斜木条，伦敦老储气罐的钢架每一格拉一个「×」，都是这个办法。\n追问：为什么都斜着放？横着放、竖着放行不行？引导：只有斜着放，才能把四边形切成三角形；横的竖的只是切成更小的长方形，还是会歪。"}, {"n": 29, "title": "2", "sec": "第二部分 · 亲自造一座桥", "notes": "进入第二部分。\n知道了三角形的秘密，我们来当一回工程师，亲自造一座能走的桥！"}, {"n": 30, "title": "第 1 步：搭一个绿色等边三角形", "sec": "第二部分 · 亲自造一座桥", "notes": "搭桥先从最稳的形状开始：用 3 根长绿棍，搭一个等边三角形，平放在桌上推一推，稳不稳？稳！它待会儿就是四棱锥的一个侧面。\n零件：搭桥全程用长绿棍，一座三节的桥共用白球 11 个、长绿棍 24 根（按套件说明，长绿棍有 48 根，够用；课前核对）。\n提示：绿棍插五边形的孔；先插好底边，再从两头找能汇到一起的孔，碰不到就转一转小球。"}, {"n": 31, "title": "第 2 步：变成四棱锥", "sec": "第二部分 · 亲自造一座桥", "notes": "把刚才的三角形斜着立起来，它的底边就是正方形的一条边。在桌上把底边接成一个正方形，这就是桥的走道。\n正方形新的两个角，各插一根绿棍斜着往上，都汇到三角形的顶点上。搭好了推一推底下的正方形：还歪吗？不歪了！因为四个侧面都是三角形，把正方形撑住了。这个形状叫四棱锥，就是我们空间桥的第一节。\n提示：斜棍要从正方形“里面那一圈”的孔往上插，才能汇到一起。"}, {"n": 32, "title": "第 3 步：再拼两节", "sec": "第二部分 · 亲自造一座桥", "notes": "现在让桥再长两节。沿着走道的方向，再接出一个正方形；在新正方形上再立一个四棱锥；最后把两个尖用一根绿棍连起来。这样再做一次，桥就有三节了。\n好，看看两个四棱锥中间，多出来的那个空格是什么形状？数一数它有几个面……4 个面，全是三角形，是一个倒过来的三角锥，就是贝尔最爱的四面体！原来我们的桥，就是四棱锥和三角锥一个挨一个拼起来的，所以底下是平的能走路，上面也是平的。\n拿起来压一压，是不是很结实？再接下去，就是一座长长的空间桥，和印度那座真桥是同一种结构。"}, {"n": 33, "title": "一点一点加重量", "sec": "第二部分 · 亲自造一座桥", "notes": "我们先看动画预演一下：两座一样长的桥，一枚一枚加硬币……箱子桥越来越弯，空间桥还是平平的。到底是不是这样？课后大家可试一试！"}, {"n": 34, "title": "真的有人这样造桥：印度「四面体桥」", "sec": "生活中的三角形", "notes": "这座桥叫「四面体桥」（The Tetrahedron），在印度加尔各答管理学院（IIM Calcutta）校园里，设计师是 Christopher Benninger 事务所；\n2011 年建成，长约 43 米，跨过校园里的池塘，用钢管一个接一个连成四面体。\n你们刚才搭的那一段，真的有人把它放大，用钢管造成了一座桥！从正面看是三角形，从侧面看是一排三角形，走进去，三角形一直排到远处。和你手里的比一比：一样的是全是三角形；不一样的是它用钢管、焊在一起，而且长得多。"}, {"n": 35, "title": "更多三角形", "sec": "生活中的三角形", "notes": "这是两座真实的桥。左边这座在苏格兰，100 多年前就建好了，今天还在跑火车；右边这座在英国，现在是步行道。\n你发现了吗？它们都是一格一格的三角形。\n工程师为什么偏偏用三角形？三角形有什么特别的地方？换成正方形、五边形，行不行？"}, {"n": 36, "title": "空间桥摊平，就是大屋顶", "sec": "生活中的三角形", "notes": "把我们的空间桥摊平、铺开，就变成了一大片屋顶。机场、高铁站、体育馆的大屋顶，很多都是这样搭的，叫空间网架，中间不用柱子，也能盖住很大的地方。\n仔细看钢管汇在一起的地方：很多网架的节点就是一个球，几根钢管插进去，和 Zometool 的小球一模一样！下次去机场、车站，记得抬头看。"}, {"n": 37, "title": "生活中的三角形", "sec": "生活中的三角形", "notes": "三角形不只在大桥和大楼上，你身边也有！\n塔吊的吊臂那么长也不弯，人字梯腿一张开就站稳，自行车使劲踩也不变形，都是因为三角形。想一想：你家里还有哪里藏着三角形？"}, {"n": 38, "title": "任务 1：观察发现你生活中出现的三角形（至少 3", "sec": "今日作业", "notes": "任务 1（观察）：找一找家里、路上、公园里的三角形，至少 3 种，拍照或画下来，下周带来分享。\n任务 2（设计）：回家当一回真正的工程师：设计一座足够稳的桥！要求有三个：跨过两摞书之间的空隙，桥面要平，玩具小车能开过去；中间放硬币，放得越多越好；材料随你选。\n任务 3（控制变量的探究）：Zometool 棍做胖瘦不同的三角形。自己研究：做三个三角形，扁扁的、等边的、高高窄窄的，底边一样长。每个都立在桌上，从顶上往下压、从侧面推，记下哪个最稳。"}];</script>
+<script>
+(()=>{
+"use strict";
+const NS="http://www.w3.org/2000/svg",reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const el=(t,a={},p)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e};
+
+/* ================= sound ================= */
+let soundOn=true,ac=null;
+function A(){if(!soundOn)return null;try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();if(ac.state==="suspended")ac.resume()}catch(e){ac=null}return ac}
+function tone(f0,f1,dur,type="sine",vol=.18,at=0){const a=A();if(!a)return;const t0=a.currentTime+at,o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.setValueAtTime(f0,t0);o.frequency.exponentialRampToValueAtTime(Math.max(30,f1),t0+dur);g.gain.setValueAtTime(vol,t0);g.gain.exponentialRampToValueAtTime(.001,t0+dur);o.connect(g).connect(a.destination);o.start(t0);o.stop(t0+dur+.05)}
+function noise(dur,vol=.3,at=0,lp=1200){const a=A();if(!a)return;const b=a.createBuffer(1,a.sampleRate*dur,a.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,2);const s=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();f.type="lowpass";f.frequency.value=lp;g.gain.value=vol;s.buffer=b;s.connect(f).connect(g).connect(a.destination);s.start(a.currentTime+at)}
+const SFX={
+  hello(){[523,659,784].forEach((f,i)=>tone(f,f*1.01,.18,"triangle",.14,i*.09))},
+  boing(){tone(420,110,.45,"sine",.2)},
+  hey(){tone(520,780,.14,"triangle",.14)},
+  pop(){tone(300,900,.08,"square",.06)},
+  wah(){[392,370,349,311].forEach((f,i)=>tone(f,f*.97,i<3?.22:.6,"sawtooth",.06,i*.24))},
+  ding(){tone(1046,1046,.35,"triangle",.14);tone(1568,1568,.4,"triangle",.08,.08)},
+  fanfare(){[523,659,784,1046,784,1046].forEach((f,i)=>tone(f,f,i<5?.16:.5,"triangle",.15,i*.12));noise(.6,.08,.1,6000)},
+  "fanfare-soft"(){[659,784,1046].forEach((f,i)=>tone(f,f,.3,"triangle",.12,i*.15))},
+  drum(){for(let i=0;i<10;i++)noise(.08,.18,i*.06,900);tone(196,196,.4,"triangle",.16,.65)},
+  boom(){tone(120,40,.7,"sine",.45);noise(.5,.4,0,500)},
+  coin(){tone(1320,1980,.12,"square",.06)},
+  thud(){tone(140,50,.2,"triangle",.25)},
+  cheer(){noise(.9,.12,0,4000);[784,988,1175].forEach((f,i)=>tone(f,f,.25,"triangle",.12,.1+i*.1))},
+  react(){SFX.wah();setTimeout(SFX.ding,1100)},
+  "react-late"(){setTimeout(SFX.react,1200)},
+  whoosh(){const a=A();if(!a)return;const d=.32,b=a.createBuffer(1,a.sampleRate*d,a.sampleRate),c=b.getChannelData(0);for(let i=0;i<c.length;i++)c[i]=(Math.random()*2-1)*Math.sin(Math.PI*i/c.length);const s=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();f.type="bandpass";f.Q.value=1.2;f.frequency.setValueAtTime(500,a.currentTime);f.frequency.exponentialRampToValueAtTime(3200,a.currentTime+d);g.gain.value=.22;s.buffer=b;s.connect(f).connect(g).connect(a.destination);s.start()},
+  oops(){[659,523,392].forEach((f,i)=>tone(f,f*.92,i<2?.12:.35,"sawtooth",.06,i*.11));tone(220,150,.3,"triangle",.1,.25)},
+  hmph(){tone(196,262,.1,"square",.07);tone(392,784,.18,"triangle",.11,.1)},
+  tick(){tone(880,1320,.06,"triangle",.07)},
+  spin(){tone(300,1200,.5,"triangle",.1);tone(600,2400,.5,"sine",.05,.05)},
+  drop(){tone(700,180,.25,"triangle",.12);setTimeout(SFX.thud,230)},
+  reveal(){tone(392,784,.18,"triangle",.12);tone(587,1175,.22,"triangle",.1,.12)}
+};
+const play=n=>{try{SFX[n]&&SFX[n]()}catch(e){}};
+
+/* ================= confetti ================= */
+const cv=document.getElementById("burst"),cx=cv.getContext("2d");let parts=[];
+function confetti(x=800,y=380,n=170){if(reduce)return;const cols=["#E8742A","#2F6BD8","#3A9A5B","#FFC60A","#E05A8C","#8C5AD2"];
+  for(let i=0;i<n;i++)parts.push({x:x+(Math.random()-.5)*240,y,vx:(Math.random()-.5)*22,vy:-Math.random()*22-6,r:Math.random()*3,vr:(Math.random()-.5)*.3,c:cols[i%6],w:10+Math.random()*12,life:0})}
+function drawConfetti(){cx.clearRect(0,0,1600,900);for(const p of parts){p.vy+=.55;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;p.life++;cx.save();cx.translate(p.x,p.y);cx.rotate(p.r);cx.fillStyle=p.c;cx.fillRect(-p.w/2,-p.w/4,p.w,p.w/2);cx.restore()}parts=parts.filter(p=>p.y<960&&p.life<260)}
+const stage=document.getElementById("stage");
+function bubble(slide,x,y,text,kind=""){const b=document.createElement("div");b.className="bubble "+kind;b.textContent=text;b.style.left=x+"px";b.style.top=y+"px";slide.appendChild(b);setTimeout(()=>b.remove(),1700)}
+
+/* ================= live characters (drawn to match the lesson's art) ================= */
+const NAVY="#1B2747",CORAL="#F2674A",PINK="#F47DA2",MOUTH="#7A1730",SUNC="#FFC233";
+const CH={sq:"#1F5FC6",tri:"#2C6FDB",pe:"#3B86E8"};
+const lerp=(a,b,k)=>a+(b-a)*k,clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x)),sstep=x=>{x=clamp(x);return x*x*(3-2*x)};
+const pp=p=>p[0].toFixed(1)+" "+p[1].toFixed(1);
+const dP=P=>"M"+P.map(pp).join(" L")+"Z";
+function rrPts(x,y,w,h,r){const P=[],n=6,arc=(cx,cy,a0)=>{for(let i=0;i<=n;i++){const a=(a0+90*i/n)*Math.PI/180;P.push([cx+r*Math.cos(a),cy+r*Math.sin(a)])}},
+  seg=(x1,y1,x2,y2,m=8)=>{for(let i=1;i<m;i++)P.push([x1+(x2-x1)*i/m,y1+(y2-y1)*i/m])};
+  arc(x+r,y+r,180);seg(x+r,y,x+w-r,y);arc(x+w-r,y+r,270);seg(x+w,y+r,x+w,y+h-r);arc(x+w-r,y+h-r,0);seg(x+w-r,y+h,x+r,y+h);arc(x+r,y+h-r,90);seg(x,y+h-r,x,y+r);return P}
+function polyPts(vs,m=8){const P=[];vs.forEach((v,i)=>{const w=vs[(i+1)%vs.length];for(let k=0;k<m;k++)P.push([v[0]+(w[0]-v[0])*k/m,v[1]+(w[1]-v[1])*k/m])});return P}
+function limb(g,a,b,bend,w=17){const mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2,dx=b[0]-a[0],dy=b[1]-a[1],l=Math.hypot(dx,dy)||1;
+  el("path",{d:`M${pp(a)} Q${pp([mx-dy/l*bend,my+dx/l*bend])} ${pp(b)}`,stroke:NAVY,"stroke-width":w,"stroke-linecap":"round",fill:"none"},g)}
+function eye(g,c,r,mode,look=[0,0],ry=1,mirror=1){const [x,y]=c;
+  if(mode==="blink"){el("path",{d:`M${x-.7*r} ${y} Q${x} ${y+.3*r} ${x+.7*r} ${y}`,stroke:NAVY,"stroke-width":7,fill:"none","stroke-linecap":"round"},g);return}
+  if(mode==="happy"){el("path",{d:`M${x-.75*r} ${y+.25*r} Q${x} ${y-.85*r} ${x+.75*r} ${y+.25*r}`,stroke:NAVY,"stroke-width":8,fill:"none","stroke-linecap":"round"},g);return}
+  if(mode==="squeeze"){const s=mirror;el("path",{d:`M${x-s*.65*r} ${y-.55*r} L${x+s*.55*r} ${y} L${x-s*.65*r} ${y+.55*r}`,stroke:NAVY,"stroke-width":8,fill:"none","stroke-linecap":"round","stroke-linejoin":"round"},g);return}
+  if(mode==="shock"){el("ellipse",{cx:x,cy:y,rx:r*1.08,ry:r*1.15,fill:"#fff",stroke:NAVY,"stroke-width":4},g);el("circle",{cx:x+look[0]*r*.3,cy:y+look[1]*r*.3,r:r*.22,fill:"#111"},g);return}
+  el("ellipse",{cx:x,cy:y,rx:r,ry:r*ry,fill:"#fff",stroke:NAVY,"stroke-width":4},g);
+  const ix=x+look[0]*r*.3,iy=y+look[1]*r*.3*ry;
+  el("circle",{cx:ix,cy:iy,r:r*.56*Math.min(1,ry+.15),fill:"#6A3B1F"},g);el("circle",{cx:ix,cy:iy,r:r*.3*Math.min(1,ry+.2),fill:"#141414"},g);
+  el("circle",{cx:ix-r*.2,cy:iy-r*.22*ry,r:r*.13,fill:"#fff"},g)}
+function brow(g,a,b,curve=0,w=9){el("path",{d:`M${pp(a)} Q${pp([(a[0]+b[0])/2,(a[1]+b[1])/2+curve])} ${pp(b)}`,stroke:NAVY,"stroke-width":w,"stroke-linecap":"round",fill:"none"},g)}
+function mouth(g,c,w,mode,k=1){const [x,y]=c;
+  if(mode==="smile"){el("path",{d:`M${x-w/2} ${y-4} Q${x} ${y+w*.45} ${x+w/2} ${y-4}`,stroke:NAVY,"stroke-width":7,fill:"none","stroke-linecap":"round"},g);return}
+  if(mode==="grin"){el("path",{d:`M${x-w/2} ${y-6} Q${x} ${y+w*1.0*k} ${x+w/2} ${y-6} Z`,fill:MOUTH,stroke:MOUTH,"stroke-width":4,"stroke-linejoin":"round"},g);
+    el("ellipse",{cx:x,cy:y+w*.3*k,rx:w*.2,ry:w*.13*k,fill:PINK},g);return}
+  if(mode==="wavy"){let d=`M${x-w/2} ${y}`;for(let i=1;i<=4;i++)d+=` Q${x-w/2+(i-.5)*w/4} ${y+(i%2?-9:9)} ${x-w/2+i*w/4} ${y}`;el("path",{d,stroke:NAVY,"stroke-width":6,fill:"none","stroke-linecap":"round"},g);return}
+  if(mode==="teeth"){el("rect",{x:x-w/2,y:y-w*.2,width:w,height:w*.42,rx:w*.16,fill:"#fff",stroke:NAVY,"stroke-width":5},g);
+    el("path",{d:`M${x-w/2+4} ${y+w*.01} L${x+w/2-4} ${y+w*.01} M${x-w/6} ${y-w*.2} L${x-w/6} ${y+w*.22} M${x+w/6} ${y-w*.2} L${x+w/6} ${y+w*.22}`,stroke:NAVY,"stroke-width":3.5},g);return}
+  /* open / scream */
+  el("ellipse",{cx:x,cy:y+w*.1,rx:w*.36,ry:w*.42*k,fill:MOUTH},g);el("ellipse",{cx:x,cy:y+w*.1+w*.22*k,rx:w*.22,ry:w*.14*k,fill:PINK},g)}
+function sweat(g,p,T){const ph=(T*.9)%1;const x=p[0],y=p[1]+ph*46;
+  el("path",{d:`M${x} ${y-16} Q${x+12} ${y+2} ${x} ${y+9} Q${x-12} ${y+2} ${x} ${y-16}Z`,fill:"#7FC0F5",opacity:1-ph*.8},g)}
+function tears(g,c,r,T){for(const [o,dl] of [[-.75,0],[.75,.45]]){const ph=((T+dl)*1.3)%1;const x=c[0]+o*r,y=c[1]+r*.5+ph*55;
+  el("path",{d:`M${x} ${y-10} Q${x+8} ${y+2} ${x} ${y+7} Q${x-8} ${y+2} ${x} ${y-10}Z`,fill:"#8ED0FF",opacity:1-ph},g)}}
+function shakeLines(g,p,T,sd){for(let i=0;i<2;i++){const x=p[0]+sd*(i*22),y=p[1]-40+i*30+Math.sin(T*30+i)*3;
+  el("path",{d:`M${x} ${y} q${sd*8} 9 0 18 q${-sd*8} 9 0 18 q${sd*8} 9 0 18`,stroke:"#7FB6F0","stroke-width":5,fill:"none","stroke-linecap":"round"},g)}}
+function star(g,p,s,T,ph=0){const k=s*(.75+.25*Math.sin(T*6+ph));const [x,y]=p;
+  el("path",{d:`M${x} ${y-k} Q${x+k*.18} ${y-k*.18} ${x+k} ${y} Q${x+k*.18} ${y+k*.18} ${x} ${y+k} Q${x-k*.18} ${y+k*.18} ${x-k} ${y} Q${x-k*.18} ${y-k*.18} ${x} ${y-k}Z`,fill:SUNC},g)}
+function powerLines(g,p,sd,T,k){for(let i=0;i<3;i++){const a=(-90+sd*(25+i*28))*Math.PI/180,r0=8+4*Math.sin(T*14+i),r1=r0+26*k;
+  el("path",{d:`M${p[0]+Math.cos(a)*r0} ${p[1]+Math.sin(a)*r0} L${p[0]+Math.cos(a)*r1} ${p[1]+Math.sin(a)*r1}`,stroke:"#FFB21E","stroke-width":8,"stroke-linecap":"round"},g)}}
+
+function moodOf(s,ctx){if(ctx.braced)return ctx.effort>.06?"proud":"calm";return s<.12?"calm":s<.45?"worried":"panic"}
+
+/* 方方 */
+function drawSq(sh,g,T,s,ctx){const N=sh.d.nodes,x0=N.TL[0],y0=N.TL[1];
+  const cx=x0+L/2,bw=.56*L,bh=.48*L,yb=y0+L-96,yt=yb-bh,bx=cx-bw/2,mood=moodOf(s,ctx);
+  const jit=mood==="panic"?[Math.sin(T*55)*3,Math.cos(T*47)*2]:[0,0],bob=(mood==="calm"||mood==="proud")?Math.sin(T*2.4)*3:0;
+  const W=p=>{const q=sh.warp(p,1.5),up=clamp((yb-p[1])/bh);return[q[0]+jit[0]*up,q[1]+jit[1]*up+bob*up]};
+  const fy=y0+L-30;
+  for(const sd of[-1,1]){const hip=W([cx+sd*.2*bw,yb-8]),foot=W([cx+sd*(.25*bw+14*s),fy]);limb(g,hip,foot,sd*(10+34*s));el("ellipse",{cx:foot[0]+sd*8,cy:foot[1]+4,rx:26,ry:14,fill:NAVY},g)}
+  el("path",{d:dP(rrPts(bx,yt,bw,bh,24).map(W)),fill:CH.sq},g);
+  el("path",{d:dP(rrPts(bx+bw*.62,yt+bh*.1,bw*.38,bh*.9,20).map(W)),fill:"#1A55B3",opacity:.35},g);
+  el("path",{d:dP(polyPts([[bx-6,yt+26],[bx+bw+6,yt+26],[bx+bw+6,yt+74],[bx-6,yt+74]],10).map(W)),fill:CORAL},g);
+  [[bx+8,yt+.64*bh],[bx+bw-8,yt+.64*bh]].forEach((p,i)=>{const sd=i?1:-1;let hand=[p[0]+sd*46,p[1]+72+Math.sin(T*2.4+i)*4],bend=sd*-14;
+    if(ctx.dir==="down"&&!ctx.braced){const k=sstep(s*3);const hold=[cx+sd*.29*L,y0+36];hand=[lerp(hand[0],hold[0],k),lerp(hand[1],hold[1],k)];bend=lerp(bend,sd*30,k)}
+    else if(mood==="worried"||mood==="panic"){const k=sstep((s-.1)*3),ang=(-90+sd*(60+28*Math.sin(T*(mood==="panic"?17:7)+i*1.7)))*Math.PI/180;
+      const fl=[p[0]+Math.cos(ang)*100,p[1]+Math.sin(ang)*100];hand=[lerp(hand[0],fl[0],k),lerp(hand[1],fl[1],k)]}
+    else if(mood==="proud"){hand=[p[0]+sd*36,p[1]-92+Math.sin(T*8)*6];bend=sd*28}
+    const P=W(p),H=W(hand);limb(g,P,H,bend);el("circle",{cx:H[0],cy:H[1],r:19,fill:NAVY},g)});
+  const ec=W([cx,yt+.58*bh]),look=mood==="worried"?[0,-.7]:mood==="panic"?[Math.sin(T*9)*.6,0]:[.35,.1];
+  const blink=mood==="calm"&&(T%3.6)<.13;
+  eye(g,ec,48,blink?"blink":mood==="panic"?"shock":mood==="proud"?"happy":"open",look,mood==="worried"?1.05:1);
+  const bc=W([cx,yt+.58*bh-70]);
+  if(mood==="calm")brow(g,[bc[0]-40,bc[1]-4],[bc[0]+42,bc[1]+6],0);
+  else if(mood==="proud")brow(g,[bc[0]-40,bc[1]],[bc[0]+40,bc[1]],-14);
+  else if(mood==="worried")brow(g,[bc[0]-44,bc[1]+10],[bc[0]+44,bc[1]+10],-24);
+  else brow(g,[bc[0]-46,bc[1]-8],[bc[0]+46,bc[1]-8],-30);
+  const mc=W([cx,yt+.87*bh]);
+  mouth(g,mc,52,mood==="calm"?"smile":mood==="proud"?"grin":mood==="worried"?"wavy":"open",1+.18*Math.sin(T*22));
+  if(mood==="worried"||mood==="panic")sweat(g,W([bx+bw+20,yt+6]),T);
+  if(mood==="panic"){sweat(g,W([bx-24,yt+30]),T+.5);shakeLines(g,W([bx-34,yt+bh*.55]),T,-1);shakeLines(g,W([bx+bw+34,yt+bh*.55]),T,1);tears(g,ec,48,T)}
+  if(mood==="proud"){star(g,W([bx+bw+20,yt-24]),22,T);star(g,W([bx-18,yt-10]),15,T,2)}}
+
+/* 角角 */
+function drawTri(sh,g,T,ctx){const N=sh.d.nodes,cx=(N.BL[0]+N.BR[0])/2,by=N.BL[1];
+  const hb=.42*H3,bw=.42*L,e=clamp(ctx.effort),strong=e>.06,yb=by-86-e*5,top=yb-hb;
+  const bob=Math.sin(T*2.4)*3*(1-e),W=p=>{const q=sh.warp(p,1),up=clamp((yb-p[1])/hb);return[q[0],q[1]+bob*up]};
+  el("ellipse",{cx:cx,cy:by-24,rx:118,ry:13,fill:"#8FD45A"},g);
+  for(const sd of[-1,1]){const hip=W([cx+sd*42,yb-4]),foot=W([cx+sd*(58+20*e),by-31]);limb(g,hip,foot,sd*(6+16*e));el("ellipse",{cx:foot[0]+sd*8,cy:foot[1]+4,rx:24,ry:13,fill:NAVY},g)}
+  const body=[[cx-bw/2,yb],[cx+bw/2,yb],[cx,top]].map(W);
+  el("path",{d:"M"+body.map(pp).join(" L")+"Z",fill:CH.tri,stroke:CH.tri,"stroke-width":24,"stroke-linejoin":"round"},g);
+  el("path",{d:`M${pp(W([cx+18,top+40]))} L${pp(W([cx+bw/2-6,yb-4]))} L${pp(W([cx+bw*.18,yb-4]))}Z`,fill:"#2160C4",opacity:.4},g);
+  const tip=W([cx+8,top-56]);el("path",{d:`M${pp(W([cx-30,top+20]))} L${pp(tip)} L${pp(W([cx+30,top+20]))}Z`,fill:"#E5483B",stroke:"#E5483B","stroke-width":8,"stroke-linejoin":"round"},g);
+  el("path",{d:`M${pp(W([cx-38,top+12]))} L${pp(W([cx+38,top+12]))} L${pp(W([cx+40,top+30]))} L${pp(W([cx-40,top+30]))}Z`,fill:"#F0705F",stroke:"#F0705F","stroke-width":6,"stroke-linejoin":"round"},g);
+  [-1,1].forEach((sd,i)=>{const p=[cx+sd*86,yb-62];const wave=Math.sin(T*(strong?16:4)+i*2);
+    const hand=strong?[cx+sd*(118+4*wave),yb-126-8*Math.abs(wave)]:[cx+sd*126,yb-112+Math.sin(T*2.4+i)*3];
+    const P=W(p),H=W(hand);const st=[H[0]-sd*6,H[1]-58];
+    el("path",{d:`M${pp(H)} L${pp(st)}`,stroke:"#5A3520","stroke-width":7,"stroke-linecap":"round"},g);
+    el("path",{d:`M${pp(st)} L${pp([st[0]-sd*(40+6*wave),st[1]+12+3*wave])} L${pp([st[0],st[1]+26])}Z`,fill:"#E84A3C",stroke:"#E84A3C","stroke-width":4,"stroke-linejoin":"round"},g);
+    limb(g,P,H,sd*18,16);el("circle",{cx:H[0],cy:H[1],r:17,fill:NAVY},g)});
+  for(const sd of[-1,1]){const ec=W([cx+sd*30,yb-70]);
+    eye(g,ec,20,(!strong&&(T%4.1)<.12)?"blink":"open",[-sd*.25+.1,.15],strong?.72:1);
+    brow(g,W([cx+sd*(58-4*e),yb-98-(strong?0:6)]),W([cx+sd*12,yb-86+(strong?6:0)]),0,8)}
+  mouth(g,W([cx,yb-32]),strong?58:44,strong?"teeth":"grin",1);
+  if(strong){powerLines(g,W([cx-58,top+6]),-1,T,e);powerLines(g,W([cx+58,top+6]),1,T,e);star(g,W([cx+92,top+40]),18,T);star(g,W([cx-96,top+70]),13,T,2)}
+  else star(g,W([cx+86,top+44]),12,T)}
+
+/* 五五 */
+function drawPe(sh,g,T,s,ctx){const N=sh.d.nodes,keys=["BL","BR","R","T","L"],cF=[0,0];keys.forEach(k=>{cF[0]+=N[k][0]/5;cF[1]+=N[k][1]/5});
+  const k=ctx.braced?.31:.44,sc=k/.44,yb=N.BL[1]-14-92*sc,cb=[cF[0],yb-k*(N.BL[1]-cF[1])],V=keys.map(n=>[cb[0]+k*(N[n][0]-cF[0]),cb[1]+k*(N[n][1]-cF[1])]);
+  const mood=moodOf(s,ctx),hgt=yb-V[3][1];
+  const jit=mood==="panic"?[Math.sin(T*55)*3,Math.cos(T*47)*2]:[0,0],bob=(mood==="calm"||mood==="proud")?Math.sin(T*2.4)*3:0;
+  const W=p=>{const q=sh.warp(p,1.3),up=clamp((yb-p[1])/hgt);return[q[0]+jit[0]*up,q[1]+jit[1]*up+bob*up]};
+  const fy=N.BL[1]-30;
+  for(const sd of[-1,1]){const hip=W([cb[0]+sd*58*sc,yb-8]),foot=W([cb[0]+sd*(74*sc+16*s),fy]);limb(g,hip,foot,sd*(10+30*s));el("ellipse",{cx:foot[0]+sd*8,cy:foot[1]+4,rx:26,ry:14,fill:NAVY},g)}
+  el("path",{d:dP(polyPts(V,8).map(W)),fill:CH.pe,stroke:CH.pe,"stroke-width":22,"stroke-linejoin":"round"},g);
+  [[V[4][0]+14,V[4][1]+20],[V[2][0]-14,V[2][1]+20]].forEach((p,i)=>{const sd=i?1:-1;let hand=[p[0]+sd*44*sc,p[1]+80*sc+Math.sin(T*2.4+i)*4],bend=sd*-14;
+    if(mood==="worried"||mood==="panic"){const kk=sstep((s-.1)*3),ang=(-90+sd*(62+28*Math.sin(T*(mood==="panic"?17:7)+i*1.7)))*Math.PI/180;
+      const fl=[p[0]+Math.cos(ang)*100,p[1]+Math.sin(ang)*100];hand=[lerp(hand[0],fl[0],kk),lerp(hand[1],fl[1],kk)]}
+    else if(mood==="proud"){hand=[p[0]+sd*30*sc,p[1]-96*sc+(i?Math.sin(T*8)*8:0)];bend=sd*24}
+    const P=W(p),H=W(hand);limb(g,P,H,bend,17*Math.sqrt(sc));el("circle",{cx:H[0],cy:H[1],r:19*Math.sqrt(sc),fill:NAVY},g)});
+  const blink=mood==="calm"&&(T%3.9)<.13;
+  for(const sd of[-1,1]){const c=W([cb[0]+sd*54*sc,cb[1]-6*sc]);
+    eye(g,c,26*sc,blink?"blink":mood==="panic"?"squeeze":mood==="proud"?"happy":"open",mood==="worried"?[0,-.7]:[.2,.1],1,sd);
+    el("circle",{cx:c[0],cy:c[1],r:44*sc,fill:"none",stroke:"#121826","stroke-width":9*sc},g);
+    const b1=W([cb[0]+sd*86*sc,cb[1]-62*sc]),b2=W([cb[0]+sd*26*sc,cb[1]-62*sc]);
+    if(mood==="worried"||mood==="panic")brow(g,[b1[0],b1[1]+8],[b2[0],b2[1]-8],-4,8);else brow(g,[b1[0],b1[1]-4],[b2[0],b2[1]+6],0,8)}
+  const l=W([cb[0]-12*sc,cb[1]-12*sc]),r=W([cb[0]+12*sc,cb[1]-12*sc]);el("path",{d:`M${pp(l)} Q${(l[0]+r[0])/2} ${l[1]-10} ${pp(r)}`,stroke:"#121826","stroke-width":8,fill:"none"},g);
+  if(mood==="panic"&&(T%1)<.5)tears(g,W([cb[0]+54*sc,cb[1]-6*sc]),26*sc,T);
+  mouth(g,W([cb[0],cb[1]+70*sc]),50*sc,mood==="calm"?"smile":mood==="proud"?"grin":mood==="worried"?"wavy":"open",1+.18*Math.sin(T*22));
+  const vt=V[3];const H0=W([vt[0]-150*sc,vt[1]+44*sc]),H1=W([vt[0]+132*sc,vt[1]+16*sc]),H2=W([vt[0]+136*sc,vt[1]+36*sc]),H3b=W([vt[0]-146*sc,vt[1]+66*sc]);
+  const tipH=W([vt[0]+40*sc+8*Math.sin(T*2),vt[1]-126*sc]);
+  el("path",{d:`M${pp(W([vt[0]-82*sc,vt[1]+40*sc]))} L${pp(tipH)} L${pp(W([vt[0]+74*sc,vt[1]+22*sc]))}Z`,fill:"#3CC3D6",stroke:"#3CC3D6","stroke-width":8,"stroke-linejoin":"round"},g);
+  el("path",{d:`M${pp(W([vt[0]-76*sc,vt[1]+24*sc]))} L${pp(W([vt[0]+70*sc,vt[1]+6*sc]))} L${pp(W([vt[0]+74*sc,vt[1]+24*sc]))} L${pp(W([vt[0]-80*sc,vt[1]+42*sc]))}Z`,fill:"#F6C445"},g);
+  el("path",{d:`M${pp(H0)} L${pp(H1)} L${pp(H2)} L${pp(H3b)}Z`,fill:"#2FB0C6",stroke:"#2FB0C6","stroke-width":10,"stroke-linejoin":"round"},g);
+  if(mood==="worried"||mood==="panic")sweat(g,W([V[2][0]+10,V[2][1]-30]),T);
+  if(mood==="panic"){shakeLines(g,W([V[4][0]-40,V[4][1]+60]),T,-1);shakeLines(g,W([V[2][0]+40,V[2][1]+60]),T,1)}
+  if(mood==="proud"){star(g,W([V[2][0]+30,V[3][1]+10]),22,T);star(g,W([V[4][0]-20,V[3][1]+40]),15,T,2)}}
+
+/* ================= Zometool lab (live, same look as the PPT pictures) ================= */
+const BAR="#00688F",ORANGE="#E8742A",GLOW="#F4B9B9";
+const L=612,H3=L*Math.sqrt(3)/2;
+function pentNodes(cx,baseY){const r=L/(2*Math.sin(Math.PI/5)),cy=baseY-r*Math.sin(54*Math.PI/180),ang=[126,54,-18,-90,198];
+  const p=ang.map(a=>[cx+r*Math.cos(a*Math.PI/180),cy+r*Math.sin(a*Math.PI/180)]);return{BL:p[0],BR:p[1],R:p[2],T:p[3],L:p[4]}}
+function shapeDef(key,origin){
+  if(key==="sq"){const [x0,y0]=origin;return{key,nodes:{TL:[x0,y0],TR:[x0+L,y0],BR:[x0+L,y0+L],BL:[x0,y0+L]},fixed:["BL","BR"],
+    edges:[["BL","BR"],["BR","TR"],["TR","TL"],["TL","BL"]],braces:[["BL","TR"]],
+    modes:[{id:"sway",phi:{TL:[1,0],TR:[1,0]},c:1.5,cb:.05,w:7,z:.12},{id:"ax",phi:{TL:[0,1],TR:[0,1]},c:.05,w:30,z:.4},{id:"sag",edge:["TR","TL"],c:.45,cb:.12,w:12,z:.2}]}}
+  if(key==="tri"){const [bx,by]=origin;return{key,nodes:{BL:[bx,by],BR:[bx+L,by],A:[bx+L/2,by-H3]},fixed:["BL","BR"],edges:[["BL","BR"],["BR","A"],["A","BL"]],braces:[],
+    modes:[{id:"x",phi:{A:[1,0]},c:.06,w:30,z:.35},{id:"y",phi:{A:[0,1]},c:.05,w:30,z:.35}]}}
+  const n=pentNodes(origin[0],origin[1]);return{key:"pe",nodes:n,fixed:["BL","BR"],edges:[["BL","BR"],["BR","R"],["R","T"],["T","L"],["L","BL"]],braces:[["T","BL"],["T","BR"]],
+    modes:[{id:"sway",phi:{L:[.8,0],T:[1,0],R:[.8,0]},c:1.7,cb:.05,w:6,z:.1},{id:"squash",phi:{T:[0,1],L:[-.35,.15],R:[.35,.15]},c:1.0,cb:.05,w:7,z:.12}]}
+}
+const U=(x,y)=>{const l=Math.hypot(x,y);return[x/l,y/l]};
+class ZShape{
+  constructor(g,def,braced){this.g=g;this.d=def;this.braced=braced;this.a={};this.v={};def.modes.forEach(m=>{this.a[m.id]=0;this.v[m.id]=0});this.loads=[];this.maxA=0;
+    this.gGlow=el("g",{},g);this.gChar=el("g",{},g);this.ctx={dir:"",effort:0};this.gBars=el("g",{},g);this.gBalls=el("g",{},g)}
+  disp(n){let dx=0,dy=0;for(const m of this.d.modes)if(m.phi&&m.phi[n]){dx+=m.phi[n][0]*this.a[m.id];dy+=m.phi[n][1]*this.a[m.id]}return[dx,dy]}
+  pos(n){const p=this.d.nodes[n],d=this.disp(n);return[p[0]+d[0],p[1]+d[1]]}
+  step(dt){const T={};
+    for(const m of this.d.modes){let q=0;for(const l of this.loads){
+        if(m.edge){if(l.edge)q+=l.F[1];continue}
+        const ph=n=>m.phi[n]?m.phi[n][0]*l.F[0]+m.phi[n][1]*l.F[1]:0;q+=l.node?ph(l.node):.5*(ph(l.edge[0])+ph(l.edge[1]))}
+      T[m.id]=(this.braced&&m.cb!==undefined?m.cb:m.c)*q}
+    for(const m of this.d.modes){const w=m.w*(this.braced&&m.cb!==undefined&&m.id!=="sag"?4:1);
+      this.v[m.id]+=(w*w*(T[m.id]-this.a[m.id])-2*m.z*w*this.v[m.id])*dt;this.a[m.id]+=this.v[m.id]*dt;this.maxA=Math.max(this.maxA,Math.abs(this.a[m.id]))}}
+  warp(p,amp=1){const N=this.d.nodes;let sw=0,dx=0,dy=0;
+    if(this.d.key==="sq"){const x0=N.TL[0],y0=N.TL[1],u=(p[0]-x0)/L,v=(p[1]-y0)/L,c={};for(const n in N)c[n]=this.disp(n);
+      dx=(1-u)*(1-v)*c.TL[0]+u*(1-v)*c.TR[0]+(1-u)*v*c.BL[0]+u*v*c.BR[0];dy=(1-u)*(1-v)*c.TL[1]+u*(1-v)*c.TR[1]+(1-u)*v*c.BL[1]+u*v*c.BR[1];
+      dx*=amp;dy*=amp;if(u>0&&u<1)dy+=this.a.sag*4*u*(1-u)*clamp(1.05-v)*amp;return[p[0]+dx,p[1]+dy]}
+    for(const n in N){const q=N[n],d2=(p[0]-q[0])**2+(p[1]-q[1])**2+1,w=1/d2,D=this.disp(n);sw+=w;dx+=w*D[0];dy+=w*D[1]}
+    dx/=sw;dy/=sw;if(this.a.sag!==undefined){const x0=N.TL[0],y0=N.TL[1],u=(p[0]-x0)/L,v=(p[1]-y0)/L;if(u>0&&u<1)dy+=this.a.sag*4*u*(1-u)*clamp(1.05-v)*amp}
+    return[p[0]+dx,p[1]+dy]}
+  strain(){const a=this.a,k=this.d.key;if(k==="sq")return clamp(Math.max(Math.abs(a.sway)/90,Math.abs(a.sag)/26));if(k==="pe")return clamp(Math.max(Math.abs(a.sway)/100,Math.abs(a.squash)/60));return 0}
+  drawChar(){const g=this.gChar;g.replaceChildren();const T=performance.now()/1000,k=this.d.key,s=this.strain();
+    if(k==="sq")drawSq(this,g,T,s,this.ctx);else if(k==="tri")drawTri(this,g,T,this.ctx);else drawPe(this,g,T,s,this.ctx)}
+  draw(){const d=this.d;this.drawChar();this.gGlow.replaceChildren();this.gBars.replaceChildren();this.gBalls.replaceChildren();
+    const list=d.edges.map(e=>[e,false]).concat(this.braced?d.braces.map(e=>[e,true]):[]);
+    for(const [e,br] of list){const r1=d.nodes[e[0]],r2=d.nodes[e[1]],p1=this.pos(e[0]),p2=this.pos(e[1]);
+      const dx=r2[0]-r1[0],dy=r2[1]-r1[1],l=Math.hypot(dx,dy),ux=dx/l,uy=dy/l;
+      const c1=[p1[0]+ux*l/3,p1[1]+uy*l/3],c2=[p2[0]-ux*l/3,p2[1]-uy*l/3];let sag=0;
+      const sm=d.modes.find(m=>m.edge&&((m.edge[0]===e[0]&&m.edge[1]===e[1])||(m.edge[0]===e[1]&&m.edge[1]===e[0])));
+      if(sm&&!br){sag=this.a[sm.id];c1[1]+=sag*4/3;c2[1]+=sag*4/3}
+      const d1=this.disp(e[0]),d2=this.disp(e[1]),bend=Math.abs((d2[0]-d1[0])*-uy+(d2[1]-d1[1])*ux)+Math.abs(sag);
+      const path=`M${p1[0]} ${p1[1]} C${c1[0]} ${c1[1]} ${c2[0]} ${c2[1]} ${p2[0]} ${p2[1]}`;
+      if(bend>8&&!br)el("path",{d:path,stroke:GLOW,"stroke-width":70,"stroke-linecap":"round",fill:"none",opacity:Math.min(1,bend/70)},this.gGlow);
+      if(br&&d.key==="sq"){[["#003408",28,0],["#006018",22,-2],["#04B048",7,-6]].forEach(([c,w,o])=>{const nx=-uy*o,ny=ux*o;el("path",{d:`M${p1[0]+nx} ${p1[1]+ny} L${p2[0]+nx} ${p2[1]+ny}`,stroke:c,"stroke-width":w,fill:"none"},this.gBars)})}
+      else{el("path",{d:path,stroke:BAR,"stroke-width":28,fill:"none"},this.gBars);
+        if(br){const k=.618;this.ball(p1[0]+(p2[0]-p1[0])*k,p1[1]+(p2[1]-p1[1])*k)}}}
+    for(const n in d.nodes){const p=this.pos(n);this.ball(p[0],p[1])}}
+  ball(x,y){el("image",{href:"a/ball.png",x:x-44,y:y-44,width:88,height:88},this.gBalls)}
+}
+function arrowEl(g,tip,ang,{Lr=180,th=26,hl=60,hw=66,gap=42,shift=0}={}){
+  const a=ang*Math.PI/180,ux=Math.cos(a),uy=Math.sin(a),tx=tip[0]-ux*(gap-shift),ty=tip[1]-uy*(gap-shift),bx=tx-ux*hl,by=ty-uy*hl,sx=tx-ux*Lr,sy=ty-uy*Lr,px=-uy,py=ux;
+  el("line",{x1:sx,y1:sy,x2:bx,y2:by,stroke:ORANGE,"stroke-width":th,"stroke-linecap":"round"},g);
+  el("polygon",{points:`${tx},${ty} ${bx+px*hw/2},${by+py*hw/2} ${bx-px*hw/2},${by-py*hw/2}`,fill:ORANGE},g)}
+class Lab{
+  constructor(host,spec){
+    this.spec=spec;this.shapes=[];this.push=null;
+    let vb;
+    if(spec.pair){vb="71 67 1792 917";}
+    else if(spec.fit==="sq"){vb="53 53 706 706"}else{vb="58 91 1084 1036"}
+    const svg=el("svg",{viewBox:vb,role:"img","aria-label":"可以推一推的形状"},host);this.svg=svg;
+    this.gArrow=el("g",{},svg);
+    if(spec.pair){this.shapes.push(new ZShape(el("g",{},svg),shapeDef("sq",[295,315]),false));this.shapes.push(new ZShape(el("g",{},svg),shapeDef("tri",[1194,927]),false))}
+    else if(spec.key==="sq")this.shapes.push(new ZShape(el("g",{},svg),shapeDef("sq",[100,100]),!!spec.brace));
+    else this.shapes.push(new ZShape(el("g",{},svg),shapeDef("pe",[600,1080]),!!spec.brace));
+    this.svg.appendChild(this.gArrow);
+    this.drag=null;this.attachDrag();
+  }
+  arrowsFor(dir){const out=[];for(const s of this.shapes){const n=s.d.nodes;
+      if(s.d.key==="sq"){const TL=s.pos("TL"),TR=s.pos("TR");
+        if(dir==="down")out.push({tip:[(TL[0]+TR[0])/2,TL[1]+(s.a.sag||0)],ang:90,gap:20,load:{edge:["TR","TL"],u:[0,1]}});
+        if(dir==="side")out.push({tip:[n.TL[0]+s.disp("TL")[0]*.6,n.TL[1]+.4*L],ang:0,gap:18,load:{node:"TL",u:[1,0]}});
+        if(dir==="corner")out.push({tip:TL,ang:45,gap:42,load:{node:"TL",u:U(1,1)}});}
+      else if(s.d.key==="tri"){const A=s.pos("A");
+        if(dir==="down")out.push({tip:A,ang:90,gap:42,load:{node:"A",u:[0,1]}});
+        if(dir==="side"){const ys=315+.4*L,t=(ys-n.A[1])/(n.BL[1]-n.A[1]),x=n.A[0]+(n.BL[0]-n.A[0])*t;out.push({tip:[x+s.disp("A")[0]*(1-t),ys],ang:0,gap:22,load:{node:"A",u:[1,0]}})}
+        if(dir==="corner")out.push({tip:A,ang:45,gap:42,load:{node:"A",u:U(1,1)}});}
+      else{const Lp=s.pos("L");out.push({tip:Lp,ang:0,gap:42,load:{node:"L",u:[1,0]}})}}
+    return out}
+  go(level){A();this.push={t:0,level};this.shapes.forEach(s=>s.maxA=0)}
+  step(dt){const p=this.push,dir=this.spec.dir;let f=0,shift=0;
+    if(p){p.t+=dt;const t=p.t;f=t<.25?0:t<.8?(.5-.5*Math.cos(Math.PI*(t-.25)/.55)):t<1.9?1:t<2.2?1-(t-1.9)/.3:0;shift=f*30;
+      if(t>2.25){this.push=null;this.onDone&&this.onDone(this.shapes.map(s=>s.maxA))}}
+    const arrows=this.arrowsFor(dir);
+    this.shapes.forEach((s,i)=>{const a=arrows[i];s.loads=[];
+      if(a&&f>0){const F=(p?p.level:4)*20*f;s.loads.push({...a.load,F:[a.load.u[0]*F,a.load.u[1]*F]})}
+      if(this.drag&&this.drag.shape===s)s.loads.push({node:this.drag.node,F:this.drag.F})});
+    for(let k=0;k<4;k++)this.shapes.forEach(s=>s.step(dt/4));
+    this.shapes.forEach(s=>{const dr=this.drag&&this.drag.shape===s?clamp(Math.hypot(...this.drag.F)/50):0;
+      s.ctx={dir:this.drag&&this.drag.shape===s?"drag":dir,effort:Math.max(dr,p?f*p.level/4:0),braced:s.braced};
+      const st=s.strain();
+      if(s.d.key!=="tri"&&!s.braced){if(st>.45&&!s.cried){s.cried=1;play("oops")}else if(st<.08)s.cried=0}
+      else{if(s.ctx.effort>.5&&!s.cried){s.cried=1;play("hmph")}else if(s.ctx.effort<.05)s.cried=0}});
+    this.arrowsNow=arrows;this.shift=shift}
+  draw(){this.shapes.forEach(s=>s.draw());this.gArrow.replaceChildren();
+    if(this.spec.pair||this.push)for(const a of this.arrowsNow||[])arrowEl(this.gArrow,a.tip,a.ang,{gap:a.gap,shift:this.shift})}
+  attachDrag(){const svg=this.svg,toV=e=>{const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(svg.getScreenCTM().inverse())};
+    svg.addEventListener("pointerdown",e=>{A();const v=toV(e);let best=null,bd=110;
+      for(const s of this.shapes)for(const n in s.d.nodes){if(s.d.fixed.includes(n))continue;const p=s.pos(n),d=Math.hypot(p[0]-v.x,p[1]-v.y);if(d<bd){bd=d;best={shape:s,node:n,rest:s.d.nodes[n]}}}
+      if(!best)return;this.drag={...best,F:[0,0]};svg.setPointerCapture(e.pointerId);e.preventDefault()});
+    svg.addEventListener("pointermove",e=>{if(!this.drag)return;const v=toV(e);let fx=(v.x-this.drag.rest[0])/3,fy=(v.y-this.drag.rest[1])/3;const m=Math.hypot(fx,fy);if(m>100){fx*=100/m;fy*=100/m}this.drag.F=[fx,fy]});
+    const end=()=>{if(this.drag){if(this.drag.shape.maxA>40||Math.abs(this.drag.shape.a.sway||0)>40)play("boing");this.drag=null}};
+    svg.addEventListener("pointerup",end);svg.addEventListener("pointercancel",end)}
+}
+
+/* ================= coin bridges ================= */
+class Coins{
+  constructor(host){this.n=0;this.box=0;this.sp=0;this.vb=0;this.vs=0;this.coins=[];
+    const svg=el("svg",{viewBox:"0 0 1386 466",role:"img","aria-label":"箱子桥和空间桥加硬币"},host);this.g=el("g",{},svg)}
+  add(){if(this.n>=12)return;this.n++;this.coins.push({y:-260,vy:0,landed:false})}
+  reset(){this.n=0;this.coins=[]}
+  step(dt){const landed=this.coins.filter(c=>c.landed).length,tb=Math.min(120,landed*10),ts=landed*1.0;
+    this.vb+=(60*(tb-this.box)-4*this.vb)*dt;this.box+=this.vb*dt;this.vs+=(400*(ts-this.sp)-20*this.vs)*dt;this.sp+=this.vs*dt;
+    this.coins.forEach(c=>{if(c.landed)return;c.vy+=2200*dt;c.y+=c.vy*dt;if(c.y>=0){c.y=0;c.landed=true;play("coin")}})}
+  draw(){const g=this.g;g.replaceChildren();const x0=170,x1=1220,N=8,pw=(x1-x0)/N,sag=(x,a)=>{const u=(x-x0)/(x1-x0);return a*4*u*(1-u)},path=pts=>"M"+pts.map(p=>p.join(" ")).join(" L");
+    el("rect",{x:0,y:0,width:1386,height:466,rx:24,fill:"#FFFDF8",stroke:"#E3D9C4","stroke-width":3},g);
+    const bank=y=>{for(const x of [x0-110,x1+30])for(let k=0;k<4;k++)el("rect",{x,y:y+6+k*15,width:80,height:13,rx:3,fill:"#D9BE8E",stroke:"#B8975F","stroke-width":2},g)};
+    const label=(x,y,t,c="#1E2A44",anchor="start")=>{const e=el("text",{x,y,"font-size":24,"font-weight":900,fill:c,"text-anchor":anchor,"font-family":"Microsoft YaHei, Noto Sans SC, sans-serif"},g);e.textContent=t};
+    const by=110,bh=58;bank(by+bh-4);label(40,by+8,"箱子桥");
+    const bt=[],bb=[];for(let i=0;i<=N;i++){const x=x0+i*pw,s=sag(x,this.box);bt.push([x,by+s]);bb.push([x,by+bh+s])}
+    const ga=Math.min(1,this.box/55);if(ga>.05){el("path",{d:path(bt),stroke:GLOW,"stroke-width":22,fill:"none",opacity:ga,"stroke-linecap":"round"},g);el("path",{d:path(bb),stroke:GLOW,"stroke-width":22,fill:"none",opacity:ga,"stroke-linecap":"round"},g)}
+    [bt,bb].forEach(p=>el("path",{d:path(p),stroke:"#2F6BD8","stroke-width":8,fill:"none","stroke-linejoin":"round"},g));
+    for(let i=0;i<=N;i++)el("line",{x1:bt[i][0],y1:bt[i][1],x2:bb[i][0],y2:bb[i][1],stroke:"#2F6BD8","stroke-width":8},g);
+    [...bt,...bb].forEach(p=>el("circle",{cx:p[0],cy:p[1],r:7,fill:"#fff",stroke:"#1E2A44","stroke-width":3},g));
+    const sy=300,sh=58;bank(sy+sh-4);label(40,sy+8,"空间桥");
+    const sb=[],st=[];for(let i=0;i<=N;i++){const x=x0+i*pw;sb.push([x,sy+sh+sag(x,this.sp)])}for(let i=0;i<N;i++){const x=x0+(i+.5)*pw;st.push([x,sy+sag(x,this.sp)])}
+    [sb,st].forEach(p=>el("path",{d:path(p),stroke:"#3A9A5B","stroke-width":8,fill:"none"},g));
+    for(let i=0;i<N;i++){el("line",{x1:sb[i][0],y1:sb[i][1],x2:st[i][0],y2:st[i][1],stroke:"#3A9A5B","stroke-width":8},g);el("line",{x1:st[i][0],y1:st[i][1],x2:sb[i+1][0],y2:sb[i+1][1],stroke:"#3A9A5B","stroke-width":8},g)}
+    [...sb,...st].forEach(p=>el("circle",{cx:p[0],cy:p[1],r:7,fill:"#fff",stroke:"#1E2A44","stroke-width":3},g));
+    const mid=(x0+x1)/2,stack=base=>this.coins.forEach((c,i)=>el("ellipse",{cx:mid,cy:base-10-i*11+c.y,rx:22,ry:7,fill:"#FFC60A",stroke:"#B88A10","stroke-width":2.5},g));
+    stack(by+sag(mid,this.box));stack(sy+sag(mid-pw/2,this.sp));
+    const s1=this.box>45?["弯下去了！","#D64545"]:this.box>14?["开始弯了…","#E8742A"]:["还平平的","#3A9A5B"];
+    label(1350,by-24,s1[0],s1[1],"end");label(1350,sy-24,"还很平！","#3A9A5B","end");
+    label(1350,450,"示意动画 · 变形放大 · 现场以实测为准","#8A93A6","end")}
+}
+
+/* ================= slides ================= */
+const slides=[...stage.querySelectorAll(".slide")],N=slides.length,live=new Map();let cur=0;
+slides.forEach((s,i)=>{
+  const labs=[...s.querySelectorAll(".zlab")].map(h=>new Lab(h,JSON.parse(h.dataset.lab)));
+  const coinHost=s.querySelector(".coinlab");const coins=coinHost?new Coins(coinHost):null;
+  const force=s.querySelector(".force"),out=s.querySelector(".ctl output:not(.coincount)"),FN=["","轻轻","一点点","中等","用力","使劲"];
+  if(force&&out)force.addEventListener("input",()=>out.textContent=FN[force.value]);
+  const go=s.querySelector(".go:not(.addcoin):not(.built)");
+  if(go&&labs.length)go.addEventListener("click",()=>{const lv=force?+force.value:4;s.classList.remove("revealed");labs.forEach(l=>l.go(lv));
+    labs[0].onDone=amps=>{
+      if(labs.length===1&&labs[0].spec.pair){document.getElementById("next").classList.add("nudge")}
+      else{const stable=labs.every(l=>l.spec.brace);
+        if(stable){play("ding");labs.forEach(l=>{const r=l.svg.parentElement.getBoundingClientRect(),sr=stage.getBoundingClientRect(),k=1600/sr.width;bubble(s,(r.left-sr.left)*k+60,(r.top-sr.top)*k-10,"稳稳的！","good")});confetti(800,300,80)}
+        else{play("boing");labs.forEach(l=>{const r=l.svg.parentElement.getBoundingClientRect(),sr=stage.getBoundingClientRect(),k=1600/sr.width;bubble(s,(r.left-sr.left)*k+80,(r.top-sr.top)*k-10,"晃起来了！","bad")})}}}});
+  const rv=s.querySelector(".reveal");if(rv)rv.addEventListener("click",()=>{A();s.classList.remove("revealed");void s.offsetWidth;s.classList.add("revealed");play("reveal");setTimeout(()=>play("react"),150)});
+  s.querySelectorAll(".again").forEach(b=>b.addEventListener("click",()=>{s.classList.remove("revealed");if(coins){coins.reset();s.querySelector(".coincount").textContent="硬币：0 枚"}}));
+  if(coins){const add=s.querySelector(".addcoin"),cnt=s.querySelector(".coincount");add.addEventListener("click",()=>{A();coins.add();cnt.textContent=`硬币：${coins.n} 枚`;if(coins.n===8){setTimeout(()=>play("boing"),700)}})}
+  const built=s.querySelector(".built");if(built)built.addEventListener("click",()=>{play("cheer");confetti(1050,420,120);const ch=s.querySelector(".jump");if(ch){ch.classList.remove("jiggle");void ch.offsetWidth;ch.classList.add("jiggle");setTimeout(()=>ch.classList.remove("jiggle"),650)}});
+  if(rv)live.set(i,{step(){},draw(){},key(){rv.click()}});
+  if(labs.length||coins)live.set(i,{step(dt){labs.forEach(l=>l.step(dt));coins&&coins.step(dt)},draw(){labs.forEach(l=>l.draw());coins&&coins.draw()},key(){(s.querySelector(".addcoin")||go)?.click()}});
+});
+// tap feedback on characters
+stage.addEventListener("click",e=>{const t=e.target.closest(".tap");if(!t)return;A();t.classList.remove("jiggle");void t.offsetWidth;t.classList.add("jiggle");setTimeout(()=>t.classList.remove("jiggle"),650);
+  play(t.classList.contains("react-sad")?"wah":t.classList.contains("react-proud")||t.classList.contains("jump")||t.classList.contains("king")?"ding":"boing")});
+// lightbox
+const lb=document.getElementById("lightbox");
+stage.addEventListener("click",e=>{const z=e.target.closest(".zoomable");if(!z)return;const img=z.querySelector("img");if(!img)return;lb.innerHTML=`<img src="${img.getAttribute("src")}" alt="">`;lb.hidden=false;play("pop")});
+lb.addEventListener("click",()=>lb.hidden=true);
+
+/* entrance sounds: one cue per animated element, timed to its delay */
+const ENTR=[["in-drop","drop"],["spin-in","spin"],["in-pop","pop"],["in-left","whoosh"],["in-right","whoosh"],["in-up","tick"]];
+let entT=[];
+function entranceSfx(s){entT.forEach(clearTimeout);entT=[];if(s.dataset.sfx==="boom")return;const used=new Set();
+  s.querySelectorAll(".el").forEach(e=>{const hit=ENTR.find(([c])=>e.classList.contains(c));if(!hit||e.classList.contains("after"))return;
+    const dm=/\bd(\d)\b/.exec(e.className),t=(dm?+dm[1]*150:0)+(hit[0]==="in-drop"?0:40);const key=hit[1]+t;if(used.has(key))return;used.add(key);
+    entT.push(setTimeout(()=>play(hit[1]),t))})}
+
+/* ================= navigation ================= */
+const countEl=document.getElementById("count"),bar=document.querySelector("#progress i"),notesEl=document.getElementById("notes"),ov=document.getElementById("overview"),nextBtn=document.getElementById("next");
+const esc=t=>t.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+function go(i){i=Math.max(0,Math.min(N-1,i));
+  const old=slides[cur];old.querySelectorAll("video").forEach(v=>v.pause());old.classList.remove("on");
+  slides.forEach((s,k)=>s.hidden=k!==i);cur=i;const s=slides[i];void s.offsetWidth;s.classList.add("on");
+  s.querySelectorAll("video").forEach(v=>{v.currentTime=0;v.play().catch(()=>{})});
+  nextBtn.classList.remove("nudge");lb.hidden=true;
+  s.classList.remove("revealed");
+  if(s.dataset.sfx)setTimeout(()=>play(s.dataset.sfx),250);
+  entranceSfx(s);
+  if(s.dataset.confetti)setTimeout(()=>confetti(),600);
+  if(s.dataset.shake){setTimeout(()=>{stage.classList.remove("shake");void stage.offsetWidth;stage.classList.add("shake");const f=document.getElementById("flash");f.classList.remove("go");void f.offsetWidth;f.classList.add("go")},700)}
+  countEl.textContent=`${i+1} / ${N}`;bar.style.width=((i+1)/N*100)+"%";
+  const m=META[i];notesEl.innerHTML=`<h3>第 ${i+1} 页 · 讲师备注</h3>`+(m.notes?m.notes.split("\n").map(p=>`<p>${esc(p)}</p>`).join(""):"<p>（这一页 PPT 里没有备注）</p>");
+  ov.querySelectorAll("button").forEach((b,k)=>b.setAttribute("aria-current",k===i));
+  try{history.replaceState(null,"","#p"+(i+1))}catch(e){}}
+document.getElementById("prev").onclick=()=>go(cur-1);nextBtn.onclick=()=>go(cur+1);
+const bN=document.getElementById("btnNotes"),bG=document.getElementById("btnGrid"),bS=document.getElementById("btnSound");
+const tN=()=>{notesEl.hidden=!notesEl.hidden;bN.setAttribute("aria-pressed",!notesEl.hidden)},tG=()=>{ov.hidden=!ov.hidden;bG.setAttribute("aria-pressed",!ov.hidden)};
+bN.onclick=tN;bG.onclick=tG;bS.onclick=()=>{soundOn=!soundOn;bS.setAttribute("aria-pressed",soundOn);bS.textContent=soundOn?"声音：开":"声音：关"};
+document.getElementById("btnFull").onclick=()=>{try{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen().catch(()=>{})}catch(e){}};
+(()=>{let h="<h2>目录</h2>",sec="";META.forEach((m,i)=>{if(m.sec!==sec){if(sec)h+="</div>";sec=m.sec;h+=`<div class="sec">${esc(sec)}</div><div class="grid">`}h+=`<button data-i="${i}"><b>${i+1}</b>${esc(m.title)}</button>`});ov.innerHTML=h+"</div>";
+  ov.querySelectorAll("button").forEach(b=>b.onclick=()=>{go(+b.dataset.i);tG()})})();
+addEventListener("keydown",e=>{if(e.target.tagName==="INPUT")return;const k=e.key;
+  if(k==="ArrowRight"||k==="PageDown"||(k===" "&&e.target.tagName!=="BUTTON")){e.preventDefault();go(cur+1)}
+  else if(k==="ArrowLeft"||k==="PageUp"){e.preventDefault();go(cur-1)}
+  else if(k==="Home")go(0);else if(k==="End")go(N-1);
+  else if(k==="n"||k==="N")tN();else if(k==="g"||k==="G")tG();else if(k==="f"||k==="F")document.getElementById("btnFull").click();
+  else if(k==="p"||k==="P"){const L=live.get(cur);L&&L.key()}
+  else if(k==="Escape"){lb.hidden=true;if(!ov.hidden)tG()}});
+let sx=null;stage.addEventListener("touchstart",e=>{if(e.target.closest("svg,button,input,.tap,.zoomable"))return;sx=e.touches[0].clientX},{passive:true});
+stage.addEventListener("touchend",e=>{if(sx===null)return;const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>60)go(cur+(dx<0?1:-1));sx=null});
+const vp=document.getElementById("viewport");function fit(){const r=vp.getBoundingClientRect(),k=Math.min(r.width/1600,r.height/900);stage.style.transform=`translate(-50%,-50%) scale(${k})`}
+addEventListener("resize",fit);fit();
+let last=performance.now();function frame(now){const dt=Math.min(.033,(now-last)/1000);last=now;const L=live.get(cur);if(L){L.step(dt);L.draw()}drawConfetti();requestAnimationFrame(frame)}
+const m=/^#p(\d+)$/.exec(location.hash);go(m?+m[1]-1:0);requestAnimationFrame(frame);
+})();
+</script>
