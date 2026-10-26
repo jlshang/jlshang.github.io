@@ -38,9 +38,9 @@
     g.setAttribute("position", new THREE.Float32BufferAttribute(P.v, 3)); g.setIndex(P.t);
     const n = g.toNonIndexed(); n.computeVertexNormals(); return n;
   }
-  function strutGeometry(A, B) {
-    const L = B.clone().sub(A), len = L.length();
-    const P = window.ZOMEPARTS[len < 3.6 ? "yellow-short" : "yellow"];
+  function strutGeometry(A, B, kind = "yellow") {
+    const L = B.clone().sub(A), len = L.length(), full = window.ZOMEPARTS[kind], fl = Math.hypot(...full.dir);
+    const P = len < fl * 0.8 && window.ZOMEPARTS[kind + "-short"] ? window.ZOMEPARTS[kind + "-short"] : full;
     const dir = V(...P.dir), R = rotFor(dir, L), tip = new Set(P.tipSet), mid = new Set(P.midSet), pos = [];
     for (let i = 0; i < P.v.length / 3; i++) {
       const v = V(P.v[3 * i], P.v[3 * i + 1], P.v[3 * i + 2]).applyMatrix3(R).add(A);
@@ -73,7 +73,38 @@
     q.premultiply(new THREE.Quaternion().setFromAxisAngle(V(0, 1, 0), have - want));
     return { balls, struts, dashes, labels, orient: q, elev: 14 };
   }
-  const MODELS = { waterTetra };
+  function orientQ(up, front, yawDeg = 0) {
+    const U = up.clone().normalize(), F = front.clone().addScaledVector(U, -front.dot(U)).normalize(), R = U.clone().cross(F);
+    const m = new THREE.Matrix4().makeBasis(R, U, F).transpose();
+    const q = new THREE.Quaternion().setFromRotationMatrix(m);
+    return q.premultiply(new THREE.Quaternion().setFromAxisAngle(V(0, 1, 0), (yawDeg * Math.PI) / 180));
+  }
+  /* lesson 5: long green struts, white balls */
+  const GK = 8.8;                                   // lattice step, so a long green strut matches the slide pictures
+  const g = (x, y, z) => V(x, y, z).multiplyScalar(GK);
+  function greenModel(balls, struts, up, front, yaw, elev) {
+    return { balls: balls.map((p) => [p, "white"]), struts: struts.map(([a, b]) => [balls[a], balls[b], "green"]), dashes: [], labels: [], orient: orientQ(up, front, yaw), elev };
+  }
+  function tri() {
+    const A = g(0, 0, 0), B = g(1, 1, 0), C = g(1, 0, 1);
+    const n = B.clone().sub(A).cross(C.clone().sub(A)), up = C.clone().sub(A.clone().add(B).multiplyScalar(0.5));
+    return greenModel([A, B, C], [[0, 1], [1, 2], [2, 0]], up, n, 0, 4);
+  }
+  function pyr() {
+    const a = g(1, 1, 0), b = g(1, -1, 0), P = [V(0, 0, 0), a.clone(), a.clone().add(b), b.clone(), a.clone().add(b).multiplyScalar(0.5).add(g(0, 0, 1))];
+    return greenModel(P, [[0, 1], [1, 2], [2, 3], [3, 0], [0, 4], [1, 4], [2, 4], [3, 4]], V(0, 0, 1), b.clone().negate(), 12, 18);
+  }
+  function bridge() {
+    const a = g(1, 1, 0), b = g(1, -1, 0), P = [], E = [];
+    for (let i = 0; i < 4; i++) { P.push(a.clone().multiplyScalar(i)); P.push(a.clone().multiplyScalar(i).add(b)); }
+    for (let i = 0; i < 3; i++) P.push(a.clone().multiplyScalar(i + 0.5).addScaledVector(b, 0.5).add(g(0, 0, 1)));
+    for (let i = 0; i < 3; i++) E.push([2 * i, 2 * i + 2], [2 * i + 1, 2 * i + 3]);
+    for (let i = 0; i < 4; i++) E.push([2 * i, 2 * i + 1]);
+    for (let i = 0; i < 3; i++) E.push([8 + i, 2 * i], [8 + i, 2 * i + 1], [8 + i, 2 * i + 2], [8 + i, 2 * i + 3]);
+    E.push([8, 9], [9, 10]);
+    return greenModel(P, E, V(0, 0, 1), b.clone().negate(), -8, 22);
+  }
+  const MODELS = { waterTetra, tri, pyr, bridge };
 
   function labelTexture(t) {
     const c = document.createElement("canvas"); c.width = c.height = 128; const g = c.getContext("2d");
@@ -89,6 +120,8 @@
 
   function mount(host, kind, opt = {}) {
     const M = MODELS[kind]();
+    if (opt.yawAdd) M.orient.premultiply(new THREE.Quaternion().setFromAxisAngle(V(0, 1, 0), (opt.yawAdd * Math.PI) / 180));
+    if (opt.elev != null && !isNaN(opt.elev)) M.elev = opt.elev;
     const W = host.clientWidth, H = host.clientHeight;
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     const pr = () => { const k = host.getBoundingClientRect().width / (host.clientWidth || 1); return Math.min(3, (window.devicePixelRatio || 1) * Math.max(1, k)); };
@@ -110,10 +143,11 @@
       white: new THREE.MeshStandardMaterial({ color: lin(0xf2f2ef), roughness: 0.38, metalness: 0.02, side: THREE.DoubleSide }),
       red: new THREE.MeshStandardMaterial({ color: lin(0xd8332a), roughness: 0.38, metalness: 0.02, side: THREE.DoubleSide }),
       yellow: new THREE.MeshStandardMaterial({ color: lin(0xf2b200), roughness: 0.3, metalness: 0.05, side: THREE.DoubleSide }),
+      green: new THREE.MeshStandardMaterial({ color: lin(0x0f7d30), roughness: 0.32, metalness: 0.05, side: THREE.DoubleSide }),
     };
     const BG = ballGeometry();
     for (const [p, col] of M.balls) { const m = new THREE.Mesh(BG, mat[col]); m.position.copy(cpos(p)); group.add(m); }
-    for (const [a, b] of M.struts) group.add(new THREE.Mesh(strutGeometry(cpos(a), cpos(b)), mat.yellow));
+    for (const [a, b, k] of M.struts) group.add(new THREE.Mesh(strutGeometry(cpos(a), cpos(b), k || "yellow"), mat[k || "yellow"]));
     const dmat = new THREE.MeshBasicMaterial({ color: lin(0xe8742a) });
     for (const [a, b] of M.dashes) {
       const A = cpos(a), B = cpos(b), L = A.distanceTo(B), n = Math.round(L / 0.7), d = B.clone().sub(A).normalize();
@@ -134,8 +168,10 @@
     const fit = () => {
       for (let k = 0; k < 5; k++) {
         camera.position.copy(home()); camera.lookAt(0, 0, 0); camera.updateMatrixWorld(); camera.updateProjectionMatrix();
-        let lo = 1e9, hi = -1e9; M.balls.forEach(([p]) => { const q = world(cpos(p)).project(camera); lo = Math.min(lo, q.y); hi = Math.max(hi, q.y); });
-        dist *= (((hi - lo) / 2) * H) / (opt.fitPx || H * 0.7);
+        let lo = 1e9, hi = -1e9, lx = 1e9, hx = -1e9; M.balls.forEach(([p]) => { const q = world(cpos(p)).project(camera); lo = Math.min(lo, q.y); hi = Math.max(hi, q.y); lx = Math.min(lx, q.x); hx = Math.max(hx, q.x); });
+        const bp = (1.06 / (dist * Math.tan((camera.fov * Math.PI) / 360))) * H;   // ball diameter in px
+        const ph = ((hi - lo) / 2) * H + bp, pw = ((hx - lx) / 2) * W + bp;
+        dist *= Math.max(ph / (opt.fitH || H * 0.7), opt.fitW ? pw / opt.fitW : 0);
       }
       camera.position.copy(home()); controls.target.set(0, 0, 0); controls.update();
     };

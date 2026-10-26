@@ -246,7 +246,7 @@ button:focus-visible,input:focus-visible{outline:4px solid var(--orange);outline
 </section>
 <section class="slide" data-n="13" style="background:#FBF6EC"  hidden>
 <div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">转一转：4 个小伙伴，站成一个四面体</span></p></div></div>
-<div class="el z3dhost" data-kind="waterTetra" data-fit="542" style="left:401px;top:175px;width:900px;height:710px"></div>
+<div class="el z3dhost" data-kind="waterTetra" data-fitw="569" data-fith="533" style="left:401px;top:171px;width:900px;height:710px"></div>
 <div class="el pic  model" data-k="1" data-model='{}' style="left:562.4px;top:254.7px;width:577.7px;height:541.7px;"><img class="im" src="a/image28.webp" alt="" draggable="false" style="width:577.7px;height:541.7px;left:-0.0px;top:-0.0px;"></div><div class="ctl z3ctl"><label>转一转 <input type="range" class="z3ang" min="-180" max="180" value="0" step="1" aria-label="转一转"></label><button class="go z3top">从上往下看</button><button class="again z3home">回正面</button></div>
 </section>
 <section class="slide" data-n="14" style="background:#FBF6EC"  hidden>
@@ -735,13 +735,13 @@ let z3dLib=null;const z3dLoad=()=>z3dLib||(z3dLib=loadJS("a/three.min.js").then(
 slides.forEach((s,i)=>{const host=s.querySelector(".z3dhost");if(!host)return;let view=null,loading=null;
   const ang=s.querySelector(".z3ang");let sliding=false;
   const show=()=>{if(!s.classList.contains("z3d-on")){s.classList.add("z3d-on");play("whoosh")}};
-  const ensure=()=>loading||(loading=z3dLoad().then(()=>{view=Zome3D.mount(host,host.dataset.kind,{fitPx:+host.dataset.fit,onInteract:show,
+  const ensure=()=>loading||(loading=z3dLoad().then(()=>{view=Zome3D.mount(host,host.dataset.kind,{fitW:+host.dataset.fitw,fitH:+host.dataset.fith,onInteract:show,
       onAngle:a=>{if(!sliding){let d=((a+180)%360+360)%360-180;ang.value=Math.round(d)}}});return view}));
   s._z3dEnter=()=>{ensure()};
   s._z3dOff=()=>{s.classList.remove("z3d-on");ang.value=0;if(view){view.dispose();view=null}loading=null};
   ang.addEventListener("input",async()=>{A();sliding=true;const v=await ensure();show();v.setAngle(+ang.value)});
   ang.addEventListener("change",()=>{sliding=false});
-  s.querySelector(".z3top").addEventListener("click",async()=>{A();play("tick");const v=await ensure();show();v.top()});
+  s.querySelector(".z3top")&&s.querySelector(".z3top").addEventListener("click",async()=>{A();play("tick");const v=await ensure();show();v.top()});
   s.querySelector(".z3home").addEventListener("click",async()=>{A();const v=await ensure();v.home();setTimeout(()=>s.classList.remove("z3d-on"),1250)});
 });
 // tap feedback on characters
