@@ -201,6 +201,9 @@
     renderer.domElement.addEventListener("pointerup", () => { renderer.domElement.style.cursor = "grab"; });
     return {
       top() { animateTo(sph().th, 0.0001, 1600); },
+      spin(dur = 3600) { const a = sph(), t0 = performance.now(); controls.enabled = false;
+        anim = (now) => { const t = Math.min(1, (now - t0) / dur), e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+          setSph(a.r, a.th + e * Math.PI * 2, a.ph); if (t >= 1) { anim = null; controls.enabled = true; controls.update(); } }; },
       setAngle(deg) { anim = null; const a = sph(); setSph(a.r, th0 + (deg * Math.PI) / 180, a.ph); controls.update(); },
       home() { animateTo(th0, ph0, 1200, dist); },
       dispose() { alive = false; window.removeEventListener("resize", onResize); cancelAnimationFrame(raf); renderer.dispose(); host.removeChild(renderer.domElement); },
