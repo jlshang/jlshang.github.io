@@ -53,25 +53,64 @@
   }
 
   /* ---------- model: five water molecules, the middle one holding four friends (lesson 9, p13) ---------- */
-  function waterTetra() {
-    const y0 = PHI * PHI, y1 = PHI * PHI * PHI;              // short / medium yellow along (±1,±1,±1)
-    const u = V(1, 1, 1), d2 = V(-1, -1, 1), d3 = V(-1, 1, -1), d4 = V(1, -1, -1);
-    const O = V(0, 0, 0), O1 = add(O, u, y0 + y1), O2 = add(O, d2, y0 + y1), O3 = add(O, d3, y0 + y1), O4 = add(O, d4, y0 + y1);
-    const Hc1 = add(O, u, y0), Hc2 = add(O, d2, y0);          // middle molecule's two hands
-    const H3 = add(O, d3, y1), H4 = add(O, d4, y1);           // friends 3 & 4 grab its two pockets
-    const H1a = add(O1, d2, -y0), H1b = add(O1, d3, -y0);
-    const H2a = add(O2, u, -y0), H2b = add(O2, d4, -y0);
-    const H3b = add(O3, u, -y0), H4b = add(O4, d2, -y0);
-    const balls = [[O, "red"], [O1, "red"], [O2, "red"], [O3, "red"], [O4, "red"],
-      [Hc1, "white"], [Hc2, "white"], [H3, "white"], [H4, "white"], [H1a, "white"], [H1b, "white"], [H2a, "white"], [H2b, "white"], [H3b, "white"], [H4b, "white"]];
-    const struts = [[O, Hc1], [O, Hc2], [O1, H1a], [O1, H1b], [O2, H2a], [O2, H2b], [O3, H3], [O3, H3b], [O4, H4], [O4, H4b], [Hc1, O1], [Hc2, O2], [H3, O], [H4, O]];
-    const dashes = [[O1, O2], [O1, O3], [O1, O4], [O2, O3], [O3, O4], [O2, O4]];
-    const labels = [[O1, "1"], [O2, "2"], [O3, "3"], [O4, "4"]];
-    // stand molecule 1 straight up, friend 3 to the front (like the picture)
-    const q = new THREE.Quaternion().setFromUnitVectors(u.clone().normalize(), V(0, 1, 0));
-    const a3 = d3.clone().applyQuaternion(q), want = (100 * Math.PI) / 180, have = Math.atan2(a3.z, a3.x);
-    q.premultiply(new THREE.Quaternion().setFromAxisAngle(V(0, 1, 0), have - want));
-    return { balls, struts, dashes, labels, orient: q, elev: 14 };
+  /* ---------- lesson 9: water molecules (red O, white H; short yellow inside a molecule, medium yellow between) ---------- */
+  const Y0 = PHI * PHI, Y1 = PHI * PHI * PHI;
+  const TU = V(1, 1, 1), T2 = V(-1, -1, 1), T3 = V(-1, 1, -1), T4 = V(1, -1, -1);
+  function tetraOrient() {               // molecule 1 straight up, friend 3 to the front (like the pictures)
+    const q = new THREE.Quaternion().setFromUnitVectors(TU.clone().normalize(), V(0, 1, 0));
+    const a3 = T3.clone().applyQuaternion(q), want = (100 * Math.PI) / 180, have = Math.atan2(a3.z, a3.x);
+    return q.premultiply(new THREE.Quaternion().setFromAxisAngle(V(0, 1, 0), have - want));
+  }
+  function waterSet({ mols = [0, 1, 2, 3, 4], hands = true, spread = 1, dashes = true, labels = [1, 2, 3, 4], elev = 14 } = {}) {
+    const R = (Y0 + Y1) * spread, O = V(0, 0, 0);
+    const On = [O, add(O, TU, R), add(O, T2, R), add(O, T3, R), add(O, T4, R)];
+    const balls = [], struts = [], has = (k) => mols.includes(k);
+    const mol = (o, h1, h2) => { balls.push([o, "red"], [h1, "white"], [h2, "white"]); struts.push([o, h1], [o, h2]); };
+    mol(On[0], add(O, TU, Y0), add(O, T2, Y0));                                   // the middle one: its two hands
+    if (has(1)) mol(On[1], add(On[1], T2, -Y0), add(On[1], T3, -Y0));
+    if (has(2)) mol(On[2], add(On[2], TU, -Y0), add(On[2], T4, -Y0));
+    if (has(3)) mol(On[3], add(On[3], T3, -Y0), add(On[3], TU, -Y0));          // friends 3 & 4 reach into its pockets
+    if (has(4)) mol(On[4], add(On[4], T4, -Y0), add(On[4], T2, -Y0));
+    if (hands) {
+      if (has(1)) struts.push([add(O, TU, Y0), On[1]]);
+      if (has(2)) struts.push([add(O, T2, Y0), On[2]]);
+      if (has(3)) struts.push([add(On[3], T3, -Y0), O]);
+      if (has(4)) struts.push([add(On[4], T4, -Y0), O]);
+    }
+    const D = dashes ? [[1, 2], [1, 3], [1, 4], [2, 3], [3, 4], [2, 4]].map(([a, b]) => [On[a], On[b]]) : [];
+    return { balls, struts: struts.map(([a, b]) => [a, b, "yellow"]), dashes: D, labels: labels.filter(has).map((k) => [On[k], String(k)]), orient: tetraOrient(), elev };
+  }
+  const waterTetra = () => waterSet();
+  const water5 = () => waterSet({ hands: false, spread: 1.32, dashes: false, labels: [] });
+  const water3 = () => waterSet({ mols: [0, 1, 2], dashes: false, labels: [1, 2] });
+  const water5h = () => waterSet({ dashes: false });
+  function water1() {                     // one molecule: O on top, two H below, facing us
+    const O = V(0, 0, 0), H1 = add(O, TU, Y0), H2 = add(O, T2, Y0);
+    const up = TU.clone().add(T2).negate(), n = TU.clone().cross(T2);
+    return { balls: [[O, "red"], [H1, "white"], [H2, "white"]], struts: [[O, H1, "yellow"], [O, H2, "yellow"]], dashes: [], labels: [], orient: orientQ(up, n, 0), elev: 6 };
+  }
+  function waterPockets() {               // H up, the two empty pockets (dashed) below
+    const O = V(0, 0, 0), H1 = add(O, TU, Y0), H2 = add(O, T2, Y0), P3 = add(O, T3, Y1 * 1.25), P4 = add(O, T4, Y1 * 1.25);
+    const up = TU.clone().add(T2), n = TU.clone().cross(T2);
+    return { balls: [[O, "red"], [H1, "white"], [H2, "white"]], struts: [[O, H1, "yellow"], [O, H2, "yellow"]], dashes: [[O, P3], [O, P4]],
+      labels: [[P3, "−", "pocket"], [P4, "−", "pocket"]], orient: orientQ(up, n, 28), elev: 8 };
+  }
+  /* ---------- lesson 9: snowflake from blue struts (core = medium, main branches = long, side branches = short) ---------- */
+  function snow(stage, roll = 0) {
+    const L = 8.472, e1 = V(1, 0, 0), v2 = V(0.5, PHI / 2, 1 / (2 * PHI)), v3 = V(-0.5, PHI / 2, 1 / (2 * PHI));
+    const D = [e1, v2, v3, e1.clone().negate(), v2.clone().negate(), v3.clone().negate()];
+    const C = [V(0, 0, 0)]; for (let k = 0; k < 5; k++) C.push(add(C[k], D[k], L));
+    const ctr = C.reduce((a, p) => a.add(p), V(0, 0, 0)).multiplyScalar(1 / 6);
+    const balls = C.map((p) => [p, "white"]), struts = C.map((p, k) => [p, C[(k + 1) % 6], "blue"]);
+    const nearest = (u) => D.reduce((b, d) => (d.dot(u) > b.dot(u) ? d : b));
+    if (stage >= 2) C.forEach((p) => {
+      const u = nearest(p.clone().sub(ctr).normalize()), M = add(p, u, L * PHI);
+      balls.push([M, "white"]); struts.push([p, M, "blue"]);
+      if (stage >= 3) D.filter((d) => Math.abs(d.dot(u) - 0.5) < 1e-6).forEach((d) => { const S = add(M, d, L / PHI); balls.push([S, "white"]); struts.push([M, S, "blue"]); });
+    });
+    const n = e1.clone().cross(v2).normalize(), up = n.clone().cross(e1);
+    const q = orientQ(up, n, 0).premultiply(new THREE.Quaternion().setFromAxisAngle(V(0, 0, 1), (roll * Math.PI) / 180));
+    return { balls, struts, dashes: [], labels: [], orient: q, elev: 0 };
   }
   function orientQ(up, front, yawDeg = 0) {
     const U = up.clone().normalize(), F = front.clone().addScaledVector(U, -front.dot(U)).normalize(), R = U.clone().cross(F);
@@ -104,12 +143,13 @@
     E.push([8, 9], [9, 10]);
     return greenModel(P, E, V(0, 0, 1), b.clone().negate(), -8, 22);
   }
-  const MODELS = { waterTetra, tri, pyr, bridge };
+  const MODELS = { waterTetra, water1, waterPockets, water5, water3, water5h, tri, pyr, bridge,
+    snow1: () => snow(1), snow2: () => snow(2), snow3: () => snow(3, 16) };
 
-  function labelTexture(t) {
+  function labelTexture(t, style) {
     const c = document.createElement("canvas"); c.width = c.height = 128; const g = c.getContext("2d");
-    g.fillStyle = "#E8742A"; g.beginPath(); g.arc(64, 64, 60, 0, Math.PI * 2); g.fill();
-    g.fillStyle = "#fff"; g.font = "900 78px Microsoft YaHei, Noto Sans SC, sans-serif"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(t, 64, 70);
+    if (style === "pocket") { g.fillStyle = "#FFF6EE"; g.strokeStyle = "#E8742A"; g.lineWidth = 9; g.beginPath(); g.arc(64, 64, 54, 0, Math.PI * 2); g.fill(); g.stroke(); g.fillStyle = "#E8742A"; }
+    else { g.fillStyle = "#E8742A"; g.beginPath(); g.arc(64, 64, 60, 0, Math.PI * 2); g.fill(); g.fillStyle = "#fff"; } g.font = "900 78px Microsoft YaHei, Noto Sans SC, sans-serif"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(t, 64, 70);
     const tx = new THREE.CanvasTexture(c); tx.encoding = THREE.sRGBEncoding; return tx;
   }
   function cyl(a, b, rad, mat) {
@@ -137,25 +177,28 @@
     const fill = new THREE.DirectionalLight(0xffffff, 0.3); fill.position.set(4, -2, 6); scene.add(fill);
     const group = new THREE.Group(); group.quaternion.copy(M.orient); scene.add(group);
 
-    const center = new THREE.Vector3(); M.balls.forEach(([p]) => center.add(p)); center.multiplyScalar(1 / M.balls.length);
+    const FP = M.balls.map((b) => b[0]).concat(M.labels.filter((l) => l[2] === "pocket").map((l) => l[0]));
+    const center = new THREE.Vector3(); FP.forEach((p) => center.add(p)); center.multiplyScalar(1 / FP.length);
     const cpos = (p) => p.clone().sub(center);
     const mat = {
-      white: new THREE.MeshStandardMaterial({ color: lin(0xf2f2ef), roughness: 0.38, metalness: 0.02, side: THREE.DoubleSide }),
+      white: new THREE.MeshStandardMaterial({ color: lin(0xd9dce1), roughness: 0.42, metalness: 0.02, side: THREE.DoubleSide }),
       red: new THREE.MeshStandardMaterial({ color: lin(0xd8332a), roughness: 0.38, metalness: 0.02, side: THREE.DoubleSide }),
       yellow: new THREE.MeshStandardMaterial({ color: lin(0xf2b200), roughness: 0.3, metalness: 0.05, side: THREE.DoubleSide }),
+      blue: new THREE.MeshStandardMaterial({ color: lin(0x1d6f9e), roughness: 0.32, metalness: 0.05, side: THREE.DoubleSide }),
       green: new THREE.MeshStandardMaterial({ color: lin(0x0f7d30), roughness: 0.32, metalness: 0.05, side: THREE.DoubleSide }),
     };
     const BG = ballGeometry();
     for (const [p, col] of M.balls) { const m = new THREE.Mesh(BG, mat[col]); m.position.copy(cpos(p)); group.add(m); }
     for (const [a, b, k] of M.struts) group.add(new THREE.Mesh(strutGeometry(cpos(a), cpos(b), k || "yellow"), mat[k || "yellow"]));
     const dmat = new THREE.MeshBasicMaterial({ color: lin(0xe8742a) });
+    const ends = new Set(M.labels.filter((l) => l[2] === "pocket").map((l) => l[0]));
     for (const [a, b] of M.dashes) {
-      const A = cpos(a), B = cpos(b), L = A.distanceTo(B), n = Math.round(L / 0.7), d = B.clone().sub(A).normalize();
+      const A = cpos(a), B0 = cpos(b), B = ends.has(b) ? add(B0, B0.clone().sub(A).normalize(), -0.85) : B0, L = A.distanceTo(B), n = Math.round(L / 0.7), d = B.clone().sub(A).normalize();
       for (let i = 0; i < n; i += 2) group.add(cyl(add(A, d, (i * L) / n), add(A, d, ((i + 1) * L) / n), 0.08, dmat));
     }
-    const labels = M.labels.map(([p, t]) => {
-      const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: labelTexture(t), depthTest: false }));
-      sp.scale.set(1.9, 1.9, 1); sp.renderOrder = 10; sp.userData.at = cpos(p); scene.add(sp); return sp;
+    const labels = M.labels.map(([p, t, style]) => {
+      const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: labelTexture(t, style), depthTest: false }));
+      const k = style === "pocket" ? 1.6 : 1.9; sp.scale.set(k, k, 1); sp.renderOrder = 10; sp.userData.at = cpos(p); sp.userData.on = style === "pocket"; scene.add(sp); return sp;
     });
 
     const camera = new THREE.PerspectiveCamera(18, W / H, 0.5, 900);
@@ -168,7 +211,7 @@
     const fit = () => {
       for (let k = 0; k < 5; k++) {
         camera.position.copy(home()); camera.lookAt(0, 0, 0); camera.updateMatrixWorld(); camera.updateProjectionMatrix();
-        let lo = 1e9, hi = -1e9, lx = 1e9, hx = -1e9; M.balls.forEach(([p]) => { const q = world(cpos(p)).project(camera); lo = Math.min(lo, q.y); hi = Math.max(hi, q.y); lx = Math.min(lx, q.x); hx = Math.max(hx, q.x); });
+        let lo = 1e9, hi = -1e9, lx = 1e9, hx = -1e9; FP.forEach((p) => { const q = world(cpos(p)).project(camera); lo = Math.min(lo, q.y); hi = Math.max(hi, q.y); lx = Math.min(lx, q.x); hx = Math.max(hx, q.x); });
         const bp = (1.06 / (dist * Math.tan((camera.fov * Math.PI) / 360))) * H;   // ball diameter in px
         const ph = ((hi - lo) / 2) * H + bp, pw = ((hx - lx) / 2) * W + bp;
         dist *= Math.max(ph / (opt.fitH || H * 0.7), opt.fitW ? pw / opt.fitW : 0);
@@ -192,7 +235,7 @@
       if (anim) anim(now); else controls.update();
       key.position.copy(camera.position).add(V(-25, 35, 0));
       const right = V(1, 0, 0).applyQuaternion(camera.quaternion), up = V(0, 1, 0).applyQuaternion(camera.quaternion);
-      labels.forEach((l) => l.position.copy(world(l.userData.at)).addScaledVector(right, 1.6).addScaledVector(up, 1.4));
+      labels.forEach((l) => { l.position.copy(world(l.userData.at)); if (!l.userData.on) l.position.addScaledVector(right, 1.6).addScaledVector(up, 1.4); });
       if (opt.onAngle) opt.onAngle(((sph().th - th0) * 180) / Math.PI);
       renderer.render(scene, camera); raf = requestAnimationFrame(tick);
     };
