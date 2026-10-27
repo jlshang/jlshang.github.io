@@ -25,9 +25,10 @@
     if (out.length !== 60) console.warn('icosahedral group size', out.length);
     GROUP = out; return out;
   }
-  function rotFor(from, to) {          // group element taking direction `from` onto `to`
+  function rotFor(from, to, free) {    // group element taking direction `from` onto `to` (or a plain rotation if none fits)
     const f = from.clone().normalize(), t = to.clone().normalize(); let best = null, bd = -2;
     for (const m of icoGroup()) { const d = f.clone().applyMatrix3(m).dot(t); if (d > bd) { bd = d; best = m; } }
+    if (free && bd < 0.9999) { const q = new THREE.Quaternion().setFromUnitVectors(f, t); return new THREE.Matrix3().setFromMatrix4(new THREE.Matrix4().makeRotationFromQuaternion(q)); }
     return best;
   }
 
@@ -41,7 +42,7 @@
   function strutGeometry(A, B, kind = "yellow") {
     const L = B.clone().sub(A), len = L.length(), full = window.ZOMEPARTS[kind], fl = Math.hypot(...full.dir);
     const P = len < fl * 0.8 && window.ZOMEPARTS[kind + "-short"] ? window.ZOMEPARTS[kind + "-short"] : full;
-    const dir = V(...P.dir), R = rotFor(dir, L), tip = new Set(P.tipSet), mid = new Set(P.midSet), pos = [];
+    const dir = V(...P.dir), R = rotFor(dir, L, true), tip = new Set(P.tipSet), mid = new Set(P.midSet), pos = [];
     for (let i = 0; i < P.v.length / 3; i++) {
       const v = V(P.v[3 * i], P.v[3 * i + 1], P.v[3 * i + 2]).applyMatrix3(R).add(A);
       if (tip.has(i)) v.add(L); else if (mid.has(i)) v.addScaledVector(L, 0.5);
@@ -96,21 +97,40 @@
       labels: [[P3, "−", "pocket"], [P4, "−", "pocket"]], orient: orientQ(up, n, 28), elev: 8 };
   }
   /* ---------- lesson 9: keep holding hands -> one puckered layer of ice (every ring is a hexagon from above) ---------- */
-  const ICE_MAX = 4, ICE_DIST = [1, 2, 3, 5];
+  /* layered like real ice: every layer sits right on top of the one below, so from above all layers share one honeycomb.
+     Layer 0 uses exactly the Zometool yellow directions; the mirrored layers above/below are drawn with the same struts. */
+  const ICE_MAX = 5;
+  const ICE_STAGES = [{ d: 1, layers: [0], top1: true }, { d: 2, layers: [0], top1: true }, { d: 4, layers: [0], top1: true }, { d: 4, layers: [-1, 0], top1: true }, { d: 4, layers: [-1, 0, 1] }];
   function ice(stage = ICE_MAX) {
-    const R = Y0 + Y1, maxd = ICE_DIST[Math.max(1, Math.min(ICE_MAX, stage)) - 1], key = (p) => p.toArray().map((x) => x.toFixed(2)).join();
-    // A molecules (like the middle one) hold hands along TU, T2 and offer pockets along T3, T4; B molecules are the mirror
-    const nodes = new Map(); const q = [[V(0, 0, 0), "A", 0]]; nodes.set(key(q[0][0]), q[0]);
-    while (q.length) { const [p, t, d] = q.shift(); if (d >= maxd) continue;
-      for (const dir of [T2, T3, T4]) { const n = add(p, dir, t === "A" ? R : -R), k = key(n); if (!nodes.has(k)) { const e = [n, t === "A" ? "B" : "A", d + 1]; nodes.set(k, e); q.push(e); } } }
-    const mols = [...nodes.values()]; mols.push([add(V(0, 0, 0), TU, R), "B", 1]);        // molecule 1, right above the middle one
-    const balls = [], struts = [], has = new Set(mols.map((m) => key(m[0])));
-    for (const [o, t] of mols) {
-      const s = t === "A" ? 1 : -1, hs = t === "A" ? [TU, T2] : [T3, T4];                // where this molecule's own two H point
-      balls.push([o, "red"]);
-      for (const d of hs) { const h = add(o, d, s * Y0); balls.push([h, "white"]); struts.push([o, h, "yellow"]); const far = add(o, d, s * R); if (has.has(key(far))) struts.push([h, far, "yellow"]); }
+    const st = ICE_STAGES[Math.max(1, Math.min(ICE_MAX, stage)) - 1], S3 = Math.sqrt(3), R = (Y0 + Y1) * S3, YS = Y0 * S3, up = TU.clone().normalize(), h = R / 3;
+    const U2 = T2.clone().normalize(), U3 = T3.clone().normalize(), U4 = T4.clone().normalize();
+    const flat = (v) => v.clone().addScaledVector(up, -v.dot(up)), key = (p) => p.toArray().map((x) => x.toFixed(2)).join();
+    // honeycomb of layer 0 (A = like the middle molecule, B = its 3 friends in the same layer)
+    const sites = new Map(), q = [[V(0, 0, 0), "A", 0]]; sites.set(key(q[0][0]), q[0]);
+    while (q.length) { const [p, t, d] = q.shift(); if (d >= st.d) continue;
+      for (const dir of [U2, U3, U4]) { const n = flat(add(p, dir, t === "A" ? R : -R)), k = key(n); if (!sites.has(k)) { const e = [n, t === "A" ? "B" : "A", d + 1]; sites.set(k, e); q.push(e); } } }
+    // atoms: in layer k the upper site is A when k is even, B when k is odd (mirror image)
+    const atoms = [];
+    for (const k of st.layers) for (const [xy, t] of sites.values()) {
+      const upper = (t === "A") === (k % 2 === 0), z = k * (h + R) - (upper ? 0 : h);
+      atoms.push({ p: xy.clone().addScaledVector(up, z), upper, k });
     }
-    return { balls, struts, dashes: [], labels: [], orient: tetraOrient(), elev: 14, center: V(0, 0, 0), grow: ICE_MAX };
+    if (st.top1) atoms.push({ p: up.clone().multiplyScalar(R), upper: false, k: 1 });          // molecule 1, right above the middle one
+    const p2 = flat(U2).normalize(), at = new Map(atoms.map((a) => [key(a.p), a]));
+    const balls = [], struts = [];
+    for (const a of atoms) {
+      // bonds of this atom: one vertical (up if upper) + three in-layer; in-layer ones tilt down for upper atoms, up for lower atoms
+      const vert = up.clone().multiplyScalar(a.upper ? 1 : -1), inl = [];
+      const base = a.upper === (a.k % 2 === 0) ? [U2, U3, U4] : [U2, U3, U4].map((d) => d.clone().negate());
+      for (const d of base) { let v = d.clone().normalize(); const vz = v.dot(up); v = flat(v).addScaledVector(up, a.upper ? -Math.abs(vz) : Math.abs(vz)); inl.push(v); }
+      // ice rule: upper atoms give one H upward + one H along the "T2" family; lower atoms give two H along the other two
+      const fam = (v) => Math.abs(flat(v).normalize().dot(p2)) > 0.99;
+      const give = a.upper ? [vert, inl.find(fam)] : inl.filter((v) => !fam(v));
+      balls.push([a.p, "red"]);
+      for (const d of give) { const hh = add(a.p, d, YS); balls.push([hh, "white"]); struts.push([a.p, hh, "yellow"]);
+        const far = add(a.p, d, R); if (at.has(key(far))) struts.push([hh, far, "yellow"]); }
+    }
+    return { balls, struts, dashes: [], labels: [], orient: tetraOrient(), elev: 14, grow: ICE_MAX };
   }
   /* ---------- lesson 9: snowflake from blue struts (core = medium, main branches = long, side branches = short) ---------- */
   function snow(stage, roll = 0) {
@@ -253,7 +273,7 @@
         cam.lookAt(0, 0, 0); cam.updateMatrixWorld(); cam.updateProjectionMatrix();
         let lo = 1e9, hi = -1e9, lx = 1e9, hx = -1e9; pts.forEach((p) => { const q = world(cpos(p)).project(cam); lo = Math.min(lo, q.y); hi = Math.max(hi, q.y); lx = Math.min(lx, q.x); hx = Math.max(hx, q.x); });
         const bp = (1.06 / (d * Math.tan((cam.fov * Math.PI) / 360))) * H;
-        d *= Math.max((((hi - lo) / 2) * H + bp) / (opt.fitH || H * 0.7), opt.fitW ? (((hx - lx) / 2) * W + bp) / opt.fitW : 0);
+        d *= Math.max((Math.max(hi, -lo) * H + bp) / (opt.fitH || H * 0.7), opt.fitW ? (Math.max(hx, -lx) * W + bp) / opt.fitW : 0);
       }
       return d;
     };
@@ -295,7 +315,7 @@
           setSph(a.r, a.th + e * Math.PI * 2, a.ph); if (t >= 1) { anim = null; controls.enabled = true; controls.update(); } }; },
       setAngle(deg) { anim = null; const a = sph(); setSph(a.r, th0 + (deg * Math.PI) / 180, a.ph); controls.update(); },
       home() { animateTo(th0, ph0, 1200, stageDist ? stageDist[M.stage || 1] : dist); },
-      stage: () => M.stage || 1,
+      stage: () => M.stage || 1, maxStage: M.grow || 0,
       grow() { if (!M.grow) return 0; const next = (M.stage || 1) >= M.grow ? 1 : (M.stage || 1) + 1; M = MODELS[kind](next); M.stage = next; buildParts(next > 1); const a = sph(); animateTo(a.th, a.ph, 900, a.ph < 0.2 ? topDist * stageDist[next] / stageDist[M.grow] : stageDist[next]); return next; },
       dispose() { alive = false; window.removeEventListener("resize", onResize); cancelAnimationFrame(raf); renderer.dispose(); host.removeChild(renderer.domElement); },
     };
