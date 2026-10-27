@@ -739,7 +739,7 @@ stage.addEventListener("click",e=>{const j=e.target.closest(".judge");if(!j||j.q
   b.className="badge "+(ok?"ok":"no");b.textContent=ok?"✓":"✗";j.appendChild(b);if(ok){play("ding");const r=j.getBoundingClientRect(),sr=stage.getBoundingClientRect(),k=1600/sr.width;confetti((r.left-sr.left+r.width/2)*k,(r.top-sr.top)*k+80,90)}else play("wah")});
 /* real 3D Zometool models (loaded on first use) */
 const loadJS=src=>new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)});
-let z3dLib=null;const z3dLoad=()=>z3dLib||(z3dLib=loadJS("a/three.min.js").then(()=>loadJS("a/OrbitControls.js")).then(()=>loadJS("a/zomeparts.js")).then(()=>loadJS("a/zome3d.js")));
+let z3dLib=null;const z3dLoad=()=>z3dLib||(z3dLib=loadJS("a/three.min.js?v=r128").then(()=>loadJS("a/OrbitControls.js?v=r128")).then(()=>loadJS("a/zomeparts.js?v=08f7e4f6")).then(()=>loadJS("a/zome3d.js?v=08f7e4f6")));
 slides.forEach((s,i)=>{const host=s.querySelector(".z3dhost");if(!host)return;let view=null,loading=null;
   const ang=s.querySelector(".z3ang");let sliding=false;
   const show=()=>{if(!s.classList.contains("z3d-on")){s.classList.add("z3d-on");play("whoosh")}};
