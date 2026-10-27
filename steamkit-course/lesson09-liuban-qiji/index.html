@@ -303,12 +303,12 @@ button:focus-visible,input:focus-visible{outline:4px solid var(--orange);outline
 </section>
 <section class="slide" data-n="22" style="background:#EAF1FA"  hidden>
 <div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">第 2 步：从六个角长出主枝</span></p></div></div>
-<div class="el z3dhost" data-kind="snow2" data-fitw="666" data-fith="581" style="left:157px;top:150px;width:1200px;height:730px"></div>
+<div class="el z3dhost" data-kind="snow2" data-from="snow1" data-fitw="666" data-fith="581" style="left:157px;top:150px;width:1200px;height:730px"></div>
 <div class="el pic  model" data-k="1" data-model='{}' style="left:494.5px;top:272.5px;width:524.8px;height:471.4px;"><img class="im" src="a/image39.webp" alt="" draggable="false" style="width:524.8px;height:471.4px;left:-0.0px;top:-0.0px;"></div><div class="ctl z3ctl"><label>转一转 <input type="range" class="z3ang" min="-180" max="180" value="0" step="1" aria-label="转一转"></label><button class="again z3home">回正面</button></div>
 </section>
 <section class="slide" data-n="23" style="background:#EAF1FA"  hidden>
 <div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">第 3 步：长出侧枝</span></p></div></div>
-<div class="el z3dhost" data-kind="snow3" data-fitw="662" data-fith="655" style="left:163px;top:150px;width:1200px;height:730px"></div>
+<div class="el z3dhost" data-kind="snow3" data-from="snow2" data-fitw="662" data-fith="655" style="left:163px;top:150px;width:1200px;height:730px"></div>
 <div class="el pic  model" data-k="1" data-model='{}' style="left:500.1px;top:252.3px;width:525.1px;height:471.7px;"><img class="im" src="a/image40.webp" alt="" draggable="false" style="width:525.1px;height:471.7px;left:-0.0px;top:-0.0px;"></div><div class="ctl z3ctl"><label>转一转 <input type="range" class="z3ang" min="-180" max="180" value="0" step="1" aria-label="转一转"></label><button class="again z3home">回正面</button></div>
 </section>
 <section class="slide" data-n="24" style="background:#F2A65A"  data-sfx="fanfare-soft" hidden>
@@ -802,14 +802,14 @@ stage.addEventListener("click",e=>{const j=e.target.closest(".judge");if(!j||j.q
   b.className="badge "+(ok?"ok":"no");b.textContent=ok?"✓":"✗";j.appendChild(b);if(ok){play("ding");const r=j.getBoundingClientRect(),sr=stage.getBoundingClientRect(),k=1600/sr.width;confetti((r.left-sr.left+r.width/2)*k,(r.top-sr.top)*k+80,90)}else play("wah")});
 /* real 3D Zometool models (loaded on first use) */
 const loadJS=src=>new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)});
-let z3dLib=null;const z3dLoad=()=>z3dLib||(z3dLib=loadJS("a/three.min.js?v=r128").then(()=>loadJS("a/OrbitControls.js?v=r128")).then(()=>loadJS("a/zomeparts.js?v=6592f1db")).then(()=>loadJS("a/zome3d.js?v=6592f1db")));
+let z3dLib=null;const z3dLoad=()=>z3dLib||(z3dLib=loadJS("a/three.min.js?v=r128").then(()=>loadJS("a/OrbitControls.js?v=r128")).then(()=>loadJS("a/zomeparts.js?v=4ada94e9")).then(()=>loadJS("a/zome3d.js?v=4ada94e9")));
 slides.forEach((s,i)=>{const host=s.querySelector(".z3dhost");if(!host)return;let view=null,loading=null;
   const ang=s.querySelector(".z3ang");let sliding=false;
   const show=()=>{if(!s.classList.contains("z3d-on")){s.classList.add("z3d-on");play("whoosh")}};
-  const ensure=()=>loading||(loading=z3dLoad().then(()=>{view=Zome3D.mount(host,host.dataset.kind,{fitW:+host.dataset.fitw,fitH:+host.dataset.fith,stage:+(host.dataset.stage||0),onInteract:show,
+  const ensure=()=>loading||(loading=z3dLoad().then(()=>{view=Zome3D.mount(host,host.dataset.kind,{fitW:+host.dataset.fitw,fitH:+host.dataset.fith,from:host.dataset.from||null,stage:+(host.dataset.stage||0),onInteract:show,
       onAngle:a=>{if(!sliding){let d=((a+180)%360+360)%360-180;ang.value=Math.round(d)}}});return view}));
   const pic=s.querySelector(".model");
-  s._z3dEnter=()=>{ensure().then(v=>{s.classList.add("z3d-on");play("whoosh");v.intro(()=>play("ding"))})
+  s._z3dEnter=()=>{ensure().then(v=>{s.classList.add("z3d-on");play("whoosh");(host.dataset.from?(play("pop"),v.growIn(()=>play("ding"))):v.intro(()=>play("ding")))})
     .catch(()=>{s.classList.remove("z3d-on");pic&&pic._spin&&pic._spin(0)})};
   s._z3dOff=()=>{const g=s.querySelector(".z3grow");if(g)g.textContent="继续拉手";s.classList.remove("z3d-on");ang.value=0;if(view){view.dispose();view=null}loading=null};
   ang.addEventListener("input",async()=>{A();sliding=true;const v=await ensure();show();v.setAngle(+ang.value)});
