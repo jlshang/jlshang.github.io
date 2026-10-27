@@ -656,7 +656,7 @@ class Coins{
   constructor(host){this.reset();this.box=0;this.sp=0;this.vb=0;this.vs=0;
     const svg=el("svg",{viewBox:"0 0 1386 466",role:"img","aria-label":"箱子桥和空间桥加硬币"},host);this.g=el("g",{},svg)}
   add(){if(this.n>=14)return;this.n++;this.coins.push({y:-260,vy:0,landed:false})}
-  reset(){this.n=0;this.coins=[];this.broken=false;this.ang=0;this.av=0;this.fall=[]}
+  reset(){this.stop=false;this.n=0;this.coins=[];this.broken=false;this.ang=0;this.av=0;this.fall=[]}
   step(dt){const landed=this.coins.filter(c=>c.landed).length,tb=Math.min(10,landed)*7,ts=landed*1.0;
     if(!this.broken){this.vb+=(60*(tb-this.box)-4*this.vb)*dt;this.box+=this.vb*dt}
     this.vs+=(400*(ts-this.sp)-20*this.vs)*dt;this.sp+=this.vs*dt;
@@ -742,7 +742,7 @@ class SnowGrow{
   static CAPS=[["",""],["先长出一片小小的六边形",""],["水汽飘过来，六个角最先接到",""],["六个角先长，伸出六根主枝","六根主枝一起长，所以一模一样"],["主枝侧边，冒出小鼓包","水汽又落在鼓包上"],["水汽落在鼓包上，长成侧枝","侧枝斜着长，和旁边的主枝平行"]];
   setCap(){const c=SnowGrow.CAPS[this.n];this.cap1.textContent=c[0];this.cap2.textContent=c[1];
     this.dots.replaceChildren();for(let i=1;i<=5;i++)el("circle",{cx:840+(i-1)*30,cy:420,r:8,fill:i<=this.n?"#E8742A":"#E3D9C4"},this.dots)}
-  next(){if(this.n>=5)return false;this.n++;const G=this.goal;if(this.n>=1)G.hex=1;if(this.n>=3)G.main=1;if(this.n>=4)G.bump=1;if(this.n>=5)G.side=1;this.setCap();return true}
+  next(){if(this.n>=5){this.stop=true;return false}this.n++;const G=this.goal;if(this.n>=1)G.hex=1;if(this.n>=3)G.main=1;if(this.n>=4)G.bump=1;if(this.n>=5)G.side=1;this.setCap();return true}
   pts(){const [cx,cy]=this.C,v=this.v,r=this.r0*v.hex,out={corner:[],tip:[],bump:[],side:[]};
     for(let k=0;k<6;k++){const a=Math.PI/3*k-Math.PI/2,u=[Math.cos(a),Math.sin(a)],c=[cx+r*u[0],cy+r*u[1]];out.corner.push(c);
       const len=this.L*v.main,tip=[c[0]+u[0]*len,c[1]+u[1]*len];out.tip.push(tip);
@@ -752,7 +752,8 @@ class SnowGrow{
   targets(P){if(this.n===2)return P.corner;if(this.n===3)return P.tip;if(this.n===4)return P.bump;if(this.n===5)return P.side.map(s=>s.e).concat(P.tip);return[]}
   step(dt){const v=this.v,G=this.goal,sp={hex:1.6,main:0.45,bump:1.4,side:0.4};for(const k in v){const d=G[k]-v[k];v[k]+=Math.sign(d)*Math.min(Math.abs(d),sp[k]*dt)}
     const P=this.pts(),T=this.targets(P);
-    if(T.length&&this.ps.length<26&&Math.random()<dt*14){const a=Math.random()*Math.PI*2,t=T[Math.floor(Math.random()*T.length)];
+    const finished=this.n===5&&(v.side>=1||this.stop);
+    if(!finished&&T.length&&this.ps.length<26&&Math.random()<dt*14){const a=Math.random()*Math.PI*2,t=T[Math.floor(Math.random()*T.length)];
       this.ps.push({x:this.C[0]+Math.cos(a)*470,y:this.C[1]+Math.sin(a)*320,ti:T.indexOf(t),tr:[]})}
     this.ps.forEach(p=>{const t=T[p.ti%Math.max(1,T.length)]||this.C,dx=t[0]-p.x,dy=t[1]-p.y,d=Math.hypot(dx,dy),s=150*dt;
       p.tr.unshift([p.x,p.y]);p.tr.length=Math.min(p.tr.length,4);if(d<s+6){p.done=true;this.flash.push({x:t[0],y:t[1],t:0})}else{p.x+=dx/d*s;p.y+=dy/d*s}});
@@ -789,7 +790,7 @@ slides.forEach((s,i)=>{
   const vh=s.querySelector(".vaporlab");if(vh){const V=new VaporDrift(vh);live.set(i,{step(dt){V.step(dt)},draw(){V.draw()},key(){}})}
   const gh=s.querySelector(".growlab");if(gh){const G=new SnowGrow(gh);const nb=s.querySelector(".grownext"),rb=s.querySelector(".growreset");
     const nxt=()=>{A();const ok=G.next();if(ok){play(G.n===1?"pop":G.n===2?"whoosh":"ding");nb.textContent=G.n>=5?"完成！":"下一步"}return ok};
-    nb.addEventListener("click",nxt);rb.addEventListener("click",()=>{A();G.reset();nb.textContent="开始";play("tick")});
+    nb.addEventListener("click",()=>{if(G.n>=5){G.stop=true;play("ding");return}nxt()});rb.addEventListener("click",()=>{A();G.reset();nb.textContent="开始";play("tick")});
     s._next=()=>G.n<5?nxt():false;s._enter=()=>{G.reset();nb.textContent="开始"};
     live.set(i,{step(dt){G.step(dt)},draw(){G.draw()},key(){nxt()}})}
   const built=s.querySelector(".built");if(built)built.addEventListener("click",()=>{play("cheer");confetti(1050,420,120);const ch=s.querySelector(".jump");if(ch){ch.classList.remove("jiggle");void ch.offsetWidth;ch.classList.add("jiggle");setTimeout(()=>ch.classList.remove("jiggle"),650)}});
