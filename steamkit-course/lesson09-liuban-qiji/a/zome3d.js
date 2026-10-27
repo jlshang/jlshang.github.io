@@ -95,6 +95,23 @@
     return { balls: [[O, "red"], [H1, "white"], [H2, "white"]], struts: [[O, H1, "yellow"], [O, H2, "yellow"]], dashes: [[O, P3], [O, P4]],
       labels: [[P3, "−", "pocket"], [P4, "−", "pocket"]], orient: orientQ(up, n, 28), elev: 8 };
   }
+  /* ---------- lesson 9: keep holding hands -> one puckered layer of ice (every ring is a hexagon from above) ---------- */
+  const ICE_MAX = 4, ICE_DIST = [1, 2, 3, 5];
+  function ice(stage = ICE_MAX) {
+    const R = Y0 + Y1, maxd = ICE_DIST[Math.max(1, Math.min(ICE_MAX, stage)) - 1], key = (p) => p.toArray().map((x) => x.toFixed(2)).join();
+    // A molecules (like the middle one) hold hands along TU, T2 and offer pockets along T3, T4; B molecules are the mirror
+    const nodes = new Map(); const q = [[V(0, 0, 0), "A", 0]]; nodes.set(key(q[0][0]), q[0]);
+    while (q.length) { const [p, t, d] = q.shift(); if (d >= maxd) continue;
+      for (const dir of [T2, T3, T4]) { const n = add(p, dir, t === "A" ? R : -R), k = key(n); if (!nodes.has(k)) { const e = [n, t === "A" ? "B" : "A", d + 1]; nodes.set(k, e); q.push(e); } } }
+    const mols = [...nodes.values()]; mols.push([add(V(0, 0, 0), TU, R), "B", 1]);        // molecule 1, right above the middle one
+    const balls = [], struts = [], has = new Set(mols.map((m) => key(m[0])));
+    for (const [o, t] of mols) {
+      const s = t === "A" ? 1 : -1, hs = t === "A" ? [TU, T2] : [T3, T4];                // where this molecule's own two H point
+      balls.push([o, "red"]);
+      for (const d of hs) { const h = add(o, d, s * Y0); balls.push([h, "white"]); struts.push([o, h, "yellow"]); const far = add(o, d, s * R); if (has.has(key(far))) struts.push([h, far, "yellow"]); }
+    }
+    return { balls, struts, dashes: [], labels: [], orient: tetraOrient(), elev: 14, center: V(0, 0, 0), grow: ICE_MAX };
+  }
   /* ---------- lesson 9: snowflake from blue struts (core = medium, main branches = long, side branches = short) ---------- */
   function snow(stage, roll = 0) {
     const L = 8.472, e1 = V(1, 0, 0), v2 = V(0.5, PHI / 2, 1 / (2 * PHI)), v3 = V(-0.5, PHI / 2, 1 / (2 * PHI));
@@ -144,7 +161,7 @@
     return greenModel(P, E, V(0, 0, 1), b.clone().negate(), -8, 22);
   }
   const MODELS = { waterTetra, water1, waterPockets, water5, water3, water5h, tri, pyr, bridge,
-    snow1: () => snow(1), snow2: () => snow(2), snow3: () => snow(3, 16) };
+    snow1: () => snow(1), ice, snow2: () => snow(2), snow3: () => snow(3, 16) };
 
   function labelTexture(t, style) {
     const c = document.createElement("canvas"); c.width = c.height = 128; const g = c.getContext("2d");
@@ -159,7 +176,8 @@
   }
 
   function mount(host, kind, opt = {}) {
-    const M = MODELS[kind]();
+    let M = MODELS[kind](opt.stage || undefined); if (M.grow) M.stage = opt.stage || M.grow;
+    const MF = M.grow ? MODELS[kind](M.grow) : M;
     if (opt.yawAdd) M.orient.premultiply(new THREE.Quaternion().setFromAxisAngle(V(0, 1, 0), (opt.yawAdd * Math.PI) / 180));
     if (opt.elev != null && !isNaN(opt.elev)) M.elev = opt.elev;
     const W = host.clientWidth, H = host.clientHeight;
@@ -177,8 +195,8 @@
     const fill = new THREE.DirectionalLight(0xffffff, 0.3); fill.position.set(4, -2, 6); scene.add(fill);
     const group = new THREE.Group(); group.quaternion.copy(M.orient); scene.add(group);
 
-    const FP = M.balls.map((b) => b[0]).concat(M.labels.filter((l) => l[2] === "pocket").map((l) => l[0]));
-    const center = new THREE.Vector3(); FP.forEach((p) => center.add(p)); center.multiplyScalar(1 / FP.length);
+    const FP = MF.balls.map((b) => b[0]).concat(MF.labels.filter((l) => l[2] === "pocket").map((l) => l[0]));
+    const center = new THREE.Vector3(); FP.forEach((p) => center.add(p)); center.multiplyScalar(1 / FP.length); if (M.center) center.copy(M.center);
     const cpos = (p) => p.clone().sub(center);
     const mat = {
       white: new THREE.MeshStandardMaterial({ color: lin(0xd9dce1), roughness: 0.42, metalness: 0.02, side: THREE.DoubleSide }),
@@ -187,9 +205,18 @@
       blue: new THREE.MeshStandardMaterial({ color: lin(0x1d6f9e), roughness: 0.32, metalness: 0.05, side: THREE.DoubleSide }),
       green: new THREE.MeshStandardMaterial({ color: lin(0x0f7d30), roughness: 0.32, metalness: 0.05, side: THREE.DoubleSide }),
     };
-    const BG = ballGeometry();
-    for (const [p, col] of M.balls) { const m = new THREE.Mesh(BG, mat[col]); m.position.copy(cpos(p)); group.add(m); }
-    for (const [a, b, k] of M.struts) group.add(new THREE.Mesh(strutGeometry(cpos(a), cpos(b), k || "yellow"), mat[k || "yellow"]));
+    const BG = ballGeometry(), built = new Map(), popping = [];
+    const keyOf = (a, b) => a.toArray().map((x) => x.toFixed(2)).join() + (b ? "|" + b.toArray().map((x) => x.toFixed(2)).join() : "");
+    function buildParts(pop) {
+      const want = new Set();
+      for (const [p, col] of M.balls) { const k = keyOf(p); want.add(k); if (built.has(k)) continue;
+        const m = new THREE.Mesh(BG, mat[col]); m.position.copy(cpos(p)); group.add(m); built.set(k, m); if (pop) { m.scale.setScalar(0.01); popping.push(m); } }
+      for (const [a, b, kd] of M.struts) { const k = keyOf(a, b); want.add(k); if (built.has(k)) continue;
+        const m = new THREE.Mesh(strutGeometry(cpos(a), cpos(b), kd || "yellow"), mat[kd || "yellow"]); group.add(m); built.set(k, m); if (pop) { m.scale.setScalar(0.01); popping.push(m); } }
+      for (const [k, m] of built) if (!want.has(k)) { group.remove(m); if (m.geometry !== BG) m.geometry.dispose(); built.delete(k); }
+    }
+    buildParts(false);
+    let popT0 = 0;
     const dmat = new THREE.MeshBasicMaterial({ color: lin(0xe8742a) });
     const ends = new Set(M.labels.filter((l) => l[2] === "pocket").map((l) => l[0]));
     for (const [a, b] of M.dashes) {
@@ -219,6 +246,20 @@
       camera.position.copy(home()); controls.target.set(0, 0, 0); controls.update();
     };
     fit(); controls.minDistance = dist * 0.35; controls.maxDistance = dist * 1.6;
+    const fitFrom = (pts, dirv) => {       // camera distance that fits these points, seen from direction dirv
+      const cam = camera.clone(); let d = dist;
+      for (let k = 0; k < 5; k++) {
+        cam.position.copy(dirv.clone().normalize().multiplyScalar(d)); cam.up.set(0, 1, 0); if (Math.abs(dirv.y) > 0.99) cam.up.set(0, 0, -1);
+        cam.lookAt(0, 0, 0); cam.updateMatrixWorld(); cam.updateProjectionMatrix();
+        let lo = 1e9, hi = -1e9, lx = 1e9, hx = -1e9; pts.forEach((p) => { const q = world(cpos(p)).project(cam); lo = Math.min(lo, q.y); hi = Math.max(hi, q.y); lx = Math.min(lx, q.x); hx = Math.max(hx, q.x); });
+        const bp = (1.06 / (d * Math.tan((cam.fov * Math.PI) / 360))) * H;
+        d *= Math.max((((hi - lo) / 2) * H + bp) / (opt.fitH || H * 0.7), opt.fitW ? (((hx - lx) / 2) * W + bp) / opt.fitW : 0);
+      }
+      return d;
+    };
+    const stageDist = M.grow ? [0].concat(Array.from({ length: M.grow }, (_, i) => Math.max(fitFrom(MODELS[kind](i + 1).balls.map((b) => b[0]), home()), dist * 0.5))) : null;
+    const topDist = fitFrom(MF.balls.map((b) => b[0]), V(0, 1, 0)) * 1.05;
+    if (stageDist) { controls.maxDistance = Math.max(dist, topDist) * 1.6; }
 
     let anim = null, raf = 0, alive = true;
     const h0 = home(), th0 = Math.atan2(h0.x, h0.z), ph0 = Math.acos(h0.y / h0.length());
@@ -233,6 +274,8 @@
     const tick = (now) => {
       if (!alive) return;
       if (anim) anim(now); else controls.update();
+      if (popping.length) { if (!popT0) popT0 = now; const t = Math.min(1, (now - popT0) / 450), e = t < 1 ? 1 + 0.25 * Math.sin(t * Math.PI) * (1 - t) : 1;
+        popping.forEach((m) => { if (m.geometry === BG) m.scale.setScalar(Math.max(0.01, t * e)); else m.scale.setScalar(1); }); if (t >= 1) { popping.forEach((m) => m.scale.setScalar(1)); popping.length = 0; popT0 = 0; } }
       key.position.copy(camera.position).add(V(-25, 35, 0));
       const right = V(1, 0, 0).applyQuaternion(camera.quaternion), up = V(0, 1, 0).applyQuaternion(camera.quaternion);
       labels.forEach((l) => { l.position.copy(world(l.userData.at)); if (!l.userData.on) l.position.addScaledVector(right, 1.6).addScaledVector(up, 1.4); });
@@ -243,15 +286,17 @@
     renderer.domElement.addEventListener("pointerdown", () => { opt.onInteract && opt.onInteract(); anim = null; controls.enabled = true; renderer.domElement.style.cursor = "grabbing"; });
     renderer.domElement.addEventListener("pointerup", () => { renderer.domElement.style.cursor = "grab"; });
     return {
-      top() { animateTo(sph().th, 0.0001, 1600); },
-      intro(done, dur = 1600) { let t0 = 0, n = 0; controls.enabled = false; setSph(dist * 1.45, th0 - Math.PI * 2, ph0 + 0.2);
+      top() { animateTo(sph().th, 0.0001, 1600, stageDist ? topDist * stageDist[M.stage || 1] / stageDist[M.grow] : null); },
+      intro(done, dur = 1600) { if (stageDist) dist = stageDist[M.stage || 1]; let t0 = 0, n = 0; controls.enabled = false; setSph(dist * 1.45, th0 - Math.PI * 2, ph0 + 0.2);
         anim = (now) => { if (n++ < 2) { t0 = now; return; } const t = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - t, 3);
           setSph(dist * (1.45 - 0.45 * e), th0 - Math.PI * 2 * (1 - e), ph0 + 0.2 * (1 - e)); if (t >= 1) { anim = null; controls.enabled = true; controls.update(); done && done(); } }; },
       spin(dur = 3600) { const a = sph(), t0 = performance.now(); controls.enabled = false;
         anim = (now) => { const t = Math.min(1, (now - t0) / dur), e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
           setSph(a.r, a.th + e * Math.PI * 2, a.ph); if (t >= 1) { anim = null; controls.enabled = true; controls.update(); } }; },
       setAngle(deg) { anim = null; const a = sph(); setSph(a.r, th0 + (deg * Math.PI) / 180, a.ph); controls.update(); },
-      home() { animateTo(th0, ph0, 1200, dist); },
+      home() { animateTo(th0, ph0, 1200, stageDist ? stageDist[M.stage || 1] : dist); },
+      stage: () => M.stage || 1,
+      grow() { if (!M.grow) return 0; const next = (M.stage || 1) >= M.grow ? 1 : (M.stage || 1) + 1; M = MODELS[kind](next); M.stage = next; buildParts(next > 1); const a = sph(); animateTo(a.th, a.ph, 900, a.ph < 0.2 ? topDist * stageDist[next] / stageDist[M.grow] : stageDist[next]); return next; },
       dispose() { alive = false; window.removeEventListener("resize", onResize); cancelAnimationFrame(raf); renderer.dispose(); host.removeChild(renderer.domElement); },
     };
   }
