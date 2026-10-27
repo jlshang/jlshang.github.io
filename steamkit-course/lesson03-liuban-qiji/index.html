@@ -1,0 +1,883 @@
+<meta charset="utf-8">
+<title>雪花的六瓣奇迹</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;700;900&display=swap">
+<style>
+/* Layout: the finished PPT rebuilt 1:1 on a 1600×900 stage, scaled to the window; a slim control rail sits under it. */
+:root{
+  --ink:#1E2A44; --ink2:#121827; --paper:#FBF6EC; --orange:#E8742A; --orange-d:#B95717; --blue:#2459B8; --green:#3A9A5B; --sun:#FFC60A;
+  --display:"ZCOOL KuaiLe","Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
+  --body:"Microsoft YaHei","Noto Sans SC","PingFang SC",system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--ink2);color:#EEF2FA;font-family:var(--body);overflow:hidden;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px}
+button{font:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:4px solid var(--orange);outline-offset:3px}
+#app{height:100%;display:flex;flex-direction:column;gap:8px}
+#viewport{flex:1;min-height:0;position:relative}
+#stage{position:absolute;left:50%;top:50%;width:1600px;height:900px;transform-origin:center;border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.45);background:#000}
+#stage.shake{animation:shake .5s}
+@keyframes shake{0%,100%{translate:0 0}20%{translate:-14px 6px}40%{translate:12px -8px}60%{translate:-8px 4px}80%{translate:6px -2px}}
+.slide{position:absolute;inset:0;overflow:hidden}
+[hidden]{display:none!important}
+.slide.on{animation:slideIn .45s ease-out}
+@keyframes slideIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}
+.el{position:absolute}
+.pic{overflow:hidden}
+.pic .im{position:absolute;max-width:none;user-select:none;-webkit-user-drag:none}
+.tx{position:absolute;inset:0;display:flex;flex-direction:column}
+.tx p{margin:0;line-height:1.2}
+.tap{cursor:pointer}
+.zoomable{cursor:zoom-in;transition:transform .25s,box-shadow .25s}
+.zoomable:hover{transform:scale(1.03);box-shadow:0 12px 30px rgba(0,0,0,.3);z-index:5}
+
+/* ---------- entrance & idle motion (run when the slide turns on) ---------- */
+.slide.on .in-pop{animation:pop .7s cubic-bezier(.2,1.6,.4,1) both}
+.slide.on .in-up{animation:up .6s cubic-bezier(.2,1.2,.4,1) both}
+.slide.on .in-fade{animation:fade .6s ease both}
+.slide.on .in-left{animation:fromL .6s cubic-bezier(.2,1.2,.4,1) both}
+.slide.on .in-right{animation:fromR .7s cubic-bezier(.2,1.2,.4,1) both}
+.slide.on .in-drop{animation:drop .7s cubic-bezier(.2,1.5,.4,1) both}
+.slide.on .d1{animation-delay:.15s}.slide.on .d2{animation-delay:.3s}.slide.on .d3{animation-delay:.45s}.slide.on .d4{animation-delay:.6s}.slide.on .d5{animation-delay:.75s}
+@keyframes pop{0%{opacity:0;transform:scale(.3)}100%{opacity:1;transform:scale(1)}}
+@keyframes up{0%{opacity:0;transform:translateY(50px)}100%{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes fromL{0%{opacity:0;transform:translateX(-120px)}100%{opacity:1;transform:none}}
+@keyframes fromR{0%{opacity:0;transform:translateX(160px)}100%{opacity:1;transform:none}}
+@keyframes drop{0%{opacity:0;transform:translateY(-120px)}100%{opacity:1;transform:none}}
+.floaty{animation:float 3s ease-in-out infinite}
+.floaty.f2{animation-duration:3.6s;animation-delay:-1s}.floaty.f3{animation-duration:3.3s;animation-delay:-2s}
+.slide.on .floaty.in-pop,.slide.on .floaty.in-up,.slide.on .floaty.in-right{animation:pop .7s cubic-bezier(.2,1.6,.4,1) both,float 3s ease-in-out .8s infinite}
+@keyframes float{0%,100%{translate:0 0}50%{translate:0 -14px}}
+.title-wobble{transform-origin:center}
+.slide.on .title-wobble{animation:pop .8s cubic-bezier(.2,1.6,.4,1) .3s both,wobble 2.8s ease-in-out 1.2s infinite}
+@keyframes wobble{0%,100%{rotate:0deg}25%{rotate:-2deg}75%{rotate:2deg}}
+.peek{animation:peek 3.2s ease-in-out infinite}
+@keyframes peek{0%,100%{translate:0 0}40%{translate:0 -18px;rotate:-6deg}60%{translate:0 -18px;rotate:6deg}}
+.wave{animation:wave 1.8s ease-in-out infinite;transform-origin:50% 90%}
+@keyframes wave{0%,100%{rotate:0deg}30%{rotate:-6deg}60%{rotate:5deg}}
+.dance{animation:dance 1.2s ease-in-out infinite}
+.dance.f2{animation-delay:-.6s}
+@keyframes dance{0%,100%{translate:0 0}25%{translate:0 -10px}50%{translate:0 0}75%{translate:0 -6px}}
+.march{animation:march 1s steps(2) infinite}
+@keyframes march{0%{translate:0 0}50%{translate:0 -8px}}
+.jump{animation:jump 1.1s cubic-bezier(.3,.0,.4,1) infinite;transform-origin:50% 100%}
+@keyframes jump{0%,100%{translate:0 0;scale:1 1}10%{scale:1.08 .92}40%{translate:0 -36px;scale:.96 1.05}70%{translate:0 0;scale:1.06 .94}}
+.react-sad{animation:tremble .28s linear infinite}
+.slide.on .react-sad.late-pop{animation:pop .6s cubic-bezier(.2,1.6,.4,1) 1.2s both,tremble .28s linear 1.9s infinite}
+@keyframes tremble{0%,100%{translate:0 0}25%{translate:-4px 1px}50%{translate:3px -1px}75%{translate:-2px 2px}}
+.react-proud{animation:proud 1.4s ease-in-out infinite;transform-origin:50% 100%}
+.slide.on .react-proud.late-pop{animation:pop .6s cubic-bezier(.2,1.6,.4,1) 1.5s both,proud 1.4s ease-in-out 2.2s infinite}
+@keyframes proud{0%,100%{translate:0 0;scale:1}50%{translate:0 -12px;scale:1.04}}
+.slide.on .burst-in{animation:burst .9s cubic-bezier(.2,1.7,.4,1) .5s both}
+@keyframes burst{0%{opacity:0;transform:scale(.1) rotate(-25deg)}70%{opacity:1;transform:scale(1.12) rotate(3deg)}100%{transform:none}}
+.slide.on .slam{animation:slam .55s cubic-bezier(.5,0,.8,1) .25s both,vsPulse 1.6s ease-in-out 1s infinite}
+@keyframes slam{0%{opacity:0;transform:scale(2.6);filter:blur(8px)}100%{opacity:1;transform:scale(1);filter:none}}
+@keyframes vsPulse{0%,100%{scale:1}50%{scale:1.04}}
+.slide.on .spin-in{animation:spin 1s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes spin{0%{opacity:0;transform:scale(.2) rotate(-180deg)}100%{opacity:1;transform:none}}
+.slide.on .king{animation:king 1.2s cubic-bezier(.2,1.3,.4,1) both}
+@keyframes king{0%{opacity:0;transform:scale(1.25)}100%{opacity:1;transform:none}}
+.jiggle{animation:jiggle .6s !important}
+@keyframes jiggle{0%,100%{transform:none}20%{transform:rotate(-8deg) scale(1.08)}40%{transform:rotate(7deg) scale(1.1)}60%{transform:rotate(-4deg) scale(1.04)}80%{transform:rotate(2deg)}}
+
+/* decorative feedback */
+.fx{position:absolute;pointer-events:none;width:120px;height:120px}
+.fx.sweat::before,.fx.sweat::after{content:"";position:absolute;width:22px;height:30px;background:#7FB6F0;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;animation:drip 1.4s ease-in infinite}
+.fx.sweat::before{left:10px;top:0}.fx.sweat::after{left:60px;top:10px;animation-delay:.7s}
+@keyframes drip{0%{opacity:0;translate:0 0}20%{opacity:1}100%{opacity:0;translate:0 60px}}
+.fx.stars::before,.fx.stars::after{content:"✦";position:absolute;color:var(--sun);font-size:46px;animation:twinkle 1.2s ease-in-out infinite}
+.fx.stars::before{left:0;top:0}.fx.stars::after{left:70px;top:50px;animation-delay:.6s;font-size:34px}
+@keyframes twinkle{0%,100%{opacity:.2;scale:.6}50%{opacity:1;scale:1.2}}
+.qmark{position:absolute;left:1120px;top:250px;font-family:var(--display);font-size:150px;color:var(--orange);animation:qm 2s ease-in-out infinite;pointer-events:none}
+@keyframes qm{0%,100%{rotate:-8deg;translate:0 0}50%{rotate:8deg;translate:0 -16px}}
+.bubble{position:absolute;padding:10px 22px;border-radius:999px;background:#fff;border:3px solid var(--ink);font-family:var(--display);font-size:34px;color:var(--ink);pointer-events:none;animation:bub 1.6s ease-out forwards;white-space:nowrap;z-index:10}
+.bubble.good{border-color:var(--green);color:var(--green)}.bubble.bad{border-color:#D64545;color:#D64545}
+@keyframes bub{0%{opacity:0;transform:translateY(20px) scale(.6)}20%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0;transform:translateY(-30px)}}
+
+/* controls on interactive slides */
+.ctl{position:absolute;right:40px;bottom:30px;display:flex;align-items:center;gap:14px;background:none;border:none;border-radius:22px;padding:0;z-index:8;color:var(--ink);font-weight:900;font-size:22px}
+.ctl input{width:180px;accent-color:var(--orange)}
+.ctl.side{right:22px;bottom:auto;top:50%;transform:translateY(-50%);flex-direction:column;width:156px;padding:14px 10px;gap:12px;text-align:center;background:rgba(255,255,255,.75);border-radius:20px}
+.ctl.side label{display:flex;flex-direction:column;align-items:center;gap:6px}
+.ctl.side input{width:128px}
+.ctl.side .go{font-size:24px;padding:6px 8px;width:100%;white-space:nowrap}
+/* reveal-on-same-page characters */
+.slide:not(.revealed) .after{opacity:0;pointer-events:none;animation:none}
+.slide.revealed .after.react-sad{animation:pop .6s cubic-bezier(.2,1.6,.4,1) both,tremble .28s linear .7s infinite}
+.slide.revealed .after.react-proud{animation:pop .6s cubic-bezier(.2,1.6,.4,1) .45s both,proud 1.4s ease-in-out 1.1s infinite}
+.slide.revealed .after.fx{animation:fadein .4s .5s both}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.z3dhost{opacity:0;transition:opacity .2s;z-index:3;cursor:grab}
+.z3ctl label{cursor:pointer;display:flex;align-items:center;gap:10px;font-family:var(--display);font-size:26px;color:var(--orange)}
+.z3ctl input{width:260px;accent-color:var(--orange)}
+.z3dhost .hint{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);font-size:20px;color:#8A93A6;pointer-events:none;transition:opacity .4s}
+.slide.z3d-on .z3dhost .hint{opacity:0}
+.slide.z3d-on .z3dhost{opacity:1}
+.slide.z3d-on .model{opacity:0;transition:opacity .4s}
+.ctl .go+.go{margin-left:4px}
+.ctl.left{right:auto;left:106px}
+.judge{cursor:pointer}
+.judge .badge{position:absolute;right:14px;top:14px;width:96px;height:96px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:66px;font-weight:900;color:#fff;animation:pop .5s cubic-bezier(.2,1.7,.4,1) both;box-shadow:0 8px 20px rgba(0,0,0,.18)}
+.judge .badge.ok{background:#3A9A5B}.judge .badge.no{background:#D64545}
+.slide.on .pairpop{animation:pairpop 1.3s cubic-bezier(.2,1.4,.4,1) .2s both}
+@keyframes pairpop{0%{opacity:0;transform:scale(.25) rotate(-14deg)}55%{opacity:1;transform:scale(1.1) rotate(3deg)}75%{transform:scale(.97) rotate(-1deg)}100%{transform:none}}
+.slide.revealed .after.burst-after{animation:burst .9s cubic-bezier(.2,1.7,.4,1) both}
+.model{cursor:pointer;overflow:visible!important}
+.model .im{opacity:0}
+.model.glow .im{animation:modelpop .8s cubic-bezier(.2,1.5,.4,1) both}
+@keyframes modelpop{0%{opacity:0;transform:scale(.55)}100%{opacity:1;transform:none}}
+.model .glint{position:absolute;pointer-events:none;-webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  background:linear-gradient(110deg,transparent 32%,rgba(255,250,215,.9) 46%,#fff 50%,rgba(255,250,215,.9) 54%,transparent 68%);background-size:260% 100%;background-position:120% 0;opacity:0}
+.model.glow .glint{animation:glint 1.5s ease-in-out .7s both}
+@keyframes glint{0%{opacity:1;background-position:120% 0}100%{opacity:1;background-position:-20% 0}}
+.model svg.m3d{position:absolute;inset:0;width:100%;height:100%;overflow:visible;opacity:0;transition:opacity .35s;pointer-events:none}
+.model.spinning svg.m3d{opacity:1}
+.ctl output{color:var(--orange);min-width:3em}
+.ctl .go{font-family:var(--display);font-size:32px;background:var(--orange);color:#fff;border:none;border-radius:16px;padding:4px 26px;box-shadow:0 5px 0 var(--orange-d)}
+.ctl .go:active{transform:translateY(3px);box-shadow:0 2px 0 var(--orange-d)}
+.ctl .again{font-size:20px;font-weight:900;background:#fff;border:2px solid var(--ink);border-radius:12px;padding:6px 14px;color:var(--ink)}
+.zlab svg,.coinlab svg{width:100%;height:100%;overflow:visible;touch-action:none;display:block}
+
+/* rail, notes, overview, lightbox */
+#rail{display:flex;align-items:center;gap:10px;font-size:14px;flex-wrap:wrap;justify-content:center}
+#rail button{background:#26324F;border:1px solid #3A4870;border-radius:10px;padding:6px 12px;color:#EEF2FA;font-weight:700}
+#rail button[aria-pressed="true"]{background:var(--orange);border-color:var(--orange)}
+#rail #next.nudge{animation:nudge 1s ease-in-out infinite;background:var(--orange)}
+@keyframes nudge{50%{transform:translateX(6px)}}
+#count{font-variant-numeric:tabular-nums;min-width:5.5em;text-align:center;font-weight:700}
+#progress{flex:1 1 200px;max-width:480px;height:6px;border-radius:99px;background:#26324F;overflow:hidden}
+#progress i{display:block;height:100%;background:var(--orange);width:0;transition:width .3s}
+.keys{opacity:.6;font-size:12px}
+#notes{position:absolute;left:0;right:0;bottom:0;max-height:40%;overflow:auto;background:rgba(18,24,39,.96);color:#F1F4FB;padding:14px 22px;font-size:18px;line-height:1.7;border-top:3px solid var(--orange);z-index:40}
+#notes h3{margin:0 0 4px;font-size:15px;color:var(--orange)}
+#notes p{margin:0 0 6px}
+#overview{position:absolute;inset:0;background:rgba(18,24,39,.97);z-index:50;overflow:auto;padding:24px 30px}
+#overview h2{font-family:var(--display);font-weight:400;font-size:30px;margin:0 0 8px;color:#fff}
+#overview .sec{color:var(--orange);font-weight:900;margin:16px 0 8px;font-size:16px}
+#overview .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+#overview button{background:#26324F;border:1px solid #3A4870;border-radius:12px;padding:10px;text-align:left;color:#EEF2FA;min-height:60px;font-size:16px}
+#overview button b{color:var(--orange);margin-right:6px}
+#overview button[aria-current="true"]{outline:3px solid var(--orange)}
+#lightbox{position:absolute;inset:0;background:rgba(0,0,0,.85);z-index:45;display:flex;align-items:center;justify-content:center;cursor:zoom-out}
+#lightbox img{max-width:92%;max-height:88%;border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+#burst{position:absolute;inset:0;pointer-events:none;z-index:30}
+#flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:31}
+#flash.go{animation:flash .45s ease-out}
+@keyframes flash{0%{opacity:.85}100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.floaty,.peek,.wave,.dance,.march,.jump,.react-sad,.react-proud,.qmark{animation:none!important}}
+</style>
+
+<div id="app">
+  <div id="viewport"><div id="stage" role="region" aria-label="课件">
+<section class="slide" data-n="1" style="background:#1E2A44"  data-sfx="hello" hidden>
+<div class="el pic in-drop" data-k="0"  style="left:92.7px;top:78.2px;width:285.3px;height:62.6px;"><img class="im" src="a/image1.webp" alt="" draggable="false" style="width:285.3px;height:62.6px;left:-0.0px;top:-0.0px;"></div>
+<div class="el pic in-pop" data-k="1"  style="left:261.4px;top:172.2px;width:958.5px;height:757.0px;"><img class="im" src="a/image2.webp" alt="" draggable="false" style="width:958.5px;height:757.0px;left:-0.0px;top:-0.0px;"></div>
+<div class="el sp in-pop d2 title-wobble" data-k="2"  style="left:832.3px;top:358.8px;width:382.6px;height:110.0px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:110.0px;"><span style="font-size:100.0px;color:#FBF6EC;font-family:var(--display);font-weight:400;">雪花的</span></p><p style="text-align:left;line-height:110.0px;"><span style="font-size:100.0px;color:#FBF6EC;font-family:var(--display);font-weight:400;">六瓣奇迹</span></p></div></div>
+</section>
+<section class="slide" data-n="2" style="background:#1E2A44"  hidden>
+<div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#FBF6EC;font-family:var(--display);font-weight:400;">雪花画廊：放大镜下的雪花</span></p></div></div>
+<div class="el pic in-up zoomable" data-k="1"  style="left:106.7px;top:194.2px;width:444.2px;height:287.5px;border-radius:11.7px;"><img class="im" src="a/image3.webp" alt="" draggable="false" style="width:444.2px;height:333.1px;left:-0.0px;top:-22.8px;"></div>
+<div class="el pic in-up d1 zoomable" data-k="2"  style="left:577.5px;top:194.2px;width:444.2px;height:287.5px;border-radius:11.7px;"><img class="im" src="a/image4.webp" alt="" draggable="false" style="width:444.2px;height:333.1px;left:-0.0px;top:-22.8px;"></div>
+<div class="el pic in-up d2 zoomable" data-k="3"  style="left:1048.3px;top:194.2px;width:444.2px;height:287.5px;border-radius:11.7px;"><img class="im" src="a/image5.webp" alt="" draggable="false" style="width:444.2px;height:349.8px;left:-0.0px;top:-31.1px;"></div>
+<div class="el pic in-up d4 zoomable" data-k="5"  style="left:577.5px;top:505.0px;width:444.2px;height:287.5px;border-radius:11.7px;"><img class="im" src="a/image7.webp" alt="" draggable="false" style="width:444.2px;height:333.1px;left:-0.0px;top:-22.8px;"></div>
+<div class="el pic in-up d3 zoomable" data-k="6"  style="left:106.7px;top:505.0px;width:444.2px;height:287.5px;border-radius:11.7px;"><img class="im" src="a/image8.webp" alt="" draggable="false" style="width:444.2px;height:333.1px;left:-0.0px;top:-22.8px;"></div>
+<div class="el sp in-fade d5" data-k="7"  style="left:106.7px;top:833.3px;width:1386.7px;height:33.3px;"><div class="tx" style="justify-content:flex-start;padding:6.0px 12.0px 6.0px 12.0px;"><p style="text-align:left;line-height:1.20;"><span style="font-size:18.3px;color:#B8C2D6;font-family:var(--body);font-weight:400;">照片：Alexey Kljatov（CC BY 2.0 / CC BY-SA 4.0），来源 Wikimedia Commons</span></p></div></div>
+<div class="el pic in-up d5 zoomable" data-k="8"  style="left:1048.3px;top:505.0px;width:444.2px;height:287.5px;border-radius:11.7px;"><img class="im" src="a/image9.webp" alt="" draggable="false" style="width:681.1px;height:536.7px;left:-236.9px;top:-137.7px;"></div>
+<div class="el pic rabbit tap" data-k="9"  style="left:818.1px;top:39.0px;width:226.2px;height:172.1px;"><img class="im" src="a/image10.webp" alt="" draggable="false" style="width:226.2px;height:172.1px;left:0.0px;top:0.0px;"></div>
+</section>
+<section class="slide" data-n="3" style="background:#1E2A44"  hidden>
+<div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#FBF6EC;font-family:var(--display);font-weight:400;">数一数：每朵雪花有几个瓣？</span></p></div></div>
+<div class="el pic in-up zoomable" data-k="1"  style="left:106.7px;top:194.2px;width:326.7px;height:287.5px;border-radius:11.7px;"><img class="im" src="a/image11.webp" alt="" draggable="false" style="width:384.9px;height:287.5px;left:-29.1px;top:-0.0px;"></div>
+<div class="el pic in-up d1 zoomable" data-k="2"  style="left:460.0px;top:194.2px;width:326.7px;height:287.5px;border-radius:11.7px;"><img class="im" src="a/image12.webp" alt="" draggable="false" style="width:373.2px;height:287.5px;left:-23.3px;top:-0.0px;"></div>
+<div class="el pic in-up d2 zoomable" data-k="3"  style="left:813.3px;top:194.2px;width:326.7px;height:287.5px;border-radius:11.7px;"><img class="im" src="a/image13.webp" alt="" draggable="false" style="width:380.9px;height:287.5px;left:-27.1px;top:-0.0px;"></div>
+<div class="el pic in-up d3 zoomable" data-k="4"  style="left:1166.7px;top:194.2px;width:326.7px;height:287.5px;border-radius:11.7px;"><img class="im" src="a/image14.webp" alt="" draggable="false" style="width:376.5px;height:287.5px;left:-24.9px;top:-0.0px;"></div>
+<div class="el pic in-up d1 zoomable" data-k="5"  style="left:106.7px;top:505.0px;width:326.7px;height:287.5px;border-radius:11.7px;"><img class="im" src="a/image15.webp" alt="" draggable="false" style="width:373.5px;height:287.5px;left:-23.4px;top:-0.0px;"></div>
+<div class="el pic in-up d2 zoomable" data-k="6"  style="left:460.0px;top:505.0px;width:326.7px;height:287.5px;border-radius:11.7px;"><img class="im" src="a/image16.webp" alt="" draggable="false" style="width:375.0px;height:287.5px;left:-24.2px;top:-0.0px;"></div>
+<div class="el pic in-up d3 zoomable" data-k="7"  style="left:813.3px;top:505.0px;width:326.7px;height:287.5px;border-radius:11.7px;"><img class="im" src="a/image17.webp" alt="" draggable="false" style="width:376.5px;height:287.5px;left:-24.9px;top:-0.0px;"></div>
+<div class="el pic in-up d4 zoomable" data-k="8"  style="left:1166.7px;top:505.0px;width:326.7px;height:287.5px;border-radius:11.7px;"><img class="im" src="a/image18.webp" alt="" draggable="false" style="width:372.7px;height:287.5px;left:-23.0px;top:-0.0px;"></div>
+<div class="el sp in-fade d5" data-k="9"  style="left:106.7px;top:833.3px;width:1386.7px;height:33.3px;"><div class="tx" style="justify-content:flex-start;padding:6.0px 12.0px 6.0px 12.0px;"><p style="text-align:left;line-height:1.20;"><span style="font-size:18.3px;color:#B8C2D6;font-family:var(--body);font-weight:400;">照片：Wilson Bentley 摄于约 1890—1910 年（公有领域），纽约大都会艺术博物馆藏，来源 Wikimedia Commons</span></p></div></div>
+</section>
+<section class="slide" data-n="4" style="background:#1E2A44"  data-sfx="drum" hidden>
+<div class="el sp in-pop" data-k="0"  style="left:106.7px;top:316.7px;width:163.7px;height:266.7px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:266.7px;"><span style="font-size:266.7px;color:#E8742A;font-family:var(--display);font-weight:400;">1</span></p></div></div>
+<div class="el sp in-left d1" data-k="1"  style="left:255.8px;top:413.9px;width:1598.5px;height:92.0px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:92.0px;"><span style="font-size:80.0px;color:#FBF6EC;font-family:var(--display);font-weight:400;">为什么是六？</span></p></div></div>
+<div class="el pic in-right d2 tap" data-k="2"  style="left:800.0px;top:176.9px;width:682.0px;height:546.2px;"><img class="im" src="a/image19.webp" alt="" draggable="false" style="width:682.0px;height:546.2px;left:-0.0px;top:-0.0px;"></div>
+</section>
+<section class="slide" data-n="5" style="background:#1E2A44"  hidden>
+<div class="el pic in-pop d1 tap" data-k="0"  style="left:437.6px;top:229.2px;width:779.4px;height:491.7px;"><img class="im" src="a/image20.webp" alt="" draggable="false" style="width:779.4px;height:491.7px;left:-0.0px;top:-0.0px;"></div>
+<div class="el sp in-fade" data-k="1"  style="left:65.9px;top:108.1px;width:1598.5px;height:92.0px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:92.0px;"><span style="font-size:80.0px;color:#FBF6EC;font-family:var(--display);font-weight:400;">水分子的样子</span></p></div></div>
+<div class="el sp in-up d4" data-k="2"  style="left:451.4px;top:739.8px;width:955.5px;height:119.7px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:92.0px;"><span style="font-size:54.7px;color:#FFC60A;font-family:var(--display);font-weight:400;">H</span><span style="font-size:38.9px;color:#FFC60A;font-family:var(--display);font-weight:400;">2</span><span style="font-size:54.7px;color:#FFC60A;font-family:var(--display);font-weight:400;">0</span><span style="font-size:54.7px;color:#FFC60A;font-family:var(--display);font-weight:400;">：2 个氢 + 1 个氧 = 1 个水分子</span></p></div></div>
+<div class="el sp in-right d2" data-k="3"  style="left:1105.7px;top:302.9px;width:366.7px;height:73.3px;"><div class="tx" style="justify-content:flex-start;padding:6.0px 12.0px 6.0px 12.0px;"><p style="text-align:left;line-height:1.20;"><span style="font-size:50.0px;color:#D83A22;font-family:var(--display);font-weight:900;">1 个大大的氧</span></p></div></div>
+<div class="el sp in-left d3" data-k="4"  style="left:71.0px;top:545.3px;width:366.7px;height:73.3px;"><div class="tx" style="justify-content:flex-start;padding:6.0px 12.0px 6.0px 12.0px;"><p style="text-align:right;line-height:1.20;"><span style="font-size:50.0px;color:#B0863C;font-family:var(--display);font-weight:900;">2 个小小的氢</span></p></div></div>
+</section>
+<section class="slide" data-n="6" style="background:#EAF1FA"  hidden>
+<div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">拼一拼：用 Zometool 做一个水分子</span></p></div></div>
+<div class="el z3dhost" data-kind="water1" data-fitw="662" data-fith="334" style="left:62px;top:150px;width:760px;height:600px"></div>
+<div class="el pic  model" data-k="1" data-model='{}' style="left:100.0px;top:268.4px;width:683.3px;height:354.9px;"><img class="im" src="a/image21.webp" alt="" draggable="false" style="width:683.3px;height:354.9px;left:-0.0px;top:-0.0px;"></div>
+<div class="el sp in-up d3" data-k="2"  style="left:886.7px;top:320.0px;width:683.3px;height:300.0px;"><div class="tx" style="justify-content:flex-start;padding:6.0px 12.0px 6.0px 12.0px;"><p style="text-align:left;line-height:1.70;"><span style="font-size:46.7px;color:#1E2A44;font-family:var(--body);font-weight:900;">红球 = 氧（大大的）</span></p><p style="text-align:left;line-height:1.70;"><span style="font-size:46.7px;color:#1E2A44;font-family:var(--body);font-weight:900;">白球 = 氢（小小的）</span></p><p style="text-align:left;line-height:1.70;"><span style="font-size:46.7px;color:#1E2A44;font-family:var(--body);font-weight:900;">短黄棍 = 把氢和氧连在一起</span></p></div></div><div class="ctl z3ctl"><label>转一转 <input type="range" class="z3ang" min="-180" max="180" value="0" step="1" aria-label="转一转"></label><button class="again z3home">回正面</button></div>
+</section>
+<section class="slide" data-n="7" style="background:#1E2A44"  hidden>
+<div class="el sp " data-k="0"  style="left:65.9px;top:108.1px;width:1598.5px;height:92.0px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:92.0px;"><span style="font-size:80.0px;color:#FBF6EC;font-family:var(--display);font-weight:400;">水分子有 2 只手、2 个口袋</span></p></div></div>
+<div class="el pic in-pop tap" data-k="1"  style="left:464.5px;top:307.4px;width:583.3px;height:415.9px;"><img class="im" src="a/image22.webp" alt="" draggable="false" style="width:583.3px;height:415.9px;left:-0.0px;top:-0.0px;"></div>
+</section>
+<section class="slide" data-n="8" style="background:#1E2A44"  hidden>
+<div class="el sp " data-k="0"  style="left:65.9px;top:108.1px;width:1598.5px;height:92.0px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:92.0px;"><span style="font-size:80.0px;color:#FBF6EC;font-family:var(--display);font-weight:400;">水分子有 2 只手、2 个口袋</span></p></div></div>
+<div class="el pic in-pop tap" data-k="1"  style="left:311.1px;top:289.3px;width:693.7px;height:516.7px;"><img class="im" src="a/image23.webp" alt="" draggable="false" style="width:693.7px;height:516.7px;left:-0.0px;top:-0.0px;"></div>
+</section>
+<section class="slide" data-n="9" style="background:#EAF1FA"  hidden>
+<div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">Zometool 里，口袋在哪儿？</span></p></div></div>
+<div class="el z3dhost" data-kind="waterPockets" data-fitw="480" data-fith="566" style="left:87px;top:163px;width:660px;height:690px"></div>
+<div class="el pic  model" data-k="1" data-model='{}' style="left:167.9px;top:216.7px;width:497.4px;height:583.3px;"><img class="im" src="a/image24.webp" alt="" draggable="false" style="width:497.4px;height:583.3px;left:-0.0px;top:-0.0px;"></div>
+<div class="el sp in-up d3" data-k="2"  style="left:800.0px;top:250.0px;width:750.0px;height:383.3px;"><div class="tx" style="justify-content:flex-start;padding:6.0px 12.0px 6.0px 12.0px;"><p style="text-align:left;line-height:1.70;"><span style="font-size:46.7px;color:#1E2A44;font-family:var(--body);font-weight:900;">看看你的红球：</span></p><p style="text-align:left;line-height:1.70;"><span style="font-size:46.7px;color:#1E2A44;font-family:var(--body);font-weight:900;">除了插着白球的 2 个孔，</span></p><p style="text-align:left;line-height:1.70;"><span style="font-size:46.7px;color:#1E2A44;font-family:var(--body);font-weight:900;">还有 2 个三角形的孔空着——</span></p><p style="text-align:left;line-height:1.70;"><span style="font-size:46.7px;color:#1E2A44;font-family:var(--body);font-weight:900;">它们就是 2 个口袋（−）！</span></p></div></div><div class="ctl z3ctl"><label>转一转 <input type="range" class="z3ang" min="-180" max="180" value="0" step="1" aria-label="转一转"></label><button class="again z3home">回正面</button></div>
+</section>
+<section class="slide" data-n="10" style="background:#EAF1FA"  hidden>
+<div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">第 1 步：做 5 个水分子</span></p></div></div>
+<div class="el z3dhost" data-kind="water5" data-fitw="685" data-fith="623" style="left:323px;top:150px;width:900px;height:720px"></div>
+<div class="el pic  model" data-k="1" data-model='{}' style="left:425.5px;top:177.9px;width:695.4px;height:633.3px;"><img class="im" src="a/image25.webp" alt="" draggable="false" style="width:695.4px;height:633.3px;left:-0.0px;top:-0.0px;"></div><div class="ctl z3ctl"><label>转一转 <input type="range" class="z3ang" min="-180" max="180" value="0" step="1" aria-label="转一转"></label><button class="again z3home">回正面</button></div>
+</section>
+<section class="slide" data-n="11" style="background:#EAF1FA"  hidden>
+<div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">第 2 步：中间的水分子，伸出 2 只手</span></p></div></div>
+<div class="el z3dhost" data-kind="water3" data-fitw="494" data-fith="623" style="left:371px;top:158px;width:800px;height:720px"></div>
+<div class="el pic  model" data-k="1" data-model='{}' style="left:519.1px;top:201.5px;width:504.2px;height:633.3px;"><img class="im" src="a/image26.webp" alt="" draggable="false" style="width:504.2px;height:633.3px;left:-0.0px;top:-0.0px;"></div><div class="ctl z3ctl"><label>转一转 <input type="range" class="z3ang" min="-180" max="180" value="0" step="1" aria-label="转一转"></label><button class="again z3home">回正面</button></div>
+</section>
+<section class="slide" data-n="12" style="background:#EAF1FA"  hidden>
+<div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">第 3 步：再来 2 个小伙伴，抓住 2 个口袋</span></p></div></div>
+<div class="el z3dhost" data-kind="water5h" data-fitw="666" data-fith="624" style="left:365px;top:166px;width:900px;height:720px"></div>
+<div class="el pic  model" data-k="1" data-model='{}' style="left:476.9px;top:209.4px;width:675.5px;height:633.3px;"><img class="im" src="a/image27.webp" alt="" draggable="false" style="width:675.5px;height:633.3px;left:-0.0px;top:-0.0px;"></div><div class="ctl z3ctl"><label>转一转 <input type="range" class="z3ang" min="-180" max="180" value="0" step="1" aria-label="转一转"></label><button class="again z3home">回正面</button></div>
+</section>
+<section class="slide" data-n="13" style="background:#FBF6EC"  hidden>
+<div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">转一转：4 个小伙伴，站成一个四面体</span></p></div></div>
+<div class="el z3dhost" data-kind="waterTetra" data-fitw="569" data-fith="533" style="left:401px;top:171px;width:900px;height:710px"></div>
+<div class="el pic  model" data-k="1" data-model='{}' style="left:562.4px;top:254.7px;width:577.7px;height:541.7px;"><img class="im" src="a/image28.webp" alt="" draggable="false" style="width:577.7px;height:541.7px;left:-0.0px;top:-0.0px;"></div><div class="ctl z3ctl"><label>转一转 <input type="range" class="z3ang" min="-180" max="180" value="0" step="1" aria-label="转一转"></label><button class="go z3top">从上往下看</button><button class="again z3home">回正面</button></div>
+</section>
+<section class="slide" data-n="14" style="background:#FBF6EC"  hidden>
+<div class="el sp " data-k="0"  style="left:106.7px;top:99.2px;width:588.9px;height:180.0px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:1.50;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">Zometool 拼搭动画</span></p></div></div>
+<div class="el pic " data-k="1"  style="left:203.3px;top:211.2px;width:1262.6px;height:647.5px;"><video class="im" src="a/media1.mp4" poster="a/image29.webp" muted loop playsinline preload="auto" style="width:1262.6px;height:647.5px;left:0.0px;top:0.0px;"></video></div>
+</section>
+<section class="slide" data-n="15.5" style="background:#FBF6EC" hidden>
+<div class="el sp in-fade" style="left:106px;top:106px;width:1400px;height:61px"><div class="tx" style="justify-content:flex-start;padding:0;white-space:nowrap"><p style="text-align:left;"><span style="font-size:40px;color:#1E2A44;font-family:var(--display);font-weight:400">继续拉手，搭出一片冰</span></p></div></div>
+<div class="el z3dhost" data-kind="ice" data-stage="1" data-fitw="960" data-fith="560" style="left:200px;top:160px;width:1200px;height:720px"></div>
+<div class="ctl z3ctl"><label>转一转 <input type="range" class="z3ang" min="-180" max="180" value="0" step="1" aria-label="转一转"></label><button class="go z3grow">继续拉手</button><button class="go z3top">从上往下看</button><button class="again z3home">回正面</button></div>
+</section>
+<section class="slide" data-n="16" style="background:#F2A65A"  data-sfx="fanfare-soft" hidden>
+<div class="el sp in-up" data-k="0"  style="left:106.7px;top:292.7px;width:1469.9px;height:230.0px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;"><p style="text-align:left;line-height:115.0px;"><span style="font-size:100.0px;color:#1E2A44;font-family:var(--display);font-weight:400;">六个围一个，连成六边形；</span></p><p style="text-align:left;line-height:115.0px;"><span style="font-size:100.0px;color:#1E2A44;font-family:var(--display);font-weight:400;">水结成冰，也排六边形</span></p></div></div>
+<div class="el sp in-up d4" data-k="1"  style="left:106.7px;top:619.0px;width:1802.7px;height:51.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:51.3px;"><span style="font-size:36.7px;color:#1E2A44;font-family:var(--body);font-weight:400;">雪花的芯，就是一片六边形冰晶</span></p></div></div>
+</section>
+<section class="slide" data-n="17" style="background:#1E2A44"  data-sfx="drum" hidden>
+<div class="el sp in-pop" data-k="0"  style="left:106.7px;top:316.7px;width:233.3px;height:266.7px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:266.7px;"><span style="font-size:266.7px;color:#E8742A;font-family:var(--display);font-weight:400;">2</span></p></div></div>
+<div class="el sp in-left d1" data-k="1"  style="left:333.3px;top:365.0px;width:1508.0px;height:92.0px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:92.0px;"><span style="font-size:80.0px;color:#FBF6EC;font-family:var(--display);font-weight:400;">亲自造一朵雪花</span></p></div></div>
+<div class="el sp in-left d2" data-k="2"  style="left:333.3px;top:483.7px;width:1508.0px;height:51.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:51.3px;"><span style="font-size:36.7px;color:#D6DEEB;font-family:var(--body);font-weight:400;">六边形，怎么长出六个瓣？</span></p></div></div>
+<div class="el pic in-right d2 tap" data-k="3"  style="left:1016.7px;top:287.8px;width:413.3px;height:391.7px;"><img class="im" src="a/image31.gif" alt="" draggable="false" style="width:413.3px;height:391.7px;left:0.0px;top:0.0px;"></div>
+</section>
+<section class="slide" data-n="18" style="background:#FBF6EC"  hidden>
+<div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">一个农民，拍了 5000 多张雪花</span></p></div></div>
+<div class="el pic in-up zoomable" data-k="1"  style="left:106.7px;top:244.4px;width:350.0px;height:433.3px;"><img class="im" src="a/image32.webp" alt="" draggable="false" style="width:587.0px;height:433.3px;left:-118.5px;top:-0.0px;"></div>
+<div class="el sp in-fade d1" data-k="2"  style="left:106.7px;top:687.7px;width:455.0px;height:29.2px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:26.0px;"><span style="font-size:20.0px;color:#4A5568;font-family:var(--body);font-weight:400;">美国农民本特利和他的相机</span></p></div></div>
+<div class="el pic in-up d1 zoomable" data-k="3"  style="left:490.0px;top:244.4px;width:350.0px;height:433.3px;"><img class="im" src="a/image33.webp" alt="" draggable="false" style="width:433.3px;height:433.3px;left:-41.7px;top:-0.0px;"></div>
+<div class="el sp in-fade d2" data-k="4"  style="left:490.0px;top:687.7px;width:455.0px;height:29.2px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:26.0px;"><span style="font-size:20.0px;color:#4A5568;font-family:var(--body);font-weight:400;">他拍的雪花 · 896 号</span></p></div></div>
+<div class="el sp in-left d2" data-k="5"  style="left:873.3px;top:351.3px;width:806.0px;height:40.0px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:40.0px;"><span style="font-size:26.7px;color:#1E2A44;font-family:var(--body);font-weight:400;">1885 年，他第一次拍下一片雪花</span></p></div></div>
+<div class="el sp in-left d3" data-k="6"  style="left:873.3px;top:414.7px;width:806.0px;height:40.0px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:40.0px;"><span style="font-size:26.7px;color:#4A5568;font-family:var(--body);font-weight:400;">拍了 5000 多张，片片都是六个瓣</span></p></div></div>
+<div class="el sp in-up d4" data-k="7"  style="left:873.3px;top:478.0px;width:620.0px;height:132.0px;background:#FFF3E6;border-radius:18.2px;"><div class="tx" style="justify-content:flex-start;padding:6.0px 12.0px 6.0px 12.0px;"><p style="text-align:center;line-height:1.20;"><span style="font-size:30.0px;color:#000000;font-family:var(--body);font-weight:400;"> </span></p></div></div>
+<div class="el sp in-up d4" data-k="8"  style="left:906.7px;top:501.3px;width:191.7px;height:36.7px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:36.7px;"><span style="font-size:36.7px;color:#B9541A;font-family:var(--display);font-weight:400;">想一想</span></p></div></div>
+<div class="el sp in-up d4" data-k="9"  style="left:906.7px;top:548.0px;width:485.4px;height:38.7px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:38.7px;"><span style="font-size:26.7px;color:#1E2A44;font-family:var(--body);font-weight:900;">六个瓣，是怎么长出来的？</span></p></div></div>
+<div class="el pic rabbit tap" data-k="10"  style="left:1164.5px;top:172.2px;width:455.0px;height:438.3px;"><img class="im" src="a/image34.webp" alt="" draggable="false" style="width:455.0px;height:438.3px;left:0.0px;top:0.0px;"></div>
+</section>
+<section class="slide" data-n="19" style="background:#EAF1FA"  hidden>
+<div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">第 1 步：拼搭雪花芯</span></p></div></div>
+<div class="el z3dhost" data-kind="snow1" data-fitw="714" data-fith="630" style="left:167px;top:150px;width:1200px;height:730px"></div>
+<div class="el pic  model" data-k="1" data-model='{}' style="left:504.3px;top:262.6px;width:524.8px;height:471.4px;"><img class="im" src="a/image35.webp" alt="" draggable="false" style="width:524.8px;height:471.4px;left:-0.0px;top:-0.0px;"></div><div class="ctl z3ctl"><label>转一转 <input type="range" class="z3ang" min="-180" max="180" value="0" step="1" aria-label="转一转"></label><button class="again z3home">回正面</button></div>
+</section>
+<section class="slide" data-n="20" style="background:#FBF6EC"  hidden>
+<div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">猜一猜：水汽飘过来，哪里最先接到？</span></p></div></div>
+<div class="el vaporlab" style="left:183.2px;top:200.0px;width:1233.6px;height:631.3px;"></div>
+</section>
+<section class="slide" data-n="21" style="background:#FBF6EC"  hidden>
+<div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">雪花从六个角，长出六根主枝</span></p></div></div>
+<div class="el growlab" style="left:0px;top:195px;width:1600px;height:690px"></div>
+<div class="el pic rabbit tap" data-k="2"  style="left:1291.5px;top:429.1px;width:353.2px;height:470.9px;"><img class="im" src="a/image38.webp" alt="" draggable="false" style="width:353.2px;height:470.9px;left:0.0px;top:0.0px;"></div><div class="ctl left"><button class="go grownext">开始</button><button class="again growreset">重来</button></div>
+</section>
+<section class="slide" data-n="22" style="background:#EAF1FA"  hidden>
+<div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">第 2 步：从六个角长出主枝</span></p></div></div>
+<div class="el z3dhost" data-kind="snow2" data-from="snow1" data-fitw="666" data-fith="581" style="left:157px;top:150px;width:1200px;height:730px"></div>
+<div class="el pic  model" data-k="1" data-model='{}' style="left:494.5px;top:272.5px;width:524.8px;height:471.4px;"><img class="im" src="a/image39.webp" alt="" draggable="false" style="width:524.8px;height:471.4px;left:-0.0px;top:-0.0px;"></div><div class="ctl z3ctl"><label>转一转 <input type="range" class="z3ang" min="-180" max="180" value="0" step="1" aria-label="转一转"></label><button class="again z3home">回正面</button></div>
+</section>
+<section class="slide" data-n="23" style="background:#EAF1FA"  hidden>
+<div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">第 3 步：长出侧枝</span></p></div></div>
+<div class="el z3dhost" data-kind="snow3" data-from="snow2" data-fitw="662" data-fith="655" style="left:163px;top:150px;width:1200px;height:730px"></div>
+<div class="el pic  model" data-k="1" data-model='{}' style="left:500.1px;top:252.3px;width:525.1px;height:471.7px;"><img class="im" src="a/image40.webp" alt="" draggable="false" style="width:525.1px;height:471.7px;left:-0.0px;top:-0.0px;"></div><div class="ctl z3ctl"><label>转一转 <input type="range" class="z3ang" min="-180" max="180" value="0" step="1" aria-label="转一转"></label><button class="again z3home">回正面</button></div>
+</section>
+<section class="slide" data-n="24" style="background:#F2A65A"  data-sfx="fanfare-soft" hidden>
+<div class="el sp in-up" data-k="0"  style="left:106.7px;top:292.7px;width:1469.9px;height:230.0px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;"><p style="text-align:left;line-height:115.0px;"><span style="font-size:100.0px;color:#1E2A44;font-family:var(--display);font-weight:400;">里面是六边形，</span></p><p style="text-align:left;line-height:115.0px;"><span style="font-size:100.0px;color:#1E2A44;font-family:var(--display);font-weight:400;">外面就是六个瓣</span></p></div></div>
+<div class="el sp in-up d4" data-k="1"  style="left:118.5px;top:603.3px;width:1802.7px;height:51.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:51.3px;"><span style="font-size:36.7px;color:#1E2A44;font-family:var(--body);font-weight:400;">六个角先长，侧枝和旁边的主枝平行</span></p></div></div>
+</section>
+<section class="slide" data-n="25" style="background:#1E2A44"  data-sfx="drum" hidden>
+<div class="el sp in-pop" data-k="0"  style="left:106.7px;top:316.7px;width:242.4px;height:266.7px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:266.7px;"><span style="font-size:266.7px;color:#E8742A;font-family:var(--display);font-weight:400;">3</span></p></div></div>
+<div class="el sp in-left d1" data-k="1"  style="left:335.7px;top:413.3px;width:1496.2px;height:92.0px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:92.0px;"><span style="font-size:80.0px;color:#FBF6EC;font-family:var(--display);font-weight:400;">六瓣雪花的秘密</span></p></div></div>
+<div class="el pic in-right d2 tap" data-k="2"  style="left:800.0px;top:216.6px;width:848.7px;height:635.1px;"><img class="im" src="a/image41.webp" alt="" draggable="false" style="width:848.7px;height:635.1px;left:0.0px;top:0.0px;"></div>
+</section>
+<section class="slide" data-n="26" style="background:#FBF6EC"  hidden>
+<div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">真雪花，都守这两条规矩吗？</span></p></div></div>
+<div class="el pic in-up zoomable" data-k="1"  style="left:106.7px;top:275.0px;width:326.7px;height:333.3px;"><img class="im" src="a/image42.webp" alt="" draggable="false" style="width:333.3px;height:333.3px;left:-3.3px;top:-0.0px;"></div>
+<div class="el pic in-up d1 zoomable" data-k="2"  style="left:460.0px;top:275.0px;width:326.7px;height:333.3px;"><img class="im" src="a/image43.webp" alt="" draggable="false" style="width:333.3px;height:333.3px;left:-3.3px;top:-0.0px;"></div>
+<div class="el pic in-up d2 zoomable" data-k="3"  style="left:813.3px;top:275.0px;width:326.7px;height:333.3px;"><img class="im" src="a/image44.webp" alt="" draggable="false" style="width:333.3px;height:333.3px;left:-3.3px;top:-0.0px;"></div>
+<div class="el pic in-up d3 zoomable" data-k="4"  style="left:1166.7px;top:275.0px;width:326.7px;height:333.3px;"><img class="im" src="a/image45.webp" alt="" draggable="false" style="width:333.3px;height:333.3px;left:-3.3px;top:-0.0px;"></div>
+</section>
+<section class="slide" data-n="27" style="background:#FBF6EC"  hidden>
+<div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">这些雪花图案，画对了吗？</span></p></div></div>
+<div class="el pic in-up judge bad" data-k="1"  style="left:106.7px;top:251.1px;width:444.2px;height:414.6px;"><img class="im" src="a/image46.webp" alt="" draggable="false" style="width:444.2px;height:414.6px;left:-0.0px;top:-0.0px;"></div>
+<div class="el pic in-up d1 judge good" data-k="2"  style="left:577.5px;top:251.1px;width:444.2px;height:414.6px;"><img class="im" src="a/image47.webp" alt="" draggable="false" style="width:444.2px;height:414.6px;left:-0.0px;top:-0.0px;"></div>
+<div class="el pic in-up d2 judge bad" data-k="3"  style="left:1048.3px;top:251.1px;width:444.2px;height:414.6px;"><img class="im" src="a/image48.webp" alt="" draggable="false" style="width:444.2px;height:414.6px;left:-0.0px;top:-0.0px;"></div>
+</section>
+<section class="slide" data-n="28" style="background:#FBF6EC"  hidden>
+<div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">两千多年前，古人就发现了</span></p></div></div>
+<div class="el sp in-left" data-k="1"  style="left:106.7px;top:286.5px;width:683.3px;height:336.7px;background:#FFFDF8;border:1.7px solid #EADFCB;border-radius:7.1px;"><div class="tx" style="justify-content:flex-start;padding:6.0px 12.0px 6.0px 12.0px;"><p style="text-align:center;line-height:1.20;"><span style="font-size:30.0px;color:#000000;font-family:var(--body);font-weight:400;"> </span></p></div></div>
+<div class="el pic in-pop d2 tap" data-k="2"  style="left:277.2px;top:308.2px;width:342.2px;height:293.3px;"><img class="im" src="a/image49.webp" alt="" draggable="false" style="width:342.2px;height:293.3px;left:-0.0px;top:-0.0px;"></div>
+<div class="el sp in-up d3" data-k="3"  style="left:106.7px;top:636.5px;width:884.0px;height:48.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:43.3px;"><span style="font-size:33.3px;color:#1E2A44;font-family:var(--body);font-weight:900;">凡草木花多五出</span></p></div></div>
+<div class="el sp in-up d4" data-k="4"  style="left:106.7px;top:698.2px;width:884.0px;height:33.8px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:33.8px;"><span style="font-size:23.3px;color:#4A5568;font-family:var(--body);font-weight:400;">花草的花，大多是五瓣</span></p></div></div>
+<div class="el sp in-right d1" data-k="5"  style="left:813.3px;top:286.5px;width:683.3px;height:336.7px;background:#FFFDF8;border:1.7px solid #EADFCB;border-radius:7.1px;"><div class="tx" style="justify-content:flex-start;padding:6.0px 12.0px 6.0px 12.0px;"><p style="text-align:center;line-height:1.20;"><span style="font-size:30.0px;color:#000000;font-family:var(--body);font-weight:400;"> </span></p></div></div>
+<div class="el pic in-pop d3 tap" data-k="6"  style="left:983.9px;top:308.2px;width:342.2px;height:293.3px;"><img class="im" src="a/image50.webp" alt="" draggable="false" style="width:342.2px;height:293.3px;left:-0.0px;top:-0.0px;"></div>
+<div class="el sp in-up d4" data-k="7"  style="left:813.3px;top:636.5px;width:884.0px;height:48.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:43.3px;"><span style="font-size:33.3px;color:#1E2A44;font-family:var(--body);font-weight:900;">雪花独六出</span></p></div></div>
+<div class="el sp in-up d5" data-k="8"  style="left:813.3px;top:698.2px;width:884.0px;height:33.8px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:33.8px;"><span style="font-size:23.3px;color:#4A5568;font-family:var(--body);font-weight:400;">只有雪花，是六个瓣</span></p></div></div>
+</section>
+<section class="slide" data-n="29" style="background:#FBF6EC"  data-sfx="fanfare-soft" hidden>
+<div class="el sp in-left" data-k="0"  style="left:217.0px;top:249.8px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:43.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">任务 1：搭建一朵最美的六瓣雪花。</span></p></div></div>
+<div class="el sp in-left d2" data-k="1"  style="left:217.0px;top:354.8px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:43.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">任务 2：剪纸雪花怎么折最像真雪花？你来研究。</span></p></div></div>
+<div class="el pic in-up d3" data-k="2"  style="left:73.3px;top:509.6px;width:1386.7px;height:292.5px;"><img class="im" src="a/image51.webp" alt="" draggable="false" style="width:1386.7px;height:292.5px;left:-0.0px;top:-0.0px;"></div>
+<div class="el pic rabbit tap" data-k="3"  style="left:1079.0px;top:142.1px;width:521.0px;height:481.4px;"><img class="im" src="a/image52.webp" alt="" draggable="false" style="width:521.0px;height:481.4px;left:0.0px;top:0.0px;"></div>
+</section>
+    <canvas id="burst" width="1600" height="900" aria-hidden="true"></canvas>
+    <div id="flash" aria-hidden="true"></div>
+    <div id="lightbox" hidden></div>
+    <div id="notes" hidden></div>
+    <div id="overview" hidden></div>
+  </div></div>
+  <nav id="rail" aria-label="翻页和工具">
+    <button id="prev">← 上一页</button><span id="count">1</span><button id="next">下一页 →</button>
+    <div id="progress"><i></i></div>
+    <button id="btnGrid" aria-pressed="false">目录</button>
+    <button id="btnNotes" aria-pressed="false">讲师备注</button>
+    <button id="btnSound" aria-pressed="true">声音：开</button>
+    <button id="btnFull">全屏</button>
+    <span class="keys">← → 翻页 · P 推一下 · N 备注 · G 目录 · F 全屏</span>
+  </nav>
+</div>
+<script>const META=[{"n": 1, "title": "雪花的六瓣奇迹", "sec": "开场", "notes": "开场 30 秒。老师手里举着一朵搭好的 Zometool 六瓣雪花（就是今天要造的这一朵），\n欢迎来到 SteamKit STEAM 直播课！\n今天这一节叫「六瓣奇迹」。右边这些，是 100 多年前美国农民本特利用相机拍下的真实雪花。你们见过雪吗？今天我们要弄明白雪花的一个秘密，还要亲自造一朵雪花。"}, {"n": 2, "title": "雪花画廊：放大镜下的雪花", "sec": "开场", "notes": "【新增页】开场后接着看雪花（约 1 分钟）。这一页是用微距镜头拍的真雪花，放大了几十倍。话术：这些都是天上掉下来的真雪花，用特别的相机放大拍的。慢慢看，你觉得它们像什么？有没有哪两朵是一模一样的？（让孩子自由说：像星星、像树枝、像花……）"}, {"n": 3, "title": "数一数：每朵雪花有几个瓣？", "sec": "开场", "notes": "【新增页】（约 1 分钟）这些是 100 多年前拍的雪花照片（后面会讲拍照的人）。话术：样子千奇百怪，有的像星星，有的像一块六边形的小盘子。请你挑一朵，数一数它有几个瓣？在评论区打出来。——大家打的都是 6！为什么雪花都是 6 个瓣？这就是今天要解开的秘密。（接第 3 页「为什么是六？」）"}, {"n": 4, "title": "1", "sec": "第一部分 · 为什么是六", "notes": "进入第一部分，10 秒过渡。\n我们先不急着搭雪花。先当一回小侦探：雪花为什么偏偏是六？先看看真雪花。"}, {"n": 5, "title": "水分子的样子", "sec": "第一部分 · 为什么是六", "notes": "进入第一部分，10 秒过渡。\n我们先不急着搭雪花。先当一回小侦探：雪花为什么偏偏是六？先看看真雪花。"}, {"n": 6, "title": "拼一拼：用 Zometool 做一个水分子", "sec": "第一部分 · 为什么是六", "notes": "【新增页】（约 2 分钟）认识水分子之后，马上用 Zometool 把它拼出来。零件：红球当氧、白球当氢、短黄棍把它们连起来；短黄棍插在球上的三角形孔里。话术：刚才的卡通水分子，我们自己拼一个！拿 1 个红球，2 根短黄棍插在三角形的孔上，另一头各插 1 个白球——一个水分子就做好了，像不像一个张开手臂的小人？提示：两根黄棍之间的夹角，和真水分子差不多（真实约 104.5°，Zometool 里是 109.5°）。"}, {"n": 7, "title": "水分子有 2 只手、2 个口袋", "sec": "第一部分 · 为什么是六", "notes": "进入第一部分，10 秒过渡。\n我们先不急着搭雪花。先当一回小侦探：雪花为什么偏偏是六？先看看真雪花。"}, {"n": 8, "title": "水分子有 2 只手、2 个口袋", "sec": "第一部分 · 为什么是六", "notes": "进入第一部分，10 秒过渡。\n我们先不急着搭雪花。先当一回小侦探：雪花为什么偏偏是六？先看看真雪花。"}, {"n": 9, "title": "Zometool 里，口袋在哪儿？", "sec": "第一部分 · 为什么是六", "notes": "【新增页】让孩子拿着自己拼的水分子找一找：红球上和两根短黄棍方向「配套」的，还有 2 个三角形孔（四个方向两两对称，像一个三角锥的四个角）。这两个空孔就是口袋。注意：要找的是和已有两根黄棍成「三角锥」方向的那两个孔，老师可以举着模型示范。"}, {"n": 10, "title": "第 1 步：做 5 个水分子", "sec": "第一部分 · 为什么是六", "notes": "【新增页】（约 3 分钟）每人做 5 个水分子：1 个放中间，4 个当小伙伴。和刚才的做法完全一样。"}, {"n": 11, "title": "第 2 步：中间的水分子，伸出 2 只手", "sec": "第一部分 · 为什么是六", "notes": "【新增页】（约 2 分钟）中黄棍一头插在中间水分子的白球上（顺着短黄棍的方向继续往外插），另一头插进小伙伴的红球。1 号在正上方，2 号在下面。话术：手拉手的棍比身体里的棍长一点——因为拉手没有身体连得那么紧。"}, {"n": 12, "title": "第 3 步：再来 2 个小伙伴，抓住 2 个口袋", "sec": "第一部分 · 为什么是六", "notes": "【新增页】（约 2 分钟）3 号、4 号小伙伴的白球，用中黄棍连到中间红球剩下的 2 个空孔上。完成后：中间的水分子 2 只手、2 个口袋全用上了，正好拉住 4 个小伙伴。零件合计：红球 5、白球 10、短黄棍 10、中黄棍 4（课前请核对套件里有红球和黄棍）。"}, {"n": 13, "title": "转一转：4 个小伙伴，站成一个四面体", "sec": "第一部分 · 为什么是六", "notes": "【新增页】让孩子把搭好的模型举起来转一转：让 1 号朝上放在桌上，3 个小伙伴（2、3、4 号）正好像三条腿，整体是个三角锥（四面体）。再从正上方往下看：1 号被挡住，2、3、4 号围成一圈，彼此隔 120°——这就接上了后面「从上往下看是六边形」。"}, {"n": 14, "title": "Zometool 拼搭动画", "sec": "第一部分 · 为什么是六", "notes": "【新增页】约 32 秒动画（自动循环），可在动手前先放一遍，或拼完后回顾：先拼 1 个水分子 → 再做 4 个 → 1、2 号被它的手拉住 → 3、4 号抓住它的口袋 → 转一圈，看出四面体。"}, {"n": 15.5, "title": "继续拉手，搭出一片冰", "sec": "第一部分 · 为什么是六", "notes": "【新增页·可旋转】接上一页的拼搭动画，继续往外拉手，让孩子自己转着看。开场就是第 13 页那 5 个手拉手的水分子。\n① 点「继续拉手」：先在这一层往外长两圈，再在下面、上面各叠一层，一共 5 步，长成一块三层的冰。规矩不变：每个水分子还是 2 只手、2 个口袋，红球之间都隔着一根短黄棍和一根中黄棍。\n② 随时拖动或拖「转一转」滑块转着看，滚轮可以放大；点「回正面」回到原来的角度。\n③ 点「从上往下看」：一圈一圈，全是六边形！三层冰上下对齐，叠在一起还是同一张六边形网；1 号正好在中间那个水分子的正上方，看不见了（和第 13 页说的一样）。\n话术：水分子拉手只能朝 4 个方向，拉着拉着就排成了六边形。冰是六边形的，所以雪花也是六边形的。\n老师心里有数（孩子问到再说）：这个模型照真实雪花里的冰来叠，每一层都和下面一层对齐。中间那一层就是孩子手里能拼出来的样子；上下两层里有些棍子的方向，Zometool 的黄棍插不出来，所以课堂上只拼一层就好。"}, {"n": 16, "title": "六个围一个，连成六边形；水结成冰，也排六边形", "sec": "第一部分 · 为什么是六", "notes": "第一部分小结，30 秒。请孩子跟着说一遍：六个围一个，连成六边形；水结成冰，也排六边形。再追问一句：雪花的芯为什么是六边形？（每个水分子 2 只手、2 个口袋，拉住 4 个小伙伴，从上往下看就排成了六边形。）"}, {"n": 17, "title": "2", "sec": "第二部分 · 亲自造一朵雪花", "notes": "进入第二部分。话术：雪花的芯是六边形。可天上的雪花有六根长长的瓣，它们是怎么长出来的？我们来亲自造一朵！"}, {"n": 18, "title": "一个农民，拍了 5000 多张雪花", "sec": "第二部分 · 亲自造一朵雪花", "notes": "1–2 分钟，搭建前的故事钩子。威尔逊·本特利（1865–1931），美国佛蒙特州的农民，人称「雪花本特利」。1885 年 1 月，他把显微镜接到相机上，第一次拍下单片雪花，一辈子拍了 5000 多张，开场封面那组雪花就是他拍的。话术：100 多年前，有个农民特别喜欢雪花。每到下雪，他就冲到外面，用黑布接住雪花，赶在它融化前拍下来。他拍了 5000 多张，每一张都是六个瓣，可没有两片一模一样。今天我们也来造一朵，看看六个瓣是怎么长出来的。图片：维基共享资源（公有领域），仅供学习。"}, {"n": 19, "title": "第 1 步：拼搭雪花芯", "sec": "第二部分 · 亲自造一朵雪花", "notes": "2 分钟。拿出第一部分搭好的「六个围一个」，把中间那个白球连同它插着的 6 根中蓝棍一起拔下来，外圈的 6 个白球和 6 根中蓝棍留着不动。话术：看，剩下的这一圈是什么形状？六边形！这就是雪花的芯，我们早就搭好了。提示：拆的时候一只手按住外圈，另一只手捏住中间的球往上提，外圈不要散；散了就照着屏幕重新连成六边形，要平平地贴在桌上。零件：整朵雪花用白球 24 个，三种蓝棍：中蓝棍 6 根（雪花芯）、长蓝棍 6 根（主枝）、短蓝棍 12 根（侧枝）；挑战再加白球 6 个、短蓝棍 6 根（课前核对套件数量）。拆下来的 1 个白球和 6 根中蓝棍放回盒子。课前请孩子把三种蓝棍按长短分成三堆。"}, {"n": 20, "title": "猜一猜：水汽飘过来，哪里最先接到？", "sec": "第二部分 · 亲自造一朵雪花", "notes": "2 分钟，先猜，不揭晓。图上蓝色的小点是空气里看不见的水汽，从四面八方飘向雪花芯。话术：雪花是靠「吃」空气里的水汽长大的。水汽从四面八方飘过来，你觉得雪花芯的哪里最先接到？边的中间、六个角，还是到处一样？请在评论区说。身体动作：请孩子站起来，张开双臂、伸出手指。话术：下雪天把手伸出去，最先接到雪的是哪里？指尖！因为它伸得最远。再指着屏幕：雪花芯上，哪里伸得最远？预期（不要提前说，下一页动画揭晓）：六个角。老师心里有数：角伸进了周围更多的空气里，水汽从更多方向都能碰到它；边的中间凹在里面，能碰到它的方向少，所以角长得最快。"}, {"n": 21, "title": "雪花从六个角，长出六根主枝", "sec": "第二部分 · 亲自造一朵雪花", "notes": "【改成分步互动】点「开始 / 下一步」（或按 → 键）一步一步长：① 小小的六边形 ② 水汽飘过来，落在六个角上（橙色圈） ③ 六个角长出六根主枝 ④ 主枝侧边冒出小鼓包（橙色圈） ⑤ 鼓包长成侧枝。每一步水汽都会一直飘过来，落在正在长的地方。点「重来」从头开始。\n2 分钟，揭晓上一页。先长出一片小小的六边形；蓝色的水汽从四面八方飘过来，落在六个角上（橙色圈）；六根主枝从六个角上慢慢往外长，中间的六边形芯一直不变；主枝侧边冒出小鼓包（橙色圈），水汽又落在鼓包上，鼓包越长越长，变成侧枝。话术：你们猜对了吗？水汽最先接到的是六个角，所以角长得最快，从每个角上伸出一根主枝，六个角，就是六根主枝。主枝长长了，侧边冒出小鼓包；鼓包伸出去一点点，水汽又先落在它上面，它就越长越长，变成侧枝。还是同一个道理：哪里伸出去，哪里就先接到水汽、长得快。侧枝为什么斜着长？冰里的小分子排成六边形，冰只能顺着六边形的方向长，所以侧枝和主枝成 60 度，正好和旁边的主枝平行（后面看真雪花会用到这条规矩）。六根主枝在同一片雪花上，一起飘、一起长，碰到的冷暖、水汽一模一样，所以主枝和侧枝都长得一模一样。补充小知识（可选）：雪花在天上一边飘一边长，下落很慢，大约每秒 1 米，和人散步差不多。如果孩子问「照片里的主枝怎么像是从中间长出来的」：因为中间那片六边形很小，主枝又很长，远远看就像连在中间；其实每根主枝都是从六边形的一个角上长出来的。"}, {"n": 22, "title": "第 2 步：从六个角长出主枝", "sec": "第二部分 · 亲自造一朵雪花", "notes": "5 分钟。话术：从雪花芯的每个角往外插一根长蓝棍，就像雪花从六个角长出主枝，末端各插一个球。主枝是从角上长出来的，不是从中心穿过去的。提示：主枝的方向和「从六边形中心到这个角」的方向一样，正好和对面的边平行；也插在球腰上那一圈的孔里，以课前试搭为准。插好以后看看：六根主枝是不是一样长、一样直？"}, {"n": 23, "title": "第 3 步：长出侧枝", "sec": "第二部分 · 亲自造一朵雪花", "notes": "5 分钟，老师边搭边答疑。话术：在每根主枝的末端，往两边各伸出一根短蓝棍当侧枝，末端插上球。侧枝比主枝短，和真雪花一样。记住刚才在真雪花上找到的规矩：侧枝和旁边的主枝平行。完成了，一朵树枝雪花！拿起来对着镜头转一转：六个方向一模一样。提示：侧枝也插在球腰上那一圈的孔里，整朵雪花能平平贴在桌上，翘起来就换旁边的孔。侧枝和自己的主枝成 60°，和旁边的主枝平行，也和六边形的一条边平行。页面底部是答案，孩子说出来以后再指给大家看。完成后用线穿过一个球，可以挂起来。零件不够的孩子做到主枝就可以。挑战（做得快的孩子）：每根主枝的尖上再接一根短蓝棍和一个球，主枝继续往外长，侧枝就留在了主枝中间，尖端变成尖尖的，和动画里一样（再加白球 6 个、短蓝棍 6 根）。"}, {"n": 24, "title": "里面是六边形，外面就是六个瓣", "sec": "第二部分 · 亲自造一朵雪花", "notes": "第二部分小结，1 分钟。请孩子跟着说一遍：里面是六边形，外面就是六个瓣。然后回到开场的问题，请两三个孩子用自己的话回答：雪花为什么是六个瓣？参考答案（不要直接念）：水结冰时，水分子手拉手排成六边形，就像小球六个围一个，所以雪花的芯是六边形；六个角伸得最远，最先碰到水汽，长成六根主枝；六根主枝一起飘、一起长，所以一模一样。"}, {"n": 25, "title": "3", "sec": "第三部分 · 六瓣雪花的秘密", "notes": "进入第三部分，10 秒过渡。话术：雪花造好了，先别放下！拿着它，我们来找找六瓣雪花里还藏着哪些秘密。"}, {"n": 26, "title": "真雪花，都守这两条规矩吗？", "sec": "第三部分 · 六瓣雪花的秘密", "notes": "2 分钟。四张都是本特利拍的真雪花（892、893、894、897 号），来自开场封面（维基共享资源，公有领域，仅供学习）。每张图停 20 秒，请孩子在评论区说：有几个瓣？六个瓣一样吗？能找到和旁边主枝平行的侧枝吗？话术：样子千奇百怪，有的像小盘子，有的主枝顶上还开出小花，可每一片都是六个瓣，六个方向一模一样。挑战：谁能在一张图里找到最多的平行线？补充（可选）：从侧面看，雪花薄得像一张纸；冰本身是透明的，很多冰晶把光乱反射，雪看起来才是白的。老实话（孩子问到再说）：这些是本特利挑出来的漂亮雪花。真的下雪时，大多数雪花是碎的、歪的、粘在一起的，完美的六瓣雪花并不常见。"}, {"n": 27, "title": "这些雪花图案，画对了吗？", "sec": "第三部分 · 六瓣雪花的秘密", "notes": "2 分钟。三张都是老师画的雪花图案。请孩子用两条规矩检查，在评论区说哪个画对了。预期答案（先让孩子说）：左边有 8 个瓣，真雪花不会这样；中间画对了，6 个瓣，侧枝和旁边的主枝平行；右边虽然是 6 个瓣，侧枝却是垂直长出来的，真雪花的侧枝不会这样长。话术：生活里很多雪花图案都画错了！冰箱贴、贴纸、衣服上的雪花，下次看到了，数一数几个瓣。追问：你见过画错的雪花吗？"}, {"n": 28, "title": "两千多年前，古人就发现了", "sec": "第三部分 · 六瓣雪花的秘密", "notes": "1–2 分钟。《韩诗外传》是西汉韩婴写的书，离今天两千多年，原文：「凡草木花多五出，雪花独六出。」「出」就是花瓣。比德国科学家开普勒写雪花的小书（1611 年）早了一千七百多年。话术：还记得开场的投票吗？五瓣和六瓣。两千多年前的中国人早就注意到了：花草的花大多是五瓣，比如桃花、梅花；可是雪花，偏偏是六瓣。互动：请孩子想一想，家里或小区里有哪些花是五瓣的？下次看到花，数一数。注意：不是所有花都是五瓣，百合是六瓣，所以古人说的是「多」五出。孩子举出反例，要表扬。"}, {"n": 29, "title": "任务 1：搭建一朵最美的六瓣雪花。", "sec": "今日作业", "notes": "2 分钟布置。任务 1（设计）：回家完成，没有标准答案。要求：六根主枝一模一样；侧枝和旁边的主枝平行；挂在窗户上。鼓励孩子先画草图：侧枝长几根、长在哪里、要不要再长出小侧枝。下周带回来一张照片，说说侧枝是怎么长的。\n任务 2（控制变量的探究）：3 张一样大的圆形纸、剪刀（低年级请家长帮忙）。三种折法各剪一朵，剪的花样尽量一样，只改变折法：对折两次、对折后再折三等份、对折三次（配图只是折好后的样子，不给答案）。下周带回来：三朵纸雪花和你的结论。预期（不要提前说）：对折两次剪出 4 个瓣，对折三次 8 个瓣，对折后再折三等份剪出 6 个瓣，最像真雪花，因为它和雪花一样，转 60 度就和原来一样。"}];</script>
+<script>
+(()=>{
+"use strict";
+const NS="http://www.w3.org/2000/svg",reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const el=(t,a={},p)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e};
+
+/* ================= sound ================= */
+let soundOn=true,ac=null;
+function A(){if(!soundOn)return null;try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();if(ac.state==="suspended")ac.resume()}catch(e){ac=null}return ac}
+function tone(f0,f1,dur,type="sine",vol=.18,at=0){const a=A();if(!a)return;const t0=a.currentTime+at,o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.setValueAtTime(f0,t0);o.frequency.exponentialRampToValueAtTime(Math.max(30,f1),t0+dur);g.gain.setValueAtTime(vol,t0);g.gain.exponentialRampToValueAtTime(.001,t0+dur);o.connect(g).connect(a.destination);o.start(t0);o.stop(t0+dur+.05)}
+function noise(dur,vol=.3,at=0,lp=1200){const a=A();if(!a)return;const b=a.createBuffer(1,a.sampleRate*dur,a.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,2);const s=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();f.type="lowpass";f.frequency.value=lp;g.gain.value=vol;s.buffer=b;s.connect(f).connect(g).connect(a.destination);s.start(a.currentTime+at)}
+const SFX={
+  hello(){[523,659,784].forEach((f,i)=>tone(f,f*1.01,.18,"triangle",.14,i*.09))},
+  boing(){tone(420,110,.45,"sine",.2)},
+  hey(){tone(520,780,.14,"triangle",.14)},
+  pop(){tone(300,900,.08,"square",.06)},
+  wah(){[392,370,349,311].forEach((f,i)=>tone(f,f*.97,i<3?.22:.6,"sawtooth",.06,i*.24))},
+  ding(){tone(1046,1046,.35,"triangle",.14);tone(1568,1568,.4,"triangle",.08,.08)},
+  fanfare(){[523,659,784,1046,784,1046].forEach((f,i)=>tone(f,f,i<5?.16:.5,"triangle",.15,i*.12));noise(.6,.08,.1,6000)},
+  "fanfare-soft"(){[659,784,1046].forEach((f,i)=>tone(f,f,.3,"triangle",.12,i*.15))},
+  drum(){for(let i=0;i<10;i++)noise(.08,.18,i*.06,900);tone(196,196,.4,"triangle",.16,.65)},
+  boom(){tone(120,40,.7,"sine",.45);noise(.5,.4,0,500)},
+  coin(){tone(1320,1980,.12,"square",.06)},
+  thud(){tone(140,50,.2,"triangle",.25)},
+  cheer(){noise(.9,.12,0,4000);[784,988,1175].forEach((f,i)=>tone(f,f,.25,"triangle",.12,.1+i*.1))},
+  react(){SFX.wah();setTimeout(SFX.ding,1100)},
+  "react-late"(){setTimeout(SFX.react,1200)},
+  whoosh(){const a=A();if(!a)return;const d=.32,b=a.createBuffer(1,a.sampleRate*d,a.sampleRate),c=b.getChannelData(0);for(let i=0;i<c.length;i++)c[i]=(Math.random()*2-1)*Math.sin(Math.PI*i/c.length);const s=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();f.type="bandpass";f.Q.value=1.2;f.frequency.setValueAtTime(500,a.currentTime);f.frequency.exponentialRampToValueAtTime(3200,a.currentTime+d);g.gain.value=.22;s.buffer=b;s.connect(f).connect(g).connect(a.destination);s.start()},
+  crack(){noise(.3,.55,0,7000);tone(95,38,.6,"sine",.45,.02);noise(.5,.25,.12,600)},
+  oops(){[659,523,392].forEach((f,i)=>tone(f,f*.92,i<2?.12:.35,"sawtooth",.06,i*.11));tone(220,150,.3,"triangle",.1,.25)},
+  hmph(){tone(196,262,.1,"square",.07);tone(392,784,.18,"triangle",.11,.1)},
+  tick(){tone(880,1320,.06,"triangle",.07)},
+  spin(){tone(300,1200,.5,"triangle",.1);tone(600,2400,.5,"sine",.05,.05)},
+  drop(){tone(700,180,.25,"triangle",.12);setTimeout(SFX.thud,230)},
+  reveal(){tone(392,784,.18,"triangle",.12);tone(587,1175,.22,"triangle",.1,.12)}
+};
+const play=n=>{try{SFX[n]&&SFX[n]()}catch(e){}};
+
+/* ================= confetti ================= */
+const cv=document.getElementById("burst"),cx=cv.getContext("2d");let parts=[];
+function confetti(x=800,y=380,n=170){if(reduce)return;const cols=["#E8742A","#2F6BD8","#3A9A5B","#FFC60A","#E05A8C","#8C5AD2"];
+  for(let i=0;i<n;i++)parts.push({x:x+(Math.random()-.5)*240,y,vx:(Math.random()-.5)*22,vy:-Math.random()*22-6,r:Math.random()*3,vr:(Math.random()-.5)*.3,c:cols[i%6],w:10+Math.random()*12,life:0})}
+function drawConfetti(){cx.clearRect(0,0,1600,900);for(const p of parts){p.vy+=.55;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;p.life++;cx.save();cx.translate(p.x,p.y);cx.rotate(p.r);cx.fillStyle=p.c;cx.fillRect(-p.w/2,-p.w/4,p.w,p.w/2);cx.restore()}parts=parts.filter(p=>p.y<960&&p.life<260)}
+const stage=document.getElementById("stage");
+function bubble(slide,x,y,text,kind=""){const b=document.createElement("div");b.className="bubble "+kind;b.textContent=text;b.style.left=x+"px";b.style.top=y+"px";slide.appendChild(b);setTimeout(()=>b.remove(),1700)}
+
+/* ================= live characters (drawn to match the lesson's art) ================= */
+const NAVY="#1B2747",CORAL="#F2674A",PINK="#F47DA2",MOUTH="#7A1730",SUNC="#FFC233";
+const CH={sq:"#1F5FC6",tri:"#2C6FDB",pe:"#3B86E8"};
+const lerp=(a,b,k)=>a+(b-a)*k,clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x)),sstep=x=>{x=clamp(x);return x*x*(3-2*x)};
+const pp=p=>p[0].toFixed(1)+" "+p[1].toFixed(1);
+const dP=P=>"M"+P.map(pp).join(" L")+"Z";
+function rrPts(x,y,w,h,r){const P=[],n=6,arc=(cx,cy,a0)=>{for(let i=0;i<=n;i++){const a=(a0+90*i/n)*Math.PI/180;P.push([cx+r*Math.cos(a),cy+r*Math.sin(a)])}},
+  seg=(x1,y1,x2,y2,m=8)=>{for(let i=1;i<m;i++)P.push([x1+(x2-x1)*i/m,y1+(y2-y1)*i/m])};
+  arc(x+r,y+r,180);seg(x+r,y,x+w-r,y);arc(x+w-r,y+r,270);seg(x+w,y+r,x+w,y+h-r);arc(x+w-r,y+h-r,0);seg(x+w-r,y+h,x+r,y+h);arc(x+r,y+h-r,90);seg(x,y+h-r,x,y+r);return P}
+function polyPts(vs,m=8){const P=[];vs.forEach((v,i)=>{const w=vs[(i+1)%vs.length];for(let k=0;k<m;k++)P.push([v[0]+(w[0]-v[0])*k/m,v[1]+(w[1]-v[1])*k/m])});return P}
+function limb(g,a,b,bend,w=17){const mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2,dx=b[0]-a[0],dy=b[1]-a[1],l=Math.hypot(dx,dy)||1;
+  el("path",{d:`M${pp(a)} Q${pp([mx-dy/l*bend,my+dx/l*bend])} ${pp(b)}`,stroke:NAVY,"stroke-width":w,"stroke-linecap":"round",fill:"none"},g)}
+function eye(g,c,r,mode,look=[0,0],ry=1,mirror=1){const [x,y]=c;
+  if(mode==="blink"){el("path",{d:`M${x-.7*r} ${y} Q${x} ${y+.3*r} ${x+.7*r} ${y}`,stroke:NAVY,"stroke-width":7,fill:"none","stroke-linecap":"round"},g);return}
+  if(mode==="happy"){el("path",{d:`M${x-.75*r} ${y+.25*r} Q${x} ${y-.85*r} ${x+.75*r} ${y+.25*r}`,stroke:NAVY,"stroke-width":8,fill:"none","stroke-linecap":"round"},g);return}
+  if(mode==="squeeze"){const s=mirror;el("path",{d:`M${x-s*.65*r} ${y-.55*r} L${x+s*.55*r} ${y} L${x-s*.65*r} ${y+.55*r}`,stroke:NAVY,"stroke-width":8,fill:"none","stroke-linecap":"round","stroke-linejoin":"round"},g);return}
+  if(mode==="shock"){el("ellipse",{cx:x,cy:y,rx:r*1.08,ry:r*1.15,fill:"#fff",stroke:NAVY,"stroke-width":4},g);el("circle",{cx:x+look[0]*r*.3,cy:y+look[1]*r*.3,r:r*.22,fill:"#111"},g);return}
+  el("ellipse",{cx:x,cy:y,rx:r,ry:r*ry,fill:"#fff",stroke:NAVY,"stroke-width":4},g);
+  const ix=x+look[0]*r*.3,iy=y+look[1]*r*.3*ry;
+  el("circle",{cx:ix,cy:iy,r:r*.56*Math.min(1,ry+.15),fill:"#6A3B1F"},g);el("circle",{cx:ix,cy:iy,r:r*.3*Math.min(1,ry+.2),fill:"#141414"},g);
+  el("circle",{cx:ix-r*.2,cy:iy-r*.22*ry,r:r*.13,fill:"#fff"},g)}
+function brow(g,a,b,curve=0,w=9){el("path",{d:`M${pp(a)} Q${pp([(a[0]+b[0])/2,(a[1]+b[1])/2+curve])} ${pp(b)}`,stroke:NAVY,"stroke-width":w,"stroke-linecap":"round",fill:"none"},g)}
+function mouth(g,c,w,mode,k=1){const [x,y]=c;
+  if(mode==="smile"){el("path",{d:`M${x-w/2} ${y-4} Q${x} ${y+w*.45} ${x+w/2} ${y-4}`,stroke:NAVY,"stroke-width":7,fill:"none","stroke-linecap":"round"},g);return}
+  if(mode==="grin"){el("path",{d:`M${x-w/2} ${y-6} Q${x} ${y+w*1.0*k} ${x+w/2} ${y-6} Z`,fill:MOUTH,stroke:MOUTH,"stroke-width":4,"stroke-linejoin":"round"},g);
+    el("ellipse",{cx:x,cy:y+w*.3*k,rx:w*.2,ry:w*.13*k,fill:PINK},g);return}
+  if(mode==="wavy"){let d=`M${x-w/2} ${y}`;for(let i=1;i<=4;i++)d+=` Q${x-w/2+(i-.5)*w/4} ${y+(i%2?-9:9)} ${x-w/2+i*w/4} ${y}`;el("path",{d,stroke:NAVY,"stroke-width":6,fill:"none","stroke-linecap":"round"},g);return}
+  if(mode==="teeth"){el("rect",{x:x-w/2,y:y-w*.2,width:w,height:w*.42,rx:w*.16,fill:"#fff",stroke:NAVY,"stroke-width":5},g);
+    el("path",{d:`M${x-w/2+4} ${y+w*.01} L${x+w/2-4} ${y+w*.01} M${x-w/6} ${y-w*.2} L${x-w/6} ${y+w*.22} M${x+w/6} ${y-w*.2} L${x+w/6} ${y+w*.22}`,stroke:NAVY,"stroke-width":3.5},g);return}
+  /* open / scream */
+  el("ellipse",{cx:x,cy:y+w*.1,rx:w*.36,ry:w*.42*k,fill:MOUTH},g);el("ellipse",{cx:x,cy:y+w*.1+w*.22*k,rx:w*.22,ry:w*.14*k,fill:PINK},g)}
+function sweat(g,p,T){const ph=(T*.9)%1;const x=p[0],y=p[1]+ph*46;
+  el("path",{d:`M${x} ${y-16} Q${x+12} ${y+2} ${x} ${y+9} Q${x-12} ${y+2} ${x} ${y-16}Z`,fill:"#7FC0F5",opacity:1-ph*.8},g)}
+function tears(g,c,r,T){for(const [o,dl] of [[-.75,0],[.75,.45]]){const ph=((T+dl)*1.3)%1;const x=c[0]+o*r,y=c[1]+r*.5+ph*55;
+  el("path",{d:`M${x} ${y-10} Q${x+8} ${y+2} ${x} ${y+7} Q${x-8} ${y+2} ${x} ${y-10}Z`,fill:"#8ED0FF",opacity:1-ph},g)}}
+function shakeLines(g,p,T,sd){for(let i=0;i<2;i++){const x=p[0]+sd*(i*22),y=p[1]-40+i*30+Math.sin(T*30+i)*3;
+  el("path",{d:`M${x} ${y} q${sd*8} 9 0 18 q${-sd*8} 9 0 18 q${sd*8} 9 0 18`,stroke:"#7FB6F0","stroke-width":5,fill:"none","stroke-linecap":"round"},g)}}
+function star(g,p,s,T,ph=0){const k=s*(.75+.25*Math.sin(T*6+ph));const [x,y]=p;
+  el("path",{d:`M${x} ${y-k} Q${x+k*.18} ${y-k*.18} ${x+k} ${y} Q${x+k*.18} ${y+k*.18} ${x} ${y+k} Q${x-k*.18} ${y+k*.18} ${x-k} ${y} Q${x-k*.18} ${y-k*.18} ${x} ${y-k}Z`,fill:SUNC},g)}
+function powerLines(g,p,sd,T,k){for(let i=0;i<3;i++){const a=(-90+sd*(25+i*28))*Math.PI/180,r0=8+4*Math.sin(T*14+i),r1=r0+26*k;
+  el("path",{d:`M${p[0]+Math.cos(a)*r0} ${p[1]+Math.sin(a)*r0} L${p[0]+Math.cos(a)*r1} ${p[1]+Math.sin(a)*r1}`,stroke:"#FFB21E","stroke-width":8,"stroke-linecap":"round"},g)}}
+
+function moodOf(s,ctx){if(ctx.braced)return ctx.effort>.06?"proud":"calm";return s<.12?"calm":s<.45?"worried":"panic"}
+
+/* 方方 */
+function drawSq(sh,g,T,s,ctx){const N=sh.d.nodes,x0=N.TL[0],y0=N.TL[1];
+  const cx=x0+L/2,bw=.56*L,bh=.48*L,yb=y0+L-96,yt=yb-bh,bx=cx-bw/2,mood=moodOf(s,ctx);
+  const jit=mood==="panic"?[Math.sin(T*55)*3,Math.cos(T*47)*2]:[0,0],bob=(mood==="calm"||mood==="proud")?Math.sin(T*2.4)*3:0;
+  const W=p=>{const q=sh.warp(p,1.5),up=clamp((yb-p[1])/bh);return[q[0]+jit[0]*up,q[1]+jit[1]*up+bob*up]};
+  const fy=y0+L-30;
+  for(const sd of[-1,1]){const hip=W([cx+sd*.2*bw,yb-8]),foot=W([cx+sd*(.25*bw+14*s),fy]);limb(g,hip,foot,sd*(10+34*s));el("ellipse",{cx:foot[0]+sd*8,cy:foot[1]+4,rx:26,ry:14,fill:NAVY},g)}
+  el("path",{d:dP(rrPts(bx,yt,bw,bh,24).map(W)),fill:CH.sq},g);
+  el("path",{d:dP(rrPts(bx+bw*.62,yt+bh*.1,bw*.38,bh*.9,20).map(W)),fill:"#1A55B3",opacity:.35},g);
+  el("path",{d:dP(polyPts([[bx-6,yt+26],[bx+bw+6,yt+26],[bx+bw+6,yt+74],[bx-6,yt+74]],10).map(W)),fill:CORAL},g);
+  [[bx+8,yt+.64*bh],[bx+bw-8,yt+.64*bh]].forEach((p,i)=>{const sd=i?1:-1;let hand=[p[0]+sd*46,p[1]+72+Math.sin(T*2.4+i)*4],bend=sd*-14;
+    if(ctx.dir==="down"&&!ctx.braced){const k=sstep(s*3);const hold=[cx+sd*.29*L,y0+36];hand=[lerp(hand[0],hold[0],k),lerp(hand[1],hold[1],k)];bend=lerp(bend,sd*30,k)}
+    else if(mood==="worried"||mood==="panic"){const k=sstep((s-.1)*3),ang=(-90+sd*(60+28*Math.sin(T*(mood==="panic"?17:7)+i*1.7)))*Math.PI/180;
+      const fl=[p[0]+Math.cos(ang)*100,p[1]+Math.sin(ang)*100];hand=[lerp(hand[0],fl[0],k),lerp(hand[1],fl[1],k)]}
+    else if(mood==="proud"){hand=[p[0]+sd*36,p[1]-92+Math.sin(T*8)*6];bend=sd*28}
+    const P=W(p),H=W(hand);limb(g,P,H,bend);el("circle",{cx:H[0],cy:H[1],r:19,fill:NAVY},g)});
+  const ec=W([cx,yt+.58*bh]),look=mood==="worried"?[0,-.7]:mood==="panic"?[Math.sin(T*9)*.6,0]:[.35,.1];
+  const blink=mood==="calm"&&(T%3.6)<.13;
+  eye(g,ec,48,blink?"blink":mood==="panic"?"shock":mood==="proud"?"happy":"open",look,mood==="worried"?1.05:1);
+  const bc=W([cx,yt+.58*bh-70]);
+  if(mood==="calm")brow(g,[bc[0]-40,bc[1]-4],[bc[0]+42,bc[1]+6],0);
+  else if(mood==="proud")brow(g,[bc[0]-40,bc[1]],[bc[0]+40,bc[1]],-14);
+  else if(mood==="worried")brow(g,[bc[0]-44,bc[1]+10],[bc[0]+44,bc[1]+10],-24);
+  else brow(g,[bc[0]-46,bc[1]-8],[bc[0]+46,bc[1]-8],-30);
+  const mc=W([cx,yt+.87*bh]);
+  mouth(g,mc,52,mood==="calm"?"smile":mood==="proud"?"grin":mood==="worried"?"wavy":"open",1+.18*Math.sin(T*22));
+  if(mood==="worried"||mood==="panic")sweat(g,W([bx+bw+20,yt+6]),T);
+  if(mood==="panic"){sweat(g,W([bx-24,yt+30]),T+.5);shakeLines(g,W([bx-34,yt+bh*.55]),T,-1);shakeLines(g,W([bx+bw+34,yt+bh*.55]),T,1);tears(g,ec,48,T)}
+  if(mood==="proud"){star(g,W([bx+bw+20,yt-24]),22,T);star(g,W([bx-18,yt-10]),15,T,2)}}
+
+/* 角角 */
+function drawTri(sh,g,T,ctx){const N=sh.d.nodes,cx=(N.BL[0]+N.BR[0])/2,by=N.BL[1];
+  const hb=.42*H3,bw=.42*L,e=clamp(ctx.effort),strong=e>.06,yb=by-86-e*5,top=yb-hb;
+  const bob=Math.sin(T*2.4)*3*(1-e),W=p=>{const q=sh.warp(p,1),up=clamp((yb-p[1])/hb);return[q[0],q[1]+bob*up]};
+  el("ellipse",{cx:cx,cy:by-24,rx:118,ry:13,fill:"#8FD45A"},g);
+  for(const sd of[-1,1]){const hip=W([cx+sd*42,yb-4]),foot=W([cx+sd*(58+20*e),by-31]);limb(g,hip,foot,sd*(6+16*e));el("ellipse",{cx:foot[0]+sd*8,cy:foot[1]+4,rx:24,ry:13,fill:NAVY},g)}
+  const body=[[cx-bw/2,yb],[cx+bw/2,yb],[cx,top]].map(W);
+  el("path",{d:"M"+body.map(pp).join(" L")+"Z",fill:CH.tri,stroke:CH.tri,"stroke-width":24,"stroke-linejoin":"round"},g);
+  el("path",{d:`M${pp(W([cx+18,top+40]))} L${pp(W([cx+bw/2-6,yb-4]))} L${pp(W([cx+bw*.18,yb-4]))}Z`,fill:"#2160C4",opacity:.4},g);
+  const tip=W([cx+8,top-56]);el("path",{d:`M${pp(W([cx-30,top+20]))} L${pp(tip)} L${pp(W([cx+30,top+20]))}Z`,fill:"#E5483B",stroke:"#E5483B","stroke-width":8,"stroke-linejoin":"round"},g);
+  el("path",{d:`M${pp(W([cx-38,top+12]))} L${pp(W([cx+38,top+12]))} L${pp(W([cx+40,top+30]))} L${pp(W([cx-40,top+30]))}Z`,fill:"#F0705F",stroke:"#F0705F","stroke-width":6,"stroke-linejoin":"round"},g);
+  [-1,1].forEach((sd,i)=>{const p=[cx+sd*86,yb-62];const wave=Math.sin(T*(strong?16:4)+i*2);
+    const hand=strong?[cx+sd*(118+4*wave),yb-126-8*Math.abs(wave)]:[cx+sd*126,yb-112+Math.sin(T*2.4+i)*3];
+    const P=W(p),H=W(hand);const st=[H[0]-sd*6,H[1]-58];
+    el("path",{d:`M${pp(H)} L${pp(st)}`,stroke:"#5A3520","stroke-width":7,"stroke-linecap":"round"},g);
+    el("path",{d:`M${pp(st)} L${pp([st[0]-sd*(40+6*wave),st[1]+12+3*wave])} L${pp([st[0],st[1]+26])}Z`,fill:"#E84A3C",stroke:"#E84A3C","stroke-width":4,"stroke-linejoin":"round"},g);
+    limb(g,P,H,sd*18,16);el("circle",{cx:H[0],cy:H[1],r:17,fill:NAVY},g)});
+  for(const sd of[-1,1]){const ec=W([cx+sd*30,yb-70]);
+    eye(g,ec,20,(!strong&&(T%4.1)<.12)?"blink":"open",[-sd*.25+.1,.15],strong?.72:1);
+    brow(g,W([cx+sd*(58-4*e),yb-98-(strong?0:6)]),W([cx+sd*12,yb-86+(strong?6:0)]),0,8)}
+  mouth(g,W([cx,yb-32]),strong?58:44,strong?"teeth":"grin",1);
+  if(strong){powerLines(g,W([cx-58,top+6]),-1,T,e);powerLines(g,W([cx+58,top+6]),1,T,e);star(g,W([cx+92,top+40]),18,T);star(g,W([cx-96,top+70]),13,T,2)}
+  else star(g,W([cx+86,top+44]),12,T)}
+
+/* 五五 */
+function drawPe(sh,g,T,s,ctx){const N=sh.d.nodes,keys=["BL","BR","R","T","L"],cF=[0,0];keys.forEach(k=>{cF[0]+=N[k][0]/5;cF[1]+=N[k][1]/5});
+  const k=ctx.braced?.31:.44,sc=k/.44,yb=N.BL[1]-14-92*sc,cb=[cF[0],yb-k*(N.BL[1]-cF[1])],V=keys.map(n=>[cb[0]+k*(N[n][0]-cF[0]),cb[1]+k*(N[n][1]-cF[1])]);
+  const mood=moodOf(s,ctx),hgt=yb-V[3][1];
+  const jit=mood==="panic"?[Math.sin(T*55)*3,Math.cos(T*47)*2]:[0,0],bob=(mood==="calm"||mood==="proud")?Math.sin(T*2.4)*3:0;
+  const W=p=>{const q=sh.warp(p,1.3),up=clamp((yb-p[1])/hgt);return[q[0]+jit[0]*up,q[1]+jit[1]*up+bob*up]};
+  const fy=N.BL[1]-30;
+  for(const sd of[-1,1]){const hip=W([cb[0]+sd*58*sc,yb-8]),foot=W([cb[0]+sd*(74*sc+16*s),fy]);limb(g,hip,foot,sd*(10+30*s));el("ellipse",{cx:foot[0]+sd*8,cy:foot[1]+4,rx:26,ry:14,fill:NAVY},g)}
+  el("path",{d:dP(polyPts(V,8).map(W)),fill:CH.pe,stroke:CH.pe,"stroke-width":22,"stroke-linejoin":"round"},g);
+  [[V[4][0]+14,V[4][1]+20],[V[2][0]-14,V[2][1]+20]].forEach((p,i)=>{const sd=i?1:-1;let hand=[p[0]+sd*44*sc,p[1]+80*sc+Math.sin(T*2.4+i)*4],bend=sd*-14;
+    if(mood==="worried"||mood==="panic"){const kk=sstep((s-.1)*3),ang=(-90+sd*(62+28*Math.sin(T*(mood==="panic"?17:7)+i*1.7)))*Math.PI/180;
+      const fl=[p[0]+Math.cos(ang)*100,p[1]+Math.sin(ang)*100];hand=[lerp(hand[0],fl[0],kk),lerp(hand[1],fl[1],kk)]}
+    else if(mood==="proud"){hand=[p[0]+sd*30*sc,p[1]-96*sc+(i?Math.sin(T*8)*8:0)];bend=sd*24}
+    const P=W(p),H=W(hand);limb(g,P,H,bend,17*Math.sqrt(sc));el("circle",{cx:H[0],cy:H[1],r:19*Math.sqrt(sc),fill:NAVY},g)});
+  const blink=mood==="calm"&&(T%3.9)<.13;
+  for(const sd of[-1,1]){const c=W([cb[0]+sd*54*sc,cb[1]-6*sc]);
+    eye(g,c,26*sc,blink?"blink":mood==="panic"?"squeeze":mood==="proud"?"happy":"open",mood==="worried"?[0,-.7]:[.2,.1],1,sd);
+    el("circle",{cx:c[0],cy:c[1],r:44*sc,fill:"none",stroke:"#121826","stroke-width":9*sc},g);
+    const b1=W([cb[0]+sd*86*sc,cb[1]-62*sc]),b2=W([cb[0]+sd*26*sc,cb[1]-62*sc]);
+    if(mood==="worried"||mood==="panic")brow(g,[b1[0],b1[1]+8],[b2[0],b2[1]-8],-4,8);else brow(g,[b1[0],b1[1]-4],[b2[0],b2[1]+6],0,8)}
+  const l=W([cb[0]-12*sc,cb[1]-12*sc]),r=W([cb[0]+12*sc,cb[1]-12*sc]);el("path",{d:`M${pp(l)} Q${(l[0]+r[0])/2} ${l[1]-10} ${pp(r)}`,stroke:"#121826","stroke-width":8,fill:"none"},g);
+  if(mood==="panic"&&(T%1)<.5)tears(g,W([cb[0]+54*sc,cb[1]-6*sc]),26*sc,T);
+  mouth(g,W([cb[0],cb[1]+70*sc]),50*sc,mood==="calm"?"smile":mood==="proud"?"grin":mood==="worried"?"wavy":"open",1+.18*Math.sin(T*22));
+  const vt=V[3];const H0=W([vt[0]-150*sc,vt[1]+44*sc]),H1=W([vt[0]+132*sc,vt[1]+16*sc]),H2=W([vt[0]+136*sc,vt[1]+36*sc]),H3b=W([vt[0]-146*sc,vt[1]+66*sc]);
+  const tipH=W([vt[0]+40*sc+8*Math.sin(T*2),vt[1]-126*sc]);
+  el("path",{d:`M${pp(W([vt[0]-82*sc,vt[1]+40*sc]))} L${pp(tipH)} L${pp(W([vt[0]+74*sc,vt[1]+22*sc]))}Z`,fill:"#3CC3D6",stroke:"#3CC3D6","stroke-width":8,"stroke-linejoin":"round"},g);
+  el("path",{d:`M${pp(W([vt[0]-76*sc,vt[1]+24*sc]))} L${pp(W([vt[0]+70*sc,vt[1]+6*sc]))} L${pp(W([vt[0]+74*sc,vt[1]+24*sc]))} L${pp(W([vt[0]-80*sc,vt[1]+42*sc]))}Z`,fill:"#F6C445"},g);
+  el("path",{d:`M${pp(H0)} L${pp(H1)} L${pp(H2)} L${pp(H3b)}Z`,fill:"#2FB0C6",stroke:"#2FB0C6","stroke-width":10,"stroke-linejoin":"round"},g);
+  if(mood==="worried"||mood==="panic")sweat(g,W([V[2][0]+10,V[2][1]-30]),T);
+  if(mood==="panic"){shakeLines(g,W([V[4][0]-40,V[4][1]+60]),T,-1);shakeLines(g,W([V[2][0]+40,V[2][1]+60]),T,1)}
+  if(mood==="proud"){star(g,W([V[2][0]+30,V[3][1]+10]),22,T);star(g,W([V[4][0]-20,V[3][1]+40]),15,T,2)}}
+
+/* ================= Zometool lab (live, same look as the PPT pictures) ================= */
+const BAR="#00688F",ORANGE="#E8742A",GLOW="#F4B9B9";
+const L=612,H3=L*Math.sqrt(3)/2;
+function pentNodes(cx,baseY){const r=L/(2*Math.sin(Math.PI/5)),cy=baseY-r*Math.sin(54*Math.PI/180),ang=[126,54,-18,-90,198];
+  const p=ang.map(a=>[cx+r*Math.cos(a*Math.PI/180),cy+r*Math.sin(a*Math.PI/180)]);return{BL:p[0],BR:p[1],R:p[2],T:p[3],L:p[4]}}
+function shapeDef(key,origin){
+  if(key==="sq"){const [x0,y0]=origin;return{key,nodes:{TL:[x0,y0],TR:[x0+L,y0],BR:[x0+L,y0+L],BL:[x0,y0+L]},fixed:["BL","BR"],
+    edges:[["BL","BR"],["BR","TR"],["TR","TL"],["TL","BL"]],braces:[["BL","TR"]],
+    modes:[{id:"sway",phi:{TL:[1,0],TR:[1,0]},c:1.5,cb:.05,w:7,z:.12},{id:"ax",phi:{TL:[0,1],TR:[0,1]},c:.05,w:30,z:.4},{id:"sag",edge:["TR","TL"],c:.45,cb:.12,w:12,z:.2}]}}
+  if(key==="tri"){const [bx,by]=origin;return{key,nodes:{BL:[bx,by],BR:[bx+L,by],A:[bx+L/2,by-H3]},fixed:["BL","BR"],edges:[["BL","BR"],["BR","A"],["A","BL"]],braces:[],
+    modes:[{id:"x",phi:{A:[1,0]},c:.06,w:30,z:.35},{id:"y",phi:{A:[0,1]},c:.05,w:30,z:.35}]}}
+  const n=pentNodes(origin[0],origin[1]);return{key:"pe",nodes:n,fixed:["BL","BR"],edges:[["BL","BR"],["BR","R"],["R","T"],["T","L"],["L","BL"]],braces:[["T","BL"],["T","BR"]],
+    modes:[{id:"sway",phi:{L:[.8,0],T:[1,0],R:[.8,0]},c:1.7,cb:.05,w:6,z:.1},{id:"squash",phi:{T:[0,1],L:[-.35,.15],R:[.35,.15]},c:1.0,cb:.05,w:7,z:.12}]}
+}
+const U=(x,y)=>{const l=Math.hypot(x,y);return[x/l,y/l]};
+class ZShape{
+  constructor(g,def,braced){this.g=g;this.d=def;this.braced=braced;this.a={};this.v={};def.modes.forEach(m=>{this.a[m.id]=0;this.v[m.id]=0});this.loads=[];this.maxA=0;
+    this.gGlow=el("g",{},g);this.gChar=el("g",{},g);this.ctx={dir:"",effort:0};this.gBars=el("g",{},g);this.gBalls=el("g",{},g)}
+  disp(n){let dx=0,dy=0;for(const m of this.d.modes)if(m.phi&&m.phi[n]){dx+=m.phi[n][0]*this.a[m.id];dy+=m.phi[n][1]*this.a[m.id]}return[dx,dy]}
+  pos(n){const p=this.d.nodes[n],d=this.disp(n);return[p[0]+d[0],p[1]+d[1]]}
+  step(dt){const T={};
+    for(const m of this.d.modes){let q=0;for(const l of this.loads){
+        if(m.edge){if(l.edge)q+=l.F[1];continue}
+        const ph=n=>m.phi[n]?m.phi[n][0]*l.F[0]+m.phi[n][1]*l.F[1]:0;q+=l.node?ph(l.node):.5*(ph(l.edge[0])+ph(l.edge[1]))}
+      T[m.id]=(this.braced&&m.cb!==undefined?m.cb:m.c)*q}
+    for(const m of this.d.modes){const w=m.w*(this.braced&&m.cb!==undefined&&m.id!=="sag"?4:1);
+      this.v[m.id]+=(w*w*(T[m.id]-this.a[m.id])-2*m.z*w*this.v[m.id])*dt;this.a[m.id]+=this.v[m.id]*dt;this.maxA=Math.max(this.maxA,Math.abs(this.a[m.id]))}}
+  warp(p,amp=1){const N=this.d.nodes;let sw=0,dx=0,dy=0;
+    if(this.d.key==="sq"){const x0=N.TL[0],y0=N.TL[1],u=(p[0]-x0)/L,v=(p[1]-y0)/L,c={};for(const n in N)c[n]=this.disp(n);
+      dx=(1-u)*(1-v)*c.TL[0]+u*(1-v)*c.TR[0]+(1-u)*v*c.BL[0]+u*v*c.BR[0];dy=(1-u)*(1-v)*c.TL[1]+u*(1-v)*c.TR[1]+(1-u)*v*c.BL[1]+u*v*c.BR[1];
+      dx*=amp;dy*=amp;if(u>0&&u<1)dy+=this.a.sag*4*u*(1-u)*clamp(1.05-v)*amp;return[p[0]+dx,p[1]+dy]}
+    for(const n in N){const q=N[n],d2=(p[0]-q[0])**2+(p[1]-q[1])**2+1,w=1/d2,D=this.disp(n);sw+=w;dx+=w*D[0];dy+=w*D[1]}
+    dx/=sw;dy/=sw;if(this.a.sag!==undefined){const x0=N.TL[0],y0=N.TL[1],u=(p[0]-x0)/L,v=(p[1]-y0)/L;if(u>0&&u<1)dy+=this.a.sag*4*u*(1-u)*clamp(1.05-v)*amp}
+    return[p[0]+dx,p[1]+dy]}
+  strain(){const a=this.a,k=this.d.key;if(k==="sq")return clamp(Math.max(Math.abs(a.sway)/90,Math.abs(a.sag)/26));if(k==="pe")return clamp(Math.max(Math.abs(a.sway)/100,Math.abs(a.squash)/60));return 0}
+  drawChar(){const g=this.gChar;g.replaceChildren();if(this.braced)return;const T=performance.now()/1000,k=this.d.key,s=this.strain();
+    if(k==="sq")drawSq(this,g,T,s,this.ctx);else if(k==="tri")drawTri(this,g,T,this.ctx);else drawPe(this,g,T,s,this.ctx)}
+  draw(){const d=this.d;this.drawChar();this.gGlow.replaceChildren();this.gBars.replaceChildren();this.gBalls.replaceChildren();
+    const list=d.edges.map(e=>[e,false]).concat(this.braced?d.braces.map(e=>[e,true]):[]);
+    for(const [e,br] of list){const r1=d.nodes[e[0]],r2=d.nodes[e[1]],p1=this.pos(e[0]),p2=this.pos(e[1]);
+      const dx=r2[0]-r1[0],dy=r2[1]-r1[1],l=Math.hypot(dx,dy),ux=dx/l,uy=dy/l;
+      const c1=[p1[0]+ux*l/3,p1[1]+uy*l/3],c2=[p2[0]-ux*l/3,p2[1]-uy*l/3];let sag=0;
+      const sm=d.modes.find(m=>m.edge&&((m.edge[0]===e[0]&&m.edge[1]===e[1])||(m.edge[0]===e[1]&&m.edge[1]===e[0])));
+      if(sm&&!br){sag=this.a[sm.id];c1[1]+=sag*4/3;c2[1]+=sag*4/3}
+      const d1=this.disp(e[0]),d2=this.disp(e[1]),bend=Math.abs((d2[0]-d1[0])*-uy+(d2[1]-d1[1])*ux)+Math.abs(sag);
+      const path=`M${p1[0]} ${p1[1]} C${c1[0]} ${c1[1]} ${c2[0]} ${c2[1]} ${p2[0]} ${p2[1]}`;
+      if(bend>8&&!br)el("path",{d:path,stroke:GLOW,"stroke-width":70,"stroke-linecap":"round",fill:"none",opacity:Math.min(1,bend/70)},this.gGlow);
+      if(br&&d.key==="sq"){[["#003408",28,0],["#006018",22,-2],["#04B048",7,-6]].forEach(([c,w,o])=>{const nx=-uy*o,ny=ux*o;el("path",{d:`M${p1[0]+nx} ${p1[1]+ny} L${p2[0]+nx} ${p2[1]+ny}`,stroke:c,"stroke-width":w,fill:"none"},this.gBars)})}
+      else{el("path",{d:path,stroke:BAR,"stroke-width":28,fill:"none"},this.gBars);
+        if(br){const k=.618;this.ball(p1[0]+(p2[0]-p1[0])*k,p1[1]+(p2[1]-p1[1])*k)}}}
+    for(const n in d.nodes){const p=this.pos(n);this.ball(p[0],p[1])}}
+  ball(x,y){el("image",{href:"a/ball.png",x:x-44,y:y-44,width:88,height:88},this.gBalls)}
+}
+function arrowEl(g,tip,ang,{Lr=180,th=26,hl=60,hw=66,gap=42,shift=0}={}){
+  const a=ang*Math.PI/180,ux=Math.cos(a),uy=Math.sin(a),tx=tip[0]-ux*(gap-shift),ty=tip[1]-uy*(gap-shift),bx=tx-ux*hl,by=ty-uy*hl,sx=tx-ux*Lr,sy=ty-uy*Lr,px=-uy,py=ux;
+  el("line",{x1:sx,y1:sy,x2:bx,y2:by,stroke:ORANGE,"stroke-width":th,"stroke-linecap":"round"},g);
+  el("polygon",{points:`${tx},${ty} ${bx+px*hw/2},${by+py*hw/2} ${bx-px*hw/2},${by-py*hw/2}`,fill:ORANGE},g)}
+class Lab{
+  constructor(host,spec){
+    this.spec=spec;this.shapes=[];this.push=null;
+    let vb;
+    if(spec.pair){vb="71 67 1792 917";}
+    else if(spec.fit==="sq"){vb="53 53 706 706"}else{vb="58 91 1084 1036"}
+    const svg=el("svg",{viewBox:vb,role:"img","aria-label":"可以推一推的形状"},host);this.svg=svg;
+    this.gArrow=el("g",{},svg);
+    if(spec.pair){this.shapes.push(new ZShape(el("g",{},svg),shapeDef("sq",[295,315]),false));this.shapes.push(new ZShape(el("g",{},svg),shapeDef("tri",[1194,927]),false))}
+    else if(spec.key==="sq")this.shapes.push(new ZShape(el("g",{},svg),shapeDef("sq",[100,100]),!!spec.brace));
+    else this.shapes.push(new ZShape(el("g",{},svg),shapeDef("pe",[600,1080]),!!spec.brace));
+    this.svg.appendChild(this.gArrow);
+    this.drag=null;this.attachDrag();
+  }
+  arrowsFor(dir){const out=[];for(const s of this.shapes){const n=s.d.nodes;
+      if(s.d.key==="sq"){const TL=s.pos("TL"),TR=s.pos("TR");
+        if(dir==="down")out.push({tip:[(TL[0]+TR[0])/2,TL[1]+(s.a.sag||0)],ang:90,gap:20,load:{edge:["TR","TL"],u:[0,1]}});
+        if(dir==="side")out.push({tip:[n.TL[0]+s.disp("TL")[0]*.6,n.TL[1]+.4*L],ang:0,gap:18,load:{node:"TL",u:[1,0]}});
+        if(dir==="corner")out.push({tip:TL,ang:45,gap:42,load:{node:"TL",u:U(1,1)}});}
+      else if(s.d.key==="tri"){const A=s.pos("A");
+        if(dir==="down")out.push({tip:A,ang:90,gap:42,load:{node:"A",u:[0,1]}});
+        if(dir==="side"){const ys=315+.4*L,t=(ys-n.A[1])/(n.BL[1]-n.A[1]),x=n.A[0]+(n.BL[0]-n.A[0])*t;out.push({tip:[x+s.disp("A")[0]*(1-t),ys],ang:0,gap:22,load:{node:"A",u:[1,0]}})}
+        if(dir==="corner")out.push({tip:A,ang:45,gap:42,load:{node:"A",u:U(1,1)}});}
+      else{const Lp=s.pos("L");out.push({tip:Lp,ang:0,gap:42,load:{node:"L",u:[1,0]}})}}
+    return out}
+  go(level){A();this.push={t:0,level};this.shapes.forEach(s=>s.maxA=0)}
+  step(dt){const p=this.push,dir=this.spec.dir;let f=0,shift=0;
+    if(p){p.t+=dt;const t=p.t;f=t<.25?0:t<.8?(.5-.5*Math.cos(Math.PI*(t-.25)/.55)):t<1.9?1:t<2.2?1-(t-1.9)/.3:0;shift=f*30;
+      if(t>2.25){this.push=null;this.onDone&&this.onDone(this.shapes.map(s=>s.maxA))}}
+    const arrows=this.arrowsFor(dir);
+    this.shapes.forEach((s,i)=>{const a=arrows[i];s.loads=[];
+      if(a&&f>0){const F=(p?p.level:4)*20*f;s.loads.push({...a.load,F:[a.load.u[0]*F,a.load.u[1]*F]})}
+      if(this.drag&&this.drag.shape===s)s.loads.push({node:this.drag.node,F:this.drag.F})});
+    for(let k=0;k<4;k++)this.shapes.forEach(s=>s.step(dt/4));
+    this.shapes.forEach(s=>{const dr=this.drag&&this.drag.shape===s?clamp(Math.hypot(...this.drag.F)/50):0;
+      s.ctx={dir:this.drag&&this.drag.shape===s?"drag":dir,effort:Math.max(dr,p?f*p.level/4:0),braced:s.braced};
+      const st=s.strain();
+      if(s.d.key!=="tri"&&!s.braced){if(st>.45&&!s.cried){s.cried=1;play("oops")}else if(st<.08)s.cried=0}
+      else{if(s.ctx.effort>.5&&!s.cried){s.cried=1;play("hmph")}else if(s.ctx.effort<.05)s.cried=0}});
+    this.arrowsNow=arrows;this.shift=shift}
+  draw(){this.shapes.forEach(s=>s.draw());this.gArrow.replaceChildren();
+    if(this.spec.pair||this.push)for(const a of this.arrowsNow||[])arrowEl(this.gArrow,a.tip,a.ang,{gap:a.gap,shift:this.shift})}
+  attachDrag(){const svg=this.svg,toV=e=>{const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(svg.getScreenCTM().inverse())};
+    svg.addEventListener("pointerdown",e=>{A();const v=toV(e);let best=null,bd=110;
+      for(const s of this.shapes)for(const n in s.d.nodes){if(s.d.fixed.includes(n))continue;const p=s.pos(n),d=Math.hypot(p[0]-v.x,p[1]-v.y);if(d<bd){bd=d;best={shape:s,node:n,rest:s.d.nodes[n]}}}
+      if(!best)return;this.drag={...best,F:[0,0]};svg.setPointerCapture(e.pointerId);e.preventDefault()});
+    svg.addEventListener("pointermove",e=>{if(!this.drag)return;const v=toV(e);let fx=(v.x-this.drag.rest[0])/3,fy=(v.y-this.drag.rest[1])/3;const m=Math.hypot(fx,fy);if(m>100){fx*=100/m;fy*=100/m}this.drag.F=[fx,fy]});
+    const end=()=>{if(this.drag){if(this.drag.shape.maxA>40||Math.abs(this.drag.shape.a.sway||0)>40)play("boing");this.drag=null}};
+    svg.addEventListener("pointerup",end);svg.addEventListener("pointercancel",end)}
+}
+
+/* ================= coin bridges ================= */
+class Coins{
+  constructor(host){this.reset();this.box=0;this.sp=0;this.vb=0;this.vs=0;
+    const svg=el("svg",{viewBox:"0 0 1386 466",role:"img","aria-label":"箱子桥和空间桥加硬币"},host);this.g=el("g",{},svg)}
+  add(){if(this.n>=14)return;this.n++;this.coins.push({y:-260,vy:0,landed:false})}
+  reset(){this.stop=false;this.n=0;this.coins=[];this.broken=false;this.ang=0;this.av=0;this.fall=[]}
+  step(dt){const landed=this.coins.filter(c=>c.landed).length,tb=Math.min(10,landed)*7,ts=landed*1.0;
+    if(!this.broken){this.vb+=(60*(tb-this.box)-4*this.vb)*dt;this.box+=this.vb*dt}
+    this.vs+=(400*(ts-this.sp)-20*this.vs)*dt;this.sp+=this.vs*dt;
+    if(!this.broken&&landed>10){this.broken=true;this.ang=0;this.av=0;
+      this.fall=this.coins.filter(c=>c.landed).map((c,i)=>({x:695,y:80+this.box-10-i*11,vx:(Math.random()-.5)*380,vy:-60-Math.random()*160}));
+      play("crack");stage.classList.remove("shake");void stage.offsetWidth;stage.classList.add("shake")}
+    if(this.broken){this.av+=6*dt;this.ang+=this.av*dt;if(this.ang>.13){this.ang=.13;this.av*=-.35}
+      this.fall.forEach(f=>{f.vy+=1800*dt;f.x+=f.vx*dt;f.y+=f.vy*dt})}
+    this.coins.forEach(c=>{if(c.landed)return;c.vy+=2200*dt;c.y+=c.vy*dt;if(c.y>=0){c.y=0;c.landed=true;play("coin")}})}
+  draw(){const g=this.g;g.replaceChildren();const x0=170,x1=1220,N=8,pw=(x1-x0)/N,mid=(x0+x1)/2,sag=(x,a)=>{const u=(x-x0)/(x1-x0);return a*4*u*(1-u)},path=pts=>"M"+pts.map(p=>p.join(" ")).join(" L");
+    const rot=(P,cx,cy,a)=>P.map(p=>{const c=Math.cos(a),s=Math.sin(a),dx=p[0]-cx,dy=p[1]-cy;return[cx+dx*c-dy*s,cy+dx*s+dy*c]});
+    el("rect",{x:0,y:0,width:1386,height:466,rx:24,fill:"#FFFDF8",stroke:"#E3D9C4","stroke-width":3},g);
+    const bank=y=>{for(const x of [x0-110,x1+30])for(let k=0;k<4;k++)el("rect",{x,y:y+6+k*15,width:80,height:13,rx:3,fill:"#D9BE8E",stroke:"#B8975F","stroke-width":2},g)};
+    const label=(x,y,t,c="#1E2A44",anchor="start")=>{const e=el("text",{x,y,"font-size":24,"font-weight":900,fill:c,"text-anchor":anchor,"font-family":"Microsoft YaHei, Noto Sans SC, sans-serif"},g);e.textContent=t};
+    const truss=(t,b,col)=>{[t,b].forEach(p=>el("path",{d:path(p),stroke:col,"stroke-width":8,fill:"none","stroke-linejoin":"round"},g));
+      for(let i=0;i<t.length;i++)el("line",{x1:t[i][0],y1:t[i][1],x2:b[i][0],y2:b[i][1],stroke:col,"stroke-width":8},g);
+      [...t,...b].forEach(p=>el("circle",{cx:p[0],cy:p[1],r:7,fill:"#fff",stroke:"#1E2A44","stroke-width":3},g))};
+    const by=80,bh=58;bank(by+bh-4);label(40,by+8,"箱子桥");
+    const bt=[],bb=[];for(let i=0;i<=N;i++){const x=x0+i*pw,s=sag(x,this.box);bt.push([x,by+s]);bb.push([x,by+bh+s])}
+    if(this.broken){const h=N/2,gap=p=>p.map((q,i)=>i===h?[q[0]-12,q[1]]:q),gapR=p=>p.map((q,i)=>i===0?[q[0]+12,q[1]]:q);
+      truss(rot(gap(bt.slice(0,h+1)),x0,by,this.ang),rot(gap(bb.slice(0,h+1)),x0,by,this.ang),"#2F6BD8");
+      truss(rot(gapR(bt.slice(h)),x1,by,-this.ang),rot(gapR(bb.slice(h)),x1,by,-this.ang),"#2F6BD8");
+      const cy=by+bh/2+this.box;for(let k=0;k<8;k++){const a=k*Math.PI/4,r0=22+6*Math.sin(performance.now()/90+k);el("line",{x1:mid+Math.cos(a)*r0,y1:cy+Math.sin(a)*r0,x2:mid+Math.cos(a)*(r0+22),y2:cy+Math.sin(a)*(r0+22),stroke:"#D64545","stroke-width":5,"stroke-linecap":"round"},g)}
+      this.fall.forEach(f=>{if(f.y<520)el("ellipse",{cx:f.x,cy:f.y,rx:22,ry:7,fill:"#FFC60A",stroke:"#B88A10","stroke-width":2.5},g)})}
+    else{const ga=Math.min(1,this.box/55);if(ga>.05){[bt,bb].forEach(p=>el("path",{d:path(p),stroke:this.box>70?"#F3A0A0":GLOW,"stroke-width":22,fill:"none",opacity:ga,"stroke-linecap":"round"},g))}
+      truss(bt,bb,"#2F6BD8");this.coins.forEach((c,i)=>el("ellipse",{cx:mid,cy:by+sag(mid,this.box)-10-i*11+c.y,rx:22,ry:7,fill:"#FFC60A",stroke:"#B88A10","stroke-width":2.5},g))}
+    const sy=300,sh=58;bank(sy+sh-4);label(40,sy+8,"空间桥");
+    const sb=[],st=[];for(let i=0;i<=N;i++){const x=x0+i*pw;sb.push([x,sy+sh+sag(x,this.sp)])}for(let i=0;i<N;i++){const x=x0+(i+.5)*pw;st.push([x,sy+sag(x,this.sp)])}
+    [sb,st].forEach(p=>el("path",{d:path(p),stroke:"#3A9A5B","stroke-width":8,fill:"none"},g));
+    for(let i=0;i<N;i++){el("line",{x1:sb[i][0],y1:sb[i][1],x2:st[i][0],y2:st[i][1],stroke:"#3A9A5B","stroke-width":8},g);el("line",{x1:st[i][0],y1:st[i][1],x2:sb[i+1][0],y2:sb[i+1][1],stroke:"#3A9A5B","stroke-width":8},g)}
+    [...sb,...st].forEach(p=>el("circle",{cx:p[0],cy:p[1],r:7,fill:"#fff",stroke:"#1E2A44","stroke-width":3},g));
+    this.coins.forEach((c,i)=>el("ellipse",{cx:mid,cy:sy+sag(mid-pw/2,this.sp)-8-i*6.5+c.y,rx:22,ry:6,fill:"#FFC60A",stroke:"#B88A10","stroke-width":2.5},g));
+    const s1=this.broken?["断了！","#D64545"]:this.box>55?["快撑不住了！","#D64545"]:this.box>30?["弯下去了！","#D64545"]:this.box>14?["开始弯了…","#E8742A"]:["还平平的","#3A9A5B"];
+    label(1350,by-22,s1[0],s1[1],"end");label(1350,sy-24,"还很平！","#3A9A5B","end");
+    label(1350,450,"示意动画 · 变形放大 · 现场以实测为准","#8A93A6","end")}
+}
+
+/* ================= 3D Zometool models: spin once, then rest on the original picture ================= */
+function modelGeom(kind){const h=Math.SQRT1_2;let P=[],E=[];
+  if(kind==="tri"){P=[[-.5,0,0],[.5,0,0],[0,Math.sqrt(3)/2,0]];E=[[0,1],[1,2],[2,0]]}
+  else if(kind==="pyr"){P=[[-.5,0,-.5],[.5,0,-.5],[.5,0,.5],[-.5,0,.5],[0,h,0]];E=[[0,1],[1,2],[2,3],[3,0],[0,4],[1,4],[2,4],[3,4]]}
+  else{for(let i=0;i<4;i++){P.push([i-1.5,0,-.5]);P.push([i-1.5,0,.5])}for(let i=0;i<3;i++)P.push([i-1,h,0]);
+    for(let i=0;i<3;i++)E.push([2*i,2*i+2],[2*i+1,2*i+3]);for(let i=0;i<4;i++)E.push([2*i,2*i+1]);
+    for(let i=0;i<3;i++){const a=8+i;E.push([a,2*i],[a,2*i+1],[a,2*i+2],[a,2*i+3])}E.push([8,9],[9,10])}
+  const c=[0,0,0];P.forEach(p=>{for(let k=0;k<3;k++)c[k]+=p[k]/P.length});return{P:P.map(p=>[p[0]-c[0],p[1]-c[1],p[2]-c[2]]),E}}
+const POSE={tri:[0,0],pyr:[-32,22],bridge:[-14,24]};
+function project(P,yaw,pitch){const cy=Math.cos(yaw),sy=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch),f=7;
+  return P.map(([x,y,z])=>{const x1=x*cy+z*sy,z1=-x*sy+z*cy,y2=y*cp-z1*sp,z2=y*sp+z1*cp,k=f/(f+z2);return[x1*k,-y2*k,z2,k]})}
+function rotAxis(P,ax,t){const c=Math.cos(t),s=Math.sin(t),[kx,ky,kz]=ax;return P.map(([x,y,z])=>{const d=kx*x+ky*y+kz*z,cx=ky*z-kz*y,cy=kz*x-kx*z,cz=kx*y-ky*x;
+  return[x*c+cx*s+kx*d*(1-c),y*c+cy*s+ky*d*(1-c),z*c+cz*s+kz*d*(1-c)]})}
+const TILT=(()=>{const v=[.55,1,.35],l=Math.hypot(...v);return v.map(x=>x/l)})();
+function setupModel(m){const img=m.querySelector(".im"),gl=document.createElement("div");gl.className="glint";
+  const u=`url("${img.getAttribute("src")}")`;gl.style.cssText=`left:${img.style.left};top:${img.style.top};width:${img.style.width};height:${img.style.height};-webkit-mask-image:${u};mask-image:${u}`;m.appendChild(gl);
+  m._spin=(delay=0)=>{clearTimeout(m._t);m.classList.remove("glow");void m.offsetWidth;
+    m._t=setTimeout(()=>{m.classList.add("glow");play("pop");setTimeout(()=>play("ding"),900)},delay)};
+  m.addEventListener("click",()=>{A();m._spin(0)})}
+
+
+/* ================= P20: water vapour keeps drifting in (no answer yet) ================= */
+class VaporDrift{
+  constructor(host){this.svg=el("svg",{viewBox:"0 0 1233 631"},host);this.g=el("g",{},this.svg);this.ps=[];
+    const C=[616,323],r=130,P=[...Array(6)].map((_,k)=>{const a=Math.PI/3*k;return[C[0]+r*Math.cos(a),C[1]+r*Math.sin(a)]});
+    const st=el("g",{},this.svg);for(let k=0;k<6;k++){const a=P[k],b=P[(k+1)%6];
+      [["#0b3f66",13],["#14679b",9]].forEach(([c,w])=>el("line",{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:c,"stroke-width":w,"stroke-linecap":"round"},st))}
+    P.forEach(p=>el("image",{href:"a/ball.png",x:p[0]-19,y:p[1]-19,width:38,height:38},st));
+    el("circle",{cx:1036,cy:82,r:10,fill:"#6FB0E8"},this.svg);const tx=el("text",{x:1054,y:91,"font-size":26,"font-weight":900,fill:"#6FB0E8","font-family":"Microsoft YaHei, Noto Sans SC, sans-serif"},this.svg);tx.textContent="= 水汽";
+    this.C=C;for(let i=0;i<34;i++)this.spawn(true)}
+  spawn(any){const a=Math.random()*Math.PI*2,r=any?260+Math.random()*190:430+Math.random()*40;this.ps.push({a,r,sp:22+Math.random()*16,w:Math.random()*6.28,tr:[]})}
+  step(dt){for(const p of this.ps){p.r-=p.sp*dt;p.a+=Math.sin(p.w+=dt*1.3)*0.0015;}
+    this.ps=this.ps.filter(p=>p.r>235);while(this.ps.length<34)this.spawn(false)}
+  draw(){const g=this.g;g.replaceChildren();const [cx,cy]=this.C;
+    for(const p of this.ps){const x=cx+p.r*Math.cos(p.a)*1.25,y=cy+p.r*Math.sin(p.a)*0.72,o=Math.min(1,(p.r-235)/40,(470-p.r)/40);
+      for(let k=1;k<=3;k++)el("circle",{cx:cx+(p.r+k*13)*Math.cos(p.a)*1.25,cy:cy+(p.r+k*13)*Math.sin(p.a)*0.72,r:6-k*1.4,fill:"#9CC9EF",opacity:o*(0.75-k*0.18)},g);
+      el("circle",{cx:x,cy:y,r:9,fill:"#6FB0E8",opacity:o},g)}}
+}
+/* ================= P21: a snowflake grows, one step per click ================= */
+class SnowGrow{
+  constructor(host){this.svg=el("svg",{viewBox:"0 0 1600 690"},host);this.g=el("g",{},this.svg);this.C=[520,345];this.r0=64;this.L=210;
+    this.cap1=el("text",{x:840,y:318,"font-size":38,"font-weight":900,fill:"#1E2A44","font-family":"Microsoft YaHei, Noto Sans SC, sans-serif"},this.svg);
+    this.cap2=el("text",{x:840,y:372,"font-size":26,fill:"#5B6680","font-family":"Microsoft YaHei, Noto Sans SC, sans-serif"},this.svg);
+    this.dots=el("g",{},this.svg);this.reset()}
+  reset(){this.n=0;this.v={hex:0,main:0,bump:0,side:0};this.goal={hex:0,main:0,bump:0,side:0};this.ps=[];this.flash=[];this.setCap();}
+  static CAPS=[["",""],["先长出一片小小的六边形",""],["水汽飘过来，六个角最先接到",""],["六个角先长，伸出六根主枝","六根主枝一起长，所以一模一样"],["主枝侧边，冒出小鼓包","水汽又落在鼓包上"],["水汽落在鼓包上，长成侧枝","侧枝斜着长，和旁边的主枝平行"]];
+  setCap(){const c=SnowGrow.CAPS[this.n];this.cap1.textContent=c[0];this.cap2.textContent=c[1];
+    this.dots.replaceChildren();for(let i=1;i<=5;i++)el("circle",{cx:840+(i-1)*30,cy:420,r:8,fill:i<=this.n?"#E8742A":"#E3D9C4"},this.dots)}
+  next(){if(this.n>=5){this.stop=true;return false}this.n++;const G=this.goal;if(this.n>=1)G.hex=1;if(this.n>=3)G.main=1;if(this.n>=4)G.bump=1;if(this.n>=5)G.side=1;this.setCap();return true}
+  pts(){const [cx,cy]=this.C,v=this.v,r=this.r0*v.hex,out={corner:[],tip:[],bump:[],side:[]};
+    for(let k=0;k<6;k++){const a=Math.PI/3*k-Math.PI/2,u=[Math.cos(a),Math.sin(a)],c=[cx+r*u[0],cy+r*u[1]];out.corner.push(c);
+      const len=this.L*v.main,tip=[c[0]+u[0]*len,c[1]+u[1]*len];out.tip.push(tip);
+      for(const f of[0.42,0.72])for(const s of[-1,1]){const b=[c[0]+u[0]*this.L*f,c[1]+u[1]*this.L*f],sa=a+s*Math.PI/3,sl=(f<0.6?76:54)*v.side;
+        out.bump.push(b);out.side.push({b,e:[b[0]+Math.cos(sa)*sl,b[1]+Math.sin(sa)*sl],s:[Math.cos(sa),Math.sin(sa)]})}}
+    return out}
+  targets(P){if(this.n===2)return P.corner;if(this.n===3)return P.tip;if(this.n===4)return P.bump;if(this.n===5)return P.side.map(s=>s.e).concat(P.tip);return[]}
+  step(dt){const v=this.v,G=this.goal,sp={hex:1.6,main:0.45,bump:1.4,side:0.4};for(const k in v){const d=G[k]-v[k];v[k]+=Math.sign(d)*Math.min(Math.abs(d),sp[k]*dt)}
+    const P=this.pts(),T=this.targets(P);
+    const finished=this.n===5&&(v.side>=1||this.stop);
+    if(!finished&&T.length&&this.ps.length<26&&Math.random()<dt*14){const a=Math.random()*Math.PI*2,t=T[Math.floor(Math.random()*T.length)];
+      this.ps.push({x:this.C[0]+Math.cos(a)*470,y:this.C[1]+Math.sin(a)*320,ti:T.indexOf(t),tr:[]})}
+    this.ps.forEach(p=>{const t=T[p.ti%Math.max(1,T.length)]||this.C,dx=t[0]-p.x,dy=t[1]-p.y,d=Math.hypot(dx,dy),s=150*dt;
+      p.tr.unshift([p.x,p.y]);p.tr.length=Math.min(p.tr.length,4);if(d<s+6){p.done=true;this.flash.push({x:t[0],y:t[1],t:0})}else{p.x+=dx/d*s;p.y+=dy/d*s}});
+    this.ps=this.ps.filter(p=>!p.done);this.flash.forEach(f=>f.t+=dt);this.flash=this.flash.filter(f=>f.t<0.4)}
+  draw(){const g=this.g;g.replaceChildren();const v=this.v,P=this.pts(),[cx,cy]=this.C,BL="#4F9BD6",now=performance.now()/1000;
+    el("rect",{x:4,y:4,width:1592,height:682,rx:24,fill:"#FDFBF6",stroke:"#EFE6D4","stroke-width":3},g);
+    if(v.main>0)P.corner.forEach((c,k)=>el("line",{x1:c[0],y1:c[1],x2:P.tip[k][0],y2:P.tip[k][1],stroke:BL,"stroke-width":14,"stroke-linecap":"round"},g));
+    if(v.side>0)P.side.forEach(s=>el("line",{x1:s.b[0],y1:s.b[1],x2:s.e[0],y2:s.e[1],stroke:BL,"stroke-width":10,"stroke-linecap":"round"},g));
+    if(v.bump>0&&v.side<1)P.bump.forEach((b,i)=>{const s=P.side[i].s;el("circle",{cx:b[0]+s[0]*8*v.bump,cy:b[1]+s[1]*8*v.bump,r:8*v.bump,fill:BL},g)});
+    if(v.hex>0){const r=this.r0*v.hex;el("polygon",{points:[...Array(6)].map((_,k)=>{const a=Math.PI/3*k-Math.PI/2;return(cx+r*Math.cos(a))+","+(cy+r*Math.sin(a))}).join(" "),fill:"#BCD7EF",stroke:"#3F7FC0","stroke-width":4,"stroke-linejoin":"round"},g)}
+    const ring=(pts)=>pts.forEach((p,i)=>el("circle",{cx:p[0],cy:p[1],r:22+3*Math.sin(now*5+i),fill:"none",stroke:"#E8742A","stroke-width":5},g));
+    if(this.n===2)ring(P.corner);if(this.n===4&&v.bump>0.5)ring(P.bump.filter((_,i)=>i%2===0));
+    this.ps.forEach(p=>{p.tr.forEach((q,k)=>el("circle",{cx:q[0],cy:q[1],r:6-k*1.3,fill:"#9CC9EF",opacity:0.7-k*0.15},g));el("circle",{cx:p.x,cy:p.y,r:9,fill:"#6FB0E8"},g)});
+    this.flash.forEach(f=>el("circle",{cx:f.x,cy:f.y,r:8+f.t*40,fill:"none",stroke:"#6FB0E8","stroke-width":3,opacity:1-f.t/0.4},g))}
+}
+/* ================= slides ================= */
+const slides=[...stage.querySelectorAll(".slide")],N=slides.length,live=new Map();let cur=0;
+stage.querySelectorAll(".model").forEach(setupModel);
+slides.forEach((s,i)=>{
+  const labs=[...s.querySelectorAll(".zlab")].map(h=>new Lab(h,JSON.parse(h.dataset.lab)));
+  const coinHost=s.querySelector(".coinlab");const coins=coinHost?new Coins(coinHost):null;
+  const force=s.querySelector(".force"),out=s.querySelector(".ctl output:not(.coincount)"),FN=["","轻轻","一点点","中等","用力","使劲"];
+  if(force&&out)force.addEventListener("input",()=>out.textContent=FN[force.value]);
+  const go=s.querySelector(".go:not(.addcoin):not(.built)");
+  if(go&&labs.length)go.addEventListener("click",()=>{const lv=force?+force.value:4;s.classList.remove("revealed");labs.forEach(l=>l.go(lv));
+    labs[0].onDone=amps=>{
+      if(labs.length===1&&labs[0].spec.pair){document.getElementById("next").classList.add("nudge")}
+      else{const stable=labs.every(l=>l.spec.brace);
+        if(stable){play("ding");labs.forEach(l=>{const r=l.svg.parentElement.getBoundingClientRect(),sr=stage.getBoundingClientRect(),k=1600/sr.width;bubble(s,(r.left-sr.left)*k+60,(r.top-sr.top)*k-10,"稳稳的！","good")});confetti(800,300,80)}
+        else{play("boing");labs.forEach(l=>{const r=l.svg.parentElement.getBoundingClientRect(),sr=stage.getBoundingClientRect(),k=1600/sr.width;bubble(s,(r.left-sr.left)*k+80,(r.top-sr.top)*k-10,"晃起来了！","bad")})}}}});
+  const rv=s.querySelector(".reveal");if(rv)rv.addEventListener("click",()=>{A();s.classList.remove("revealed");void s.offsetWidth;s.classList.add("revealed");play("reveal");setTimeout(()=>play("react"),150)});
+  s.querySelectorAll(".again").forEach(b=>b.addEventListener("click",()=>{s.classList.remove("revealed");if(coins){coins.reset();s.querySelector(".coincount").textContent="硬币：0 枚"}}));
+  if(coins){const add=s.querySelector(".addcoin"),cnt=s.querySelector(".coincount");add.addEventListener("click",()=>{A();coins.add();cnt.textContent=`硬币：${coins.n} 枚`;if(coins.n===8){setTimeout(()=>play("boing"),700)}})}
+  const vh=s.querySelector(".vaporlab");if(vh){const V=new VaporDrift(vh);live.set(i,{step(dt){V.step(dt)},draw(){V.draw()},key(){}})}
+  const gh=s.querySelector(".growlab");if(gh){const G=new SnowGrow(gh);const nb=s.querySelector(".grownext"),rb=s.querySelector(".growreset");
+    const nxt=()=>{A();const ok=G.next();if(ok){play(G.n===1?"pop":G.n===2?"whoosh":"ding");nb.textContent=G.n>=5?"完成！":"下一步"}return ok};
+    nb.addEventListener("click",()=>{if(G.n>=5){G.stop=true;play("ding");return}nxt()});rb.addEventListener("click",()=>{A();G.reset();nb.textContent="开始";play("tick")});
+    s._next=()=>G.n<5?nxt():false;s._enter=()=>{G.reset();nb.textContent="开始"};
+    live.set(i,{step(dt){G.step(dt)},draw(){G.draw()},key(){nxt()}})}
+  const built=s.querySelector(".built");if(built)built.addEventListener("click",()=>{play("cheer");confetti(1050,420,120);const ch=s.querySelector(".jump");if(ch){ch.classList.remove("jiggle");void ch.offsetWidth;ch.classList.add("jiggle");setTimeout(()=>ch.classList.remove("jiggle"),650)}});
+  if(rv)live.set(i,{step(){},draw(){},key(){rv.click()}});
+  if(labs.length||coins)live.set(i,{step(dt){labs.forEach(l=>l.step(dt));coins&&coins.step(dt)},draw(){labs.forEach(l=>l.draw());coins&&coins.draw()},key(){(s.querySelector(".addcoin")||go)?.click()}});
+});
+stage.addEventListener("click",e=>{const s=slides[cur];if(s.dataset.step&&!e.target.closest("button,.tap,.zoomable"))revealStep(s)});
+stage.addEventListener("click",e=>{const j=e.target.closest(".judge");if(!j||j.querySelector(".badge"))return;A();const ok=j.classList.contains("good"),b=document.createElement("div");
+  b.className="badge "+(ok?"ok":"no");b.textContent=ok?"✓":"✗";j.appendChild(b);if(ok){play("ding");const r=j.getBoundingClientRect(),sr=stage.getBoundingClientRect(),k=1600/sr.width;confetti((r.left-sr.left+r.width/2)*k,(r.top-sr.top)*k+80,90)}else play("wah")});
+/* real 3D Zometool models (loaded on first use) */
+const loadJS=src=>new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)});
+let z3dLib=null;const z3dLoad=()=>z3dLib||(z3dLib=loadJS("a/three.min.js?v=r128").then(()=>loadJS("a/OrbitControls.js?v=r128")).then(()=>loadJS("a/zomeparts.js?v=4ada94e9")).then(()=>loadJS("a/zome3d.js?v=4ada94e9")));
+slides.forEach((s,i)=>{const host=s.querySelector(".z3dhost");if(!host)return;let view=null,loading=null;
+  const ang=s.querySelector(".z3ang");let sliding=false;
+  const show=()=>{if(!s.classList.contains("z3d-on")){s.classList.add("z3d-on");play("whoosh")}};
+  const ensure=()=>loading||(loading=z3dLoad().then(()=>{view=Zome3D.mount(host,host.dataset.kind,{fitW:+host.dataset.fitw,fitH:+host.dataset.fith,from:host.dataset.from||null,stage:+(host.dataset.stage||0),onInteract:show,
+      onAngle:a=>{if(!sliding){let d=((a+180)%360+360)%360-180;ang.value=Math.round(d)}}});return view}));
+  const pic=s.querySelector(".model");
+  s._z3dEnter=()=>{ensure().then(v=>{s.classList.add("z3d-on");play("whoosh");(host.dataset.from?(play("pop"),v.growIn(()=>play("ding"))):v.intro(()=>play("ding")))})
+    .catch(()=>{s.classList.remove("z3d-on");pic&&pic._spin&&pic._spin(0)})};
+  s._z3dOff=()=>{const g=s.querySelector(".z3grow");if(g)g.textContent="继续拉手";s.classList.remove("z3d-on");ang.value=0;if(view){view.dispose();view=null}loading=null};
+  ang.addEventListener("input",async()=>{A();sliding=true;const v=await ensure();show();v.setAngle(+ang.value)});
+  ang.addEventListener("change",()=>{sliding=false});
+  const lab=s.querySelector(".z3ctl label");lab.addEventListener("click",async ev=>{if(ev.target===ang)return;ev.preventDefault();A();play("whoosh");const v=await ensure();show();v.spin()});
+  s.querySelector(".z3top")&&s.querySelector(".z3top").addEventListener("click",async()=>{A();play("tick");const v=await ensure();show();v.top()});
+  const gb=s.querySelector(".z3grow");if(gb)gb.addEventListener("click",async()=>{A();const v=await ensure();show();const n=v.grow();play(n>1?"pop":"tick");if(n>1)setTimeout(()=>play("ding"),380);gb.textContent=n>=v.maxStage?"从头再来":"继续拉手"});
+  s.querySelector(".z3home").addEventListener("click",async()=>{A();play("tick");const v=await ensure();show();v.home()});
+});
+// tap feedback on characters
+stage.addEventListener("click",e=>{const t=e.target.closest(".tap");if(!t)return;A();t.classList.remove("jiggle");void t.offsetWidth;t.classList.add("jiggle");setTimeout(()=>t.classList.remove("jiggle"),650);
+  play(t.classList.contains("react-sad")?"wah":t.classList.contains("react-proud")||t.classList.contains("jump")||t.classList.contains("king")?"ding":"boing")});
+// lightbox
+const lb=document.getElementById("lightbox");
+stage.addEventListener("click",e=>{const z=e.target.closest(".zoomable");if(!z)return;const img=z.querySelector("img");if(!img)return;lb.innerHTML=`<img src="${img.getAttribute("src")}" alt="">`;lb.hidden=false;play("pop")});
+lb.addEventListener("click",()=>lb.hidden=true);
+
+/* entrance sounds: one cue per animated element, timed to its delay */
+const ENTR=[["in-drop","drop"],["spin-in","spin"],["in-pop","pop"],["in-left","whoosh"],["in-right","whoosh"],["in-up","tick"]];
+let entT=[];
+function entranceSfx(s){entT.forEach(clearTimeout);entT=[];if(s.dataset.sfx==="boom")return;const used=new Set();
+  s.querySelectorAll(".el").forEach(e=>{const hit=ENTR.find(([c])=>e.classList.contains(c));if(!hit||e.classList.contains("after"))return;
+    const dm=/\bd(\d)\b/.exec(e.className),t=(dm?+dm[1]*150:0)+(hit[0]==="in-drop"?0:40);const key=hit[1]+t;if(used.has(key))return;used.add(key);
+    entT.push(setTimeout(()=>play(hit[1]),t))})}
+
+/* ================= navigation ================= */
+const countEl=document.getElementById("count"),bar=document.querySelector("#progress i"),notesEl=document.getElementById("notes"),ov=document.getElementById("overview"),nextBtn=document.getElementById("next");
+const esc=t=>t.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+function go(i){i=Math.max(0,Math.min(N-1,i));
+  const old=slides[cur];old._z3dOff&&old._z3dOff();old.querySelectorAll("video").forEach(v=>v.pause());old.classList.remove("on");
+  slides.forEach((s,k)=>s.hidden=k!==i);cur=i;const s=slides[i];void s.offsetWidth;s.classList.add("on");
+  s.querySelectorAll("video").forEach(v=>{v.currentTime=0;v.play().catch(()=>{})});
+  nextBtn.classList.remove("nudge");lb.hidden=true;
+  s.classList.remove("revealed");s.querySelectorAll(".judge .badge").forEach(b=>b.remove());
+  if(s.dataset.sfx)setTimeout(()=>play(s.dataset.sfx),250);
+  entranceSfx(s);
+  s._enter&&s._enter();
+  s._z3dEnter&&s._z3dEnter();
+  if(!s.querySelector(".z3dhost"))s.querySelectorAll(".model").forEach(m=>m._spin&&m._spin(700));
+  if(s.dataset.confetti)setTimeout(()=>confetti(),600);
+  if(s.dataset.shake){setTimeout(()=>{stage.classList.remove("shake");void stage.offsetWidth;stage.classList.add("shake");const f=document.getElementById("flash");f.classList.remove("go");void f.offsetWidth;f.classList.add("go")},700)}
+  countEl.textContent=`${i+1} / ${N}`;bar.style.width=((i+1)/N*100)+"%";
+  const m=META[i];notesEl.innerHTML=`<h3>第 ${i+1} 页 · 讲师备注</h3>`+(m.notes?m.notes.split("\n").map(p=>`<p>${esc(p)}</p>`).join(""):"<p>（这一页 PPT 里没有备注）</p>");
+  ov.querySelectorAll("button").forEach((b,k)=>b.setAttribute("aria-current",k===i));
+  try{history.replaceState(null,"","#p"+(i+1))}catch(e){}}
+function revealStep(s){if(!s.querySelector(".after")||s.classList.contains("revealed"))return false;s.classList.add("revealed");
+  if(s.dataset.step){play(s.dataset.step);setTimeout(()=>confetti(800,420,140),350)}else{play("reveal");setTimeout(()=>play("react"),150)}return true}
+function advance(){const s=slides[cur];if(s._next&&s._next())return;if(revealStep(s))return;go(cur+1)}
+document.getElementById("prev").onclick=()=>go(cur-1);nextBtn.onclick=advance;
+const bN=document.getElementById("btnNotes"),bG=document.getElementById("btnGrid"),bS=document.getElementById("btnSound");
+const tN=()=>{notesEl.hidden=!notesEl.hidden;bN.setAttribute("aria-pressed",!notesEl.hidden)},tG=()=>{ov.hidden=!ov.hidden;bG.setAttribute("aria-pressed",!ov.hidden)};
+bN.onclick=tN;bG.onclick=tG;bS.onclick=()=>{soundOn=!soundOn;bS.setAttribute("aria-pressed",soundOn);bS.textContent=soundOn?"声音：开":"声音：关"};
+document.getElementById("btnFull").onclick=()=>{try{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen().catch(()=>{})}catch(e){}};
+(()=>{let h="<h2>目录</h2>",sec="";META.forEach((m,i)=>{if(m.sec!==sec){if(sec)h+="</div>";sec=m.sec;h+=`<div class="sec">${esc(sec)}</div><div class="grid">`}h+=`<button data-i="${i}"><b>${i+1}</b>${esc(m.title)}</button>`});ov.innerHTML=h+"</div>";
+  ov.querySelectorAll("button").forEach(b=>b.onclick=()=>{go(+b.dataset.i);tG()})})();
+addEventListener("keydown",e=>{if(e.target.tagName==="INPUT")return;const k=e.key;
+  if(k==="ArrowRight"||k==="PageDown"||(k===" "&&e.target.tagName!=="BUTTON")){e.preventDefault();advance()}
+  else if(k==="ArrowLeft"||k==="PageUp"){e.preventDefault();go(cur-1)}
+  else if(k==="Home")go(0);else if(k==="End")go(N-1);
+  else if(k==="n"||k==="N")tN();else if(k==="g"||k==="G")tG();else if(k==="f"||k==="F")document.getElementById("btnFull").click();
+  else if(k==="p"||k==="P"){const L=live.get(cur);L&&L.key()}
+  else if(k==="Escape"){lb.hidden=true;if(!ov.hidden)tG()}});
+let sx=null;stage.addEventListener("touchstart",e=>{if(e.target.closest("svg,canvas,button,input,.tap,.zoomable"))return;sx=e.touches[0].clientX},{passive:true});
+stage.addEventListener("touchend",e=>{if(sx===null)return;const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>60){dx<0?advance():go(cur-1)};sx=null});
+const vp=document.getElementById("viewport");function fit(){const r=vp.getBoundingClientRect(),k=Math.min(r.width/1600,r.height/900);stage.style.transform=`translate(-50%,-50%) scale(${k})`}
+addEventListener("resize",fit);fit();
+let last=performance.now();function frame(now){const dt=Math.min(.033,(now-last)/1000);last=now;const L=live.get(cur);if(L){L.step(dt);L.draw()}drawConfetti();requestAnimationFrame(frame)}
+if(stage.querySelector(".z3dhost"))setTimeout(function z3dPre(){z3dLoad().catch(()=>{})},1200);
+const m=/^#p(\d+)$/.exec(location.hash);go(m?+m[1]-1:0);requestAnimationFrame(frame);
+})();
+</script>
