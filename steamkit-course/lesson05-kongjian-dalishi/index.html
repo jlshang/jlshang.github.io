@@ -113,7 +113,7 @@ button:focus-visible,input:focus-visible{outline:4px solid var(--orange);outline
 .slide.revealed .after.react-proud{animation:pop .6s cubic-bezier(.2,1.6,.4,1) .45s both,proud 1.4s ease-in-out 1.1s infinite}
 .slide.revealed .after.fx{animation:fadein .4s .5s both}
 @keyframes fadein{from{opacity:0}to{opacity:1}}
-.z3dhost{opacity:0;transition:opacity .5s;z-index:3;cursor:grab}
+.z3dhost{opacity:0;transition:opacity .2s;z-index:3;cursor:grab}
 .z3ctl label{cursor:pointer;display:flex;align-items:center;gap:10px;font-family:var(--display);font-size:26px;color:var(--orange)}
 .z3ctl input{width:260px;accent-color:var(--orange)}
 .z3dhost .hint{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);font-size:20px;color:#8A93A6;pointer-events:none;transition:opacity .4s}
@@ -810,7 +810,7 @@ slides.forEach((s,i)=>{const host=s.querySelector(".z3dhost");if(!host)return;le
   const ensure=()=>loading||(loading=z3dLoad().then(()=>{view=Zome3D.mount(host,host.dataset.kind,{fitW:+host.dataset.fitw,fitH:+host.dataset.fith,yawAdd:+(host.dataset.yaw||0),elev:host.dataset.elev?+host.dataset.elev:null,onInteract:show,
       onAngle:a=>{if(!sliding){let d=((a+180)%360+360)%360-180;ang.value=Math.round(d)}}});return view}));
   const pic=s.querySelector(".model");
-  s._z3dEnter=()=>{ensure().then(v=>{s.classList.add("z3d-on");play("whoosh");v.intro();setTimeout(()=>play("ding"),2900)})
+  s._z3dEnter=()=>{ensure().then(v=>{s.classList.add("z3d-on");play("whoosh");v.intro(()=>play("ding"))})
     .catch(()=>{s.classList.remove("z3d-on");pic&&pic._spin&&pic._spin(0)})};
   s._z3dOff=()=>{s.classList.remove("z3d-on");ang.value=0;if(view){view.dispose();view=null}loading=null};
   ang.addEventListener("input",async()=>{A();sliding=true;const v=await ensure();show();v.setAngle(+ang.value)});
@@ -846,7 +846,7 @@ function go(i){i=Math.max(0,Math.min(N-1,i));
   s.classList.remove("revealed");
   if(s.dataset.sfx)setTimeout(()=>play(s.dataset.sfx),250);
   entranceSfx(s);
-  s._z3dEnter&&setTimeout(s._z3dEnter,250);
+  s._z3dEnter&&s._z3dEnter();
   if(!s.querySelector(".z3dhost"))s.querySelectorAll(".model").forEach(m=>m._spin&&m._spin(700));
   if(s.dataset.confetti)setTimeout(()=>confetti(),600);
   if(s.dataset.shake){setTimeout(()=>{stage.classList.remove("shake");void stage.offsetWidth;stage.classList.add("shake");const f=document.getElementById("flash");f.classList.remove("go");void f.offsetWidth;f.classList.add("go")},700)}
@@ -876,6 +876,7 @@ stage.addEventListener("touchend",e=>{if(sx===null)return;const dx=e.changedTouc
 const vp=document.getElementById("viewport");function fit(){const r=vp.getBoundingClientRect(),k=Math.min(r.width/1600,r.height/900);stage.style.transform=`translate(-50%,-50%) scale(${k})`}
 addEventListener("resize",fit);fit();
 let last=performance.now();function frame(now){const dt=Math.min(.033,(now-last)/1000);last=now;const L=live.get(cur);if(L){L.step(dt);L.draw()}drawConfetti();requestAnimationFrame(frame)}
+if(stage.querySelector(".z3dhost"))setTimeout(function z3dPre(){z3dLoad().catch(()=>{})},1200);
 const m=/^#p(\d+)$/.exec(location.hash);go(m?+m[1]-1:0);requestAnimationFrame(frame);
 })();
 </script>
