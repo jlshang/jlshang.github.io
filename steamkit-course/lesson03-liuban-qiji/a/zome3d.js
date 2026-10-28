@@ -179,13 +179,55 @@
       if (outline) { const C = hexes.slice(1).map((H, k) => { const far = H.reduce((m, a) => (flat(a.p).distanceTo(cen) > flat(m.p).distanceTo(cen) ? a : m)); return cen.clone().add(flat(far.p).sub(cen).multiplyScalar(1.16)).addScaledVector(up, -h / 2); }); dashes = C.map((c, k) => [c, C[(k + 1) % 6]]); }
       return { balls, struts, dashes, labels: lab, orient: tetraOrient(), elev: 40 };
     }
-    return { atoms, ring, firstHex, build };
+    return { atoms, ring, firstHex, build, all, flat, up, U, R, YS, h, e, key, cen: flat(C0) };
   })();
   const water6 = () => Object.assign(HONEY.build(HONEY.ring, { loose: 0.45 }), { elev: 60 });
   function hex6(stage = 5) { const n = Math.max(1, Math.min(5, stage)) + 1; return Object.assign(HONEY.build(HONEY.ring.slice(0, n)), { grow: 5, elev: 62 }); }
   function hex7(stage = 7) { const s = Math.max(1, Math.min(7, stage)); const pres = HONEY.atoms.map((_, i) => i).filter((i) => HONEY.firstHex[i] < s);
     return Object.assign(HONEY.build(pres), { grow: 7, elev: 62 }); }
   const hexBig = () => Object.assign(HONEY.build(HONEY.atoms.map((_, i) => i), { outline: true }), { elev: 66 });
+
+  /* ---------- lesson 3: the big hexagon layer, then one layer below and one above -> a block of ice ---------- */
+  const ICEHEX = (() => {
+    const H = HONEY, { flat, up, R, YS, h, e, key } = H, LAY = [0, -1, 1];
+    const site = H.atoms.map((a) => ({ xy: flat(a.p), A: a.upper }));
+    const allxy = H.all.map((a) => ({ xy: flat(a.p), A: a.upper }));
+    const pos = (s, k) => { const upper = s.A === (k % 2 === 0); return { p: s.xy.clone().addScaledVector(up, k * (h + R) - (upper ? 0 : h)), upper }; };
+    const atoms = [];
+    LAY.forEach((k) => site.forEach((s, i) => { const q = pos(s, k); atoms.push({ ...q, k, i, s }); }));
+    const ix = new Map(atoms.map((a, n) => [key(a.p), n]));
+    const edges = [];
+    for (let x = 0; x < atoms.length; x++) for (let y = x + 1; y < atoms.length; y++) if (Math.abs(atoms[x].p.distanceTo(atoms[y].p) - R) < 0.05) edges.push([x, y]);
+    // orient every bond so nobody gives or takes more than 2 hands: Euler-circuit orientation (dummy vertex for odd degrees)
+    const N = atoms.length, adj = Array.from({ length: N + 1 }, () => []), E2 = edges.map((x) => x.slice());
+    const deg = Array(N).fill(0); edges.forEach(([x, y]) => { deg[x]++; deg[y]++; });
+    deg.forEach((d, v) => { if (d % 2) E2.push([v, N]); });
+    E2.forEach(([x, y], n) => { adj[x].push([y, n]); adj[y].push([x, n]); });
+    const used = Array(E2.length).fill(false), dir = Array(E2.length).fill(null), ptr = Array(N + 1).fill(0);
+    for (let s0 = 0; s0 <= N; s0++) { if (ptr[s0] >= adj[s0].length) continue; const st = [s0];
+      while (st.length) { const v = st[st.length - 1]; while (ptr[v] < adj[v].length && used[adj[v][ptr[v]][1]]) ptr[v]++;
+        if (ptr[v] === adj[v].length) { st.pop(); continue; } const [w, n] = adj[v][ptr[v]]; used[n] = true; dir[n] = v; st.push(w); } }
+    const donor = new Map(); edges.forEach(([x, y], n) => donor.set(x + "," + y, dir[n]));
+    const ek = (x, y) => Math.min(x, y) + "," + Math.max(x, y);
+    function build(stage) {
+      const ks = LAY.slice(0, Math.max(1, Math.min(3, stage))), has = new Set(atoms.map((a, n) => (ks.includes(a.k) ? n : -1)).filter((n) => n >= 0));
+      const balls = [], struts = [];
+      for (const n of has) { const a = atoms[n], mine = edges.filter(([x, y]) => x === n || y === n);
+        const nb = (j) => atoms[j].p.clone().sub(a.p).normalize();
+        const give = mine.filter(([x, y]) => donor.get(ek(x, y)) === n).map(([x, y]) => (x === n ? y : x));
+        const dirs = give.map((j) => [nb(j), j]);
+        if (dirs.length < 2) { // free tetrahedral directions: vertical + in-layer lattice neighbours that are not bonded here
+          const cand = [up.clone().multiplyScalar(a.upper ? 1 : -1)];
+          allxy.filter((t) => Math.abs(t.xy.distanceTo(a.s.xy) - e) < 0.05).forEach((t) => cand.push(pos(t, a.k).p.sub(a.p).normalize()));
+          for (const d of cand) { if (dirs.length >= 2) break; if (mine.some(([x, y]) => nb(x === n ? y : x).dot(d) > 0.99)) continue; dirs.push([d, -1]); } }
+        balls.push([a.p, "red"]);
+        dirs.forEach(([d, j]) => { const hh = add(a.p, d, YS); balls.push([hh, "white"]); struts.push([a.p, hh, "yellow"]); if (j >= 0 && has.has(j)) struts.push([hh, atoms[j].p, "yellow"]); });
+      }
+      return { balls, struts, dashes: [], labels: [], orient: tetraOrient(), elev: 26, grow: 3, center: H.cen.clone().addScaledVector(up, -h / 2) };
+    }
+    return { build };
+  })();
+  const iceHex = (stage = 3) => ICEHEX.build(stage);
   /* ---------- lesson 9: snowflake from blue struts (core = medium, main branches = long, side branches = short) ---------- */
   function snow(stage, roll = 0) {
     const L = 8.472, e1 = V(1, 0, 0), v2 = V(0.5, PHI / 2, 1 / (2 * PHI)), v3 = V(-0.5, PHI / 2, 1 / (2 * PHI));
@@ -235,7 +277,7 @@
     return greenModel(P, E, V(0, 0, 1), b.clone().negate(), -8, 22);
   }
   const MODELS = { waterTetra, water1, waterPockets, water5, water3, water5h, tri, pyr, bridge,
-    snow1: () => snow(1), ice, water6, hex6, hex7, hexBig, snow2: () => snow(2), snow3: () => snow(3, 16) };
+    snow1: () => snow(1), ice, water6, hex6, hex7, hexBig, iceHex, snow2: () => snow(2), snow3: () => snow(3, 16) };
 
   function labelTexture(t, style) {
     const c = document.createElement("canvas"); c.width = c.height = 128; const g = c.getContext("2d");
@@ -397,5 +439,5 @@
       dispose() { alive = false; window.removeEventListener("resize", onResize); cancelAnimationFrame(raf); renderer.dispose(); host.removeChild(renderer.domElement); },
     };
   }
-  window.Zome3D = { mount };
+  window.Zome3D = { mount, _M: MODELS };
 })();
