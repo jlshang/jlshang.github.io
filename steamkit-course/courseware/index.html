@@ -51,18 +51,14 @@
 <div class="wrap">
   <header>
     <div class="brand">
-      <div class="kicker">ZOMETOOL · STEAMKIT</div>
       <h1>STEAMKit <span>互动课件</span></h1>
-      <p class="sub">点开就能上课：翻页、动画、3D 模型都在网页里</p>
     </div>
-    <div class="count" id="count"></div>
   </header>
 
   <main class="grid" id="grid" aria-label="课程列表"></main>
 
   <footer>
     <span>上课时按 ← → 翻页，N 看讲师备注，F 全屏</span>
-    <a href="../">查看 Zometool 课程编排 →</a>
   </footer>
 </div>
 <script>
@@ -83,7 +79,6 @@ LESSONS.sort((a, b) => a.no - b.no).forEach((l) => {
     <div class="go"><span>${l.pages} 页</span><b>开始上课 →</b></div></div>`;
   grid.appendChild(a);
 });
-document.getElementById("count").textContent = `已上线 ${LESSONS.length} 节`;
 </script>
 </body>
 </html>
