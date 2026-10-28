@@ -167,6 +167,47 @@ button:focus-visible,input:focus-visible{outline:4px solid var(--orange);outline
 #flash.go{animation:flash .45s ease-out}
 @keyframes flash{0%{opacity:.85}100%{opacity:0}}
 @media (prefers-reduced-motion:reduce){.floaty,.peek,.wave,.dance,.march,.jump,.react-sad,.react-proud,.qmark{animation:none!important}}
+
+/* --- answer wall page --- */
+.aring{display:flex;flex-direction:column;align-items:center;justify-content:center;color:#FBF6EC}
+.aring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.aring .trk{fill:none;stroke:rgba(255,255,255,.14);stroke-width:8}
+.aring .arc{fill:none;stroke:#FFC60A;stroke-width:8;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:calc(100 - var(--p,1)*100);transition:stroke-dashoffset 1s linear}
+.aring b{font-family:var(--display);font-weight:400;font-size:84px;line-height:1;position:relative}
+.aring span{font-size:22px;font-weight:700;color:#C9D1E4;position:relative;margin-top:6px}
+.aring.run b{color:#FFC60A}
+.awall{border:3px dashed rgba(255,255,255,.28);border-radius:28px;display:flex;flex-wrap:wrap;align-content:flex-start;gap:18px;padding:26px}
+.awall .aempty{margin:auto;color:rgba(255,255,255,.45);font-size:26px;font-weight:700}
+.awall.has .aempty{display:none}
+.anote{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;width:176px;padding:16px 10px 14px;background:#FFF6C9;color:#1E2A44;border-radius:10px;box-shadow:0 8px 18px rgba(0,0,0,.28);transform:rotate(var(--rot));animation:pop .45s cubic-bezier(.2,1.6,.4,1) both}
+.anote b{font-size:28px;font-weight:900}
+.anote .acount{position:absolute;right:-12px;top:-12px;background:#E8742A;color:#fff;font-weight:900;font-size:22px;border-radius:999px;padding:2px 10px;min-width:20px}
+.anote .acount:empty{display:none}
+.anote.bump{animation:pop .35s cubic-bezier(.2,1.6,.4,1) both}
+.achips{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.achip{display:inline-flex;align-items:center;gap:8px;font:900 24px var(--body);color:#1E2A44;background:#FBF6EC;border:none;border-radius:999px;padding:6px 18px 6px 10px;cursor:pointer;box-shadow:0 4px 0 #C9BFA8}
+.achip:active{transform:translateY(3px);box-shadow:0 1px 0 #C9BFA8}
+.aother{display:inline-flex;gap:6px}
+.aother input{font:700 22px var(--body);width:170px;border-radius:999px;border:2px solid rgba(255,255,255,.35);background:rgba(255,255,255,.08);color:#FBF6EC;padding:6px 14px}
+.aother input::placeholder{color:rgba(255,255,255,.5)}
+.aother button{font:900 22px var(--body);border:none;border-radius:999px;padding:6px 16px;background:#FFC60A;color:#1E2A44;cursor:pointer}
+.wallpage .ctl .again{background:transparent;color:#FBF6EC;border-color:rgba(255,255,255,.6)}
+/* --- bracing page --- */
+.story{display:flex;align-items:center;gap:12px;font-size:27px;font-weight:700;color:#1E2A44}
+.story b{color:#C65A16}
+.story .sos{flex-shrink:0;white-space:nowrap;background:#D64545;color:#fff;font-weight:900;border-radius:12px;padding:2px 12px;font-size:24px}
+.slide.braced .story{opacity:.55;transition:opacity .4s}
+.bres{display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#1E2A44;opacity:0;transform:translateY(10px);transition:opacity .4s,transform .4s}
+.bres b{color:#C65A16;font-size:34px;margin:0 4px}
+.bsum{display:flex;align-items:center;font-size:27px;font-weight:900;color:#3A9A5B;line-height:1.35;opacity:0;transition:opacity .4s .3s}
+.hexq{font:900 26px var(--display);color:#fff;background:#2F6BD8;border:none;border-radius:16px;box-shadow:0 5px 0 #1d4ea3;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .4s .6s}
+.hexans{display:flex;align-items:center;gap:18px;opacity:0;pointer-events:none;transition:opacity .35s}
+.hexans p{margin:0;font-size:28px;font-weight:900;color:#1E2A44}.hexans b{color:#C65A16}
+.hexans .rule{margin-top:6px;color:#3A9A5B}
+.slide.braced .bres{opacity:1;transform:none}.slide.braced .bres.d1{transition-delay:.15s}
+.slide.braced .bsum,.slide.braced .hexq{opacity:1;pointer-events:auto}
+.slide.hexed .bsum{opacity:0}.slide.hexed .hexans{opacity:1}
+.ctl .again.on{background:#FFC60A;border-color:#FFC60A;color:#1E2A44}
 </style>
 
 <div id="app">
@@ -220,6 +261,14 @@ button:focus-visible,input:focus-visible{outline:4px solid var(--orange);outline
 <div class="el sp in-pop" data-k="0"  style="left:63.5px;top:182.8px;width:163.7px;height:266.7px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:266.7px;"><span style="font-size:266.7px;color:#E8742A;font-family:var(--display);font-weight:400;">1</span></p></div></div>
 <div class="el sp in-left d1" data-k="1"  style="left:209.5px;top:273.6px;width:910.4px;height:85.0px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:92.0px;"><span style="font-size:80.0px;color:#FBF6EC;font-family:var(--display);font-weight:400;">为什么是三角形呢</span><span style="font-size:80.0px;color:#FBF6EC;font-family:var(--display);font-weight:400;">？</span></p></div></div>
 <div class="el pic in-right" data-k="2"  style="left:428.3px;top:182.8px;width:1171.7px;height:717.2px;"><img class="im" src="a/image12.webp" alt="" draggable="false" style="width:1171.7px;height:717.2px;left:0.0px;top:0.0px;"></div>
+</section>
+<section class="slide wallpage" data-n="6.5" style="background:#1E2A44" data-sfx="drum" hidden>
+<div class="el sp in-pop" style="left:110px;top:96px;width:1380px;height:90px"><div class="tx" style="justify-content:flex-start;padding:0"><p style="text-align:left;white-space:nowrap"><span style="font-size:62px;color:#FBF6EC;font-family:var(--display);font-weight:400">你觉得，什么样的图形</span><span style="font-size:62px;color:#FFC60A;font-family:var(--display);font-weight:400">最不怕推</span><span style="font-size:62px;color:#FBF6EC;font-family:var(--display);font-weight:400">？</span></p></div></div>
+<div class="el sp in-up d1" style="left:112px;top:190px;width:1380px;height:46px"><div class="tx" style="justify-content:flex-start;padding:0"><p style="text-align:left"><span style="font-size:28px;color:#C9D1E4;font-weight:700">先别急着看答案。想一想，在评论区说说你的猜想，能说出理由就更棒了！</span></p></div></div>
+<div class="el aring in-pop d2" style="left:150px;top:330px;width:230px;height:230px" aria-live="polite"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="44" class="trk"/><circle cx="50" cy="50" r="44" class="arc" pathLength="100"/></svg><b>30</b><span>秒想一想</span></div>
+<div class="el awall in-up d2" style="left:440px;top:268px;width:1050px;height:452px"><p class="aempty">孩子们说的答案，点下面的按钮贴到这里</p></div>
+<div class="el achips in-up d3" style="left:120px;top:752px;width:1000px;height:120px"></div>
+<div class="ctl"><button class="go athink">想一想 30 秒</button><button class="again areset">清空</button></div>
 </section>
 <section class="slide" data-n="7" style="background:#1E2A44"  data-sfx="drum" hidden>
 <div class="el sp " data-k="0"  style="left:-1.6px;top:455.6px;width:1603.2px;height:332.6px;background:#DEE0E3a8;border-radius:0.0px;"></div>
@@ -296,8 +345,8 @@ button:focus-visible,input:focus-visible{outline:4px solid var(--orange);outline
 <div class="el pic in-pop d3 floaty tap" style="left:1020px;top:230px;width:520px;height:440px"><img class="im" src="a/image13.webp" alt="" draggable="false" style="width:520px;height:440px;left:0;top:0;object-fit:contain"></div>
 </section>
 <section class="slide" data-n="25" style="background:#FBF6EC"  hidden>
-<div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">稳定性原理：棍子只被推拉</span></p></div></div>
-<div class="el pic " data-k="1"  style="left:106.7px;top:258.3px;width:1386.7px;height:466.7px;"><video class="im" src="a/media4.mp4" poster="a/image39.webp" muted loop playsinline preload="auto" style="width:1386.7px;height:466.7px;left:0.0px;top:0.0px;"></video></div>
+<div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">稳定性原理：三条边一定，形状就锁住了</span></p></div></div>
+<div class="el ssslab" style="left:107px;top:250px;width:1386px;height:520px"></div><div class="ctl"><button class="go ptri">推三角形</button><button class="go pquad">推四边形</button><button class="again pcirc">画圆看看</button><button class="again preset">重来</button></div>
 </section>
 <section class="slide" data-n="26" style="background:#FBF6EC"  hidden>
 <div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">如何更稳定？</span></p></div></div>
@@ -308,8 +357,14 @@ button:focus-visible,input:focus-visible{outline:4px solid var(--orange);outline
 </section>
 <section class="slide" data-n="27" style="background:#FBF6EC"  hidden>
 <div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">加斜棍：切成三角形</span></p></div></div>
-<div class="el zlab" style="left:250.3px;top:229.7px;width:459.3px;height:459.3px;" data-lab='{"key": "sq", "dir": "side", "brace": true, "fit": "sq"}'></div>
-<div class="el zlab" style="left:879.7px;top:229.7px;width:480.6px;height:459.3px;" data-lab='{"key": "pe", "dir": "side", "brace": true, "fit": "pe"}'></div><div class="ctl"><button class="go">推一推看！</button></div>
+<div class="el zlab" style="left:250.3px;top:229.7px;width:459.3px;height:459.3px;" data-lab='{"key": "sq", "dir": "side", "brace": false, "fit": "sq"}'></div>
+<div class="el zlab" style="left:879.7px;top:229.7px;width:480.6px;height:459.3px;" data-lab='{"key": "pe", "dir": "side", "brace": false, "fit": "pe"}'></div>
+<div class="el story in-up d1" style="left:640px;top:104px;width:880px;height:96px"><span class="sos">求救！</span><span>正方形和五边形想去当大桥的零件，可是一推就歪。小工程师，<b>只许加棍子</b>，怎么帮它们站稳？</span></div>
+<div class="el bres" style="left:220px;top:702px;width:520px;height:50px">加 <b>1</b> 根斜棍 → 切成 <b>2</b> 个三角形</div>
+<div class="el bres d1" style="left:860px;top:702px;width:520px;height:50px">加 <b>2</b> 根斜棍 → 切成 <b>3</b> 个三角形</div>
+<div class="el bsum" style="left:120px;top:772px;width:720px;height:80px">每个三角形都被「三条边」锁住 🔒<br>拼在一起，整个形状也锁住了！</div>
+<button class="el hexq" style="left:860px;top:784px;width:210px;height:56px">那六边形呢？</button>
+<div class="el hexans" style="left:120px;top:758px;width:720px;height:110px"><svg viewBox="0 0 200 180" width="104" height="94" aria-hidden="true"><line x1="55" y1="10" x2="145" y2="10" stroke="#00688F" stroke-width="10" stroke-linecap="round"/><line x1="145" y1="10" x2="190" y2="90" stroke="#00688F" stroke-width="10" stroke-linecap="round"/><line x1="190" y1="90" x2="145" y2="170" stroke="#00688F" stroke-width="10" stroke-linecap="round"/><line x1="145" y1="170" x2="55" y2="170" stroke="#00688F" stroke-width="10" stroke-linecap="round"/><line x1="55" y1="170" x2="10" y2="90" stroke="#00688F" stroke-width="10" stroke-linecap="round"/><line x1="10" y1="90" x2="55" y2="10" stroke="#00688F" stroke-width="10" stroke-linecap="round"/><line x1="55" y1="10" x2="190" y2="90" stroke="#17963d" stroke-width="8" stroke-linecap="round"/><line x1="55" y1="10" x2="145" y2="170" stroke="#17963d" stroke-width="8" stroke-linecap="round"/><line x1="55" y1="10" x2="55" y2="170" stroke="#17963d" stroke-width="8" stroke-linecap="round"/><circle cx="55" cy="10" r="11" fill="#E6E8EC" stroke="#9AA1AD" stroke-width="3"/><circle cx="145" cy="10" r="11" fill="#E6E8EC" stroke="#9AA1AD" stroke-width="3"/><circle cx="190" cy="90" r="11" fill="#E6E8EC" stroke="#9AA1AD" stroke-width="3"/><circle cx="145" cy="170" r="11" fill="#E6E8EC" stroke="#9AA1AD" stroke-width="3"/><circle cx="55" cy="170" r="11" fill="#E6E8EC" stroke="#9AA1AD" stroke-width="3"/><circle cx="10" cy="90" r="11" fill="#E6E8EC" stroke="#9AA1AD" stroke-width="3"/></svg><div><p>六边形：加 <b>3</b> 根 → <b>4</b> 个三角形</p><p class="rule">规律：斜棍 = 边数 − 3</p></div></div><div class="ctl"><button class="go">推一推</button><button class="go addbrace">加斜棍</button><button class="again rebrace">重来</button></div>
 </section>
 <section class="slide" data-n="28" style="background:#FBF6EC"  hidden>
 <div class="el sp " data-k="0"  style="left:106.7px;top:162.5px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">切成三角形，真的有人这么做</span></p></div></div>
@@ -351,8 +406,8 @@ button:focus-visible,input:focus-visible{outline:4px solid var(--orange);outline
 <section class="slide" data-n="33" style="background:#FBF6EC"  hidden>
 <div class="el sp " data-k="0"  style="left:-2.2px;top:-0.9px;width:1605.9px;height:908.1px;background:#FFFFFF;border-radius:0.0px;"></div>
 <div class="el sp " data-k="1"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">一</span><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">点一点加重量</span></p></div></div>
-<div class="el coinlab" style="left:97.3px;top:233.5px;width:1386.7px;height:466.7px;"></div>
-<div class="el pic tap" data-k="3"  style="left:-1.1px;top:747.7px;width:791.7px;height:159.5px;border-radius:0.0px;"><img class="im" src="a/image18.webp" alt="" draggable="false" style="width:791.7px;height:289.2px;left:-0.0px;top:-80.0px;"></div><div class="ctl"><button class="go addcoin">放一枚硬币</button><output class="coincount">硬币：0 枚</output><button class="again resetcoin">重来</button></div>
+<div class="el wlab" style="left:107px;top:222px;width:1386px;height:520px"></div>
+<div class="el pic tap" data-k="3"  style="left:-1.1px;top:747.7px;width:791.7px;height:159.5px;border-radius:0.0px;"><img class="im" src="a/image18.webp" alt="" draggable="false" style="width:791.7px;height:289.2px;left:-0.0px;top:-80.0px;"></div><div class="ctl"><button class="go addw">挂 1 kg 砝码</button><output class="wcount">砝码：0 kg</output><button class="again resetw">重来</button></div>
 </section>
 <section class="slide" data-n="34" style="background:#FBF6EC"  hidden>
 <div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">真的有人这样造桥：印度「四面体桥」</span></p></div></div>
@@ -423,7 +478,7 @@ button:focus-visible,input:focus-visible{outline:4px solid var(--orange);outline
     <span class="keys">← → 翻页 · P 推一下 · N 备注 · G 目录 · F 全屏</span>
   </nav>
 </div>
-<script>const META=[{"n": 1, "title": "空间大力士", "sec": "开场", "notes": "开场 30 秒。话术：欢迎来到 SteamKit！今天这一节叫「空间大力士」。什么样的形状最能扛、最不怕推？今天我们自己动手，找出「稳定性之王」，最后还要亲自造一座桥。"}, {"n": 2, "title": "桥梁 欣赏：", "sec": "开场", "notes": "桥梁欣赏（约 1 分钟）。左边这座在苏格兰，叫福斯铁路桥，1890 年就通车了，今天还在跑火车；右边这座在英国，以前是铁路桥，现在是步行道。\n话术：请大家盯着桥身的钢架看：一格一格的，是什么形状？先别说出来，记在心里。"}, {"n": 3, "title": "桥梁 欣赏：", "sec": "开场", "notes": "继续欣赏（约 1 分钟）：南京长江大桥（1968 年通车）、钱塘江大桥（1937 年建成）、苏格兰福斯铁路桥、加拿大魁北克大桥。照片可以点一下放大，看清钢架。\n话术：中国的、外国的，新的、一百多年前的，你发现它们有什么共同点吗？"}, {"n": 4, "title": "它们都用到了哪个图形？", "sec": "开场", "notes": "先请孩子在评论区说：它们都用到了哪个图形？说完后点一下（或按 →）揭晓：三角形！\n话术：这么多大桥，不约而同都用了三角形。为什么偏偏是三角形？"}, {"n": 6, "title": "1", "sec": "第一部分 · 为什么是三角形", "notes": "进入第一部分，10 秒过渡。话术：工程师造桥为什么都爱用三角形？今天我们自己当小工程师，动手找答案。"}, {"n": 7, "title": "三角形？四边形？五边形？谁会是稳定性之王呢？", "sec": "第一部分 · 为什么是三角形", "notes": "先投票，不揭晓。话术：三角形、四边形、五边形，三个选手都来了，谁会是稳定性之王呢？请在评论区投票。（三个卡通选手可以点一点，会有反应。）\n接下来分两个回合比一比：第一回合三角形对正方形，第二回合三角形对五边形。"}, {"n": 8, "title": "Round 1", "sec": "第一部分 · 为什么是三角形", "notes": "第一回合：三角形 vs 正方形。话术：先请两位选手上场，我们用手推一推，看谁更不怕推。"}, {"n": 9, "title": "动手搭：三角形和正方形", "sec": "第一部分 · 为什么是三角形", "notes": "接下来我们先搭三角形和四边形，三角形孔朝上的时候是三角形，长方形孔朝上的时候是正方形。\n准备：白球 7 个、长蓝棍 7 根（三角形 3 球 3 棍，正方形 4 球 4 棍）。搭好平放在桌上，下一页开始推。"}, {"n": 10, "title": "推一推①：竖着压", "sec": "第一部分 · 为什么是三角形", "notes": "【可推的模型】拖「力气」滑块选力气，点「推一下！」（或直接用手拖动模型）：正方形和三角形同时被从顶上往下压。正方形的表情会从淡定变成着急、慌张，三角形一直很镇定。点「再来」复原，可以换个力气再推一次。建议顺序：孩子先在桌上自己推，说出手感，老师再在屏幕上推给大家看。\n一只手按住底下那根棍，另一只手从顶上往下压。哪个硬？哪个晃？轻轻用力就够了。"}, {"n": 12, "title": "推一推②：横着推", "sec": "第一部分 · 为什么是三角形", "notes": "【可推的模型】拖「力气」滑块选力气，点「推一下！」（或直接用手拖动模型）：正方形和三角形同时被从侧面横着推。正方形的表情会从淡定变成着急、慌张，三角形一直很镇定。点「再来」复原，可以换个力气再推一次。建议顺序：孩子先在桌上自己推，说出手感，老师再在屏幕上推给大家看。\n这次从侧面横着推，眼睛盯着棍子，看它弯没弯。\n预期：正方形整个往旁边晃，竖棍会弯；三角形整体不晃，只是被推的那根棍会被按弯一点点（推在棍子中间，不是推在球上）。"}, {"n": 14, "title": "推一推③：斜着推一个角", "sec": "第一部分 · 为什么是三角形", "notes": "【可推的模型】拖「力气」滑块选力气，点「推一下！」（或直接用手拖动模型）：正方形和三角形同时被斜着推一个角。正方形的表情会从淡定变成着急、慌张，三角形一直很镇定。点「再来」复原，可以换个力气再推一次。建议顺序：孩子先在桌上自己推，说出手感，老师再在屏幕上推给大家看。\n按住底边，两个形状都从左上方斜着往下推：正方形推左上角，三角形推顶点，方向一样。哪个会动？\n预期：正方形会晃；三角形不动。"}, {"n": 16, "title": "说一说：手感有什么不同，哪个易变形，哪个更稳定？", "sec": "第一部分 · 为什么是三角形", "notes": "请三四个孩子开麦或在评论区说说推的感受，老师复述、鼓励用自己的话说。\n引导的方向：两个的手感有什么不同？哪个更结实？哪个容易变形？\n常见回答：正方形横着推、斜着推都会晃，竖着的棍子会弯；三角形不管从哪个方向推都很硬。如果有孩子说“三角形也动了一点点”，一定要表扬：这是很仔细的观察！讲“稳定性原理”时再回答。"}, {"n": 17, "title": "刚才发生了什么？", "sec": "第一部分 · 为什么是三角形", "notes": "动画自动循环（变形放大示意）：左边推正方形，右边推三角形，竖着压、横着推、斜着推一个角，轮流来。唤起孩子刚才亲手推的记忆。\n话术：还记得刚才推正方形的感觉吗？我们把它放大、放慢看一看。竖着压，顶上的棍子被压弯一点；横着推，整个晃了，竖着的棍子弯成了 S 形；斜着推一个角，也晃了。三角形呢？纹丝不动。和你刚才的手感一样吗？\n先问「第一回合谁赢了？」，再点「揭晓！」：正方形吓得直发抖，三角形骄傲地站着。（两个角色都可以点一点。）"}, {"n": 19, "title": "三角形更稳定！", "sec": "第一部分 · 为什么是三角形", "notes": "三角形、正方形、五边形，一样的球、一样长的棍子，推一推就知道了：三角形最稳！\n怎么推都不变形。正方形和五边形都会晃。这就是三角形的稳定性，所以大桥都爱用三角形！\n接着问：为什么三角形这么稳？一起回顾下，看原理。"}, {"n": 20, "title": "猜想：五边形会更稳定还是更不稳定？拼搭出来试一试", "sec": "第一部分 · 为什么是三角形", "notes": "先猜，不急着揭晓。\n三角形很稳，正方形会晃。那边更多的五边形呢？会更稳，还是更不稳？\n可以动手验证：5 个白球、5 根长蓝棍连成五边形（五边形孔朝上），立在桌上推一推。\n预期：五边形也会晃，而且常常比正方形晃得更厉害。"}, {"n": 21, "title": "Round 2", "sec": "Round 2", "notes": "第二回合：三角形 vs 五边形。孩子刚才已经搭了五边形、推过了，话术：五边形边更多，它能打败三角形吗？我们放大看一看。"}, {"n": 22, "title": "刚才发生了什么？", "sec": "Round 2", "notes": "动画自动循环（变形放大示意）：左边推三角形，右边推五边形。三角形不管怎么推都不变形；五边形一推就歪，晃得比正方形还厉害。\n话术：和你刚才推五边形的手感一样吗？边越多，是不是越稳？不是！五边形反而更容易变形。\n先问「第二回合谁赢了？」，再点「揭晓！」：五边形哭着背上小包袱走了，三角形骄傲地站着。（两个角色都可以点一点。）"}, {"n": 24, "title": "稳定性之王", "sec": "Round 2", "notes": "宣布结果（页面会撒花）：两个回合比下来，不管从哪个方向推，三角形都不变形，它就是稳定性之王！（点一下三角形国王有音效。）\n请孩子跟着说一遍：三角形最稳定！"}, {"n": 24.5, "title": "为什么三角形是稳定性之王", "sec": "原理和改造", "notes": "抛出问题，10 秒过渡，先别讲答案。话术：三角形明明和正方形、五边形一样，都是球和棍子搭的，为什么只有它推不动？请孩子先在评论区猜一猜。下一页我们看看棍子里发生了什么。"}, {"n": 25, "title": "稳定性原理：棍子只被推拉", "sec": "原理和改造", "notes": "紫色箭头表示被推，橙色箭头表示被拉。\n三角形为什么这么稳？它的棍子为什么不弯？左边：重物压在一根棍子中间，棍子弯成弧形（红色发光）。\n右边：重物压在三角形的顶点（接头）上，两条斜边被推（紫色箭头往里挤），底边被拉（橙色箭头往外拉），棍子一点都不弯。\n棍子最怕什么？最怕横着压在中间，一压就弯。棍子最不怕什么？最不怕顺着它的方向推和拉。\n三角形厉害的地方，就是把压下来的力，全都变成了推和拉。你看紫色箭头的两根被推，橙色的一根被拉，没有一根被掰弯。\n(可以拿一根长蓝棍现场演示：两头托住中间压，一压就弯；两头顺着推，很难弯。)\n回答「三角形为什么也动了一点点」：顺着推，棍子会被挤短一丁点；顺着拉，会被拉长一丁点；棍子插在球里的地方也有一点点松，会挤一挤。\n这些都比被掰弯小得多，所以三角形摸起来硬多了。真正的大桥也会这样动一丁点，工程师早就算好了。"}, {"n": 26, "title": "如何更稳定？", "sec": "原理和改造", "notes": "这一页不用再推：前面已经推过，正方形和五边形都会晃，所以图上是静止的。先让孩子想办法，不急着给答案。\n话术：正方形和五边形都会晃，怎么让它们也变得稳稳的？只能加棍子，不能换形状。你会把棍子加在哪里？请孩子在评论区说，或者在纸上画一画。\n预期：斜着加棍子，把它们切成三角形。"}, {"n": 27, "title": "加斜棍：切成三角形", "sec": "原理和改造", "notes": "【推一推看】孩子动手加完斜棍后，点「推一推看！」：加了斜棍的正方形和五边形被推，纹丝不动。\n孩子动手。正方形：拿 1 根长绿棍（长蓝棍正方形的对角线，正好是一根长绿棍），斜着连住两个对角。再从各个方向推一推，还晃吗？不晃了！\n五边形：从同一个顶点出发，连到对面的两个顶点，一共 2 条对角线。五边形的对角线是边长的 1.618 倍（黄金比例），一根长蓝棍不够长，要用一根长蓝棍和一根中蓝棍，中间用一个白球接起来，就正好连上：长棍那头接在出发的顶点上。连好后五边形被切成 3 个三角形，再推推看。\n三角形要加几根？0 根。正方形 1 根，五边形 2 根。那六边形呢？请孩子在纸上画一画，评论区报答案……3 根！规律：边数减 3。只要全部切成三角形，就稳了。"}, {"n": 28, "title": "切成三角形，真的有人这么做", "sec": "原理和改造", "notes": "紧接着刚才加斜棍，看真实运用。\n话术：刚才我们发现，正方形加一根斜棍、切成三角形就不歪了。你看，农场的木门钉一根斜木条，伦敦老储气罐的钢架每一格拉一个「×」，都是这个办法。\n追问：为什么都斜着放？横着放、竖着放行不行？引导：只有斜着放，才能把四边形切成三角形；横的竖的只是切成更小的长方形，还是会歪。"}, {"n": 29, "title": "2", "sec": "第二部分 · 亲自造一座桥", "notes": "进入第二部分。\n知道了三角形的秘密，我们来当一回工程师，亲自造一座能走的桥！"}, {"n": 30, "title": "第 1 步：搭一个绿色等边三角形", "sec": "第二部分 · 亲自造一座桥", "notes": "【可旋转 3D】入场会先转一圈亮相；之后拖动模型或拖「转一转」滑块，从各个角度看，滚轮/双指可放大；点「回正面」复位。孩子搭好后点「搭好啦！」撒花庆祝。\n搭桥先从最稳的形状开始：用 3 根长绿棍，搭一个等边三角形，平放在桌上推一推，稳不稳？稳！它待会儿就是四棱锥的一个侧面。\n零件：搭桥全程用长绿棍，一座三节的桥共用白球 11 个、长绿棍 24 根（按套件说明，长绿棍有 48 根，够用；课前核对）。\n提示：绿棍插五边形的孔；先插好底边，再从两头找能汇到一起的孔，碰不到就转一转小球。"}, {"n": 31, "title": "第 2 步：变成四棱锥", "sec": "第二部分 · 亲自造一座桥", "notes": "【可旋转 3D】入场会先转一圈亮相；之后拖动模型或拖「转一转」滑块，从各个角度看，滚轮/双指可放大；点「回正面」复位。孩子搭好后点「搭好啦！」撒花庆祝。\n把刚才的三角形斜着立起来，它的底边就是正方形的一条边。在桌上把底边接成一个正方形，这就是桥的走道。\n正方形新的两个角，各插一根绿棍斜着往上，都汇到三角形的顶点上。搭好了推一推底下的正方形：还歪吗？不歪了！因为四个侧面都是三角形，把正方形撑住了。这个形状叫四棱锥，就是我们空间桥的第一节。\n提示：斜棍要从正方形“里面那一圈”的孔往上插，才能汇到一起。"}, {"n": 32, "title": "第 3 步：再拼两节", "sec": "第二部分 · 亲自造一座桥", "notes": "【可旋转 3D】入场会先转一圈亮相；之后拖动模型或拖「转一转」滑块，从各个角度看，滚轮/双指可放大；点「回正面」复位。孩子搭好后点「搭好啦！」撒花庆祝。\n现在让桥再长两节。沿着走道的方向，再接出一个正方形；在新正方形上再立一个四棱锥；最后把两个尖用一根绿棍连起来。这样再做一次，桥就有三节了。\n好，看看两个四棱锥中间，多出来的那个空格是什么形状？数一数它有几个面……4 个面，全是三角形，是一个倒过来的三角锥，就是贝尔最爱的四面体！原来我们的桥，就是四棱锥和三角锥一个挨一个拼起来的，所以底下是平的能走路，上面也是平的。\n拿起来压一压，是不是很结实？再接下去，就是一座长长的空间桥，和印度那座真桥是同一种结构。"}, {"n": 33, "title": "一点一点加重量", "sec": "第二部分 · 亲自造一座桥", "notes": "【硬币压桥】上面是箱子桥（一格一格的长方形），下面是空间桥（一格一格的三角形），一样长。点「放一枚硬币」，一枚一枚往桥中间加：\n· 箱子桥越压越弯，空间桥几乎不动；\n· 前 10 枚以内，箱子桥只是弯，拿走硬币还能弹回来，这叫「弹性限度」以内；\n· 放第 11 枚，超过弹性限度，箱子桥「咔」地断了，硬币掉下去（断开时只有一半带着中间的横棍）。点「重来」复原。\n话术：先请孩子猜一猜，放几枚箱子桥会断？空间桥呢？一枚一枚放，边放边数。为什么空间桥不弯？因为它全是三角形！到底是不是这样？课后大家可以拿硬币试一试！"}, {"n": 34, "title": "真的有人这样造桥：印度「四面体桥」", "sec": "生活中的三角形", "notes": "这座桥叫「四面体桥」（The Tetrahedron），在印度加尔各答管理学院（IIM Calcutta）校园里，设计师是 Christopher Benninger 事务所；\n2011 年建成，长约 43 米，跨过校园里的池塘，用钢管一个接一个连成四面体。\n你们刚才搭的那一段，真的有人把它放大，用钢管造成了一座桥！从正面看是三角形，从侧面看是一排三角形，走进去，三角形一直排到远处。和你手里的比一比：一样的是全是三角形；不一样的是它用钢管、焊在一起，而且长得多。"}, {"n": 35, "title": "更多三角形", "sec": "生活中的三角形", "notes": "更多三角形：埃菲尔铁塔、输电铁塔、电视发射塔、老房子的屋顶。照片可以点一下放大。\n话术：不光是大桥，高高的塔、房子的屋顶，也都是一格一格的三角形。工程师为什么偏偏用三角形？换成正方形、五边形，行不行？（请孩子用今天学的话回答：三角形最稳定，正方形、五边形会变形。）"}, {"n": 36, "title": "空间桥摊平，就是大屋顶", "sec": "生活中的三角形", "notes": "把我们的空间桥摊平、铺开，就变成了一大片屋顶。机场、高铁站、体育馆的大屋顶，很多都是这样搭的，叫空间网架，中间不用柱子，也能盖住很大的地方。\n仔细看钢管汇在一起的地方：很多网架的节点就是一个球，几根钢管插进去，和 Zometool 的小球一模一样！下次去机场、车站，记得抬头看。"}, {"n": 37, "title": "生活中的三角形", "sec": "生活中的三角形", "notes": "三角形不只在大桥和大楼上，你身边也有！\n塔吊的吊臂那么长也不弯，人字梯腿一张开就站稳，自行车使劲踩也不变形，都是因为三角形。想一想：你家里还有哪里藏着三角形？"}, {"n": 38, "title": "任务 1：观察发现你生活中出现的三角形（至少 3", "sec": "今日作业", "notes": "任务 1（观察）：找一找家里、路上、公园里的三角形，至少 3 种，拍照或画下来，下周带来分享。\n任务 2（设计）：回家当一回真正的工程师：设计一座足够稳的桥！要求有三个：跨过两摞书之间的空隙，桥面要平，玩具小车能开过去；中间放硬币，放得越多越好；材料随你选。\n任务 3（控制变量的探究）：Zometool 棍做胖瘦不同的三角形。自己研究：做三个三角形，扁扁的、等边的、高高窄窄的，底边一样长。每个都立在桌上，从顶上往下压、从侧面推，记下哪个最稳。"}];</script>
+<script>const META=[{"n": 1, "title": "空间大力士", "sec": "开场", "notes": "开场 30 秒。话术：欢迎来到 SteamKit！今天这一节叫「空间大力士」。什么样的形状最能扛、最不怕推？今天我们自己动手，找出「稳定性之王」，最后还要亲自造一座桥。"}, {"n": 2, "title": "桥梁 欣赏：", "sec": "开场", "notes": "桥梁欣赏（约 1 分钟）。左边这座在苏格兰，叫福斯铁路桥，1890 年就通车了，今天还在跑火车；右边这座在英国，以前是铁路桥，现在是步行道。\n话术：请大家盯着桥身的钢架看：一格一格的，是什么形状？先别说出来，记在心里。"}, {"n": 3, "title": "桥梁 欣赏：", "sec": "开场", "notes": "继续欣赏（约 1 分钟）：南京长江大桥（1968 年通车）、钱塘江大桥（1937 年建成）、苏格兰福斯铁路桥、加拿大魁北克大桥。照片可以点一下放大，看清钢架。\n话术：中国的、外国的，新的、一百多年前的，你发现它们有什么共同点吗？"}, {"n": 4, "title": "它们都用到了哪个图形？", "sec": "开场", "notes": "先请孩子在评论区说：它们都用到了哪个图形？说完后点一下（或按 →）揭晓：三角形！\n话术：这么多大桥，不约而同都用了三角形。为什么偏偏是三角形？"}, {"n": 6, "title": "1", "sec": "第一部分 · 为什么是三角形", "notes": "进入第一部分，10 秒过渡。话术：工程师造桥为什么都爱用三角形？今天我们自己当小工程师，动手找答案。"}, {"n": 6.5, "title": "你觉得，什么样的图形最稳？", "sec": "第一部分 · 为什么是三角形", "notes": "【新增页 · 开放回答】这一页只问不答，给孩子留足思考和表达的时间（约 2 分钟）。\n① 点「想一想 30 秒」开始倒计时，请孩子先自己想，不急着说。\n② 时间到，请孩子在评论区或开麦说：你觉得什么样的图形最不怕推？为什么？\n③ 孩子说一个，老师就点下面对应的形状按钮，把它贴到答案墙上；同一个答案再点一次，会显示 ×2、×3。孩子说了别的（比如圆形、星形、梯形），在「其他答案…」里打字，点「记下」。\n话术：这些都是大家的猜想，到底谁最厉害？我们请几位选手上场，用手推一推就知道了！\n提示：先不评价对错，鼓励说理由（“因为它尖尖的”“因为大桥上很多”都要肯定）。点「清空」可以重来。"}, {"n": 7, "title": "三角形？四边形？五边形？谁会是稳定性之王呢？", "sec": "第一部分 · 为什么是三角形", "notes": "先投票，不揭晓。话术：三角形、四边形、五边形，三个选手都来了，谁会是稳定性之王呢？请在评论区投票。（三个卡通选手可以点一点，会有反应。）\n接下来分两个回合比一比：第一回合三角形对正方形，第二回合三角形对五边形。"}, {"n": 8, "title": "Round 1", "sec": "第一部分 · 为什么是三角形", "notes": "第一回合：三角形 vs 正方形。话术：先请两位选手上场，我们用手推一推，看谁更不怕推。"}, {"n": 9, "title": "动手搭：三角形和正方形", "sec": "第一部分 · 为什么是三角形", "notes": "接下来我们先搭三角形和四边形，三角形孔朝上的时候是三角形，长方形孔朝上的时候是正方形。\n准备：白球 7 个、长蓝棍 7 根（三角形 3 球 3 棍，正方形 4 球 4 棍）。搭好平放在桌上，下一页开始推。"}, {"n": 10, "title": "推一推①：竖着压", "sec": "第一部分 · 为什么是三角形", "notes": "【可推的模型】拖「力气」滑块选力气，点「推一下！」（或直接用手拖动模型）：正方形和三角形同时被从顶上往下压。正方形的表情会从淡定变成着急、慌张，三角形一直很镇定。点「再来」复原，可以换个力气再推一次。建议顺序：孩子先在桌上自己推，说出手感，老师再在屏幕上推给大家看。\n一只手按住底下那根棍，另一只手从顶上往下压。哪个硬？哪个晃？轻轻用力就够了。"}, {"n": 12, "title": "推一推②：横着推", "sec": "第一部分 · 为什么是三角形", "notes": "【可推的模型】拖「力气」滑块选力气，点「推一下！」（或直接用手拖动模型）：正方形和三角形同时被从侧面横着推。正方形的表情会从淡定变成着急、慌张，三角形一直很镇定。点「再来」复原，可以换个力气再推一次。建议顺序：孩子先在桌上自己推，说出手感，老师再在屏幕上推给大家看。\n这次从侧面横着推，眼睛盯着棍子，看它弯没弯。\n预期：正方形整个往旁边晃，竖棍会弯；三角形整体不晃，只是被推的那根棍会被按弯一点点（推在棍子中间，不是推在球上）。"}, {"n": 14, "title": "推一推③：斜着推一个角", "sec": "第一部分 · 为什么是三角形", "notes": "【可推的模型】拖「力气」滑块选力气，点「推一下！」（或直接用手拖动模型）：正方形和三角形同时被斜着推一个角。正方形的表情会从淡定变成着急、慌张，三角形一直很镇定。点「再来」复原，可以换个力气再推一次。建议顺序：孩子先在桌上自己推，说出手感，老师再在屏幕上推给大家看。\n按住底边，两个形状都从左上方斜着往下推：正方形推左上角，三角形推顶点，方向一样。哪个会动？\n预期：正方形会晃；三角形不动。"}, {"n": 16, "title": "说一说：手感有什么不同，哪个易变形，哪个更稳定？", "sec": "第一部分 · 为什么是三角形", "notes": "请三四个孩子开麦或在评论区说说推的感受，老师复述、鼓励用自己的话说。\n引导的方向：两个的手感有什么不同？哪个更结实？哪个容易变形？\n常见回答：正方形横着推、斜着推都会晃，竖着的棍子会弯；三角形不管从哪个方向推都很硬。如果有孩子说“三角形也动了一点点”，一定要表扬：这是很仔细的观察！讲“稳定性原理”时再回答。"}, {"n": 17, "title": "刚才发生了什么？", "sec": "第一部分 · 为什么是三角形", "notes": "动画自动循环（变形放大示意）：左边推正方形，右边推三角形，竖着压、横着推、斜着推一个角，轮流来。唤起孩子刚才亲手推的记忆。\n话术：还记得刚才推正方形的感觉吗？我们把它放大、放慢看一看。竖着压，顶上的棍子被压弯一点；横着推，整个晃了，竖着的棍子弯成了 S 形；斜着推一个角，也晃了。三角形呢？纹丝不动。和你刚才的手感一样吗？\n先问「第一回合谁赢了？」，再点「揭晓！」：正方形吓得直发抖，三角形骄傲地站着。（两个角色都可以点一点。）"}, {"n": 19, "title": "三角形更稳定！", "sec": "第一部分 · 为什么是三角形", "notes": "三角形、正方形、五边形，一样的球、一样长的棍子，推一推就知道了：三角形最稳！\n怎么推都不变形。正方形和五边形都会晃。这就是三角形的稳定性，所以大桥都爱用三角形！\n接着问：为什么三角形这么稳？一起回顾下，看原理。"}, {"n": 20, "title": "猜想：五边形会更稳定还是更不稳定？拼搭出来试一试", "sec": "第一部分 · 为什么是三角形", "notes": "先猜，不急着揭晓。\n三角形很稳，正方形会晃。那边更多的五边形呢？会更稳，还是更不稳？\n可以动手验证：5 个白球、5 根长蓝棍连成五边形（五边形孔朝上），立在桌上推一推。\n预期：五边形也会晃，而且常常比正方形晃得更厉害。"}, {"n": 21, "title": "Round 2", "sec": "Round 2", "notes": "第二回合：三角形 vs 五边形。孩子刚才已经搭了五边形、推过了，话术：五边形边更多，它能打败三角形吗？我们放大看一看。"}, {"n": 22, "title": "刚才发生了什么？", "sec": "Round 2", "notes": "动画自动循环（变形放大示意）：左边推三角形，右边推五边形。三角形不管怎么推都不变形；五边形一推就歪，晃得比正方形还厉害。\n话术：和你刚才推五边形的手感一样吗？边越多，是不是越稳？不是！五边形反而更容易变形。\n先问「第二回合谁赢了？」，再点「揭晓！」：五边形哭着背上小包袱走了，三角形骄傲地站着。（两个角色都可以点一点。）"}, {"n": 24, "title": "稳定性之王", "sec": "Round 2", "notes": "宣布结果（页面会撒花）：两个回合比下来，不管从哪个方向推，三角形都不变形，它就是稳定性之王！（点一下三角形国王有音效。）\n请孩子跟着说一遍：三角形最稳定！"}, {"n": 24.5, "title": "为什么三角形是稳定性之王", "sec": "原理和改造", "notes": "抛出问题，10 秒过渡，先别讲答案。话术：三角形明明和正方形、五边形一样，都是球和棍子搭的，为什么只有它推不动？请孩子先在评论区猜一猜。下一页我们用数学来找答案：三角形和四边形到底差在哪儿？"}, {"n": 25, "title": "稳定性原理：三条边一定，形状就锁住了", "sec": "原理和改造", "notes": "【可互动】三角形为什么推不动？这一页用数学讲清楚：三条边一定，形状就锁住了。\n① 点「推三角形」（或直接拖最上面的球）：顶点想往旁边跑，红色虚线提示：要到那里，一根棍子得变长、一根得变短。可棍子的长度是固定的，所以动不了。\n② 点「画圆看看」：以底边两头为圆心、棍子长为半径画两个圆。顶点必须同时在两个圆上，两个圆在上面只交在一个点，所以顶点只能待在这里，三角形只有一种样子。这就是数学里的「边边边（SSS）」：三条边的长度定了，三角形的形状就定了。\n③ 点「推四边形」（或拖上面的球）：四根棍子一根都没变长变短，可角从 90° 变成了 60 多度、110 多度。留下的淡蓝影子，都是同样四根棍子拼出来的不同形状。四条边定了，角还能变，所以四边形会晃。\n话术：三角形的三根棍子一定，形状就锁死了，想变形，除非把棍子拉长或压短，所以它推不动。四边形四根棍子都不变，形状还能变，所以一推就歪。五边形能变的方式更多，所以更晃。\n回答「三角形也动了一点点」：数学上的三角形一点都不能动，可真的棍子会被压弯一丁点，插在球里的地方也有一点点松，所以手里的三角形会动一丁点，比四边形的晃动小得多。\n点「重来」复原。"}, {"n": 26, "title": "如何更稳定？", "sec": "原理和改造", "notes": "这一页不用再推：前面已经推过，正方形和五边形都会晃，所以图上是静止的。先让孩子想办法，不急着给答案。\n话术：正方形和五边形都会晃，怎么让它们也变得稳稳的？只能加棍子，不能换形状。你会把棍子加在哪里？请孩子在评论区说，或者在纸上画一画。\n预期：斜着加棍子，把它们切成三角形。"}, {"n": 27, "title": "加斜棍：切成三角形", "sec": "原理和改造", "notes": "【情景 + 互动】接上一页「如何更稳定？」，把孩子想的办法变成行动。\n情景话术（读页面上的求救条）：正方形和五边形想去当大桥的零件，可是一推就歪，急得直冒汗。小工程师们，只许加棍子，不许换形状，怎么帮它们站稳？\n① 先点「推一推」：两个都晃起来，表情很慌。提醒孩子：这就是原理页说的，边定了，角还能变。\n② 请孩子说办法，再点「加斜棍」：斜棍长出来，把形状切成三角形，每个三角形里出现一把锁 🔒，它们说「谢谢！我站稳了！」\n③ 再点「推一推」：纹丝不动，稳稳的！\n④ 看下面的结果：正方形加 1 根 → 2 个三角形；五边形加 2 根 → 3 个三角形。连上原理页：每个三角形的三条边都定了，被「边边边」锁住；三角形一块挨一块拼起来，整个形状也就锁住了。\n⑤ 点「那六边形呢？」：先请孩子在纸上画、在评论区报答案，再揭晓：加 3 根 → 4 个三角形。三角形 0 根、正方形 1 根、五边形 2 根、六边形 3 根，规律：斜棍 = 边数 − 3。\n孩子动手：正方形拿 1 根长绿棍（长蓝棍正方形的对角线，正好是一根长绿棍），斜着连住两个对角，再从各个方向推一推，不晃了！五边形从同一个顶点出发，连到对面的两个顶点，一共 2 条对角线。五边形的对角线是边长的 1.618 倍（黄金比例），一根长蓝棍不够长，要用一根长蓝棍和一根中蓝棍，中间用一个白球接起来（长棍那头接在出发的顶点上），连好后推推看。\n点「重来」回到没加斜棍的样子。"}, {"n": 28, "title": "切成三角形，真的有人这么做", "sec": "原理和改造", "notes": "紧接着刚才加斜棍，看真实运用。\n话术：刚才我们发现，正方形加一根斜棍、切成三角形就不歪了。你看，农场的木门钉一根斜木条，伦敦老储气罐的钢架每一格拉一个「×」，都是这个办法。\n追问：为什么都斜着放？横着放、竖着放行不行？引导：只有斜着放，才能把四边形切成三角形；横的竖的只是切成更小的长方形，还是会歪。"}, {"n": 29, "title": "2", "sec": "第二部分 · 亲自造一座桥", "notes": "进入第二部分。\n知道了三角形的秘密，我们来当一回工程师，亲自造一座能走的桥！"}, {"n": 30, "title": "第 1 步：搭一个绿色等边三角形", "sec": "第二部分 · 亲自造一座桥", "notes": "【可旋转 3D】入场会先转一圈亮相；之后拖动模型或拖「转一转」滑块，从各个角度看，滚轮/双指可放大；点「回正面」复位。孩子搭好后点「搭好啦！」撒花庆祝。\n搭桥先从最稳的形状开始：用 3 根长绿棍，搭一个等边三角形，平放在桌上推一推，稳不稳？稳！它待会儿就是四棱锥的一个侧面。\n零件：搭桥全程用长绿棍，一座三节的桥共用白球 11 个、长绿棍 24 根（按套件说明，长绿棍有 48 根，够用；课前核对）。\n提示：绿棍插五边形的孔；先插好底边，再从两头找能汇到一起的孔，碰不到就转一转小球。"}, {"n": 31, "title": "第 2 步：变成四棱锥", "sec": "第二部分 · 亲自造一座桥", "notes": "【可旋转 3D】入场会先转一圈亮相；之后拖动模型或拖「转一转」滑块，从各个角度看，滚轮/双指可放大；点「回正面」复位。孩子搭好后点「搭好啦！」撒花庆祝。\n把刚才的三角形斜着立起来，它的底边就是正方形的一条边。在桌上把底边接成一个正方形，这就是桥的走道。\n正方形新的两个角，各插一根绿棍斜着往上，都汇到三角形的顶点上。搭好了推一推底下的正方形：还歪吗？不歪了！因为四个侧面都是三角形，把正方形撑住了。这个形状叫四棱锥，就是我们空间桥的第一节。\n提示：斜棍要从正方形“里面那一圈”的孔往上插，才能汇到一起。"}, {"n": 32, "title": "第 3 步：再拼两节", "sec": "第二部分 · 亲自造一座桥", "notes": "【可旋转 3D】入场会先转一圈亮相；之后拖动模型或拖「转一转」滑块，从各个角度看，滚轮/双指可放大；点「回正面」复位。孩子搭好后点「搭好啦！」撒花庆祝。\n现在让桥再长两节。沿着走道的方向，再接出一个正方形；在新正方形上再立一个四棱锥；最后把两个尖用一根绿棍连起来。这样再做一次，桥就有三节了。\n好，看看两个四棱锥中间，多出来的那个空格是什么形状？数一数它有几个面……4 个面，全是三角形，是一个倒过来的三角锥，就是贝尔最爱的四面体！原来我们的桥，就是四棱锥和三角锥一个挨一个拼起来的，所以底下是平的能走路，上面也是平的。\n拿起来压一压，是不是很结实？再接下去，就是一座长长的空间桥，和印度那座真桥是同一种结构。"}, {"n": 33, "title": "一点一点加重量", "sec": "第二部分 · 亲自造一座桥", "notes": "【挂砝码 · 下拉实验】左边是箱子桥（一格一格的长方形），右边是空间桥（一格一格的三角形），一样长，桥中间下面各挂一个钩子。\n① 点「挂 1 kg 砝码」（或按 P 键）：两座桥同时多挂 1 kg，上面的进度条显示每座桥受到的拉力。\n② 箱子桥越挂越弯（棍子发红）；空间桥几乎不动。\n③ 也可以用手抓住砝码往下拉，像压力试验机一样：拉得越用力，桥弯得越厉害；一松手，箱子桥又弹回去，这就是还在「弹性限度」以内。\n④ 箱子桥的弹性限度是 10 kg（红线）。挂到第 11 kg，或者往下拉超过红线，箱子桥「咔」地断成两半，砝码掉到地上（断开时只有一半带着中间那根竖棍）。空间桥挂到 14 kg 还是平平的。点「重来」复原。\n话术：先猜一猜，箱子桥能挂几 kg？空间桥呢？一块一块挂，边挂边数。为什么空间桥不弯？因为它全是三角形，每个三角形都被三条边锁住了！\n（动画是示意，数字和变形都放大了。课后可以在自己搭的桥下面挂装水的小瓶子试一试。）"}, {"n": 34, "title": "真的有人这样造桥：印度「四面体桥」", "sec": "生活中的三角形", "notes": "这座桥叫「四面体桥」（The Tetrahedron），在印度加尔各答管理学院（IIM Calcutta）校园里，设计师是 Christopher Benninger 事务所；\n2011 年建成，长约 43 米，跨过校园里的池塘，用钢管一个接一个连成四面体。\n你们刚才搭的那一段，真的有人把它放大，用钢管造成了一座桥！从正面看是三角形，从侧面看是一排三角形，走进去，三角形一直排到远处。和你手里的比一比：一样的是全是三角形；不一样的是它用钢管、焊在一起，而且长得多。"}, {"n": 35, "title": "更多三角形", "sec": "生活中的三角形", "notes": "更多三角形：埃菲尔铁塔、输电铁塔、电视发射塔、老房子的屋顶。照片可以点一下放大。\n话术：不光是大桥，高高的塔、房子的屋顶，也都是一格一格的三角形。工程师为什么偏偏用三角形？换成正方形、五边形，行不行？（请孩子用今天学的话回答：三角形最稳定，正方形、五边形会变形。）"}, {"n": 36, "title": "空间桥摊平，就是大屋顶", "sec": "生活中的三角形", "notes": "把我们的空间桥摊平、铺开，就变成了一大片屋顶。机场、高铁站、体育馆的大屋顶，很多都是这样搭的，叫空间网架，中间不用柱子，也能盖住很大的地方。\n仔细看钢管汇在一起的地方：很多网架的节点就是一个球，几根钢管插进去，和 Zometool 的小球一模一样！下次去机场、车站，记得抬头看。"}, {"n": 37, "title": "生活中的三角形", "sec": "生活中的三角形", "notes": "三角形不只在大桥和大楼上，你身边也有！\n塔吊的吊臂那么长也不弯，人字梯腿一张开就站稳，自行车使劲踩也不变形，都是因为三角形。想一想：你家里还有哪里藏着三角形？"}, {"n": 38, "title": "任务 1：观察发现你生活中出现的三角形（至少 3", "sec": "今日作业", "notes": "任务 1（观察）：找一找家里、路上、公园里的三角形，至少 3 种，拍照或画下来，下周带来分享。\n任务 2（设计）：回家当一回真正的工程师：设计一座足够稳的桥！要求有三个：跨过两摞书之间的空隙，桥面要平，玩具小车能开过去；中间放硬币，放得越多越好；材料随你选。\n任务 3（控制变量的探究）：Zometool 棍做胖瘦不同的三角形。自己研究：做三个三角形，扁扁的、等边的、高高窄窄的，底边一样长。每个都立在桌上，从顶上往下压、从侧面推，记下哪个最稳。"}];</script>
 <script>
 (()=>{
 "use strict";
@@ -614,9 +669,10 @@ function shapeDef(key,origin){
   const n=pentNodes(origin[0],origin[1]);return{key:"pe",nodes:n,fixed:["BL","BR"],edges:[["BL","BR"],["BR","R"],["R","T"],["T","L"],["L","BL"]],braces:[["T","BL"],["T","BR"]],
     modes:[{id:"sway",phi:{L:[.8,0],T:[1,0],R:[.8,0]},c:1.7,cb:.05,w:6,z:.1},{id:"squash",phi:{T:[0,1],L:[-.35,.15],R:[.35,.15]},c:1.0,cb:.05,w:7,z:.12}]}
 }
+const TRIS={sq:[["BL","BR","TR"],["BL","TR","TL"]],pe:[["BL","BR","T"],["BR","R","T"],["T","L","BL"]]};
 const U=(x,y)=>{const l=Math.hypot(x,y);return[x/l,y/l]};
 class ZShape{
-  constructor(g,def,braced){this.g=g;this.d=def;this.braced=braced;this.a={};this.v={};def.modes.forEach(m=>{this.a[m.id]=0;this.v[m.id]=0});this.loads=[];this.maxA=0;
+  constructor(g,def,braced){this.g=g;this.d=def;this.braced=braced;this.braceK=braced?1:0;this.gFill=el("g",{},g);this.a={};this.v={};def.modes.forEach(m=>{this.a[m.id]=0;this.v[m.id]=0});this.loads=[];this.maxA=0;
     this.gGlow=el("g",{},g);this.gChar=el("g",{},g);this.ctx={dir:"",effort:0};this.gBars=el("g",{},g);this.gBalls=el("g",{},g)}
   disp(n){let dx=0,dy=0;for(const m of this.d.modes)if(m.phi&&m.phi[n]){dx+=m.phi[n][0]*this.a[m.id];dy+=m.phi[n][1]*this.a[m.id]}return[dx,dy]}
   pos(n){const p=this.d.nodes[n],d=this.disp(n);return[p[0]+d[0],p[1]+d[1]]}
@@ -637,9 +693,12 @@ class ZShape{
   strain(){const a=this.a,k=this.d.key;if(k==="sq")return clamp(Math.max(Math.abs(a.sway)/90,Math.abs(a.sag)/26));if(k==="pe")return clamp(Math.max(Math.abs(a.sway)/100,Math.abs(a.squash)/60));return 0}
   drawChar(){const g=this.gChar;g.replaceChildren();if(this.braced)return;const T=performance.now()/1000,k=this.d.key,s=this.strain();
     if(k==="sq")drawSq(this,g,T,s,this.ctx);else if(k==="tri")drawTri(this,g,T,this.ctx);else drawPe(this,g,T,s,this.ctx)}
-  draw(){const d=this.d;this.drawChar();this.gGlow.replaceChildren();this.gBars.replaceChildren();this.gBalls.replaceChildren();
+  draw(){const d=this.d;this.drawChar();this.gGlow.replaceChildren();this.gBars.replaceChildren();this.gBalls.replaceChildren();this.gFill.replaceChildren();
+    if(this.braced&&this.fills&&TRIS[d.key]){const k=this.braceK;TRIS[d.key].forEach((tr,i)=>{const P=tr.map(n=>this.pos(n));
+      el("polygon",{points:P.map(p=>p.join(",")).join(" "),fill:["#FFD24D","#8FD3A6","#9CC8F7"][i],opacity:.55*k},this.gFill);
+      if(k>.95){const c=[0,1].map(j=>(P[0][j]+P[1][j]+P[2][j])/3);const t=el("text",{x:c[0],y:c[1]+22,"font-size":64,"text-anchor":"middle"},this.gFill);t.textContent="🔒"}})}
     const list=d.edges.map(e=>[e,false]).concat(this.braced?d.braces.map(e=>[e,true]):[]);
-    for(const [e,br] of list){const r1=d.nodes[e[0]],r2=d.nodes[e[1]],p1=this.pos(e[0]),p2=this.pos(e[1]);
+    for(const [e,br] of list){const r1=d.nodes[e[0]],r2=d.nodes[e[1]],p1=this.pos(e[0]);let p2=this.pos(e[1]);if(br&&this.braceK<1){const k=sstep(this.braceK);p2=[p1[0]+(p2[0]-p1[0])*k,p1[1]+(p2[1]-p1[1])*k]}
       const dx=r2[0]-r1[0],dy=r2[1]-r1[1],l=Math.hypot(dx,dy),ux=dx/l,uy=dy/l;
       const c1=[p1[0]+ux*l/3,p1[1]+uy*l/3],c2=[p2[0]-ux*l/3,p2[1]-uy*l/3];let sag=0;
       const sm=d.modes.find(m=>m.edge&&((m.edge[0]===e[0]&&m.edge[1]===e[1])||(m.edge[0]===e[1]&&m.edge[1]===e[0])));
@@ -649,7 +708,7 @@ class ZShape{
       if(bend>8&&!br)el("path",{d:path,stroke:GLOW,"stroke-width":70,"stroke-linecap":"round",fill:"none",opacity:Math.min(1,bend/70)},this.gGlow);
       if(br&&d.key==="sq"){[["#003408",28,0],["#006018",22,-2],["#04B048",7,-6]].forEach(([c,w,o])=>{const nx=-uy*o,ny=ux*o;el("path",{d:`M${p1[0]+nx} ${p1[1]+ny} L${p2[0]+nx} ${p2[1]+ny}`,stroke:c,"stroke-width":w,fill:"none"},this.gBars)})}
       else{el("path",{d:path,stroke:BAR,"stroke-width":28,fill:"none"},this.gBars);
-        if(br){const k=.618;this.ball(p1[0]+(p2[0]-p1[0])*k,p1[1]+(p2[1]-p1[1])*k)}}}
+        if(br&&this.braceK>=1){const k=.618;this.ball(p1[0]+(p2[0]-p1[0])*k,p1[1]+(p2[1]-p1[1])*k)}}}
     for(const n in d.nodes){const p=this.pos(n);this.ball(p[0],p[1])}}
   ball(x,y){el("image",{href:"a/ball.png",x:x-44,y:y-44,width:88,height:88},this.gBalls)}
 }
@@ -691,6 +750,7 @@ class Lab{
       if(a&&f>0){const F=(p?p.level:4)*20*f;s.loads.push({...a.load,F:[a.load.u[0]*F,a.load.u[1]*F]})}
       if(this.drag&&this.drag.shape===s)s.loads.push({node:this.drag.node,F:this.drag.F})});
     for(let k=0;k<4;k++)this.shapes.forEach(s=>s.step(dt/4));
+    this.shapes.forEach(s=>{if(s.braced&&s.braceK<1)s.braceK=Math.min(1,s.braceK+dt*1.4)});
     this.shapes.forEach(s=>{const dr=this.drag&&this.drag.shape===s?clamp(Math.hypot(...this.drag.F)/50):0;
       s.ctx={dir:this.drag&&this.drag.shape===s?"drag":dir,effort:Math.max(dr,p?f*p.level/4:0),braced:s.braced};
       const st=s.strain();
@@ -758,6 +818,161 @@ class Coins{
     label(1350,450,"示意动画 · 变形放大 · 现场以实测为准","#8A93A6","end")}
 }
 
+/* ================= weight pull-down test (box bridge vs space bridge) ================= */
+const FONT="Microsoft YaHei, Noto Sans SC, sans-serif";
+function txt(g,x,y,t,{size=24,fill="#1E2A44",anchor="start",weight=900}={}){const e=el("text",{x,y,"font-size":size,"font-weight":weight,fill,"text-anchor":anchor,"font-family":FONT},g);e.textContent=t;return e}
+const ZCOL={blue:["#0b3a73","#1d6fd0","#9cc8f7"],green:["#0a451c","#17963d","#8fe0a6"]};
+function zStrut(g,a,b,c,w=13){const [d,m,h]=ZCOL[c],dx=b[0]-a[0],dy=b[1]-a[1],l=Math.hypot(dx,dy)||1,nx=-dy/l*w*.2,ny=dx/l*w*.2;
+  el("line",{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:d,"stroke-width":w,"stroke-linecap":"round"},g);
+  el("line",{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:m,"stroke-width":w*.7,"stroke-linecap":"round"},g);
+  el("line",{x1:a[0]+nx,y1:a[1]+ny,x2:b[0]+nx,y2:b[1]+ny,stroke:h,"stroke-width":w*.2,"stroke-linecap":"round",opacity:.85},g)}
+const zBall=(g,p,r=17)=>el("image",{href:"a/ball.png",x:p[0]-r,y:p[1]-r,width:2*r,height:2*r},g);
+class Weights{
+  constructor(host){const svg=el("svg",{viewBox:"0 0 1386 520",role:"img","aria-label":"箱子桥和空间桥挂砝码下拉实验"},host);this.svg=svg;this.g=el("g",{},svg);
+    this.B=[{key:"box",x0:110,x1:620,name:"箱子桥",col:"blue"},{key:"sp",x0:780,x1:1290,name:"空间桥",col:"green"}];this.reset();this.attach()}
+  reset(){this.kg=0;this.drops=[];this.B.forEach(b=>{b.sag=0;b.v=0;b.pull=0;b.broken=false;b.ang=0;b.av=0;b.fall=[];b.warn=0})}
+  add(){if(this.kg>=14)return false;this.kg++;this.drops.push({k:this.kg,t:0});A();play("drop");return true}
+  load(b){return b.broken?0:this.kg+b.pull}
+  attach(){const svg=this.svg,toV=e=>{const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(svg.getScreenCTM().inverse())};
+    svg.addEventListener("pointerdown",e=>{const v=toV(e);const b=this.B.find(b=>!b.broken&&Math.abs(v.x-(b.x0+b.x1)/2)<90&&v.y>170);if(!b)return;A();
+      this.drag={b,y0:v.y,pull0:b.pull};svg.setPointerCapture(e.pointerId);e.preventDefault();play("tick")});
+    svg.addEventListener("pointermove",e=>{if(!this.drag)return;const v=toV(e);this.drag.b.pull=clamp((v.y-this.drag.y0)/16,0,8)});
+    const end=()=>{if(!this.drag)return;const b=this.drag.b;this.drag=null;if(!b.broken&&b.pull>0.5)play("boing");b.pull=0};
+    svg.addEventListener("pointerup",end);svg.addEventListener("pointercancel",end)}
+  step(dt){this.drops.forEach(d=>d.t+=dt);
+    for(const b of this.B){const L=this.load(b),box=b.key==="box";
+      const target=box?Math.min(L,10)*6.2:L*1.1;
+      if(!b.broken){b.v+=((box?70:420)*(target-b.sag)-(box?5:22)*b.v)*dt;b.sag+=b.v*dt}
+      if(box&&!b.broken&&L>10.05){b.broken=true;b.av=0;b.ang=0;const cx=(b.x0+b.x1)/2;
+        b.fall=Array.from({length:Math.max(1,Math.round(this.kg))},(_,i)=>({x:cx,y:262+this.sag0(b)+i*19,vx:(Math.random()-.5)*260,vy:-40-Math.random()*120,r:(Math.random()-.5)*2,a:0,rest:false}));
+        b.pull=0;if(this.drag&&this.drag.b===b)this.drag=null;play("crack");stage.classList.remove("shake");void stage.offsetWidth;stage.classList.add("shake")}
+      if(b.broken){b.av+=6*dt;b.ang+=b.av*dt;if(b.ang>.16){b.ang=.16;b.av*=-.35}
+        b.fall.forEach(f=>{if(f.rest)return;f.vy+=1800*dt;f.x+=f.vx*dt;f.y+=f.vy*dt;f.a+=f.r*dt*3;const fl=486-18*b.fall.filter(o=>o.rest&&Math.abs(o.x-f.x)<80).length;if(f.y>fl){f.y=fl;f.rest=true;f.a=0;play("thud")}})}
+      const near=box&&!b.broken&&L>8.5;if(near&&!b.warn){b.warn=1;play("oops")}else if(!near)b.warn=0}}
+  sag0(b){return b.sag}
+  draw(){const g=this.g;g.replaceChildren();
+    el("rect",{x:0,y:0,width:1386,height:520,rx:24,fill:"#FFFDF8",stroke:"#E3D9C4","stroke-width":3},g);
+    el("line",{x1:20,y1:500,x2:1366,y2:500,stroke:"#D9CBB0","stroke-width":4,"stroke-dasharray":"2 10","stroke-linecap":"round"},g);
+    const deck=140,bh=58,N=6;
+    for(const b of this.B){const pw=(b.x1-b.x0)/N,mid=(b.x0+b.x1)/2,L=this.load(b),box=b.key==="box";
+      const sag=x=>{const u=(x-b.x0)/(b.x1-b.x0);return b.sag*4*u*(1-u)};
+      for(const x of [b.x0-62,b.x1+8])for(let k=0;k<5;k++)el("rect",{x,y:deck+bh+2+k*15,width:54,height:13,rx:3,fill:"#D9BE8E",stroke:"#B8975F","stroke-width":2},g);
+      txt(g,b.x0-50,48,b.name,{size:28});
+      /* load meter with elastic limit */
+      const mx0=b.x0+150,mx1=b.x1-10,my=36,kx=k=>mx0+(mx1-mx0)*k/14;
+      el("rect",{x:mx0,y:my-10,width:mx1-mx0,height:20,rx:10,fill:"#EFE7D6"},g);
+      const LL=b.broken?this.kg:L;el("rect",{x:mx0,y:my-10,width:Math.max(0,kx(Math.min(14,LL))-mx0),height:20,rx:10,fill:box&&LL>8.5?"#D64545":box&&LL>5?"#E8742A":"#3A9A5B"},g);
+      if(box){el("line",{x1:kx(10),y1:my-18,x2:kx(10),y2:my+18,stroke:"#D64545","stroke-width":4},g);txt(g,kx(10),my+42,"弹性限度 10 kg",{size:18,fill:"#D64545",anchor:"middle"})}
+      txt(g,mx0-12,my+9,`${(b.broken?this.kg:L).toFixed(b.pull>0.05?1:0)} kg`,{size:22,fill:"#E8742A",anchor:"end"});
+      /* bridge */
+      let hook=null;
+      if(box){const t=[],bo=[];for(let i=0;i<=N;i++){const x=b.x0+i*pw;t.push([x,deck+sag(x)]);bo.push([x,deck+bh+sag(x)])}
+        const ga=Math.min(1,b.sag/45);if(!b.broken&&ga>.05)[t,bo].forEach(p=>el("path",{d:"M"+p.map(q=>q.join(" ")).join(" L"),stroke:b.sag>52?"#F3A0A0":GLOW,"stroke-width":22,fill:"none",opacity:ga,"stroke-linecap":"round"},g));
+        const truss=(T,Bo,from=0)=>{for(let i=0;i<T.length-1;i++){zStrut(g,T[i],T[i+1],"blue");zStrut(g,Bo[i],Bo[i+1],"blue")}for(let i=from;i<T.length;i++)zStrut(g,T[i],Bo[i],"blue");T.forEach((p,i)=>{if(i>=from)zBall(g,p)});Bo.forEach((p,i)=>{if(i>=from)zBall(g,p)})};
+        if(b.broken){const h=N/2,rot=(P,cx,cy,a)=>P.map(p=>{const c=Math.cos(a),s=Math.sin(a),dx=p[0]-cx,dy=p[1]-cy;return[cx+dx*c-dy*s,cy+dx*s+dy*c]});
+          const gap=P=>P.map((q,i)=>i===h?[q[0]-10,q[1]]:q),gapR=P=>P.map((q,i)=>i===0?[q[0]+22,q[1]]:q);
+          truss(rot(gap(t.slice(0,h+1)),b.x0,deck,b.ang),rot(gap(bo.slice(0,h+1)),b.x0,deck,b.ang));
+          truss(rot(gapR(t.slice(h)),b.x1,deck,-b.ang),rot(gapR(bo.slice(h)),b.x1,deck,-b.ang),1);
+          const cy=deck+bh/2+b.sag+40;for(let k=0;k<8;k++){const a=k*Math.PI/4,r0=22+6*Math.sin(performance.now()/90+k);el("line",{x1:mid+Math.cos(a)*r0,y1:cy+Math.sin(a)*r0,x2:mid+Math.cos(a)*(r0+22),y2:cy+Math.sin(a)*(r0+22),stroke:"#D64545","stroke-width":5,"stroke-linecap":"round"},g)}
+          b.fall.forEach(f=>{const gg=el("g",{transform:`translate(${f.x} ${f.y}) rotate(${f.a*57})`},g);this.disc(gg,0,0)})}
+        else{truss(t,bo);hook=[mid,deck+bh+sag(mid)]}}
+      else{const sb=[],st=[];for(let i=0;i<=N;i++){const x=b.x0+i*pw;sb.push([x,deck+bh+sag(x)])}for(let i=0;i<N;i++){const x=b.x0+(i+.5)*pw;st.push([x,deck+sag(x)])}
+        for(let i=0;i<N;i++)zStrut(g,sb[i],sb[i+1],"green");for(let i=0;i<N-1;i++)zStrut(g,st[i],st[i+1],"green");
+        for(let i=0;i<N;i++){zStrut(g,sb[i],st[i],"green");zStrut(g,st[i],sb[i+1],"green")}[...sb,...st].forEach(p=>zBall(g,p));hook=sb[N/2]}
+      /* hanger + weights */
+      if(hook){const pullPx=b.pull*16,top=hook[1]+16;
+        el("path",{d:`M${hook[0]-9} ${hook[1]+4} a9 9 0 1 0 18 0`,stroke:"#555","stroke-width":5,fill:"none"},g);
+        const ropeEnd=top+28+pullPx;el("line",{x1:hook[0],y1:top,x2:hook[0],y2:ropeEnd,stroke:"#6B5A3E","stroke-width":4},g);
+        el("rect",{x:hook[0]-6,y:ropeEnd-2,width:12,height:12+18*this.kg,rx:3,fill:"#8A8F99"},g);
+        for(let i=0;i<this.kg;i++){const d=this.drops.find(d=>d.k===i+1),k=d?Math.min(1,d.t/.25):1,y=ropeEnd+10+i*18-(1-k)*(1-k)*60;this.disc(g,hook[0],y)}
+        if(b.pull>0.05){txt(g,hook[0]+70,ropeEnd+10,"⬇ 往下拉",{size:22,fill:"#E8742A"})}
+        else if(this.kg<3&&!this.drag)txt(g,hook[0]+60,ropeEnd+16,"抓住砝码可以往下拉",{size:18,fill:"#8A93A6",weight:700})}
+      const s=box?(b.broken?["断了！","#D64545"]:L>8.5?["快撑不住了！","#D64545"]:L>5?["弯下去了！","#D64545"]:L>2?["开始弯了…","#E8742A"]:["还平平的","#3A9A5B"]):(L>0?["还很平！","#3A9A5B"]:["还平平的","#3A9A5B"]);
+      txt(g,b.x1,deck-34,s[0],{size:26,fill:s[1],anchor:"end"})}
+    txt(g,1366,512,"示意动画 · 变形放大 · 现场以实测为准",{size:16,fill:"#8A93A6",anchor:"end",weight:700})}
+  disc(g,x,y){el("rect",{x:x-40,y:y,width:80,height:17,rx:5,fill:"#4A5160",stroke:"#2B303A","stroke-width":2},g);el("rect",{x:x-34,y:y+3,width:68,height:4,rx:2,fill:"#7C8494"},g);txt(g,x,y+14.5,"1kg",{size:12,fill:"#FFF",anchor:"middle",weight:700})}
+}
+
+/* ================= SSS principle: triangle locked, quadrilateral wobbles ================= */
+class SSSLab{
+  constructor(host){const svg=el("svg",{viewBox:"0 0 1386 520",role:"img","aria-label":"三角形三边确定形状锁定，四边形四边确定还能摇摆"},host);this.svg=svg;sssDefs(svg);this.g=el("g",{},svg);
+    this.S=220;this.TB=[[230,420],[450,420]];this.QB=[[936,420],[1156,420]];
+    this.apex=this.apexRest();this.want=null;this.th=Math.PI/2;this.thv=0;this.ghosts=[];this.circ=0;this.circOn=false;this.anim=null;this.lockT=0;this.attach()}
+  apexRest(){const [a,b]=this.TB;return[(a[0]+b[0])/2,a[1]-Math.sqrt(this.S**2-((b[0]-a[0])/2)**2)]}
+  qPts(th=this.th){const [BL,BR]=this.QB,S=this.S,TL=[BL[0]+S*Math.cos(th),BL[1]-S*Math.sin(th)];return{BL,BR,TL,TR:[TL[0]+S,TL[1]]}}
+  attach(){const svg=this.svg,toV=e=>{const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(svg.getScreenCTM().inverse())};
+    svg.addEventListener("pointerdown",e=>{const v=toV(e);A();const ap=this.apex,q=this.qPts();
+      if(Math.hypot(v.x-ap[0],v.y-ap[1])<90){this.drag="tri";this.anim=null}
+      else if(Math.hypot(v.x-q.TL[0],v.y-q.TL[1])<90||Math.hypot(v.x-q.TR[0],v.y-q.TR[1])<90){this.drag="quad";this.dx0=v.x-q.TL[0];this.anim=null;this.lastG=this.th}
+      else return;svg.setPointerCapture(e.pointerId);e.preventDefault();this.move(v)});
+    svg.addEventListener("pointermove",e=>{if(this.drag)this.move(toV(e))});
+    const end=()=>{if(this.drag==="tri"){this.want=null;play("hmph")}this.drag=null};svg.addEventListener("pointerup",end);svg.addEventListener("pointercancel",end)}
+  move(v){if(this.drag==="tri"){const r=this.apexRest(),dx=v.x-r[0],dy=v.y-r[1],m=Math.hypot(dx,dy),c=Math.min(m,160)/(m||1);this.want=[r[0]+dx*c,r[1]+dy*c];if(m>40)this.lockT=1}
+    else{const BL=this.QB[0],x=v.x-this.dx0-BL[0],c=clamp(x/this.S,-.62,.62);this.setTh(Math.acos(c))}}
+  setTh(th){const old=this.th;this.th=th;if(Math.abs(th-(this.lastG??th))>.18){this.ghosts.push({th:this.lastG??old,t:0});this.lastG=th;if(this.ghosts.length>5)this.ghosts.shift();play("tick")}}
+  pushTri(){A();this.anim={k:"tri",t:0};play("whoosh")}
+  pushQuad(){A();this.anim={k:"quad",t:0};this.lastG=this.th;play("whoosh")}
+  toggleCirc(){A();this.circOn=!this.circOn;play(this.circOn?"reveal":"tick");return this.circOn}
+  reset(){this.th=Math.PI/2;this.ghosts=[];this.want=null;this.anim=null;this.circOn=false;this.circ=0;this.lockT=0}
+  step(dt){const a=this.anim;
+    if(a){a.t+=dt;const t=a.t;
+      if(a.k==="tri"){const r=this.apexRest(),f=t<.3?t/.3:t<1.5?1:t<1.8?1-(t-1.5)/.3:0;this.want=f>0?[r[0]+130*f+(t>.6?Math.sin(t*14)*12:0),r[1]+30*f]:null;if(f>.3)this.lockT=1;if(t>1.85){this.anim=null;this.want=null;play("hmph")}}
+      else{const k=t/2.6;if(k>=1){this.anim=null;this.setTh(Math.PI/2);this.lastG=this.th}else{this.setTh(Math.PI/2+.62*Math.sin(k*Math.PI*2))}}}
+    this.circ+=((this.circOn?1:0)-this.circ)*Math.min(1,dt*3);this.lockT=Math.max(0,this.lockT-dt*.6);
+    this.ghosts.forEach(g=>g.t+=dt);this.ghosts=this.ghosts.filter(g=>g.t<4);
+    const r=this.apexRest(),tgt=this.want?[r[0]+(this.want[0]-r[0])*.03,r[1]+(this.want[1]-r[1])*.03]:r;this.apex=[lerp(this.apex[0],tgt[0],Math.min(1,dt*20)),lerp(this.apex[1],tgt[1],Math.min(1,dt*20))]}
+  draw(){const g=this.g;g.replaceChildren();
+    el("rect",{x:0,y:0,width:680,height:520,rx:24,fill:"#FFFDF8",stroke:"#E3D9C4","stroke-width":3},g);
+    el("rect",{x:706,y:0,width:680,height:520,rx:24,fill:"#FFFDF8",stroke:"#E3D9C4","stroke-width":3},g);
+    txt(g,340,52,"三角形：3 根棍子定了长度",{size:30,anchor:"middle"});txt(g,340,90,"→ 只能拼出 1 种形状",{size:28,fill:"#3A9A5B",anchor:"middle"});txt(g,340,124,"数学上叫「边边边（SSS）」：三条边定了，三角形就定了",{size:19,fill:"#6B7590",anchor:"middle",weight:700});
+    txt(g,1046,52,"四边形：4 根棍子定了长度",{size:30,anchor:"middle"});txt(g,1046,90,"→ 还能拼出无数种形状",{size:28,fill:"#D64545",anchor:"middle"});txt(g,1046,124,"四条边定了，角还能变：形状没锁住",{size:19,fill:"#6B7590",anchor:"middle",weight:700});
+    /* ground */
+    for(const [x0,x1] of [[90,590],[796,1296]])el("line",{x1:x0,y1:442,x2:x1,y2:442,stroke:"#B8975F","stroke-width":5,"stroke-linecap":"round"},g);
+    /* triangle */
+    const [BL,BR]=this.TB,ap=this.apex,r=this.apexRest(),S=this.S;
+    if(this.circ>.02){const c=this.circ,len=2*Math.PI*S;
+      for(const [o,col] of [[BL,"#7B5BD6"],[BR,"#E8742A"]])el("circle",{cx:o[0],cy:o[1],r:S,fill:"none",stroke:col,"stroke-width":4,"stroke-dasharray":`14 12`,opacity:.85*c,"clip-path":"url(#sssclipL)"},g);
+      el("circle",{cx:r[0],cy:r[1],r:18+10*c,fill:"#FFC60A",opacity:.45*c},g);
+      this.circTxt=c>.5}
+    if(this.want){const w=this.want,d1=Math.hypot(w[0]-BL[0],w[1]-BL[1])-S,d2=Math.hypot(w[0]-BR[0],w[1]-BR[1])-S;
+      el("line",{x1:BL[0],y1:BL[1],x2:w[0],y2:w[1],stroke:"#D64545","stroke-width":4,"stroke-dasharray":"10 8"},g);el("line",{x1:BR[0],y1:BR[1],x2:w[0],y2:w[1],stroke:"#D64545","stroke-width":4,"stroke-dasharray":"10 8"},g);
+      el("circle",{cx:w[0],cy:w[1],r:14,fill:"none",stroke:"#D64545","stroke-width":4,"stroke-dasharray":"4 5"},g);
+      const ln=[];if(Math.abs(d1)>6)ln.push("左棍"+(d1>0?"要变长":"要变短"));if(Math.abs(d2)>6)ln.push("右棍"+(d2>0?"要变长":"要变短"));
+      ln.forEach((t,i)=>txt(g,Math.min(w[0],560),w[1]-34-(ln.length-1-i)*28,t+"！",{size:22,fill:"#D64545",anchor:"middle"}))}
+    for(const [p,q] of [[BL,BR],[BR,ap],[ap,BL]])zStrut(g,p,q,"blue",22);[BL,BR,ap].forEach(p=>zBall(g,p,30));
+    if(this.lockT>.05){const k=this.lockT;const gg=el("g",{opacity:Math.min(1,k*2)},g);el("rect",{x:200,y:458,width:280,height:46,rx:23,fill:"#3A9A5B"},gg);txt(gg,340,490,"棍子长度不变 → 动不了！",{size:22,fill:"#fff",anchor:"middle"})}
+    else if(this.circTxt)txt(g,340,490,"两个圆只交在 1 个点 → 顶点只能待在这里",{size:22,fill:"#C65A16",anchor:"middle"});
+    else txt(g,340,490,"拖一拖最上面的球试试",{size:20,fill:"#8A93A6",anchor:"middle",weight:700});
+    /* quadrilateral */
+    for(const gh of this.ghosts){const q=this.qPts(gh.th),o=.35*(1-gh.t/4);el("polygon",{points:[q.BL,q.BR,q.TR,q.TL].map(p=>p.join(",")).join(" "),fill:"none",stroke:"#1d6fd0","stroke-width":8,opacity:o,"stroke-linejoin":"round"},g)}
+    const q=this.qPts();for(const [p,s] of [[q.BL,q.BR],[q.BR,q.TR],[q.TR,q.TL],[q.TL,q.BL]])zStrut(g,p,s,"blue",22);[q.BL,q.BR,q.TR,q.TL].forEach(p=>zBall(g,p,30));
+    const deg=Math.round(this.th*180/Math.PI),R=58;el("path",{d:`M${q.BL[0]+R} ${q.BL[1]} A${R} ${R} 0 0 0 ${q.BL[0]+R*Math.cos(this.th)} ${q.BL[1]-R*Math.sin(this.th)}`,stroke:"#E8742A","stroke-width":5,fill:"none"},g);
+    txt(g,q.BL[0]+100*Math.cos(this.th/2),q.BL[1]-100*Math.sin(this.th/2)+10,`${deg}°`,{size:28,fill:"#E8742A",anchor:"middle"});
+    txt(g,1046,490,Math.abs(deg-90)>3?"4 根棍子一根没变，角却变了 → 会晃":"拖一拖上面的球试试",{size:Math.abs(deg-90)>3?22:20,fill:Math.abs(deg-90)>3?"#D64545":"#8A93A6",anchor:"middle",weight:Math.abs(deg-90)>3?900:700})}
+}
+function sssDefs(svg){const d=el("defs",{},svg);const c=el("clipPath",{id:"sssclipL"},d);el("rect",{x:10,y:150,width:660,height:282},c)}
+
+/* ================= answer wall: what shape do you think? ================= */
+const WALL_SHAPES=[["三角形","tri"],["正方形","sq"],["长方形","rect"],["五边形","pe"],["六边形","hex"],["圆形","circ"]];
+function shapeIcon(kind,size=64){const s=size,h=s/2,pts=n=>Array.from({length:n},(_,i)=>{const a=-Math.PI/2+i*2*Math.PI/n;return`${h+h*.86*Math.cos(a)},${h+h*.86*Math.sin(a)+(n===3?h*.14:0)}`}).join(" ");
+  const st=`fill="#DCEBFF" stroke="#1d6fd0" stroke-width="${s/12}" stroke-linejoin="round"`;
+  const body=kind==="tri"?`<polygon points="${pts(3)}" ${st}/>`:kind==="sq"?`<rect x="${s*.14}" y="${s*.14}" width="${s*.72}" height="${s*.72}" ${st}/>`:kind==="rect"?`<rect x="${s*.04}" y="${s*.26}" width="${s*.92}" height="${s*.5}" ${st}/>`:
+    kind==="pe"?`<polygon points="${pts(5)}" ${st}/>`:kind==="hex"?`<polygon points="${pts(6)}" ${st}/>`:kind==="circ"?`<circle cx="${h}" cy="${h}" r="${h*.82}" ${st}/>`:`<text x="${h}" y="${h*1.3}" font-size="${s*.8}" text-anchor="middle" fill="#1d6fd0" font-weight="900">?</text>`;
+  return `<svg viewBox="0 0 ${s} ${s}" width="${s}" height="${s}" aria-hidden="true">${body}</svg>`}
+function setupWall(s){const wall=s.querySelector(".awall");if(!wall)return;const chips=s.querySelector(".achips"),timerBtn=s.querySelector(".athink"),reset=s.querySelector(".areset"),ring=s.querySelector(".aring");
+  const counts=new Map();
+  const pin=(name,kind)=>{A();let c=counts.get(name);if(!c){const n=document.createElement("div");n.className="anote";n.style.setProperty("--rot",((counts.size*37)%9-4)+"deg");
+      n.innerHTML=shapeIcon(kind,70)+`<b>${esc(name)}</b><span class="acount">1</span>`;wall.appendChild(n);c={n,v:0};counts.set(name,c);wall.classList.add("has")}
+    c.v++;c.n.querySelector(".acount").textContent=c.v>1?`× ${c.v}`:"";c.n.classList.remove("bump");void c.n.offsetWidth;c.n.classList.add("bump");play("pop")};
+  WALL_SHAPES.forEach(([name,kind])=>{const b=document.createElement("button");b.className="achip";b.innerHTML=shapeIcon(kind,34)+name;b.addEventListener("click",()=>pin(name,kind));chips.appendChild(b)});
+  const other=document.createElement("form");other.className="aother";other.innerHTML=`<input maxlength="8" placeholder="其他答案…" aria-label="记录孩子的其他答案"><button>记下</button>`;
+  other.addEventListener("submit",e=>{e.preventDefault();const i=other.querySelector("input"),v=i.value.trim();if(v){pin(v,"other");i.value=""}});chips.appendChild(other);
+  let tmr=null;const stopT=()=>{clearInterval(tmr);tmr=null;ring.classList.remove("run");ring.querySelector("b").textContent="30"};
+  timerBtn.addEventListener("click",()=>{A();if(tmr){stopT();return}let left=30;ring.classList.add("run");ring.style.setProperty("--p",1);ring.querySelector("b").textContent=left;play("tick");
+    tmr=setInterval(()=>{left--;ring.querySelector("b").textContent=left;ring.style.setProperty("--p",left/30);if(left<=5&&left>0)play("tick");if(left<=0){stopT();ring.querySelector("b").textContent="⏰";play("ding")}},1000)});
+  reset.addEventListener("click",()=>{A();counts.clear();wall.querySelectorAll(".anote").forEach(n=>n.remove());wall.classList.remove("has");stopT();play("tick")});
+  s._wallOff=stopT}
+
 /* ================= 3D Zometool models: spin once, then rest on the original picture ================= */
 function modelGeom(kind){const h=Math.SQRT1_2;let P=[],E=[];
   if(kind==="tri"){P=[[-.5,0,0],[.5,0,0],[0,Math.sqrt(3)/2,0]];E=[[0,1],[1,2],[2,0]]}
@@ -784,13 +999,30 @@ stage.querySelectorAll(".model").forEach(setupModel);
 slides.forEach((s,i)=>{
   const labs=[...s.querySelectorAll(".zlab")].map(h=>new Lab(h,JSON.parse(h.dataset.lab)));
   const coinHost=s.querySelector(".coinlab");const coins=coinHost?new Coins(coinHost):null;
+  const wHost=s.querySelector(".wlab");const wts=wHost?new Weights(wHost):null;
+  if(wts){const add=s.querySelector(".addw"),cnt=s.querySelector(".wcount");const upd=()=>cnt.textContent=`砝码：${wts.kg} kg`;
+    add.addEventListener("click",()=>{wts.add();upd()});s.querySelector(".resetw").addEventListener("click",()=>{A();wts.reset();upd();play("tick")});
+    live.set(i,{step:dt=>wts.step(dt),draw:()=>wts.draw(),key:()=>add.click()})}
+  const sHost=s.querySelector(".ssslab");const sss=sHost?new SSSLab(sHost):null;
+  if(sss){s.querySelector(".ptri").addEventListener("click",()=>sss.pushTri());s.querySelector(".pquad").addEventListener("click",()=>sss.pushQuad());
+    const cb=s.querySelector(".pcirc");cb.addEventListener("click",()=>{cb.classList.toggle("on",sss.toggleCirc())});
+    s.querySelector(".preset").addEventListener("click",()=>{A();sss.reset();cb.classList.remove("on");play("tick")});
+    s._sssOff=()=>{sss.reset();cb.classList.remove("on")};
+    live.set(i,{step:dt=>sss.step(dt),draw:()=>sss.draw(),key:()=>sss.anim?null:(sss.anim===null&&sss.ghosts.length?sss.pushTri():sss.pushQuad())})}
+  setupWall(s);
   const force=s.querySelector(".force"),out=s.querySelector(".ctl output:not(.coincount)"),FN=["","轻轻","一点点","中等","用力","使劲"];
   if(force&&out)force.addEventListener("input",()=>out.textContent=FN[force.value]);
-  const go=s.querySelector(".go:not(.addcoin):not(.built)");
+  const go=s.querySelector(".go:not(.addcoin):not(.built):not(.addbrace)");
+  const addBrace=s.querySelector(".addbrace");
+  if(addBrace&&labs.length){addBrace.addEventListener("click",()=>{A();if(labs.every(l=>l.shapes.every(sh=>sh.braced)))return;labs.forEach(l=>l.shapes.forEach(sh=>{sh.braced=true;sh.braceK=0;sh.fills=true}));play("pop");
+      setTimeout(()=>{play("ding");s.classList.add("braced");labs.forEach(l=>{const r=l.svg.parentElement.getBoundingClientRect(),sr=stage.getBoundingClientRect(),k=1600/sr.width;bubble(s,(r.left-sr.left)*k+60,(r.top-sr.top)*k-10,"谢谢！我站稳了！","good")})},800)});
+    s._braceReset=()=>{labs.forEach(l=>l.shapes.forEach(sh=>{sh.braced=false;sh.braceK=0;sh.fills=false;Object.keys(sh.a).forEach(k=>{sh.a[k]=0;sh.v[k]=0})}));s.classList.remove("braced","hexed")};
+    s.querySelectorAll(".rebrace").forEach(b=>b.addEventListener("click",()=>{A();s._braceReset();play("tick")}));
+    const hx=s.querySelector(".hexq");hx&&hx.addEventListener("click",()=>{A();s.classList.toggle("hexed");play(s.classList.contains("hexed")?"reveal":"tick")})}
   if(go&&labs.length)go.addEventListener("click",()=>{const lv=force?+force.value:4;s.classList.remove("revealed");labs.forEach(l=>l.go(lv));
     labs[0].onDone=amps=>{
       if(labs.length===1&&labs[0].spec.pair){document.getElementById("next").classList.add("nudge")}
-      else{const stable=labs.every(l=>l.spec.brace);
+      else{const stable=labs.every(l=>l.shapes.every(sh=>sh.braced));
         if(stable){play("ding");labs.forEach(l=>{const r=l.svg.parentElement.getBoundingClientRect(),sr=stage.getBoundingClientRect(),k=1600/sr.width;bubble(s,(r.left-sr.left)*k+60,(r.top-sr.top)*k-10,"稳稳的！","good")});confetti(800,300,80)}
         else{play("boing");labs.forEach(l=>{const r=l.svg.parentElement.getBoundingClientRect(),sr=stage.getBoundingClientRect(),k=1600/sr.width;bubble(s,(r.left-sr.left)*k+80,(r.top-sr.top)*k-10,"晃起来了！","bad")})}}}});
   const rv=s.querySelector(".reveal");if(rv)rv.addEventListener("click",()=>{A();s.classList.remove("revealed");void s.offsetWidth;s.classList.add("revealed");play("reveal");setTimeout(()=>play("react"),150)});
@@ -839,7 +1071,7 @@ function entranceSfx(s){entT.forEach(clearTimeout);entT=[];if(s.dataset.sfx==="b
 const countEl=document.getElementById("count"),bar=document.querySelector("#progress i"),notesEl=document.getElementById("notes"),ov=document.getElementById("overview"),nextBtn=document.getElementById("next");
 const esc=t=>t.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
 function go(i){i=Math.max(0,Math.min(N-1,i));
-  const old=slides[cur];old._z3dOff&&old._z3dOff();old.querySelectorAll("video").forEach(v=>v.pause());old.classList.remove("on");
+  const old=slides[cur];old._z3dOff&&old._z3dOff();old._wallOff&&old._wallOff();old._sssOff&&old._sssOff();old._braceReset&&old._braceReset();old.querySelectorAll("video").forEach(v=>v.pause());old.classList.remove("on");
   slides.forEach((s,k)=>s.hidden=k!==i);cur=i;const s=slides[i];void s.offsetWidth;s.classList.add("on");
   s.querySelectorAll("video").forEach(v=>{v.currentTime=0;v.play().catch(()=>{})});
   nextBtn.classList.remove("nudge");lb.hidden=true;
