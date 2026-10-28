@@ -132,6 +132,61 @@
     }
     return { balls, struts, dashes: [], labels: [], orient: tetraOrient(), elev: 14, grow: ICE_MAX };
   }
+
+  /* ---------- lesson 3 (10.28): fewest molecules -> one hexagon ring (6), then 6 hexagons around it -> one big hexagon (24) ---------- */
+  /* one puckered ice layer, built only from Zometool yellow directions; every molecule keeps 2 hands (H) and 2 pockets. */
+  const HONEY = (() => {
+    const S3 = Math.sqrt(3), R = (Y0 + Y1) * S3, YS = Y0 * S3, up = TU.clone().normalize(), h = R / 3;
+    const U = [T2, T3, T4].map((v) => v.clone().normalize());
+    const flat = (v) => v.clone().addScaledVector(up, -v.dot(up)), key = (p) => p.toArray().map((x) => x.toFixed(2)).join();
+    const sites = new Map(), q = [[V(0, 0, 0), "A", 0]]; sites.set(key(q[0][0]), q[0]);
+    while (q.length) { const [p, t, d] = q.shift(); if (d >= 9) continue;
+      for (const u of U) { const n = add(p, u, t === "A" ? R : -R), k = key(n); if (!sites.has(k)) { const e = [n, t === "A" ? "B" : "A", d + 1]; sites.set(k, e); q.push(e); } } }
+    const all = [...sites.values()].map(([p, t]) => ({ p, upper: t === "A" }));
+    const e = flat(U[0]).length() * R, C0 = flat(U[0]).multiplyScalar(R).add(flat(U[1]).multiplyScalar(R));
+    const LV = []; for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) if (i !== j) LV.push(flat(U[i]).multiplyScalar(R).sub(flat(U[j]).multiplyScalar(R)));
+    const e1 = flat(U[0]).normalize(), e2 = up.clone().cross(e1), ang = (v) => Math.atan2(v.dot(e2), v.dot(e1));
+    const centers = [C0].concat(LV.map((v) => C0.clone().add(v)).sort((a, b) => ang(a.clone().sub(C0)) - ang(b.clone().sub(C0))));
+    const hexOf = (c) => all.filter((a) => Math.abs(flat(a.p).distanceTo(c) - e) < 0.05).sort((x, y) => ang(flat(x.p).sub(c)) - ang(flat(y.p).sub(c)));
+    const hexes = centers.map(hexOf), atoms = []; const idx = new Map();
+    hexes.forEach((H) => H.forEach((a) => { const k = key(a.p); if (!idx.has(k)) { idx.set(k, atoms.length); atoms.push(a); } }));
+    const edges = []; for (let i = 0; i < atoms.length; i++) for (let j = i + 1; j < atoms.length; j++) if (Math.abs(atoms[i].p.distanceTo(atoms[j].p) - R) < 0.05) edges.push([i, j]);
+    // which hexagon each atom first appears in (stage order)
+    const firstHex = atoms.map((a) => hexes.findIndex((H) => H.some((b) => key(b.p) === key(a.p))));
+    // orient every bond (donor gives its hand): center ring goes round; nobody gives or takes more than 2
+    const ring = hexes[0].map((a) => idx.get(key(a.p))), don = new Map(), out = Array(atoms.length).fill(0), inn = Array(atoms.length).fill(0);
+    const ek = (i, j) => Math.min(i, j) + "," + Math.max(i, j);
+    for (let k = 0; k < 6; k++) { const a = ring[k], b = ring[(k + 1) % 6]; don.set(ek(a, b), a); out[a]++; inn[b]++; }
+    const rest = edges.filter(([i, j]) => !don.has(ek(i, j)));
+    (function dfs(n) { if (n === rest.length) return true; const [i, j] = rest[n];
+      for (const [a, b] of [[i, j], [j, i]]) { if (out[a] < 2 && inn[b] < 2) { out[a]++; inn[b]++; don.set(ek(i, j), a); if (dfs(n + 1)) return true; out[a]--; inn[b]--; } }
+      return false; })(0);
+    const dirTo = (i, j) => atoms[j].p.clone().sub(atoms[i].p).normalize();
+    function build(present, { loose = 0, labels = false, outline = false } = {}) {
+      const has = new Set(present), balls = [], struts = [], cen = flat(C0);
+      const P = (i) => loose ? atoms[i].p.clone().add(flat(atoms[i].p).sub(cen).multiplyScalar(loose)) : atoms[i].p;
+      for (const i of present) {
+        const a = atoms[i], o = P(i), mine = edges.filter(([x, y]) => x === i || y === i), give = [];
+        mine.forEach(([x, y]) => { if (don.get(ek(x, y)) === i) give.push(dirTo(i, x === i ? y : x)); });
+        const free = [up.clone().multiplyScalar(a.upper ? 1 : -1)];
+        U.forEach((u) => { const d = u.clone().multiplyScalar(a.upper ? 1 : -1); if (!mine.some(([x, y]) => dirTo(i, x === i ? y : x).dot(d) > 0.99)) free.push(d); });
+        while (give.length < 2) give.push(free.shift());
+        balls.push([o, "red"]);
+        give.forEach((d) => { const hh = add(o, d, YS); balls.push([hh, "white"]); struts.push([o, hh, "yellow"]);
+          if (!loose) { const j = mine.map(([x, y]) => (x === i ? y : x)).find((j) => dirTo(i, j).dot(d) > 0.99); if (j !== undefined && has.has(j)) struts.push([hh, atoms[j].p, "yellow"]); } });
+      }
+      const lab = labels ? ring.filter((i) => has.has(i)).map((i, k) => [add(P(i), up, atoms[i].upper ? 4.2 : -4.2), String(ring.indexOf(i) + 1)]) : [];
+      let dashes = [];
+      if (outline) { const C = hexes.slice(1).map((H, k) => { const far = H.reduce((m, a) => (flat(a.p).distanceTo(cen) > flat(m.p).distanceTo(cen) ? a : m)); return cen.clone().add(flat(far.p).sub(cen).multiplyScalar(1.16)).addScaledVector(up, -h / 2); }); dashes = C.map((c, k) => [c, C[(k + 1) % 6]]); }
+      return { balls, struts, dashes, labels: lab, orient: tetraOrient(), elev: 40 };
+    }
+    return { atoms, ring, firstHex, build };
+  })();
+  const water6 = () => Object.assign(HONEY.build(HONEY.ring, { loose: 0.45 }), { elev: 60 });
+  function hex6(stage = 5) { const n = Math.max(1, Math.min(5, stage)) + 1; return Object.assign(HONEY.build(HONEY.ring.slice(0, n)), { grow: 5, elev: 62 }); }
+  function hex7(stage = 7) { const s = Math.max(1, Math.min(7, stage)); const pres = HONEY.atoms.map((_, i) => i).filter((i) => HONEY.firstHex[i] < s);
+    return Object.assign(HONEY.build(pres), { grow: 7, elev: 62 }); }
+  const hexBig = () => Object.assign(HONEY.build(HONEY.atoms.map((_, i) => i), { outline: true }), { elev: 66 });
   /* ---------- lesson 9: snowflake from blue struts (core = medium, main branches = long, side branches = short) ---------- */
   function snow(stage, roll = 0) {
     const L = 8.472, e1 = V(1, 0, 0), v2 = V(0.5, PHI / 2, 1 / (2 * PHI)), v3 = V(-0.5, PHI / 2, 1 / (2 * PHI));
@@ -181,7 +236,7 @@
     return greenModel(P, E, V(0, 0, 1), b.clone().negate(), -8, 22);
   }
   const MODELS = { waterTetra, water1, waterPockets, water5, water3, water5h, tri, pyr, bridge,
-    snow1: () => snow(1), ice, snow2: () => snow(2), snow3: () => snow(3, 16) };
+    snow1: () => snow(1), ice, water6, hex6, hex7, hexBig, snow2: () => snow(2), snow3: () => snow(3, 16) };
 
   function labelTexture(t, style) {
     const c = document.createElement("canvas"); c.width = c.height = 128; const g = c.getContext("2d");
@@ -324,13 +379,7 @@
     return {
       top() { animateTo(sph().th, 0.0001, 1600, stageDist ? topDist * stageDist[M.stage || 1] / stageDist[M.grow] : null); },
       growIn(done) { growDone = done; growT0 = 0; },
-      intro(done, dur = 1600, style = "") { if (stageDist) dist = stageDist[M.stage || 1]; let t0 = 0, n = 0; controls.enabled = false;
-        if (style === "soft") {            // gentle entrance: drift in a little, settle, no spinning
-          const dth = 0.22, dph = 0.06, dr = 0.1, D = 1900; setSph(dist * (1 + dr), th0 + dth, ph0 - dph);
-          anim = (now) => { if (n++ < 2) { t0 = now; return; } const t = Math.min(1, (now - t0) / D), e = 1 - Math.pow(1 - t, 3);
-            setSph(dist * (1 + dr * (1 - e)), th0 + dth * (1 - e), ph0 - dph * (1 - e)); if (t >= 1) { anim = null; controls.enabled = true; controls.update(); done && done(); } };
-          return; }
-        setSph(dist * 1.45, th0 - Math.PI * 2, ph0 + 0.2);
+      intro(done, dur = 1600) { if (stageDist) dist = stageDist[M.stage || 1]; let t0 = 0, n = 0; controls.enabled = false; setSph(dist * 1.45, th0 - Math.PI * 2, ph0 + 0.2);
         anim = (now) => { if (n++ < 2) { t0 = now; return; } const t = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - t, 3);
           setSph(dist * (1.45 - 0.45 * e), th0 - Math.PI * 2 * (1 - e), ph0 + 0.2 * (1 - e)); if (t >= 1) { anim = null; controls.enabled = true; controls.update(); done && done(); } }; },
       spin(dur = 3600) { const a = sph(), t0 = performance.now(); controls.enabled = false;
@@ -343,5 +392,5 @@
       dispose() { alive = false; window.removeEventListener("resize", onResize); cancelAnimationFrame(raf); renderer.dispose(); host.removeChild(renderer.domElement); },
     };
   }
-  window.Zome3D = { mount };
+  window.Zome3D = { mount, _M: MODELS };
 })();
