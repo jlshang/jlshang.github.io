@@ -779,21 +779,24 @@ class SnowGrow{
 }
 /* ================= P8: two water molecules link up ================= */
 class PairLink{
-  constructor(host){this.host=host;const k=this.k=.6,X0=this.X0=339,Y0=this.Y0=176;
+  constructor(host){this.host=host;const k=this.k=.5,X0=this.X0=416,Y0=this.Y0=317;
     this.S=p=>[X0+p[0]*k,Y0+p[1]*k];
     /* source-image coordinates (the user's 1567×1004 drawing) */
     this.BL=[44,391,766,550];this.BR=[775,60,757,556];this.OL=[431,697];this.OR=[1155.5,379.2];
     this.HAND=[664.4,498.6];this.PLUS=[764.6,431.5];this.POCKET=[953.5,539.6];this.HR=82;this.PR=74;
-    const dx=this.POCKET[0]-this.HAND[0],dy=this.POCKET[1]-this.HAND[1],dl=Math.hypot(dx,dy);this.u=[dx/dl,dy/dl];
-    this.SHIFT=[this.HAND[0]+this.u[0]*(this.HR+this.PR+95)-this.POCKET[0],this.HAND[1]+this.u[1]*(this.HR+this.PR+95)-this.POCKET[1]];
+    /* the link runs straight on along the hand's own stick (O→H): the pocket and the 2nd oxygen sit on that line */
+    const dx=this.HAND[0]-this.OL[0],dy=this.HAND[1]-this.OL[1],dl=Math.hypot(dx,dy);this.u=[dx/dl,dy/dl];
+    const v=[this.POCKET[0]-this.OR[0],this.POCKET[1]-this.OR[1]];this.RF=-(Math.atan2(-this.u[1],-this.u[0])-Math.atan2(v[1],v[0]))*180/Math.PI;
+    const pr=this.rot(this.POCKET,this.OR,this.RF,[0,0]),G=this.HR+this.PR+170;
+    this.SHIFT=[this.HAND[0]+this.u[0]*G-pr[0],this.HAND[1]+this.u[1]*G-pr[1]];
     this.L=host.querySelector(".pl-L");this.R=host.querySelector(".pl-R");
     for(const [im,b,o] of [[this.L,this.BL,this.OL],[this.R,this.BR,this.OR]]){im.style.width=b[2]*k+"px";im.style.height=b[3]*k+"px";im.style.transformOrigin=`${(o[0]-b[0])*k}px ${(o[1]-b[1])*k}px`}
     const fx=host.querySelector(".pl-fx"),top=host.querySelector(".pl-top");
     this.dots=[...Array(6)].map(()=>el("circle",{r:6,fill:"#7FB6F0",opacity:0},fx));
     this.ringP=el("circle",{r:30,fill:"none",stroke:"#5B9BFF","stroke-width":5,opacity:0},top);
     this.ringM=el("circle",{r:52,fill:"none",stroke:ORANGE,"stroke-width":5,opacity:0},top);
-    this.lnW=el("line",{stroke:"#fff","stroke-width":20,"stroke-linecap":"round",opacity:0},top);
-    this.ln=el("line",{stroke:"#4696D7","stroke-width":13,"stroke-linecap":"round",opacity:0},top);
+    this.lnW=el("line",{stroke:"#fff","stroke-width":20,"stroke-linecap":"round",opacity:0},fx);
+    this.ln=el("line",{stroke:"#4696D7","stroke-width":13,"stroke-linecap":"round",opacity:0},fx);
     this.flash=el("circle",{r:20,fill:"none",stroke:"#7FB6F0","stroke-width":6,opacity:0},top);
     this.pop=el("text",{"text-anchor":"middle","font-size":64,fill:ORANGE,stroke:"#fff","stroke-width":8,"paint-order":"stroke","font-family":"ZCOOL KuaiLe, Noto Sans SC, sans-serif",opacity:0},top);this.pop.textContent="吸住！";
     this.capB=host.querySelector(".pl-cap b");this.capS=host.querySelector(".pl-cap span");this.cap="";this.reset()}
@@ -802,10 +805,10 @@ class PairLink{
     if(t0<2.6&&this.t>=2.6)play("whoosh");
     if(!this.snapped&&this.t>=4.75){this.snapped=true;play("pop");setTimeout(()=>play("ding"),180);const m=this.mid||[800,420];confetti(m[0],m[1],70)}}
   offs(t){const ease=x=>{x=clamp(x);return x*x*(3-2*x)},k=ease((t-1.2)/3.1),jig=1-ease((t-3.2)/1),s=clamp((t-4.3)/.45)**3;
-    let lx=-120*(1-k),ly=40*(1-k),rx=150*(1-k)+this.SHIFT[0]*k,ry=30*(1-k)+this.SHIFT[1]*k;
-    rx+=(1-s)*.18*120*k;lx-=(1-s)*.18*60*k;
+    const u=this.u;let lx=-120*(1-k),ly=30*(1-k),rx=170*(1-k)+this.SHIFT[0],ry=this.SHIFT[1];
+    rx+=(1-s)*45*k*u[0];ry+=(1-s)*45*k*u[1];lx-=(1-s)*20*k*u[0];ly-=(1-s)*20*k*u[1];
     ly+=14*Math.sin(2.1*t)*jig;ry+=14*Math.sin(2.1*t+1.7)*jig;
-    const rl=5*Math.sin(1.6*t+.4)*jig,rr=5*Math.sin(1.4*t+2)*jig;
+    const rl=5*Math.sin(1.6*t+.4)*jig,rr=this.RF+5*Math.sin(1.4*t+2)*jig;
     if(t>4.75){const u=t-4.75,b=-26*Math.abs(Math.sin(u*5))*Math.exp(-u*.9);ly+=b;ry+=b}
     return[[lx,ly,rl],[rx,ry,rr]]}
   rot(p,c,deg,o){const a=-deg*Math.PI/180,x=p[0]-c[0],y=p[1]-c[1];return[c[0]+x*Math.cos(a)-y*Math.sin(a)+o[0],c[1]+x*Math.sin(a)+y*Math.cos(a)+o[1]]}
@@ -821,11 +824,11 @@ class PairLink{
     const gl=t>2.6&&t<6?clamp((t-2.6)/.5)*(1-clamp((t-5.35)/.6)):0,pu=.5+.5*Math.sin(t*9);
     set(this.ringP,{cx:plus[0],cy:plus[1],r:24+6*pu,opacity:gl});set(this.ringM,{cx:pocket[0],cy:pocket[1],r:40+6*pu,opacity:gl});
     /* the link */
-    if(t>=4.75){const g=clamp((t-4.75)/.25),u=this.u,x1=hand[0]+u[0]*this.HR*k*.92,y1=hand[1]+u[1]*this.HR*k*.92,X2=pocket[0]-u[0]*this.PR*k*.95,Y2=pocket[1]-u[1]*this.PR*k*.95,x2=x1+(X2-x1)*g,y2=y1+(Y2-y1)*g;
+    if(t>=4.75){const g=clamp((t-4.75)/.25),u=this.u,x1=hand[0],y1=hand[1],X2=pocket[0],Y2=pocket[1],x2=x1+(X2-x1)*g,y2=y1+(Y2-y1)*g;
       for(const e of [this.lnW,this.ln])set(e,{x1,y1,x2,y2,opacity:1});this.mid=[(x1+X2)/2,(y1+Y2)/2];
       const f=(t-4.75)/.7;set(this.flash,{cx:this.mid[0],cy:this.mid[1],r:14+60*clamp(f),opacity:f<1?1-f:0});
       const f2=clamp((t-4.75)/.35),sc=.6+.4*f2+.08*Math.sin(Math.min(1,f2)*Math.PI);
-      set(this.pop,{x:this.mid[0]+20,y:this.mid[1]+95,opacity:1,"font-size":(64*sc).toFixed(1)})}
+      set(this.pop,{x:this.mid[0]+u[1]*-110,y:this.mid[1]+u[0]*110+20,opacity:1,"font-size":(64*sc).toFixed(1)})}
     else{for(const e of [this.lnW,this.ln,this.flash,this.pop])e.setAttribute("opacity",0);
       const m=this.S(this.HAND);this.mid=[(hand[0]+pocket[0])/2,(hand[1]+pocket[1])/2]}
     const cap=t<1.5?["两个水分子，到处晃来晃去",""]:t<2.6?["慢慢靠近……",""]:t<4.75?["正的手（+）和负的口袋（−）互相吸引",""]:t<7?["吸住了！拉住了！","正的手，吸住负的口袋"]:["这就是水分子「手拉手」","白色的氢是手（+），橙色虚圈是口袋（−）"];
