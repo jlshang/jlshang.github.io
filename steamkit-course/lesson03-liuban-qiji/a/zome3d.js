@@ -187,7 +187,7 @@
     return Object.assign(HONEY.build(HONEY.ring.slice(0, k), { loose: HONEY.ring.slice(k) }), { grow: 6, elev: 62 }); }
   // p12: the ring from p11 plus the 18 molecules still waiting outside; each step links one more hexagon
   function hex7(stage = 7) { const s = Math.max(1, Math.min(7, stage)), ids = HONEY.atoms.map((_, i) => i);
-    return Object.assign(HONEY.build(ids.filter((i) => HONEY.firstHex[i] < s), { loose: ids.filter((i) => HONEY.firstHex[i] >= s), looseK: 0.32 }), { grow: 7, elev: 62 }); }
+    return Object.assign(HONEY.build(ids.filter((i) => HONEY.firstHex[i] < s)), { grow: 7, elev: 62, growOut: true }); }
   const hexBig = () => Object.assign(HONEY.build(HONEY.atoms.map((_, i) => i), { outline: true }), { elev: 66 });
 
   /* ---------- lesson 3: the big hexagon layer, then one layer below and one above -> a block of ice ---------- */
@@ -329,15 +329,25 @@
     if (opt.from && MODELS[opt.from]) { const P0 = MODELS[opt.from](); const kk = (p) => p.toArray().map((x) => x.toFixed(2)).join();
       P0.balls.forEach(([p]) => prevKeys.add(kk(p))); P0.struts.forEach(([a, b]) => { prevKeys.add(kk(a) + "|" + kk(b)); prevKeys.add(kk(b) + "|" + kk(a)); }); }
     const keyOf = (a, b) => a.toArray().map((x) => x.toFixed(2)).join() + (b ? "|" + b.toArray().map((x) => x.toFixed(2)).join() : "");
-    const gliding = [], later = [];
+    const gliding = [], later = [], reach = []; let outT0 = null, outNew = [];
     function buildParts(pop) {
-      const want = new Set(), moved = new Set();
+      const want = new Set(), moved = new Set(), had = new Set(built.keys()), out = M.growOut && pop, newMol = [];
       for (const [p, col, id] of M.balls) { const k = id || keyOf(p); want.add(k); const c = cpos(p);
         if (built.has(k)) { const m = built.get(k); if (id && m.position.distanceTo(c) > 0.01) { gliding.push({ m, from: m.position.clone(), to: c }); moved.add(id.replace(/^[a-z]/, "").split("_")[0]); } continue; }
         const m = new THREE.Mesh(BG, mat[col]); m.position.copy(c); group.add(m); built.set(k, m);
+        if (out) { m.scale.setScalar(0.001); newMol.push(m); continue; }
         if (prevKeys.size && !prevKeys.has(k)) m.scale.setScalar(0.001); else if (pop) { m.scale.setScalar(0.01); popping.push(m); } }
       for (const [a, b, kd, id] of M.struts) { const k = id || keyOf(a, b); want.add(k);
         if (built.has(k)) { const m = built.get(k); if (id && m.userData.a0) { const to = cpos(a).sub(m.userData.a0); if (m.position.distanceTo(to) > 0.01) gliding.push({ m, from: m.position.clone(), to }); } continue; }
+        if (out && id) {
+          const mol = (x) => "o" + x, [di, aj] = id[0] === "L" ? id.slice(1).split("_") : [id.slice(1).split("_")[0], null];
+          if (id[0] === "L" && (had.has(mol(di)) || had.has(mol(aj)))) {   // a hand reaching out from the part already built
+            const fromA = had.has(mol(di)), A = cpos(fromA ? a : b), B = cpos(fromA ? b : a);
+            const geo = strutGeometry(A, B, kd || "yellow"), q = new THREE.Quaternion().setFromUnitVectors(B.clone().sub(A).normalize(), V(0, 1, 0));
+            geo.translate(-A.x, -A.y, -A.z); geo.applyMatrix4(new THREE.Matrix4().makeRotationFromQuaternion(q));
+            const m = new THREE.Mesh(geo, mat[kd || "yellow"]); m.position.copy(A); m.quaternion.copy(q.clone().invert()); m.scale.set(1, 0.001, 1);
+            group.add(m); built.set(k, m); reach.push(m); continue; }
+          const m = new THREE.Mesh(strutGeometry(cpos(a), cpos(b), kd || "yellow"), mat[kd || "yellow"]); m.userData.a0 = cpos(a); m.scale.setScalar(0.001); group.add(m); built.set(k, m); newMol.push(m); continue; }
         if (id && id[0] === "L" && gliding.length) {     // a new hand-hold: wait until the molecules have glided in
           const m = new THREE.Mesh(strutGeometry(cpos(a), cpos(b), kd || "yellow"), mat[kd || "yellow"]); m.scale.setScalar(0.001); group.add(m); built.set(k, m); later.push(m); continue; }
         if (prevKeys.size && !prevKeys.has(k)) {          // a new strut: grow it out of the part that was already there
@@ -350,6 +360,7 @@
         const m = new THREE.Mesh(strutGeometry(cpos(a), cpos(b), kd || "yellow"), mat[kd || "yellow"]); m.userData.a0 = cpos(a); group.add(m); built.set(k, m); if (pop) { m.scale.setScalar(0.01); popping.push(m); } }
       for (const [k, m] of built) if (!want.has(k)) { group.remove(m); if (m.geometry !== BG) m.geometry.dispose(); built.delete(k); }
       if (gliding.length) glideT0 = 0;
+      if (out && (reach.length || newMol.length)) { outT0 = 0; outNew = newMol; }
     }
     buildParts(false);
     let popT0 = 0, growT0 = null, growDone = null, glideT0 = null;
@@ -415,6 +426,9 @@
         growing.forEach((gp, i) => { const u = Math.min(1, Math.max(0, (t - 0.12 * (i % 6)) / 1.1)), e = 1 - Math.pow(1 - u, 3); gp.m.scale.y = Math.max(0.001, e);
           const ball = built.get(gp.end); if (ball && u >= 1) { const w = Math.min(1, (t - 0.12 * (i % 6) - 1.1) / 0.3); ball.scale.setScalar(Math.max(0.001, w < 1 ? w * (1 + 0.3 * Math.sin(w * Math.PI)) : 1)); if (w < 1) doneAll = false; } else doneAll = false; });
         if (doneAll) { growing.length = 0; growT0 = null; growDone && growDone(); } }
+      if (outT0 !== null) { if (!outT0) outT0 = now; const t = (now - outT0) / 1000, u = Math.min(1, t / 0.8), e = 1 - Math.pow(1 - u, 3);
+        reach.forEach((m) => { m.scale.y = Math.max(0.001, e); });
+        if (u >= 1) { reach.forEach((m) => m.scale.set(1, 1, 1)); reach.length = 0; outNew.forEach((m) => popping.push(m)); outNew = []; popT0 = 0; outT0 = null; } }
       if (glideT0 !== null) { if (!glideT0) glideT0 = now; const t = Math.min(1, (now - glideT0) / 900), e = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
         gliding.forEach((g) => g.m.position.lerpVectors(g.from, g.to, e));
         if (t >= 1) { gliding.length = 0; glideT0 = null; later.forEach((m) => popping.push(m)); later.length = 0; popT0 = 0; } }
