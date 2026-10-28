@@ -119,6 +119,7 @@ button:focus-visible,input:focus-visible{outline:4px solid var(--orange);outline
 .z3dhost .hint{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);font-size:20px;color:#8A93A6;pointer-events:none;transition:opacity .4s}
 .slide.z3d-on .z3dhost .hint{opacity:0}
 .slide.z3d-on .z3dhost{opacity:1}
+.z3dhost[data-intro="soft"]{transition:opacity .9s ease}
 .slide.z3d-on .model{opacity:0;transition:opacity .4s}
 .ctl .go+.go{margin-left:4px}
 .ctl.left{right:auto;left:106px}
@@ -250,17 +251,17 @@ button:focus-visible,input:focus-visible{outline:4px solid var(--orange);outline
 </section>
 <section class="slide" data-n="11" style="background:#EAF1FA"  hidden>
 <div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">第 2 步：中间的水分子，伸出 2 只手</span></p></div></div>
-<div class="el z3dhost" data-kind="water3" data-fitw="494" data-fith="623" style="left:371px;top:158px;width:800px;height:720px"></div>
+<div class="el z3dhost" data-kind="water3" data-intro="soft" data-fitw="494" data-fith="623" style="left:371px;top:158px;width:800px;height:720px"></div>
 <div class="el pic  model" data-k="1" data-model='{}' style="left:519.1px;top:201.5px;width:504.2px;height:633.3px;"><img class="im" src="a/image26.webp" alt="" draggable="false" style="width:504.2px;height:633.3px;left:-0.0px;top:-0.0px;"></div><div class="ctl z3ctl"><label>转一转 <input type="range" class="z3ang" min="-180" max="180" value="0" step="1" aria-label="转一转"></label><button class="again z3home">回正面</button></div>
 </section>
 <section class="slide" data-n="12" style="background:#EAF1FA"  hidden>
 <div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">第 3 步：再来 2 个小伙伴，抓住 2 个口袋</span></p></div></div>
-<div class="el z3dhost" data-kind="water5h" data-fitw="666" data-fith="624" style="left:365px;top:166px;width:900px;height:720px"></div>
+<div class="el z3dhost" data-kind="water5h" data-intro="soft" data-fitw="666" data-fith="624" style="left:365px;top:166px;width:900px;height:720px"></div>
 <div class="el pic  model" data-k="1" data-model='{}' style="left:476.9px;top:209.4px;width:675.5px;height:633.3px;"><img class="im" src="a/image27.webp" alt="" draggable="false" style="width:675.5px;height:633.3px;left:-0.0px;top:-0.0px;"></div><div class="ctl z3ctl"><label>转一转 <input type="range" class="z3ang" min="-180" max="180" value="0" step="1" aria-label="转一转"></label><button class="again z3home">回正面</button></div>
 </section>
 <section class="slide" data-n="13" style="background:#FBF6EC"  hidden>
 <div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#1E2A44;font-family:var(--display);font-weight:400;">转一转：4 个小伙伴，站成一个四面体</span></p></div></div>
-<div class="el z3dhost" data-kind="waterTetra" data-fitw="569" data-fith="533" style="left:401px;top:171px;width:900px;height:710px"></div>
+<div class="el z3dhost" data-kind="waterTetra" data-intro="soft" data-fitw="569" data-fith="533" style="left:401px;top:171px;width:900px;height:710px"></div>
 <div class="el pic  model" data-k="1" data-model='{}' style="left:562.4px;top:254.7px;width:577.7px;height:541.7px;"><img class="im" src="a/image28.webp" alt="" draggable="false" style="width:577.7px;height:541.7px;left:-0.0px;top:-0.0px;"></div><div class="ctl z3ctl"><label>转一转 <input type="range" class="z3ang" min="-180" max="180" value="0" step="1" aria-label="转一转"></label><button class="go z3top">从上往下看</button><button class="again z3home">回正面</button></div>
 </section>
 <section class="slide" data-n="14" style="background:#FBF6EC"  hidden>
@@ -870,14 +871,14 @@ stage.addEventListener("click",e=>{const j=e.target.closest(".judge");if(!j||j.q
   b.className="badge "+(ok?"ok":"no");b.textContent=ok?"✓":"✗";j.appendChild(b);if(ok){play("ding");const r=j.getBoundingClientRect(),sr=stage.getBoundingClientRect(),k=1600/sr.width;confetti((r.left-sr.left+r.width/2)*k,(r.top-sr.top)*k+80,90)}else play("wah")});
 /* real 3D Zometool models (loaded on first use) */
 const loadJS=src=>new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)});
-let z3dLib=null;const z3dLoad=()=>z3dLib||(z3dLib=loadJS("a/three.min.js?v=r128").then(()=>loadJS("a/OrbitControls.js?v=r128")).then(()=>loadJS("a/zomeparts.js?v=4ada94e9")).then(()=>loadJS("a/zome3d.js?v=4ada94e9")));
+let z3dLib=null;const z3dLoad=()=>z3dLib||(z3dLib=loadJS("a/three.min.js?v=r128").then(()=>loadJS("a/OrbitControls.js?v=r128")).then(()=>loadJS("a/zomeparts.js?v=4ada94e9")).then(()=>loadJS("a/zome3d.js?v=soft1")));
 slides.forEach((s,i)=>{const host=s.querySelector(".z3dhost");if(!host)return;let view=null,loading=null;
   const ang=s.querySelector(".z3ang");let sliding=false;
   const show=()=>{if(!s.classList.contains("z3d-on")){s.classList.add("z3d-on");play("whoosh")}};
   const ensure=()=>loading||(loading=z3dLoad().then(()=>{view=Zome3D.mount(host,host.dataset.kind,{fitW:+host.dataset.fitw,fitH:+host.dataset.fith,from:host.dataset.from||null,stage:+(host.dataset.stage||0),onInteract:show,
       onAngle:a=>{if(!sliding){let d=((a+180)%360+360)%360-180;ang.value=Math.round(d)}}});return view}));
   const pic=s.querySelector(".model");
-  s._z3dEnter=()=>{ensure().then(v=>{s.classList.add("z3d-on");play("whoosh");(host.dataset.from?(play("pop"),v.growIn(()=>play("ding"))):v.intro(()=>play("ding")))})
+  s._z3dEnter=()=>{ensure().then(v=>{s.classList.add("z3d-on");if(host.dataset.intro!=="soft")play("whoosh");(host.dataset.from?(play("pop"),v.growIn(()=>play("ding"))):v.intro(()=>play("ding"),1600,host.dataset.intro||""))})
     .catch(()=>{s.classList.remove("z3d-on");pic&&pic._spin&&pic._spin(0)})};
   s._z3dOff=()=>{const g=s.querySelector(".z3grow");if(g)g.textContent="继续拉手";s.classList.remove("z3d-on");ang.value=0;if(view){view.dispose();view=null}loading=null};
   ang.addEventListener("input",async()=>{A();sliding=true;const v=await ensure();show();v.setAngle(+ang.value)});
