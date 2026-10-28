@@ -132,7 +132,6 @@
     }
     return { balls, struts, dashes: [], labels: [], orient: tetraOrient(), elev: 14, grow: ICE_MAX };
   }
-
   /* ---------- lesson 3 (10.28): fewest molecules -> one hexagon ring (6), then 6 hexagons around it -> one big hexagon (24) ---------- */
   /* one puckered ice layer, built only from Zometool yellow directions; every molecule keeps 2 hands (H) and 2 pockets. */
   const HONEY = (() => {
@@ -379,7 +378,13 @@
     return {
       top() { animateTo(sph().th, 0.0001, 1600, stageDist ? topDist * stageDist[M.stage || 1] / stageDist[M.grow] : null); },
       growIn(done) { growDone = done; growT0 = 0; },
-      intro(done, dur = 1600) { if (stageDist) dist = stageDist[M.stage || 1]; let t0 = 0, n = 0; controls.enabled = false; setSph(dist * 1.45, th0 - Math.PI * 2, ph0 + 0.2);
+      intro(done, dur = 1600, style = "") { if (stageDist) dist = stageDist[M.stage || 1]; let t0 = 0, n = 0; controls.enabled = false;
+        if (style === "soft") {            // gentle entrance: drift in a little, settle, no spinning
+          const dth = 0.22, dph = 0.06, dr = 0.1, D = 1900; setSph(dist * (1 + dr), th0 + dth, ph0 - dph);
+          anim = (now) => { if (n++ < 2) { t0 = now; return; } const t = Math.min(1, (now - t0) / D), e = 1 - Math.pow(1 - t, 3);
+            setSph(dist * (1 + dr * (1 - e)), th0 + dth * (1 - e), ph0 - dph * (1 - e)); if (t >= 1) { anim = null; controls.enabled = true; controls.update(); done && done(); } };
+          return; }
+        setSph(dist * 1.45, th0 - Math.PI * 2, ph0 + 0.2);
         anim = (now) => { if (n++ < 2) { t0 = now; return; } const t = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - t, 3);
           setSph(dist * (1.45 - 0.45 * e), th0 - Math.PI * 2 * (1 - e), ph0 + 0.2 * (1 - e)); if (t >= 1) { anim = null; controls.enabled = true; controls.update(); done && done(); } }; },
       spin(dur = 3600) { const a = sph(), t0 = performance.now(); controls.enabled = false;
@@ -392,5 +397,5 @@
       dispose() { alive = false; window.removeEventListener("resize", onResize); cancelAnimationFrame(raf); renderer.dispose(); host.removeChild(renderer.domElement); },
     };
   }
-  window.Zome3D = { mount, _M: MODELS };
+  window.Zome3D = { mount };
 })();
