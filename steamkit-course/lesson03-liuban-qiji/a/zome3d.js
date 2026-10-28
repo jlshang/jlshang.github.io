@@ -161,30 +161,33 @@
       for (const [a, b] of [[i, j], [j, i]]) { if (out[a] < 2 && inn[b] < 2) { out[a]++; inn[b]++; don.set(ek(i, j), a); if (dfs(n + 1)) return true; out[a]--; inn[b]--; } }
       return false; })(0);
     const dirTo = (i, j) => atoms[j].p.clone().sub(atoms[i].p).normalize();
-    function build(present, { loose = 0, labels = false, outline = false } = {}) {
-      const has = new Set(present), balls = [], struts = [], cen = flat(C0);
-      const P = (i) => loose ? atoms[i].p.clone().add(flat(atoms[i].p).sub(cen).multiplyScalar(loose)) : atoms[i].p;
-      for (const i of present) {
+    /* linked molecules sit in place and hold hands; loose ones wait a little further out (same pose), ready to move in */
+    function build(linked, { loose = [], looseK = 0.45, outline = false } = {}) {
+      const has = new Set(linked), lo = new Set(loose), balls = [], struts = [], cen = flat(C0);
+      const P = (i) => lo.has(i) ? atoms[i].p.clone().add(flat(atoms[i].p).sub(cen).multiplyScalar(looseK)) : atoms[i].p;
+      for (const i of [...linked, ...loose]) {
         const a = atoms[i], o = P(i), mine = edges.filter(([x, y]) => x === i || y === i), give = [];
         mine.forEach(([x, y]) => { if (don.get(ek(x, y)) === i) give.push(dirTo(i, x === i ? y : x)); });
         const free = [up.clone().multiplyScalar(a.upper ? 1 : -1)];
         U.forEach((u) => { const d = u.clone().multiplyScalar(a.upper ? 1 : -1); if (!mine.some(([x, y]) => dirTo(i, x === i ? y : x).dot(d) > 0.99)) free.push(d); });
         while (give.length < 2) give.push(free.shift());
-        balls.push([o, "red"]);
-        give.forEach((d) => { const hh = add(o, d, YS); balls.push([hh, "white"]); struts.push([o, hh, "yellow"]);
-          if (!loose) { const j = mine.map(([x, y]) => (x === i ? y : x)).find((j) => dirTo(i, j).dot(d) > 0.99); if (j !== undefined && has.has(j)) struts.push([hh, atoms[j].p, "yellow"]); } });
+        balls.push([o, "red", "o" + i]);
+        give.forEach((d, n) => { const hh = add(o, d, YS); balls.push([hh, "white", "h" + i + "_" + n]); struts.push([o, hh, "yellow", "s" + i + "_" + n]);
+          if (has.has(i)) { const j = mine.map(([x, y]) => (x === i ? y : x)).find((j) => dirTo(i, j).dot(d) > 0.99); if (j !== undefined && has.has(j)) struts.push([hh, atoms[j].p, "yellow", "L" + i + "_" + j]); } });
       }
-      const lab = labels ? ring.filter((i) => has.has(i)).map((i, k) => [add(P(i), up, atoms[i].upper ? 4.2 : -4.2), String(ring.indexOf(i) + 1)]) : [];
       let dashes = [];
       if (outline) { const C = hexes.slice(1).map((H, k) => { const far = H.reduce((m, a) => (flat(a.p).distanceTo(cen) > flat(m.p).distanceTo(cen) ? a : m)); return cen.clone().add(flat(far.p).sub(cen).multiplyScalar(1.16)).addScaledVector(up, -h / 2); }); dashes = C.map((c, k) => [c, C[(k + 1) % 6]]); }
-      return { balls, struts, dashes, labels: lab, orient: tetraOrient(), elev: 40 };
+      return { balls, struts, dashes, labels: [], orient: tetraOrient(), elev: 40 };
     }
     return { atoms, ring, firstHex, build, all, flat, up, U, R, YS, h, e, key, cen: flat(C0) };
   })();
-  const water6 = () => Object.assign(HONEY.build(HONEY.ring, { loose: 0.45 }), { elev: 60 });
-  function hex6(stage = 5) { const n = Math.max(1, Math.min(5, stage)) + 1; return Object.assign(HONEY.build(HONEY.ring.slice(0, n)), { grow: 5, elev: 62 }); }
-  function hex7(stage = 7) { const s = Math.max(1, Math.min(7, stage)); const pres = HONEY.atoms.map((_, i) => i).filter((i) => HONEY.firstHex[i] < s);
-    return Object.assign(HONEY.build(pres), { grow: 7, elev: 62 }); }
+  // p10: six loose molecules; p11: they move in and hold hands one by one (stage 1 = same as p10)
+  const water6 = () => Object.assign(HONEY.build([], { loose: HONEY.ring }), { elev: 60 });
+  function hex6(stage = 6) { const n = Math.max(1, Math.min(6, stage)), k = n === 1 ? 0 : n;
+    return Object.assign(HONEY.build(HONEY.ring.slice(0, k), { loose: HONEY.ring.slice(k) }), { grow: 6, elev: 62 }); }
+  // p12: the ring from p11 plus the 18 molecules still waiting outside; each step links one more hexagon
+  function hex7(stage = 7) { const s = Math.max(1, Math.min(7, stage)), ids = HONEY.atoms.map((_, i) => i);
+    return Object.assign(HONEY.build(ids.filter((i) => HONEY.firstHex[i] < s), { loose: ids.filter((i) => HONEY.firstHex[i] >= s), looseK: 0.32 }), { grow: 7, elev: 62 }); }
   const hexBig = () => Object.assign(HONEY.build(HONEY.atoms.map((_, i) => i), { outline: true }), { elev: 66 });
 
   /* ---------- lesson 3: the big hexagon layer, then one layer below and one above -> a block of ice ---------- */
@@ -326,12 +329,17 @@
     if (opt.from && MODELS[opt.from]) { const P0 = MODELS[opt.from](); const kk = (p) => p.toArray().map((x) => x.toFixed(2)).join();
       P0.balls.forEach(([p]) => prevKeys.add(kk(p))); P0.struts.forEach(([a, b]) => { prevKeys.add(kk(a) + "|" + kk(b)); prevKeys.add(kk(b) + "|" + kk(a)); }); }
     const keyOf = (a, b) => a.toArray().map((x) => x.toFixed(2)).join() + (b ? "|" + b.toArray().map((x) => x.toFixed(2)).join() : "");
+    const gliding = [], later = [];
     function buildParts(pop) {
-      const want = new Set();
-      for (const [p, col] of M.balls) { const k = keyOf(p); want.add(k); if (built.has(k)) continue;
-        const m = new THREE.Mesh(BG, mat[col]); m.position.copy(cpos(p)); group.add(m); built.set(k, m);
+      const want = new Set(), moved = new Set();
+      for (const [p, col, id] of M.balls) { const k = id || keyOf(p); want.add(k); const c = cpos(p);
+        if (built.has(k)) { const m = built.get(k); if (id && m.position.distanceTo(c) > 0.01) { gliding.push({ m, from: m.position.clone(), to: c }); moved.add(id.replace(/^[a-z]/, "").split("_")[0]); } continue; }
+        const m = new THREE.Mesh(BG, mat[col]); m.position.copy(c); group.add(m); built.set(k, m);
         if (prevKeys.size && !prevKeys.has(k)) m.scale.setScalar(0.001); else if (pop) { m.scale.setScalar(0.01); popping.push(m); } }
-      for (const [a, b, kd] of M.struts) { const k = keyOf(a, b); want.add(k); if (built.has(k)) continue;
+      for (const [a, b, kd, id] of M.struts) { const k = id || keyOf(a, b); want.add(k);
+        if (built.has(k)) { const m = built.get(k); if (id && m.userData.a0) { const to = cpos(a).sub(m.userData.a0); if (m.position.distanceTo(to) > 0.01) gliding.push({ m, from: m.position.clone(), to }); } continue; }
+        if (id && id[0] === "L" && gliding.length) {     // a new hand-hold: wait until the molecules have glided in
+          const m = new THREE.Mesh(strutGeometry(cpos(a), cpos(b), kd || "yellow"), mat[kd || "yellow"]); m.scale.setScalar(0.001); group.add(m); built.set(k, m); later.push(m); continue; }
         if (prevKeys.size && !prevKeys.has(k)) {          // a new strut: grow it out of the part that was already there
           const [s0, s1] = prevKeys.has(keyOf(b)) && !prevKeys.has(keyOf(a)) ? [b, a] : [a, b], A = cpos(s0), B = cpos(s1);
           const geo = strutGeometry(A, B, kd || "yellow"), q = new THREE.Quaternion().setFromUnitVectors(B.clone().sub(A).normalize(), V(0, 1, 0));
@@ -339,11 +347,12 @@
           const m = new THREE.Mesh(geo, mat[kd || "yellow"]); m.position.copy(A); m.quaternion.copy(q.clone().invert()); m.scale.set(1, 0.001, 1);
           group.add(m); built.set(k, m); growing.push({ m, end: keyOf(s1) }); continue;
         }
-        const m = new THREE.Mesh(strutGeometry(cpos(a), cpos(b), kd || "yellow"), mat[kd || "yellow"]); group.add(m); built.set(k, m); if (pop) { m.scale.setScalar(0.01); popping.push(m); } }
+        const m = new THREE.Mesh(strutGeometry(cpos(a), cpos(b), kd || "yellow"), mat[kd || "yellow"]); m.userData.a0 = cpos(a); group.add(m); built.set(k, m); if (pop) { m.scale.setScalar(0.01); popping.push(m); } }
       for (const [k, m] of built) if (!want.has(k)) { group.remove(m); if (m.geometry !== BG) m.geometry.dispose(); built.delete(k); }
+      if (gliding.length) glideT0 = 0;
     }
     buildParts(false);
-    let popT0 = 0, growT0 = null, growDone = null;
+    let popT0 = 0, growT0 = null, growDone = null, glideT0 = null;
     const dmat = new THREE.MeshBasicMaterial({ color: lin(0xe8742a) });
     const ends = new Set(M.labels.filter((l) => l[2] === "pocket").map((l) => l[0]));
     for (const [a, b] of M.dashes) {
@@ -406,6 +415,9 @@
         growing.forEach((gp, i) => { const u = Math.min(1, Math.max(0, (t - 0.12 * (i % 6)) / 1.1)), e = 1 - Math.pow(1 - u, 3); gp.m.scale.y = Math.max(0.001, e);
           const ball = built.get(gp.end); if (ball && u >= 1) { const w = Math.min(1, (t - 0.12 * (i % 6) - 1.1) / 0.3); ball.scale.setScalar(Math.max(0.001, w < 1 ? w * (1 + 0.3 * Math.sin(w * Math.PI)) : 1)); if (w < 1) doneAll = false; } else doneAll = false; });
         if (doneAll) { growing.length = 0; growT0 = null; growDone && growDone(); } }
+      if (glideT0 !== null) { if (!glideT0) glideT0 = now; const t = Math.min(1, (now - glideT0) / 900), e = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        gliding.forEach((g) => g.m.position.lerpVectors(g.from, g.to, e));
+        if (t >= 1) { gliding.length = 0; glideT0 = null; later.forEach((m) => popping.push(m)); later.length = 0; popT0 = 0; } }
       if (popping.length) { if (!popT0) popT0 = now; const t = Math.min(1, (now - popT0) / 450), e = t < 1 ? 1 + 0.25 * Math.sin(t * Math.PI) * (1 - t) : 1;
         popping.forEach((m) => { if (m.geometry === BG) m.scale.setScalar(Math.max(0.01, t * e)); else m.scale.setScalar(1); }); if (t >= 1) { popping.forEach((m) => m.scale.setScalar(1)); popping.length = 0; popT0 = 0; } }
       key.position.copy(camera.position).add(V(-25, 35, 0));
