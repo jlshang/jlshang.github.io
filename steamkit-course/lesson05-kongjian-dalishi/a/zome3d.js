@@ -180,7 +180,30 @@
     E.push([8, 9], [9, 10]);
     return greenModel(P, E, V(0, 0, 1), b.clone().negate(), -8, 22);
   }
-  const MODELS = { waterTetra, water1, waterPockets, water5, water3, water5h, tri, pyr, bridge,
+
+  /* lesson 5 (p7, p12): long blue struts + white balls, exactly on Zometool blue directions */
+  const BLEN = 8.472;
+  let BLUES = null;
+  const blues = () => BLUES || (BLUES = (() => { const out = []; icoGroup().forEach((m) => { const d = V(0, 0, 1).applyMatrix3(m); if (!out.some((o) => o.distanceTo(d) < 1e-4)) out.push(d); }); return out; })());
+  const snapBlue = (v) => { const u = v.clone().normalize(); let best = null, bd = 9; blues().forEach((d) => { const x = d.distanceTo(u); if (x < bd) { bd = x; best = d; } }); return best.clone(); };
+  function blueModel(P, E, up, front, yaw, elev) {
+    return { balls: P.map((p) => [p, "white"]), struts: E.map(([a, b]) => [P[a], P[b], "blue"]), dashes: [], labels: [], orient: orientQ(up, front, yaw), elev };
+  }
+  function sqTri() {                       // square on the left, triangle on the right (like the slide picture)
+    const L = BLEN, x = snapBlue(V(1, 0, 0)), y = snapBlue(V(0, 1, 0)), b60 = snapBlue(V(0.5, PHI / 2, 1 / (2 * PHI)));
+    const S0 = V(0, 0, 0), S1 = x.clone().multiplyScalar(L), S2 = S1.clone().addScaledVector(y, L), S3 = y.clone().multiplyScalar(L);
+    const T0 = x.clone().multiplyScalar(L * 1.8), T1 = T0.clone().addScaledVector(x, L), T2 = T0.clone().addScaledVector(b60, L);
+    return blueModel([S0, S1, S2, S3, T0, T1, T2], [[0, 1], [1, 2], [2, 3], [3, 0], [4, 5], [5, 6], [6, 4]], y, V(0, 0, 1), 0, 6);
+  }
+  function pent() {
+    const L = BLEN, d0 = snapBlue(V(1, 0, 0)), c72 = Math.cos((72 * Math.PI) / 180);
+    const d1 = blues().filter((d) => Math.abs(d.dot(d0) - c72) < 1e-3).sort((a, b) => b.y - a.y)[0];
+    const n = d0.clone().cross(d1).normalize(), P = [V(0, 0, 0)];
+    for (let k = 0; k < 4; k++) { const e = snapBlue(d0.clone().applyAxisAngle(n, (k * 72 * Math.PI) / 180)); P.push(P[k].clone().addScaledVector(e, L)); }
+    const c = P.reduce((a, p) => a.add(p), V(0, 0, 0)).multiplyScalar(1 / 5), up = c.clone().sub(P[0].clone().add(P[1]).multiplyScalar(0.5));
+    return blueModel(P, [[0, 1], [1, 2], [2, 3], [3, 4], [4, 0]], up, n, 0, 6);
+  }
+  const MODELS = { sqTri, pent, waterTetra, water1, waterPockets, water5, water3, water5h, tri, pyr, bridge,
     snow1: () => snow(1), ice, snow2: () => snow(2), snow3: () => snow(3, 16) };
 
   function labelTexture(t, style) {
@@ -337,5 +360,5 @@
       dispose() { alive = false; window.removeEventListener("resize", onResize); cancelAnimationFrame(raf); renderer.dispose(); host.removeChild(renderer.domElement); },
     };
   }
-  window.Zome3D = { mount };
+  window.Zome3D = { mount, _M: MODELS };
 })();
