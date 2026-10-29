@@ -195,6 +195,8 @@
     const T0 = x.clone().multiplyScalar(L * 1.8), T1 = T0.clone().addScaledVector(x, L), T2 = T0.clone().addScaledVector(b60, L);
     return blueModel([S0, S1, S2, S3, T0, T1, T2], [[0, 1], [1, 2], [2, 3], [3, 0], [4, 5], [5, 6], [6, 4]], y, V(0, 0, 1), 0, 6);
   }
+  function blueSq() { const m = sqTri(); return blueModel(m.balls.slice(0, 4).map((b) => b[0]), [[0, 1], [1, 2], [2, 3], [3, 0]], snapBlue(V(0, 1, 0)), V(0, 0, 1), 0, 6); }
+  function blueTri() { const m = sqTri(); return blueModel(m.balls.slice(4).map((b) => b[0]), [[0, 1], [1, 2], [2, 0]], snapBlue(V(0, 1, 0)), V(0, 0, 1), 0, 6); }
   function pent() {
     const L = BLEN, d0 = snapBlue(V(1, 0, 0)), c72 = Math.cos((72 * Math.PI) / 180);
     const d1 = blues().filter((d) => Math.abs(d.dot(d0) - c72) < 1e-3).sort((a, b) => b.y - a.y)[0];
@@ -203,7 +205,7 @@
     const c = P.reduce((a, p) => a.add(p), V(0, 0, 0)).multiplyScalar(1 / 5), up = c.clone().sub(P[0].clone().add(P[1]).multiplyScalar(0.5));
     return blueModel(P, [[0, 1], [1, 2], [2, 3], [3, 4], [4, 0]], up, n, 0, 6);
   }
-  const MODELS = { sqTri, pent, waterTetra, water1, waterPockets, water5, water3, water5h, tri, pyr, bridge,
+  const MODELS = { sqTri, blueSq, blueTri, pent, waterTetra, water1, waterPockets, water5, water3, water5h, tri, pyr, bridge,
     snow1: () => snow(1), ice, snow2: () => snow(2), snow3: () => snow(3, 16) };
 
   function labelTexture(t, style) {
