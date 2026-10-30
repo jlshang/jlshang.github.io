@@ -40,7 +40,7 @@
     const n = g.toNonIndexed(); n.computeVertexNormals(); return n;
   }
   function strutGeometry(A, B, kind = "yellow") {
-    const L = B.clone().sub(A), len = L.length(), full = window.ZOMEPARTS[kind], fl = Math.hypot(...full.dir);
+    const L = B.clone().sub(A), len = L.length(), full = window.ZOMEPARTS[kind] || window.ZOMEPARTS[kind === "red" ? "blue" : "yellow"], fl = Math.hypot(...full.dir);
     const P = len < fl * 0.8 && window.ZOMEPARTS[kind + "-short"] ? window.ZOMEPARTS[kind + "-short"] : full;
     const dir = V(...P.dir), R = rotFor(dir, L, true), tip = new Set(P.tipSet), mid = new Set(P.midSet), pos = [];
     for (let i = 0; i < P.v.length / 3; i++) {
@@ -161,14 +161,28 @@
   function greenModel(balls, struts, up, front, yaw, elev) {
     return { balls: balls.map((p) => [p, "white"]), struts: struts.map(([a, b]) => [balls[a], balls[b], "green"]), dashes: [], labels: [], orient: orientQ(up, front, yaw), elev };
   }
-  function tri() {
-    const A = g(0, 0, 0), B = g(1, 1, 0), C = g(1, 0, 1);
+  function tri(stage = 1) {
+    const A = g(0, 0, 0), B = g(1, 1, 0), C = g(1, 0, 1), P = g(1, 0, 0);
+    const balls = [[A, "white"], [B, "white"], [C, "white"]];
+    const struts = [[A, B, "green"], [B, C, "green"], [C, A, "green"]];
+    if (stage >= 2) {
+      balls.push([P, "white"]);
+      struts.push([P, A, "blue"], [P, B, "blue"], [P, C, "blue"]);
+    }
     const n = B.clone().sub(A).cross(C.clone().sub(A)), up = C.clone().sub(A.clone().add(B).multiplyScalar(0.5));
-    return greenModel([A, B, C], [[0, 1], [1, 2], [2, 0]], up, n, 0, 4);
+    return { balls, struts, dashes: [], labels: [], orient: orientQ(up, n, 0), elev: 4, grow: 2 };
   }
-  function pyr() {
-    const a = g(1, 1, 0), b = g(1, -1, 0), P = [V(0, 0, 0), a.clone(), a.clone().add(b), b.clone(), a.clone().add(b).multiplyScalar(0.5).add(g(0, 0, 1))];
-    return greenModel(P, [[0, 1], [1, 2], [2, 3], [3, 0], [0, 4], [1, 4], [2, 4], [3, 4]], V(0, 0, 1), b.clone().negate(), 12, 18);
+  function pyr(stage = 1) {
+    const a = g(1, 1, 0), b = g(1, -1, 0);
+    const P = [V(0, 0, 0), a.clone(), a.clone().add(b), b.clone(), a.clone().add(b).multiplyScalar(0.5).add(g(0, 0, 1))];
+    const C = a.clone().add(b).multiplyScalar(0.5);
+    const balls = P.map((p) => [p, "white"]);
+    const struts = [[0, 1], [1, 2], [2, 3], [3, 0], [0, 4], [1, 4], [2, 4], [3, 4]].map(([i, j]) => [P[i], P[j], "green"]);
+    if (stage >= 2) {
+      balls.push([C, "white"]);
+      struts.push([C, P[0], "blue"], [C, P[1], "blue"], [C, P[2], "blue"], [C, P[3], "blue"], [C, P[4], "blue"]);
+    }
+    return { balls, struts, dashes: [], labels: [], orient: orientQ(V(0, 0, 1), b.clone().negate(), 12), elev: 18, grow: 2 };
   }
   function bridge() {
     const a = g(1, 1, 0), b = g(1, -1, 0), P = [], E = [];
@@ -205,7 +219,13 @@
     const c = P.reduce((a, p) => a.add(p), V(0, 0, 0)).multiplyScalar(1 / 5), up = c.clone().sub(P[0].clone().add(P[1]).multiplyScalar(0.5));
     return blueModel(P, [[0, 1], [1, 2], [2, 3], [3, 4], [4, 0]], up, n, 0, 6);
   }
-  const MODELS = { sqTri, blueSq, blueTri, pent, waterTetra, water1, waterPockets, water5, water3, water5h, tri, pyr, bridge,
+  function tower() {
+    const T = {"P":[[-27.416,-27.416,-49.672],[-13.708,-27.416,-49.672],[0.0,-27.416,-49.672],[13.708,-27.416,-49.672],[27.416,-27.416,-49.672],[27.416,-13.708,-49.672],[27.416,0.0,-49.672],[27.416,13.708,-49.672],[27.416,27.416,-49.672],[13.708,27.416,-49.672],[0.0,27.416,-49.672],[-13.708,27.416,-49.672],[-27.416,27.416,-49.672],[-27.416,13.708,-49.672],[-27.416,0.0,-49.672],[-27.416,-13.708,-49.672],[13.708,-27.416,-35.964],[13.708,-13.708,-22.256],[13.708,27.416,-35.964],[13.708,13.708,-22.256],[-13.708,27.416,-35.964],[-13.708,13.708,-22.256],[-13.708,-27.416,-35.964],[-13.708,-13.708,-22.256],[13.708,0.0,-22.256],[0.0,-13.708,-22.256],[-13.708,0.0,-22.256],[0.0,13.708,-22.256],[13.708,13.708,-8.547],[13.708,13.708,5.161],[13.708,13.708,18.869],[13.708,13.708,32.577],[13.708,-13.708,-8.547],[13.708,-13.708,5.161],[13.708,-13.708,18.869],[13.708,-13.708,32.577],[-13.708,13.708,-8.547],[-13.708,13.708,5.161],[-13.708,13.708,18.869],[-13.708,13.708,32.577],[-13.708,-13.708,-8.547],[-13.708,-13.708,5.161],[-13.708,-13.708,18.869],[-13.708,-13.708,32.577],[13.708,0.0,-8.547],[13.708,0.0,18.869],[13.708,0.0,5.161],[-13.708,0.0,-8.547],[-13.708,0.0,18.869],[-13.708,0.0,5.161],[0.0,13.708,-8.547],[0.0,13.708,18.869],[0.0,13.708,5.161],[0.0,-13.708,-8.547],[0.0,-13.708,18.869],[0.0,-13.708,5.161],[13.708,0.0,32.577],[0.0,-13.708,32.577],[-13.708,0.0,32.577],[0.0,13.708,32.577],[0.0,13.708,46.285],[0.0,-13.708,46.285],[13.708,0.0,46.285],[-13.708,0.0,46.285],[0.0,0.0,59.994],[13.708,13.708,46.285],[13.708,-13.708,46.285],[-13.708,13.708,46.285],[-13.708,-13.708,46.285],[27.416,0.0,46.285],[41.125,0.0,46.285],[-27.416,0.0,46.285],[-41.125,0.0,46.285],[0.0,27.416,46.285],[0.0,41.125,46.285],[0.0,-27.416,46.285],[0.0,-41.125,46.285],[27.416,0.0,5.161],[41.125,0.0,5.161],[-27.416,0.0,5.161],[-41.125,0.0,5.161],[27.416,0.0,-22.256],[41.125,0.0,-22.256],[-27.416,0.0,-22.256],[-41.125,0.0,-22.256],[45.361,0.0,-1.693],[45.361,0.0,-29.11],[45.361,0.0,39.431],[0.0,47.979,42.049],[-45.361,0.0,-1.693],[-45.361,0.0,-29.11],[-45.361,0.0,39.431],[0.0,-47.979,42.049]],"E":[[0,1,"blue"],[1,2,"blue"],[2,3,"blue"],[3,4,"blue"],[4,5,"blue"],[5,6,"blue"],[6,7,"blue"],[7,8,"blue"],[8,9,"blue"],[9,10,"blue"],[10,11,"blue"],[11,12,"blue"],[12,13,"blue"],[13,14,"blue"],[14,15,"blue"],[15,0,"blue"],[4,16,"green"],[16,17,"green"],[8,18,"green"],[18,19,"green"],[12,20,"green"],[20,21,"green"],[0,22,"green"],[22,23,"green"],[19,24,"blue"],[24,17,"blue"],[17,25,"blue"],[25,23,"blue"],[23,26,"blue"],[26,21,"blue"],[21,27,"blue"],[27,19,"blue"],[19,28,"blue"],[28,29,"blue"],[29,30,"blue"],[30,31,"blue"],[17,32,"blue"],[32,33,"blue"],[33,34,"blue"],[34,35,"blue"],[21,36,"blue"],[36,37,"blue"],[37,38,"blue"],[38,39,"blue"],[23,40,"blue"],[40,41,"blue"],[41,42,"blue"],[42,43,"blue"],[17,44,"green"],[44,29,"green"],[29,45,"green"],[45,35,"green"],[19,44,"green"],[44,33,"green"],[33,45,"green"],[45,31,"green"],[46,33,"blue"],[46,29,"blue"],[23,47,"green"],[47,37,"green"],[37,48,"green"],[48,43,"green"],[21,47,"green"],[47,41,"green"],[41,48,"green"],[48,39,"green"],[49,41,"blue"],[49,37,"blue"],[21,50,"green"],[50,29,"green"],[29,51,"green"],[51,39,"green"],[19,50,"green"],[50,37,"green"],[37,51,"green"],[51,31,"green"],[52,37,"blue"],[52,29,"blue"],[23,53,"green"],[53,33,"green"],[33,54,"green"],[54,43,"green"],[17,53,"green"],[53,41,"green"],[41,54,"green"],[54,35,"green"],[55,41,"blue"],[55,33,"blue"],[31,56,"blue"],[56,35,"blue"],[35,57,"blue"],[57,43,"blue"],[43,58,"blue"],[58,39,"blue"],[39,59,"blue"],[59,31,"blue"],[31,60,"green"],[31,62,"green"],[35,61,"green"],[35,62,"green"],[39,60,"green"],[39,63,"green"],[43,61,"green"],[43,63,"green"],[60,64,"green"],[61,64,"green"],[62,64,"green"],[63,64,"green"],[31,65,"blue"],[35,66,"blue"],[39,67,"blue"],[43,68,"blue"],[65,62,"blue"],[62,66,"blue"],[66,61,"blue"],[61,68,"blue"],[68,63,"blue"],[63,67,"blue"],[67,60,"blue"],[60,65,"blue"],[62,69,"blue"],[69,70,"blue"],[65,69,"green"],[66,69,"green"],[63,71,"blue"],[71,72,"blue"],[67,71,"green"],[68,71,"green"],[60,73,"blue"],[73,74,"blue"],[65,73,"green"],[67,73,"green"],[61,75,"blue"],[75,76,"blue"],[66,75,"green"],[68,75,"green"],[46,77,"blue"],[77,78,"blue"],[29,77,"green"],[33,77,"green"],[45,77,"green"],[44,77,"green"],[49,79,"blue"],[79,80,"blue"],[37,79,"green"],[41,79,"green"],[48,79,"green"],[47,79,"green"],[24,81,"blue"],[81,82,"blue"],[19,81,"green"],[17,81,"green"],[44,81,"green"],[26,83,"blue"],[83,84,"blue"],[21,83,"green"],[23,83,"green"],[47,83,"green"],[78,85,"red"],[82,86,"red"],[70,87,"red"],[74,88,"red"],[80,89,"red"],[84,90,"red"],[72,91,"red"],[76,92,"red"]],"B":["white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","white","black","black","black","black","black","black","black","black"]};
+    const P = T.P.map((p) => V(...p));
+    return { balls: P.map((p, i) => [p, T.B[i]]), struts: T.E.map((e) => [P[e[0]], P[e[1]], e[2]]),
+      dashes: [], labels: [], orient: orientQ(V(0, 0, 1), V(1, 0, 0), -22), elev: 14 };
+  }
+  const MODELS = { sqTri, blueSq, blueTri, pent, waterTetra, water1, waterPockets, water5, water3, water5h, tri, pyr, bridge, tower,
     snow1: () => snow(1), ice, snow2: () => snow(2), snow3: () => snow(3, 16) };
 
   function labelTexture(t, style) {
@@ -249,6 +269,7 @@
       yellow: new THREE.MeshStandardMaterial({ color: lin(0xf2b200), roughness: 0.3, metalness: 0.05, side: THREE.DoubleSide }),
       blue: new THREE.MeshStandardMaterial({ color: lin(0x1d6f9e), roughness: 0.32, metalness: 0.05, side: THREE.DoubleSide }),
       green: new THREE.MeshStandardMaterial({ color: lin(0x0f7d30), roughness: 0.32, metalness: 0.05, side: THREE.DoubleSide }),
+      black: new THREE.MeshStandardMaterial({ color: lin(0x2c2c2e), roughness: 0.45, metalness: 0.04, side: THREE.DoubleSide }),
     };
     const BG = ballGeometry(), built = new Map(), popping = [];
     const prevKeys = new Set(), growing = [];
