@@ -91,3 +91,10 @@
 .banner-text p{margin:12px 0 0;font:27px var(--body);font-weight:700;color:#8a7a5a}
 /* ===== 折叠页结论与符号按钮 ===== */
 .step-end{position:absolute;left:90px;bottom:64px;width:1420px;text-align:center;font:40px var(--display);color:var(--orange);margin:0}
+
+/* ===== 总结页（欧拉公式）===== */
+.sum-line{position:absolute;left:0;right:0;top:472px;margin:0;text-align:center;font:32px var(--body);font-weight:700;color:#c9d4e8}
+.goal{position:absolute;left:330px;width:940px;height:102px;background:#ffffff12;border:3px solid #ffffff22;border-radius:20px;display:flex;align-items:center;gap:26px;padding:0 32px}
+.goal-n{font:48px var(--display);color:var(--orange)}
+.goal p{margin:0;font:31px var(--display);color:var(--paper)}
+.goal p b{color:#ffb676}
