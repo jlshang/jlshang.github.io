@@ -245,3 +245,8 @@ h2 em.hl{font-style:normal;color:var(--orange);font-size:1.18em;padding:0 6px}
 .euler-big .eu.two b{color:var(--orange)}
 .euler-big .eu.two i{border-color:transparent}
 .euler-big .op{font:130px/1.25 var(--display);color:#9fb0cc}
+
+/* ---- v17 ---- */
+[data-euler-count="e"]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='5' cy='19' r='3.2'/%3E%3Ccircle cx='19' cy='5' r='3.2'/%3E%3Cpath d='M6.5 17.5L17.5 6.5' fill='none' stroke='black' stroke-width='3.4' stroke-linecap='round'/%3E%3C/svg%3E")}
+[data-euler-count="f"]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpolygon points='12,3.5 21,19.5 3,19.5'/%3E%3C/svg%3E")}
+.banner-text h1{font-size:88px;letter-spacing:8px}

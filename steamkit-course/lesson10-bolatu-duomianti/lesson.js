@@ -2,9 +2,17 @@
 const $=(q,r=document)=>r.querySelector(q),$$=(q,r=document)=>[...r.querySelectorAll(q)];
 const stage=$('#stage'),slides=$$('.slide'),reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const {View,Fold,Tiling,geo,views}=ClassroomGeometry;
-let current=0,zviews=[],zfolds=[],sound=false,audio=null,timers=[],bits=[],last=performance.now();
+let current=0,zviews=[],zfolds=[],sound=true,audio=null,timers=[],bits=[],last=performance.now();
 const cv=$('#confetti'),cx=cv.getContext('2d');
-function cue(kind='pop'){if(!sound)return;try{audio??=new(window.AudioContext||window.webkitAudioContext)();audio.resume();const tones=kind==='win'?[523,659,784,1046]:[660];tones.forEach((hz,i)=>{const o=audio.createOscillator(),g=audio.createGain(),t=audio.currentTime+i*.1;o.type='triangle';o.frequency.value=hz;g.gain.setValueAtTime(.06,t);g.gain.exponentialRampToValueAtTime(.001,t+.25);o.connect(g);g.connect(audio.destination);o.start(t);o.stop(t+.3)})}catch{}}
+function cue(kind='pop'){if(!sound)return;try{audio??=new(window.AudioContext||window.webkitAudioContext)();audio.resume();const t0=audio.currentTime;
+  const tone=(hz,at,dur,type='triangle',vol=.06,to=null)=>{const o=audio.createOscillator(),g=audio.createGain(),t=t0+at;o.type=type;o.frequency.setValueAtTime(hz,t);if(to)o.frequency.exponentialRampToValueAtTime(to,t+dur);g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);o.connect(g);g.connect(audio.destination);o.start(t);o.stop(t+dur+.05)};
+  if(kind==='win')[523,659,784,1046].forEach((hz,i)=>tone(hz,i*.1,.25));
+  else if(kind==='page'){const n=audio.sampleRate*.22,buf=audio.createBuffer(1,n,audio.sampleRate),d=buf.getChannelData(0);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.sin(Math.PI*i/n);const src=audio.createBufferSource(),f=audio.createBiquadFilter(),g=audio.createGain();src.buffer=buf;f.type='bandpass';f.frequency.setValueAtTime(600,t0);f.frequency.exponentialRampToValueAtTime(2400,t0+.2);f.Q.value=1.2;g.gain.value=.12;src.connect(f);f.connect(g);g.connect(audio.destination);src.start(t0)}
+  else if(kind==='tick')tone(1320,0,.08,'sine',.05);
+  else if(kind==='wrong'){tone(330,0,.18,'square',.03,220);tone(247,.14,.22,'square',.03,165)}
+  else if(kind==='fly')tone(400,0,.45,'sine',.05,1400);
+  else if(kind==='select')tone(880,0,.12,'sine',.05,1100);
+  else tone(660,0,.25)}catch{}}
 function later(fn,ms){const id=setTimeout(fn,ms);timers.push(id);return id}
 function celebrate(sl=slides[current]){cue('win');sl.classList.remove('celebrating');void sl.offsetWidth;sl.classList.add('celebrating');later(()=>sl.classList.remove('celebrating'),1500);if(reduce)return;for(let i=0;i<100;i++)bits.push({x:800+(Math.random()-.5)*650,y:190,vx:(Math.random()-.5)*350,vy:-80-Math.random()*220,a:Math.random()*6,w:7+Math.random()*8,col:['#e8742a','#2f6bd8','#48ad70','#f6d55b','#b17ce1'][i%5]})}
 function frame(t){const dt=Math.min(.05,(t-last)/1000);last=t;const s=slides[current];for(const v of views)if(s.contains(v.host))v.tick(dt);cx.clearRect(0,0,1600,900);for(const b of bits){b.x+=b.vx*dt;b.y+=b.vy*dt;b.vy+=480*dt;b.a+=dt*2;cx.save();cx.translate(b.x,b.y);cx.rotate(b.a);cx.fillStyle=b.col;cx.fillRect(-b.w/2,-b.w/4,b.w,b.w/2);cx.restore()}bits=bits.filter(b=>b.y<920);requestAnimationFrame(frame)}
@@ -123,13 +131,13 @@ function enter(s){
  $$('[data-zome-step]',s).forEach(b=>{b.disabled=false;b.textContent='下一步'});
  const cmpBtn=$('[data-compare-step]',s);if(cmpBtn){cmpBtn.disabled=false;cmpBtn.textContent='看它们的面'}s._cmp=0;s._faceIndex=0;s._vertexIndex=0;$$('.vertex-answer',s).forEach(o=>o.hidden=true);
  $$('[data-img-step]',s).forEach(b=>{b.disabled=false;b.textContent='再加一个'});s._imgIdx=0;const si=$('.step-img',s);if(si&&s.dataset.imgList)si.src='a/vz/'+s.dataset.imgList.split(',')[0]+'.png';const se=$('.step-end',s);if(se)se.hidden=true;
- s._eu=0;$$('[data-euler-row]',s).forEach(tr=>{tr.classList.remove('filled','cur');$$('.cell',tr).forEach(c=>c.hidden=true)});const r0=$('[data-euler-row]',s);if(r0)r0.classList.add('cur');$$('[data-euler-pick]',s).forEach((x,k)=>setPressed(x,k===0));const eb=$('.count-badge',s);if(eb)eb.hidden=true;$$('[data-euler-next]',s).forEach(x=>x.disabled=false);
+ s._eu=0;$$('[data-euler-row]',s).forEach(tr=>{tr.classList.remove('filled','cur');$$('.cell',tr).forEach(c=>c.hidden=true)});const r0=$('[data-euler-row]',s);if(r0)r0.classList.add('cur');$$('[data-euler-pick]',s).forEach((x,k)=>setPressed(x,k===0));const eb=$('.count-badge',s);if(eb)eb.hidden=true;$$('[data-euler-count]',s).forEach(x=>setPressed(x,false));$$('[data-euler-next]',s).forEach(x=>x.disabled=false);
  $$('.mini-fold',s).forEach(h=>{if(!h._fold)h._fold=new Fold(h);h._fold.setup(+h.dataset.k,+h.dataset.n);h._fold.t=h._fold.target=1;h._fold.draw()});
  $$('.tiling-host',s).forEach(h=>{if(!h._tiling)h._tiling=new Tiling(h);h._tiling.setup(+h.dataset.tiling,1)});const tBtn=$('[data-tiling-more]',s);if(tBtn){tBtn.disabled=false;tBtn.textContent='再拼一圈'}
  if(s.dataset.foldDefault){const host=$('.fold-host',s);if(!host._fold)host._fold=new Fold(host);const [k,n]=s.dataset.foldDefault.split(',').map(Number);pickFold(s,k,n)}
 }
 function leave(){timers.forEach(clearTimeout);timers=[];zfolds.forEach(f=>f.dispose());zfolds=[];$$('.zfold-host',slides[current]).forEach(h=>h._f=null);for(const {h,v} of zviews){v.dispose();h._z=null}zviews=[];bits=[];cx.clearRect(0,0,1600,900);$$('.zome-fallback',slides[current]).forEach(x=>x.remove())}
-function go(i){i=Math.max(0,Math.min(slides.length-1,i));leave();slides.forEach((s,n)=>{s.hidden=n!==i;s.classList.remove('on')});current=i;const s=slides[i];s.classList.add('on');enter(s);$('#prev').disabled=i===0;$('#next').disabled=i===slides.length-1;$('#count').textContent=`${i+1} / ${slides.length}`;$('#progress i').style.width=(i+1)/slides.length*100+'%';$('#notes').replaceChildren();const close=document.createElement('button');close.className='overlay-close';close.textContent='关闭 ×';close.onclick=()=>toggle('notes','btnNotes',false);const title=document.createElement('h3');title.textContent=`${i+1}. ${s.dataset.title}`;$('#notes').append(close,title);$('.notes',s).textContent.split('\n').forEach(line=>{const p=document.createElement('p');p.textContent=line;$('#notes').append(p)});$$('#overview [data-i]').forEach(b=>b.setAttribute('aria-current',String(+b.dataset.i===i)));try{history.replaceState(null,'','#'+(i+1))}catch{} }
+function go(i){i=Math.max(0,Math.min(slides.length-1,i));if(i!==current)cue('page');leave();slides.forEach((s,n)=>{s.hidden=n!==i;s.classList.remove('on')});current=i;const s=slides[i];s.classList.add('on');enter(s);$('#prev').disabled=i===0;$('#next').disabled=i===slides.length-1;$('#count').textContent=`${i+1} / ${slides.length}`;$('#progress i').style.width=(i+1)/slides.length*100+'%';$('#notes').replaceChildren();const close=document.createElement('button');close.className='overlay-close';close.textContent='关闭 ×';close.onclick=()=>toggle('notes','btnNotes',false);const title=document.createElement('h3');title.textContent=`${i+1}. ${s.dataset.title}`;$('#notes').append(close,title);$('.notes',s).textContent.split('\n').forEach(line=>{const p=document.createElement('p');p.textContent=line;$('#notes').append(p)});$$('#overview [data-i]').forEach(b=>b.setAttribute('aria-current',String(+b.dataset.i===i)));try{history.replaceState(null,'','#'+(i+1))}catch{} }
 window.__go=go;
 function toggle(id,bid,value){const e=$('#'+id),on=value??e.hidden;e.hidden=!on;$('#'+bid).setAttribute('aria-pressed',String(on));if(on&&id==='overview')$('#overview [aria-current=true]')?.focus();if(!on)$('#'+bid).focus()}
 $('#prev').onclick=()=>go(current-1);$('#next').onclick=()=>go(current+1);$('#btnGrid').onclick=()=>toggle('overview','btnGrid');$('#btnNotes').onclick=()=>toggle('notes','btnNotes');$('#btnSound').onclick=()=>{sound=!sound;$('#btnSound').textContent='声音：'+(sound?'开':'关');setPressed($('#btnSound'),sound);if(sound)cue()};$('#btnFull').onclick=()=>{const p=document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();p?.catch(()=>{})};
@@ -203,9 +211,11 @@ $$('[data-cmp-vertex]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),ou
 $$('[data-img-step]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');const list=s.dataset.imgList.split(',');s._imgIdx=Math.min((s._imgIdx||0)+1,list.length-1);const img=$('.step-img',s);img.src='a/vz/'+list[s._imgIdx]+'.png';img.classList.remove('pop');void img.offsetWidth;img.classList.add('pop');const end=$('.step-end',s);if(end)end.hidden=!(s._imgIdx===list.length-1&&s.dataset.endNote);cue();if(s._imgIdx===list.length-1){b.disabled=true;b.textContent='到顶了！'}});
 function eulerHost(s,name){const h=$('.zome-host',s);if(h.dataset.zome===name&&h._z)return h._z;zviews=zviews.filter(z=>z.h!==h);if(h._z){h._z.dispose();h._z=null}h.innerHTML='';h.dataset.zome=name;return zomeHost(h)}
 function eulerRow(s){return $(`[data-euler-row][data-model="${$('.zome-host',s).dataset.zome}"]`,s)}
-$$('[data-euler-pick]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');s._counting=(s._counting||0)+1;eulerHost(s,b.dataset.eulerPick);$$('[data-euler-pick]',s).forEach(x=>setPressed(x,x===b));$$('[data-euler-row]',s).forEach(tr=>tr.classList.toggle('cur',tr.dataset.model===b.dataset.eulerPick));const bd=$('.count-badge',s);bd.hidden=true;cue()});
-$$('[data-euler-count]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),v=$('.zome-host',s)._z,bd=$('.count-badge',s);if(!v)return;const run=s._counting=(s._counting||0)+1;bd.hidden=false;bd.textContent='顶点 0';
-  v.countBalls(n=>{if(s._counting!==run)return;bd.textContent='顶点 '+n;cue()},n=>{if(s._counting===run){bd.textContent=`顶点 ${n} 个`;bd.classList.remove('pop');void bd.offsetWidth;bd.classList.add('pop')}})});
+$$('[data-euler-pick]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');s._counting=(s._counting||0)+1;eulerHost(s,b.dataset.eulerPick);$$('[data-euler-pick]',s).forEach(x=>setPressed(x,x===b));$$('[data-euler-row]',s).forEach(tr=>tr.classList.toggle('cur',tr.dataset.model===b.dataset.eulerPick));const bd=$('.count-badge',s);bd.hidden=true;$$('[data-euler-count]',s).forEach(x=>setPressed(x,false));cue('select')});
+const COUNT_NAME={v:'顶点',e:'棱',f:'面'},COUNT_FN={v:'countBalls',e:'countEdges',f:'countFaces'};
+$$('[data-euler-count]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),v=$('.zome-host',s)._z,bd=$('.count-badge',s),k=b.dataset.eulerCount,nm=COUNT_NAME[k];if(!v)return;const run=s._counting=(s._counting||0)+1;bd.hidden=false;bd.textContent=nm+' 0';
+  $$('[data-euler-count]',s).forEach(x=>setPressed(x,x===b));
+  v[COUNT_FN[k]](n=>{if(s._counting!==run)return;bd.textContent=nm+' '+n;cue('tick')},n=>{if(s._counting===run){bd.textContent=`${nm} ${n} 个`;bd.classList.remove('pop');void bd.offsetWidth;bd.classList.add('pop');cue()}})});
 $$('[data-euler-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),tr=eulerRow(s);if(!tr||tr.classList.contains('filled'))return;
   $$('.cell',tr).forEach((c,k)=>later(()=>{c.hidden=false;cue()},k*350));tr.classList.add('filled');
   const rows=$$('[data-euler-row]',s);if(rows.every(r=>r.classList.contains('filled'))){later(()=>celebrate(s),1500)}});
@@ -219,8 +229,8 @@ $$('[data-feat-face],[data-feat-vertex]').forEach(b=>b.onclick=()=>{const s=b.cl
 const HIST_X=[210,560,910,1260],HIST_T0=110;
 function histShow(s,n){n=Math.min(4,n);for(let i=s._hist||0;i<n;i++){const k=i;later(()=>{$(`[data-hist="${k}"]`,s).classList.add('on');$(`[data-hist-say="${k}"]`,s).classList.add('on');$(`[data-hist-node="${k}"]`,s).classList.add('on');$('.hist-fill',s).style.width=(HIST_X[k]-HIST_T0)+'px';cue()},(k-(s._hist||0))*450)}
   s._hist=Math.max(s._hist||0,n)}
-function histFinal(s){s._histDone=true;$('.hist-fill',s).style.width='100%';s.classList.add('hist-done');platoBurst(s);later(()=>celebrate(s),500);$('[data-hist-next]',s).disabled=true}
-function platoBurst(s){s.classList.remove('hist-burst-on');void s.offsetWidth;s.classList.add('hist-burst-on');$$('.hist-solid',s).forEach(h=>{if(h._v){h._v.spin=0.8}});cue('win')}
+function histFinal(s){s._histDone=true;$('.hist-fill',s).style.width='100%';platoBurst(s);later(()=>celebrate(s),500);$('[data-hist-next]',s).disabled=true}
+function platoBurst(s){cue('fly');s.classList.remove('hist-burst-on');void s.offsetWidth;s.classList.add('hist-burst-on');$$('.hist-solid',s).forEach(h=>{if(h._v){h._v.spin=0.8}});cue('win')}
 $$('[data-hist-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');if((s._hist||0)>=4){if(!s._histDone)histFinal(s);return}histShow(s,(s._hist||0)+1)});
 $$('[data-hist-reset]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');go(current)});
 $$('.hist-fig').forEach(f=>f.onclick=()=>{const s=f.closest('.slide'),i=+f.dataset.hist;if(i===2&&s._histDone){platoBurst(s);return}histShow(s,i+1)});
@@ -239,7 +249,7 @@ function zfReset(s){s._zfFolded=false;$$('[data-zf-fold]',s).forEach(x=>{x.textC
 $$('[data-zf]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=$('.zfold-host',s),f=h&&h._f;if(!f)return;f.set(+b.dataset.k,+b.dataset.n,b.dataset.color,0,b.dataset.foldColor);$$('[data-zf]',s).forEach(x=>setPressed(x,x===b));zfReset(s);cue()});
 $$('[data-zf-fold]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),f=$('.zfold-host',s)?._f;if(!f)return;const o=$('.zf-answer',s);
   if(s._zfFolded){f.unfold();zfReset(s);b.classList.remove('is-on');cue();return}
-  const r=f.fold();o.hidden=false;o.classList.toggle('bad',r!=='folded');
+  const r=f.fold();if(r==='folded')cue('fly');else cue('wrong');o.hidden=false;o.classList.toggle('bad',r!=='folded');
   if(r==='folded'){s._zfFolded=true;b.textContent='摊开';b.classList.add('is-on');o.textContent=`鼓起来了！是${ZF_NAME[f.k+','+f.n]}的一个角`;later(()=>celebrate(s),900)}
   else o.textContent=r==='over'?`${f.n} 个${ZF_SHAPE[f.k]}挤不下，叠在一起了`:`${f.n} 个${ZF_SHAPE[f.k]}平平的，鼓不起来`;cue()});
 $$('[data-zf-home]').forEach(b=>b.onclick=()=>$('.zfold-host',b.closest('.slide'))?._f?.home());
@@ -247,12 +257,12 @@ const EL_PAIR={fire:'tet',earth:'cube',air:'oct',water:'ico',uni:'dod'};
 function elSelect(el){const s=el.closest('.slide');if(el.classList.contains('matched')||el.classList.contains('used'))return;
   const isCard=el.classList.contains('el-card'),key=isCard?'_selCard':'_selChip',row=isCard?'.el-card':'.el-chip';
   if(s[key]===el){el.classList.remove('picked');s[key]=null}else{$$(row,s).forEach(x=>x.classList.remove('picked'));el.classList.add('picked');s[key]=el}
-  s.classList.toggle('want-chip',!!s._selCard&&!s._selChip);s.classList.toggle('want-card',!!s._selChip&&!s._selCard);cue();
+  s.classList.toggle('want-chip',!!s._selCard&&!s._selChip);s.classList.toggle('want-card',!!s._selChip&&!s._selCard);cue('select');
   const c=s._selCard,ch=s._selChip;if(!c||!ch)return;
   s._selCard=s._selChip=null;s.classList.remove('want-chip','want-card');
   if(EL_PAIR[c.dataset.el]===ch.dataset.solid){c.classList.remove('picked');ch.classList.remove('picked');c.classList.add('matched');const im=$('img',c);if(im)im.hidden=false;ch.classList.add('used');s._elDone=(s._elDone||0)+1;celebrate(s);
     if(s._elDone===5){const f=$('.el-final',s);if(f)f.hidden=false}}
-  else{[c,ch].forEach(x=>{x.classList.remove('wrong');void x.offsetWidth;x.classList.add('wrong')});later(()=>[c,ch].forEach(x=>x.classList.remove('picked','wrong')),650)}}
+  else{cue('wrong');[c,ch].forEach(x=>{x.classList.remove('wrong');void x.offsetWidth;x.classList.add('wrong')});later(()=>[c,ch].forEach(x=>x.classList.remove('picked','wrong')),650)}}
 $$('[data-el-card],[data-el-pick]').forEach(el=>el.onclick=()=>elSelect(el));
 
 $$('.zoomable').forEach(im=>im.onclick=()=>{const clone=document.createElement('img');clone.src=im.src;clone.alt=im.alt;const x=document.createElement('button');x.className='overlay-close';x.textContent='关闭 ×';$('#lightbox').replaceChildren(clone,x);$('#lightbox').hidden=false;x.focus()});$('#lightbox').onclick=()=>$('#lightbox').hidden=true;

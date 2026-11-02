@@ -123,7 +123,7 @@
     buildParts(false);
     const emphasis=new THREE.Group();group.add(emphasis);
     const faceMat=new THREE.MeshBasicMaterial({color:0xffb04e,transparent:true,opacity:.55,side:THREE.DoubleSide,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1});
-    function clearEmphasis(){while(emphasis.children.length){const m=emphasis.children[0];emphasis.remove(m);m.geometry.dispose()}for(const [p] of M.balls){const m=built.get(keyOf(p));if(m)m.material=mat.white}}
+    function clearEmphasis(){while(emphasis.children.length){const m=emphasis.children[0];emphasis.remove(m);m.geometry.dispose()}for(const [p] of M.balls){const m=built.get(keyOf(p));if(m)m.material=mat.white}for(const [a,b,kd] of M.struts){const m=built.get(keyOf(a,b));if(m)m.material=mat[kd||'yellow']}}
     function markFaces(ids,vertex){clearEmphasis();for(const index of ids){const face=M.faces?.[index];if(!face)continue;const points=face.map(i=>cpos(M.balls[i][0])),pos=[];for(let i=1;i<points.length-1;i++)pos.push(...points[0].toArray(),...points[i].toArray(),...points[i+1].toArray());const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));emphasis.add(new THREE.Mesh(g,faceMat));}
       if(vertex!=null){const m=built.get(keyOf(M.balls[vertex][0]));if(m)m.material=mat.orange}return ids.length;
     }
@@ -222,6 +222,14 @@
       zoomTo(k, dur = 1400) { if (!stageDist) return; const a = sph(); animateTo(a.th, a.ph, dur, stageDist[k]); },
       jumpStage(k) { if (!stageDist) return; anim = null; const a = sph(); setSph(stageDist[k], a.th, a.ph); controls.update(); },
       /* light the balls one by one (for counting); calls each(n) after every ball and done(total) at the end */
+      /* light rods / faces one by one (top to bottom, around), same contract as countBalls */
+      countEdges(each, done, gap = 160) { clearEmphasis(); const list = M.struts.map(([a, b]) => [built.get(keyOf(a, b)), a.clone().add(b).multiplyScalar(0.5).sub(center).applyQuaternion(group.quaternion)]).filter((x) => x[0]);
+        list.sort((p, q) => q[1].y - p[1].y || Math.atan2(p[1].x, p[1].z) - Math.atan2(q[1].x, q[1].z)); let i = 0;
+        const step = () => { if (!alive) return; if (i >= list.length) { done && done(list.length); return; } list[i][0].material = mat.orange; i++; each && each(i); setTimeout(step, gap); }; step(); },
+      countFaces(each, done, gap = 300) { clearEmphasis(); const F = (M.faces || []).map((f) => { const pts = f.map((k) => cpos(M.balls[k][0])); const c = pts.reduce((s, p) => s.add(p), new THREE.Vector3()).multiplyScalar(1 / pts.length).applyQuaternion(group.quaternion); return [pts, c]; });
+        F.sort((p, q) => q[1].y - p[1].y || Math.atan2(p[1].x, p[1].z) - Math.atan2(q[1].x, q[1].z)); let i = 0;
+        const step = () => { if (!alive) return; if (i >= F.length) { done && done(F.length); return; } const pts = F[i][0], pos = []; for (let j = 1; j < pts.length - 1; j++) pos.push(...pts[0].toArray(), ...pts[j].toArray(), ...pts[j + 1].toArray());
+          const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); emphasis.add(new THREE.Mesh(g, faceMat)); i++; each && each(i); setTimeout(step, gap); }; step(); },
       countBalls(each, done, gap = 260) { clearEmphasis(); const list = M.balls.map(([p]) => built.get(keyOf(p))).filter(Boolean);
         const order = list.map((m) => [m, m.position.clone().applyQuaternion(group.quaternion)]).sort((a, b) => b[1].y - a[1].y || Math.atan2(a[1].x, a[1].z) - Math.atan2(b[1].x, b[1].z)).map((x) => x[0]);
         let i = 0; const step = () => { if (!alive) return; if (i >= order.length) { done && done(order.length); return; } order[i].material = mat.orange; i++; each && each(i); setTimeout(step, gap); }; step(); },
