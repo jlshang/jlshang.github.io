@@ -2,7 +2,7 @@
 const $=(q,r=document)=>r.querySelector(q),$$=(q,r=document)=>[...r.querySelectorAll(q)];
 const stage=$('#stage'),slides=$$('.slide'),reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const {View,Fold,Tiling,geo,views}=ClassroomGeometry;
-let current=0,zviews=[],sound=false,audio=null,timers=[],bits=[],last=performance.now();
+let current=0,zviews=[],zfolds=[],sound=false,audio=null,timers=[],bits=[],last=performance.now();
 const cv=$('#confetti'),cx=cv.getContext('2d');
 function cue(kind='pop'){if(!sound)return;try{audio??=new(window.AudioContext||window.webkitAudioContext)();audio.resume();const tones=kind==='win'?[523,659,784,1046]:[660];tones.forEach((hz,i)=>{const o=audio.createOscillator(),g=audio.createGain(),t=audio.currentTime+i*.1;o.type='triangle';o.frequency.value=hz;g.gain.setValueAtTime(.06,t);g.gain.exponentialRampToValueAtTime(.001,t+.25);o.connect(g);g.connect(audio.destination);o.start(t);o.stop(t+.3)})}catch{}}
 function later(fn,ms){const id=setTimeout(fn,ms);timers.push(id);return id}
@@ -12,7 +12,8 @@ function fit(){const r=$('#viewport').getBoundingClientRect(),k=Math.min(r.width
 addEventListener('resize',fit);
 
 /* Exact equal-edge green-rod lattices, with the same ball orientation as the reference lessons. */
-const vec=p=>new THREE.Vector3(...p),K=Math.hypot(...ZOMEPARTS.green.dir)/Math.SQRT2;
+/* Medium rods throughout: K = G1/√2·φ, so tet/oct edges are G2 (medium green) and ico/cube edges are B2 (medium blue). */
+const vec=p=>new THREE.Vector3(...p),K=Math.hypot(...ZOMEPARTS.green.dir)/Math.SQRT2*(1+Math.sqrt(5))/2;
 const tp=[[0,0,0],[1,1,0],[1,0,1],[0,1,1]].map(p=>p.map(x=>x*K));
 const te=[[0,1],[1,2],[2,0],[0,3],[1,3],[2,3]],tf=[[0,1,2],[0,1,3],[1,2,3],[2,0,3]];
 const op=[[0,0,0],[1,1,0],[2,0,0],[1,-1,0],[1,0,1],[1,0,-1]].map(p=>p.map(x=>x*K));
@@ -58,6 +59,21 @@ const sqFlatM=k=>{const R=midLen,c=[0,0,0];const g=[];for(let j=0;j<3;j++)for(le
   shown.forEach(cell=>{for(let i=0;i<4;i++){const a=vs.findIndex(q=>q[0]===cell[i][0]&&q[1]===cell[i][1]),b=vs.findIndex(q=>q[0]===cell[(i+1)%4][0]&&q[1]===cell[(i+1)%4][1]);if(a<b)E.push([a,b]);else E.push([b,a])}});
   const dup=new Set(),E2=[];E.forEach(([a,b])=>{const k2=a<b?a+'|'+b:b+'|'+a;if(!dup.has(k2)){dup.add(k2);E2.push([a,b])}});
   const m={balls:vs.map(p=>[vec([p[0]*R,p[1]*R,0]),'white']),struts:E2.map(([a,b])=>[vec([vs[a][0]*R,vs[a][1]*R,0]),vec([vs[b][0]*R,vs[b][1]*R,0]),'blue']),faces:[],edges:E2,orient:oq.clone(),center:vec([0,0,0]),elev:35,dashes:[],labels:[]};return G(m,4)};
+/* Regular dodecahedron with medium blue (B2) edges: its balls sit at the face centres of the icosahedron. */
+function dodM(){const B2=Math.hypot(...ZOMEPARTS.blue.dir);const C=icoF.map(f=>f.map(i=>vec(icoBase[i])).reduce((a,b)=>a.add(b),new THREE.Vector3()).multiplyScalar(1/3));
+  let e=1e9;for(let a=0;a<20;a++)for(let b=a+1;b<20;b++)e=Math.min(e,C[a].distanceTo(C[b]));const k=B2/e;C.forEach(p=>p.multiplyScalar(k));
+  const E=[];for(let a=0;a<20;a++)for(let b=a+1;b<20;b++)if(Math.abs(C[a].distanceTo(C[b])-B2)<1e-6)E.push([a,b]);
+  return{balls:C.map(p=>[p,'white']),struts:E.map(([a,b])=>[C[a],C[b],'blue']),faces:[],edges:E,orient:orient(C[0].clone(),C[E.find(x=>x[0]===0)[1]].clone(),.3),center:new THREE.Vector3(),elev:16,dashes:[],labels:[]}}
+/* 密铺 patches in medium blue (B2): 6 triangles / 4 squares / 3 hexagons around one ball, growing ring by ring. Lies face-on to the camera. */
+function tileM(k,R){const B2=Math.hypot(...ZOMEPARTS.blue.dir),cells=[];
+  if(k===3){const inR=(x,y)=>Math.hypot(x,y)<=R+1e-6;for(let i=-R-1;i<=R+1;i++)for(let j=-R-1;j<=R+1;j++){const x0=i+j*.5,y0=j*Math.sqrt(3)/2,P=[[x0,y0],[x0+1,y0],[x0+.5,y0+Math.sqrt(3)/2],[x0+1.5,y0+Math.sqrt(3)/2]];
+    if(inR(...P[0])&&inR(...P[1])&&inR(...P[2]))cells.push([P[0],P[1],P[2]]);if(inR(...P[1])&&inR(...P[2])&&inR(...P[3]))cells.push([P[1],P[3],P[2]])}}
+  else if(k===4){for(let i=-R;i<R;i++)for(let j=-R;j<R;j++)cells.push([[i,j],[i+1,j],[i+1,j+1],[i,j+1]])}
+  else{for(let q=-R-1;q<=R+1;q++)for(let r=-R-1;r<=R+1;r++){const cx=1.5*q-1,cy=Math.sqrt(3)*(r+q/2);const d=Math.min(...[[0,0],[1,0],[1,-1]].map(([hq,hr])=>{const dq=q-hq,dr=r-hr;return(Math.abs(dq)+Math.abs(dr)+Math.abs(dq+dr))/2}));if(d>R-1)continue;const p=[];for(let m=0;m<6;m++){const a=Math.PI/3*m;p.push([cx+Math.cos(a),cy+Math.sin(a)])}cells.push(p)}}
+  const key=p=>p.map(x=>x.toFixed(3)).join(),idx=new Map(),pts=[],E=[],ek=new Set();
+  const id=p=>{const kk=key(p);if(!idx.has(kk)){idx.set(kk,pts.length);pts.push(vec([p[0]*B2,p[1]*B2,0]))}return idx.get(kk)};
+  cells.forEach(c=>c.forEach((p,i)=>{const a=id(p),b=id(c[(i+1)%c.length]),kk=Math.min(a,b)+'|'+Math.max(a,b);if(!ek.has(kk)){ek.add(kk);E.push([a,b])}}));
+  return{balls:pts.map(p=>[p,'white']),struts:E.map(([a,b])=>[pts[a],pts[b],'blue']),faces:[],edges:E,orient:new THREE.Quaternion(),center:new THREE.Vector3(),elev:22,dashes:[],labels:[],grow:3}}
 const specs={
  triFlat:triFlatM,
  sqFlat:sqFlatM,
@@ -75,13 +91,18 @@ const specs={
  sqG:sqG,
  tetGS:s=>{const m=tetGm(s);const cv=[[0,0,0],[1,0,0],[0,1,0],[0,0,1],[1,1,0],[1,0,1],[0,1,1],[1,1,1]].map(p=>p.map(x=>x*K));const cvv=cv.map(p=>vec(p));const have=new Set(m.balls.map(b=>b[0].toArray().join()));const addB=cvv.filter(p=>!have.has(p.toArray().join())).map(p=>[p,'white']);const E=[];for(let i=0;i<8;i++)for(let j=i+1;j<8;j++){if(Math.abs(cvv[i].distanceTo(cvv[j])-K)<1e-6)E.push([cvv[i].clone(),cvv[j].clone(),'blue'])}return{balls:[...m.balls,...addB],struts:[...m.struts,...E],faces:m.faces,edges:m.edges,orient:m.orient,center:m.center,elev:m.elev,dashes:[],labels:[],grow:m.grow}},
  octGS:s=>withScaf(octGm(s),[K,0,0],'blue',op),
- icoGS:s=>withScaf(icoGm(s),[0,0,0],'red',iP)
+ icoGS:s=>withScaf(icoGm(s),[0,0,0],'red',iP),
+ dod:()=>dodM(),
+ tile3:s=>tileM(3,s),tile4:s=>tileM(4,s),tile6:s=>tileM(6,s)
 };Object.assign(Zome3D._M,specs);
 window.lessonModels=()=>Object.fromEntries(Object.entries(specs).map(([name,fn])=>{const m=fn();return[name,{positions:m.balls.map(b=>b[0].toArray()),edges:m.edges,faces:m.faces}]}));
 function zomeHost(h){try{const v=Zome3D.mount(h,h.dataset.zome,{fitW:h.clientWidth*.78,fitH:h.clientHeight*.77,from:h.dataset.from,stage:+(h.dataset.stage||0)||undefined,zoom:+(h.dataset.zoom||1)});h._z=v;zviews.push({h,v});return v}catch(error){console.error('Zometool model failed',error);const image=document.createElement('img');image.src='a/zome-'+(['tet','ico','oct'].find(n=>h.dataset.zome.startsWith(n))||'oct')+'.png';image.alt='Zometool 完整作品参考图';image.className='zome-fallback';h.append(image);const sl=h.closest('.slide');const b=$('[data-connect]',sl);if(b){b.disabled=true;b.textContent='模型未载入'}return null}}
 function solidHost(h){if(!h._v)h._v=new View(h);else{h._v.clearHi();h._v.home()}return h._v}
 function setPressed(b,active){b.setAttribute('aria-pressed',String(active))}
 function enter(s){
+ if($('[data-model-switch]',s))$('.zome-host',s).dataset.zome='cubeB';
+ if($('[data-euler-pick]',s))$('.zome-host',s).dataset.zome='tet';
+ $$('.zome-host.tile',s).forEach(h=>h.dataset.stage=1);
  $$('.solid-host',s).forEach(solidHost);$$('.zome-host',s).forEach(zomeHost);
  $$('[data-character]',s).forEach(b=>{$('span',b).hidden=true;b.classList.remove('revealed');setPressed(b,false)});
  $$('[data-connect]',s).forEach(b=>{b.disabled=false;b.textContent='接上去'});
@@ -89,18 +110,25 @@ function enter(s){
  $$('.vertex-answer',s).forEach(o=>o.hidden=true);s._vertexIndex=0;s._faceIndex=0;s.classList.remove('grouped','celebrating');
  $$('.five-unit',s).forEach(u=>u.classList.remove('shown'));const fiveBtn=$('[data-reveal-five]',s);if(fiveBtn){fiveBtn.disabled=false;fiveBtn.textContent='伙伴集合！';s._fiveIndex=0}
  $$('.el-card',s).forEach(c=>{c.classList.remove('matched','wrong');const im=$('img',c);if(im)im.hidden=true});
- $$('.el-chip',s).forEach(ch=>ch.classList.remove('picked','used'));s._elSel=null;s._elDone=0;
+ $$('.el-chip',s).forEach(ch=>ch.classList.remove('picked','used','wrong'));$$('.el-card',s).forEach(c=>c.classList.remove('picked'));s._selCard=s._selChip=null;s.classList.remove('want-chip','want-card');s._elDone=0;
  const elHint=$('.el-hint',s);if(elHint)elHint.textContent='';const elFinal=$('.el-final',s);if(elFinal)elFinal.hidden=true;const elClue=$('.el-clue',s);if(elClue)elClue.hidden=false;
- $$('.rule-card',s).forEach(r=>r.hidden=true);s._ruleIdx=0;const ruleBtn=$('[data-rules]',s);if(ruleBtn){ruleBtn.disabled=false;ruleBtn.textContent='揭晓猜想'}
+ $$('.rule-card:not(.euler-card)',s).forEach(r=>r.hidden=true);$$('.zome-host.tile',s).forEach(h=>h._z?.home());s._ruleIdx=0;const ruleBtn=$('[data-rules]',s);if(ruleBtn){ruleBtn.disabled=false;ruleBtn.textContent='描述特点'}
+ $$('.model-name',s).forEach(x=>x.classList.remove('shown'));$$('[data-spin-toggle]',s).forEach(x=>{setPressed(x,false);x.textContent='停下来'});$$('.solid-host[data-spin]',s).forEach(h=>{if(h._v)h._v.spin=+h.dataset.spin});$$('.feat',s).forEach(x=>{x.hidden=true;x.classList.remove('dim')});s._ff=s._fv=undefined;$$('[data-feat-face],[data-feat-vertex]',s).forEach(x=>setPressed(x,false));
+ s._hist=0;s._histDone=false;$$('.hist-fig',s).forEach(x=>x.classList.remove('on'));$$('.hist-say,.hist-node',s).forEach(x=>x.classList.remove('on'));s.classList.remove('hist-burst-on','hist-done');const hf=$('.hist-fill',s);if(hf)hf.style.width='0px';const hn=$('[data-hist-next]',s);if(hn)hn.disabled=false;
+ $$('[data-model-switch]',s).forEach((x,i)=>setPressed(x,i===0));const nameBtn=$('[data-names]',s);if(nameBtn){nameBtn.disabled=false;nameBtn.textContent='看名字'}
+ s.classList.remove('nat-on');const natBtn=$('[data-nature]',s);if(natBtn){natBtn.disabled=false;natBtn.textContent='揭晓答案'}
+ const tm=$('[data-tile-more]',s);if(tm){tm.disabled=false;tm.textContent='再拼一圈';tm._busy=false}
+ $$('.zfold-host',s).forEach(h=>{try{const f=new ZomeFold(h,{k:+h.dataset.k,n:+h.dataset.n,color:h.dataset.color,foldColor:h.dataset.foldColor,t:h.dataset.static!==undefined?1:0,elev:h.dataset.elev?+h.dataset.elev:undefined,fit:h.dataset.fit?+h.dataset.fit:undefined,markApex:h.dataset.static===undefined});h._f=f;zfolds.push(f)}catch(e){console.error('fold failed',e)}});
+ $$('[data-zf]',s).forEach((b,i)=>setPressed(b,i===0));$$('.zf-answer',s).forEach(o=>{o.hidden=true;o.textContent=''});$$('[data-zf-fold]',s).forEach(b=>{b.textContent='聚拢';b.classList.remove('is-on')});s._zfFolded=false;
  $$('[data-zome-step]',s).forEach(b=>{b.disabled=false;b.textContent='下一步'});
  const cmpBtn=$('[data-compare-step]',s);if(cmpBtn){cmpBtn.disabled=false;cmpBtn.textContent='看它们的面'}s._cmp=0;s._faceIndex=0;s._vertexIndex=0;$$('.vertex-answer',s).forEach(o=>o.hidden=true);
  $$('[data-img-step]',s).forEach(b=>{b.disabled=false;b.textContent='再加一个'});s._imgIdx=0;const si=$('.step-img',s);if(si&&s.dataset.imgList)si.src='a/vz/'+s.dataset.imgList.split(',')[0]+'.png';const se=$('.step-end',s);if(se)se.hidden=true;
- s._eu=0;$$('[data-euler-row]',s).forEach(tr=>{tr.classList.remove('filled');$$('.cell',tr).forEach(c=>c.hidden=true)});const euBtn=$('[data-euler-next]',s);if(euBtn){euBtn.disabled=false;euBtn.textContent='数下一个'}$$('.euler-final',s).forEach(x=>x.hidden=true);
+ s._eu=0;$$('[data-euler-row]',s).forEach(tr=>{tr.classList.remove('filled','cur');$$('.cell',tr).forEach(c=>c.hidden=true)});const r0=$('[data-euler-row]',s);if(r0)r0.classList.add('cur');$$('[data-euler-pick]',s).forEach((x,k)=>setPressed(x,k===0));const eb=$('.count-badge',s);if(eb)eb.hidden=true;$$('[data-euler-next]',s).forEach(x=>x.disabled=false);
  $$('.mini-fold',s).forEach(h=>{if(!h._fold)h._fold=new Fold(h);h._fold.setup(+h.dataset.k,+h.dataset.n);h._fold.t=h._fold.target=1;h._fold.draw()});
  $$('.tiling-host',s).forEach(h=>{if(!h._tiling)h._tiling=new Tiling(h);h._tiling.setup(+h.dataset.tiling,1)});const tBtn=$('[data-tiling-more]',s);if(tBtn){tBtn.disabled=false;tBtn.textContent='再拼一圈'}
  if(s.dataset.foldDefault){const host=$('.fold-host',s);if(!host._fold)host._fold=new Fold(host);const [k,n]=s.dataset.foldDefault.split(',').map(Number);pickFold(s,k,n)}
 }
-function leave(){timers.forEach(clearTimeout);timers=[];for(const {h,v} of zviews){v.dispose();h._z=null}zviews=[];bits=[];cx.clearRect(0,0,1600,900);$$('.zome-fallback',slides[current]).forEach(x=>x.remove())}
+function leave(){timers.forEach(clearTimeout);timers=[];zfolds.forEach(f=>f.dispose());zfolds=[];$$('.zfold-host',slides[current]).forEach(h=>h._f=null);for(const {h,v} of zviews){v.dispose();h._z=null}zviews=[];bits=[];cx.clearRect(0,0,1600,900);$$('.zome-fallback',slides[current]).forEach(x=>x.remove())}
 function go(i){i=Math.max(0,Math.min(slides.length-1,i));leave();slides.forEach((s,n)=>{s.hidden=n!==i;s.classList.remove('on')});current=i;const s=slides[i];s.classList.add('on');enter(s);$('#prev').disabled=i===0;$('#next').disabled=i===slides.length-1;$('#count').textContent=`${i+1} / ${slides.length}`;$('#progress i').style.width=(i+1)/slides.length*100+'%';$('#notes').replaceChildren();const close=document.createElement('button');close.className='overlay-close';close.textContent='关闭 ×';close.onclick=()=>toggle('notes','btnNotes',false);const title=document.createElement('h3');title.textContent=`${i+1}. ${s.dataset.title}`;$('#notes').append(close,title);$('.notes',s).textContent.split('\n').forEach(line=>{const p=document.createElement('p');p.textContent=line;$('#notes').append(p)});$$('#overview [data-i]').forEach(b=>b.setAttribute('aria-current',String(+b.dataset.i===i)));try{history.replaceState(null,'','#'+(i+1))}catch{} }
 window.__go=go;
 function toggle(id,bid,value){const e=$('#'+id),on=value??e.hidden;e.hidden=!on;$('#'+bid).setAttribute('aria-pressed',String(on));if(on&&id==='overview')$('#overview [aria-current=true]')?.focus();if(!on)$('#'+bid).focus()}
@@ -142,12 +170,12 @@ const EL_SVG={
   <path d="M8 246 C46 228 82 236 116 250 C152 264 196 264 232 250 C258 240 280 242 268 250 L268 300 L8 300 Z" fill="#5FB4E4"/>
   <path d="M8 266 C50 252 92 260 128 272 C164 284 204 282 240 270 C258 264 272 264 268 268 L268 300 L8 300 Z" fill="#39A8DD"/>
   <circle cx="60" cy="216" r="7" fill="#BFE4F4"/><circle cx="212" cy="206" r="9" fill="#BFE4F4"/><circle cx="166" cy="230" r="5" fill="#BFE4F4"/></svg>`,
- uni:`<svg viewBox="0 0 268 300" preserveAspectRatio="xMidYMid slice"><rect width="268" height="300" fill="#232F52"/>
+ uni:`<svg viewBox="0 0 268 300" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="uniSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7B5CD6"/><stop offset="1" stop-color="#B58BEA"/></linearGradient></defs><rect width="268" height="300" fill="url(#uniSky)"/>
   <circle cx="36" cy="40" r="2.5" fill="#FFF" opacity=".9"/><circle cx="120" cy="24" r="2" fill="#FFF" opacity=".8"/><circle cx="228" cy="36" r="3" fill="#FFE08A"/><circle cx="246" cy="120" r="2" fill="#FFF" opacity=".7"/><circle cx="22" cy="130" r="2.5" fill="#FFF" opacity=".8"/><circle cx="70" cy="200" r="2" fill="#FFF" opacity=".6"/><circle cx="210" cy="240" r="2.5" fill="#FFF" opacity=".8"/>
   <path d="M60,70 L64,80 L74,84 L64,88 L60,98 L56,88 L46,84 L56,80 Z" fill="#FFE08A"/><path d="M208,180 L212,190 L222,194 L212,198 L208,208 L204,198 L194,194 L204,190 Z" fill="#FFE08A"/><path d="M100,150 L103,158 L111,161 L103,164 L100,172 L97,164 L89,161 L97,158 Z" fill="#FFF" opacity=".9"/>
   <path d="M186 60 a26 26 0 1 0 20 44 a20 20 0 1 1 -20 -44 Z" fill="#FFE08A"/>
   <ellipse cx="196" cy="238" rx="40" ry="13" fill="none" stroke="#F2B200" stroke-width="5" transform="rotate(-16 196 238)"/>
-  <circle cx="196" cy="234" r="20" fill="#B17CE1"/><circle cx="190" cy="228" r="6" fill="#CBA8EC" opacity=".9"/>
+  <circle cx="196" cy="234" r="20" fill="#FF9F6B"/><circle cx="190" cy="228" r="6" fill="#FFD0B3" opacity=".9"/>
   <path d="M30 250 C50 236 74 234 92 244" stroke="#7FC5E8" stroke-width="4" fill="none" stroke-linecap="round" opacity=".8"/></svg>`};
 $$('.el-scene').forEach(el=>{el.innerHTML=EL_SVG[el.dataset.elScene]||''});
 
@@ -170,25 +198,67 @@ $$('[data-reveal-five]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),u
 $$('[data-zome-step]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=$('.zome-host',s),v=h._z;if(!v)return;const n=v.grow();cue();if(n>=v.maxStage){b.disabled=true;b.textContent='完成！';celebrate(s)}else{b.textContent='下一步'}});
 $$('[data-tiling-more]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');const ts=$$('.tiling-host',s);ts.forEach(h=>{h._tiling.more();h.classList.remove('pop');void h.offsetWidth;h.classList.add('pop')});cue();if(ts.every(h=>h._tiling.rings>=3)){b.disabled=true;b.textContent='拼满啦！'}});
 $$('[data-tiling-home]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');$$('.tiling-host',s).forEach(h=>h._tiling.setup(+h.dataset.tiling,1));const mb=$('[data-tiling-more]',s);if(mb){mb.disabled=false;mb.textContent='再拼一圈'}cue()});
-$$('[data-compare-step]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');const hosts=$$('.zome-host',s);const outs=$$('.vertex-answer',s);s._cmp=((s._cmp||0)+1)%2;
-  if(s._cmp===1){hosts.forEach(h=>{const v=h._z;if(v)v.face((s._faceIndex||0)%v.inspect().faces)});s._faceIndex=(s._faceIndex||0)+1;b.textContent='数一数顶点';outs.forEach(o=>o.hidden=true)}
-  else{hosts.forEach((h,i)=>{const v=h._z;if(v){const n=v.vertex((s._vertexIndex||0)%v.inspect().balls);outs[i].textContent=n+' 个三角形';outs[i].hidden=false}});s._vertexIndex=(s._vertexIndex||0)+1;b.textContent='再看一次面'}cue()});
+$$('[data-cmp-face]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');const k=s._faceIndex||0;$$('.zome-host',s).forEach(h=>{const v=h._z;if(v)v.face(k%v.inspect().faces)});s._faceIndex=k+1;$$('.vertex-answer',s).forEach(o=>o.hidden=true);cue()});
+$$('[data-cmp-vertex]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),outs=$$('.vertex-answer',s);const k=s._vertexIndex||0;$$('.zome-host',s).forEach((h,i)=>{const v=h._z;if(!v)return;const n=v.vertex(k%v.inspect().balls);outs[i].textContent=n+' 个三角形';outs[i].hidden=false});s._vertexIndex=k+1;cue()});
 $$('[data-img-step]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');const list=s.dataset.imgList.split(',');s._imgIdx=Math.min((s._imgIdx||0)+1,list.length-1);const img=$('.step-img',s);img.src='a/vz/'+list[s._imgIdx]+'.png';img.classList.remove('pop');void img.offsetWidth;img.classList.add('pop');const end=$('.step-end',s);if(end)end.hidden=!(s._imgIdx===list.length-1&&s.dataset.endNote);cue();if(s._imgIdx===list.length-1){b.disabled=true;b.textContent='到顶了！'}});
-$$('[data-euler-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');const rows=[['tet',4,6,4],['cube',8,12,6],['oct',6,12,8],['dod',20,30,12],['ico',12,30,20]];const i=s._eu||0;const tr=$(`[data-euler-row="${i}"]`,s);$$('.cell',tr).forEach(c=>c.hidden=false);tr.classList.add('filled');const v=$('.solid-host',s)._v;if(v)v.set(rows[i][0]);cue();s._eu=i+1;
-  if(s._eu>=5){$$('.euler-final',s).forEach(x=>x.hidden=false);b.disabled=true;b.textContent='全都是 2！';celebrate(s)}else{b.textContent='再数一个'}});
-$$('[data-zome-scaf]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=$('.zome-host',s);const on=h._scaf=!h._scaf;b.textContent=on?'去掉脚手架':'加脚手架';const st=h._z?h._z.stage():1;zviews=zviews.filter(z=>z.h!==h);if(h._z){h._z.dispose();h._z=null}h.innerHTML='';try{const v=Zome3D.mount(h,h.dataset.zome+(on?'S':''),{fitW:h.clientWidth*.78,fitH:h.clientHeight*.77,stage:st});h._z=v;h._angle=0;zviews.push({h,v});v.home&&v.home()}catch(e){console.warn('scaf remount failed',e)}cue()});
+function eulerHost(s,name){const h=$('.zome-host',s);if(h.dataset.zome===name&&h._z)return h._z;zviews=zviews.filter(z=>z.h!==h);if(h._z){h._z.dispose();h._z=null}h.innerHTML='';h.dataset.zome=name;return zomeHost(h)}
+function eulerRow(s){return $(`[data-euler-row][data-model="${$('.zome-host',s).dataset.zome}"]`,s)}
+$$('[data-euler-pick]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');s._counting=(s._counting||0)+1;eulerHost(s,b.dataset.eulerPick);$$('[data-euler-pick]',s).forEach(x=>setPressed(x,x===b));$$('[data-euler-row]',s).forEach(tr=>tr.classList.toggle('cur',tr.dataset.model===b.dataset.eulerPick));const bd=$('.count-badge',s);bd.hidden=true;cue()});
+$$('[data-euler-count]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),v=$('.zome-host',s)._z,bd=$('.count-badge',s);if(!v)return;const run=s._counting=(s._counting||0)+1;bd.hidden=false;bd.textContent='顶点 0';
+  v.countBalls(n=>{if(s._counting!==run)return;bd.textContent='顶点 '+n;cue()},n=>{if(s._counting===run){bd.textContent=`顶点 ${n} 个`;bd.classList.remove('pop');void bd.offsetWidth;bd.classList.add('pop')}})});
+$$('[data-euler-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),tr=eulerRow(s);if(!tr||tr.classList.contains('filled'))return;
+  $$('.cell',tr).forEach((c,k)=>later(()=>{c.hidden=false;cue()},k*350));tr.classList.add('filled');
+  const rows=$$('[data-euler-row]',s);if(rows.every(r=>r.classList.contains('filled'))){later(()=>celebrate(s),1500)}});
+$$('[data-zome-scaf]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=$('.zome-host',s);const on=h._scaf=!h._scaf;b.textContent=on?'去掉脚手架':'加脚手架';setPressed(b,on);const st=h._z?h._z.stage():1;zviews=zviews.filter(z=>z.h!==h);if(h._z){h._z.dispose();h._z=null}h.innerHTML='';try{const v=Zome3D.mount(h,h.dataset.zome+(on?'S':''),{fitW:h.clientWidth*.78,fitH:h.clientHeight*.77,stage:st});h._z=v;h._angle=0;zviews.push({h,v});v.home&&v.home()}catch(e){console.warn('scaf remount failed',e)}cue()});
 $$('[data-fold-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),f=$('.fold-host',s)._fold;const max=f.k===4?4:3;const n=(f.n%max)+1;pickFold(s,f.k,n);cue()});
-$$('[data-rules]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');$$('.rule-card',s).forEach(r=>r.hidden=false);b.disabled=true;b.textContent='就是它们！';cue();});
-$$('[data-el-pick]').forEach(ch=>ch.onclick=()=>{const s=ch.closest('.slide');if(ch.classList.contains('used'))return;s._elSel=ch;$$('.el-chip',s).forEach(x=>x.classList.toggle('picked',x===ch));cue()});
+$$('[data-rules]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');$$('.rule-card',s).forEach(r=>r.hidden=false);b.disabled=true;cue();});
+$$('[data-spin-toggle]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),stop=b.getAttribute('aria-pressed')!=='true';$$('.solid-host',s).forEach(h=>{if(h._v){h._v.spin=stop?0:+(h.dataset.spin||.35)}});setPressed(b,stop);b.textContent=stop?'转起来':'停下来';cue()});
+$$('[data-feat-face],[data-feat-vertex]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),isF=b.hasAttribute('data-feat-face'),k=isF?(s._ff=(s._ff??-1)+1):(s._fv=(s._fv??-1)+1);
+  $$('.solid-host',s).forEach(h=>{const v=h._v;if(!v)return;if(isF)v.face(v.frontFace(k));else v.vertex(v.frontVertex(k))});
+  const f=$(isF?'.feat-face':'.feat-vertex',s);f.hidden=false;f.classList.remove('pop');void f.offsetWidth;f.classList.add('pop');$$('.feat',s).forEach(x=>x.classList.toggle('dim',x!==f));setPressed(b,true);$$(isF?'[data-feat-vertex]':'[data-feat-face]',s).forEach(x=>setPressed(x,false));$$('[data-spin-toggle]',s).forEach(x=>{setPressed(x,true);x.textContent='转起来'});cue()});
+const HIST_X=[210,560,910,1260],HIST_T0=110;
+function histShow(s,n){n=Math.min(4,n);for(let i=s._hist||0;i<n;i++){const k=i;later(()=>{$(`[data-hist="${k}"]`,s).classList.add('on');$(`[data-hist-say="${k}"]`,s).classList.add('on');$(`[data-hist-node="${k}"]`,s).classList.add('on');$('.hist-fill',s).style.width=(HIST_X[k]-HIST_T0)+'px';cue()},(k-(s._hist||0))*450)}
+  s._hist=Math.max(s._hist||0,n)}
+function histFinal(s){s._histDone=true;$('.hist-fill',s).style.width='100%';s.classList.add('hist-done');platoBurst(s);later(()=>celebrate(s),500);$('[data-hist-next]',s).disabled=true}
+function platoBurst(s){s.classList.remove('hist-burst-on');void s.offsetWidth;s.classList.add('hist-burst-on');$$('.hist-solid',s).forEach(h=>{if(h._v){h._v.spin=0.8}});cue('win')}
+$$('[data-hist-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');if((s._hist||0)>=4){if(!s._histDone)histFinal(s);return}histShow(s,(s._hist||0)+1)});
+$$('[data-hist-reset]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');go(current)});
+$$('.hist-fig').forEach(f=>f.onclick=()=>{const s=f.closest('.slide'),i=+f.dataset.hist;if(i===2&&s._histDone){platoBurst(s);return}histShow(s,i+1)});
+$$('[data-model-switch]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=$('.zome-host',s);if(!h||h.dataset.zome===b.dataset.modelSwitch)return;zviews=zviews.filter(z=>z.h!==h);if(h._z){h._z.dispose();h._z=null}h.innerHTML='';h.dataset.zome=b.dataset.modelSwitch;zomeHost(h);$$('[data-model-switch]',s).forEach(x=>setPressed(x,x===b));cue()});
+$$('[data-names]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');$$('.model-name',s).forEach((x,i)=>later(()=>{x.classList.add('shown');cue()},i*260));b.disabled=true});
+$$('[data-nature]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');s.classList.add('nat-on');b.disabled=true;cue();celebrate(s)});
+$$('[data-tile-more]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');if(b._busy)return;let last=false;
+  $$('.zome-host',s).forEach(h=>{const cur=h._z?h._z.stage():+(h.dataset.stage||1);if(cur>=3)return;const next=cur+1;last=next>=3;
+    zviews=zviews.filter(z=>z.h!==h);if(h._z){h._z.dispose();h._z=null}h.innerHTML='';h.dataset.stage=next;
+    const v=Zome3D.mount(h,h.dataset.zome,{fitW:h.clientWidth*.78,fitH:h.clientHeight*.77,stage:next,from:h.dataset.zome+'@'+cur});h._z=v;zviews.push({h,v});
+    v.jumpStage(cur);b._busy=true;v.growIn(()=>{v.zoomTo(next);b._busy=false})});
+  cue();if(last){b.disabled=true;b.textContent='拼满啦！'}});
+$$('[data-tile-home]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');$$('.zome-host',s).forEach(h=>{zviews=zviews.filter(z=>z.h!==h);if(h._z){h._z.dispose();h._z=null}h.innerHTML='';h.dataset.stage=1;zomeHost(h);h._z?.home()});const mb=$('[data-tile-more]',s);if(mb){mb.disabled=false;mb.textContent='再拼一圈'}cue()});
+const ZF_NAME={'3,3':'正四面体','3,4':'正八面体','3,5':'正二十面体','4,3':'立方体','5,3':'正十二面体'},ZF_SHAPE={3:'三角形',4:'正方形',5:'正五边形',6:'正六边形'};
+function zfReset(s){s._zfFolded=false;$$('[data-zf-fold]',s).forEach(x=>{x.textContent='聚拢';x.classList.remove('is-on')});$$('.zf-answer',s).forEach(o=>o.hidden=true)}
+$$('[data-zf]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=$('.zfold-host',s),f=h&&h._f;if(!f)return;f.set(+b.dataset.k,+b.dataset.n,b.dataset.color,0,b.dataset.foldColor);$$('[data-zf]',s).forEach(x=>setPressed(x,x===b));zfReset(s);cue()});
+$$('[data-zf-fold]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),f=$('.zfold-host',s)?._f;if(!f)return;const o=$('.zf-answer',s);
+  if(s._zfFolded){f.unfold();zfReset(s);b.classList.remove('is-on');cue();return}
+  const r=f.fold();o.hidden=false;o.classList.toggle('bad',r!=='folded');
+  if(r==='folded'){s._zfFolded=true;b.textContent='摊开';b.classList.add('is-on');o.textContent=`鼓起来了！是${ZF_NAME[f.k+','+f.n]}的一个角`;later(()=>celebrate(s),900)}
+  else o.textContent=r==='over'?`${f.n} 个${ZF_SHAPE[f.k]}挤不下，叠在一起了`:`${f.n} 个${ZF_SHAPE[f.k]}平平的，鼓不起来`;cue()});
+$$('[data-zf-home]').forEach(b=>b.onclick=()=>$('.zfold-host',b.closest('.slide'))?._f?.home());
 const EL_PAIR={fire:'tet',earth:'cube',air:'oct',water:'ico',uni:'dod'};
-$$('[data-el-card]').forEach(c=>c.onclick=()=>{const s=c.closest('.slide');if(c.classList.contains('matched'))return;const sel=s._elSel;
-  if(!sel)return;
-  if(EL_PAIR[c.dataset.el]===sel.dataset.solid){c.classList.add('matched');const im=$('img',c);if(im)im.hidden=false;sel.classList.add('used');sel.classList.remove('picked');s._elSel=null;s._elDone=(s._elDone||0)+1;cue();celebrate(s);
+function elSelect(el){const s=el.closest('.slide');if(el.classList.contains('matched')||el.classList.contains('used'))return;
+  const isCard=el.classList.contains('el-card'),key=isCard?'_selCard':'_selChip',row=isCard?'.el-card':'.el-chip';
+  if(s[key]===el){el.classList.remove('picked');s[key]=null}else{$$(row,s).forEach(x=>x.classList.remove('picked'));el.classList.add('picked');s[key]=el}
+  s.classList.toggle('want-chip',!!s._selCard&&!s._selChip);s.classList.toggle('want-card',!!s._selChip&&!s._selCard);cue();
+  const c=s._selCard,ch=s._selChip;if(!c||!ch)return;
+  s._selCard=s._selChip=null;s.classList.remove('want-chip','want-card');
+  if(EL_PAIR[c.dataset.el]===ch.dataset.solid){c.classList.remove('picked');ch.classList.remove('picked');c.classList.add('matched');const im=$('img',c);if(im)im.hidden=false;ch.classList.add('used');s._elDone=(s._elDone||0)+1;celebrate(s);
     if(s._elDone===5){const f=$('.el-final',s);if(f)f.hidden=false}}
-  else{c.classList.remove('wrong');void c.offsetWidth;c.classList.add('wrong');cue()}});
+  else{[c,ch].forEach(x=>{x.classList.remove('wrong');void x.offsetWidth;x.classList.add('wrong')});later(()=>[c,ch].forEach(x=>x.classList.remove('picked','wrong')),650)}}
+$$('[data-el-card],[data-el-pick]').forEach(el=>el.onclick=()=>elSelect(el));
 
 $$('.zoomable').forEach(im=>im.onclick=()=>{const clone=document.createElement('img');clone.src=im.src;clone.alt=im.alt;const x=document.createElement('button');x.className='overlay-close';x.textContent='关闭 ×';$('#lightbox').replaceChildren(clone,x);$('#lightbox').hidden=false;x.focus()});$('#lightbox').onclick=()=>$('#lightbox').hidden=true;
 $$('.solid-host,.zome-host').forEach(h=>h.addEventListener('keydown',e=>{if(!e.key.startsWith('Arrow'))return;e.preventDefault();e.stopPropagation();if(h._v){h._v.targetAngles=null;h._v.ay+=e.key==='ArrowRight'?.18:e.key==='ArrowLeft'?-.18:0;h._v.ax+=e.key==='ArrowDown'?.12:e.key==='ArrowUp'?-.12:0;h._v.draw()}if(h._z){h._angle=(h._angle||0)+(e.key==='ArrowLeft'?-15:15);h._z.setAngle(h._angle)}}));
 addEventListener('keydown',e=>{if(e.key==='Escape'){$('#lightbox').hidden=true;toggle('overview','btnGrid',false);toggle('notes','btnNotes',false);return}if(e.target.closest('input,textarea,select,[contenteditable=true]'))return;if(!$('#overview').hidden)return;if(e.target.closest('button,[tabindex]')&&[' ','ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;const k=e.key.toLowerCase();if(['arrowright','pagedown',' '].includes(k)){e.preventDefault();go(current+1)}else if(['arrowleft','pageup'].includes(k)){e.preventDefault();go(current-1)}else if(k==='home')go(0);else if(k==='end')go(slides.length-1);else if(k==='n')$('#btnNotes').click();else if(k==='g')$('#btnGrid').click();else if(k==='f')$('#btnFull').click();else if(k==='m')$('#btnSound').click()});
+function syncTips(root=document){$$('.controls button,.side-pick button',root).forEach(b=>{const t=b.textContent.trim();if(t){b.title=t;b.setAttribute('aria-label',t)}})}
+new MutationObserver(ms=>ms.forEach(m=>{const b=m.target.nodeType===1?m.target.closest('button'):m.target.parentElement?.closest('button');if(b&&b.closest('.controls,.side-pick'))syncTips(b.parentElement)})).observe(stage,{subtree:true,childList:true,characterData:true});syncTips();
 fit();const n=parseInt(location.hash.replace(/^#p?/,''));go(Number.isFinite(n)&&n>0?n-1:0);requestAnimationFrame(frame);
 })();

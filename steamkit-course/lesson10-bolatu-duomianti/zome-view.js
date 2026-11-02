@@ -100,7 +100,8 @@
     mat.orange=new THREE.MeshStandardMaterial({color:lin(0xffa332),roughness:.4,side:THREE.DoubleSide});
     const BG = ballGeometry(), built = new Map(), popping = [];
     const prevKeys = new Set(), growing = [];
-    if (opt.from && MODELS[opt.from]) { const P0 = MODELS[opt.from](); const kk = (p) => p.toArray().map((x) => x.toFixed(2)).join();
+    const fromK = opt.from ? String(opt.from).split('@') : null;   // "name@stage" grows new parts out of that earlier stage
+    if (fromK && MODELS[fromK[0]]) { const P0 = MODELS[fromK[0]](fromK[1] ? +fromK[1] : undefined); const kk = (p) => p.toArray().map((x) => x.toFixed(2)).join();
       P0.balls.forEach(([p]) => prevKeys.add(kk(p))); P0.struts.forEach(([a, b]) => { prevKeys.add(kk(a) + "|" + kk(b)); prevKeys.add(kk(b) + "|" + kk(a)); }); }
     const keyOf = (a, b) => a.toArray().map((x) => x.toFixed(2)).join() + (b ? "|" + b.toArray().map((x) => x.toFixed(2)).join() : "");
     function buildParts(pop) {
@@ -218,10 +219,16 @@
           setSph(a.r, a.th + e * Math.PI * 2, a.ph); if (t >= 1) { anim = null; controls.enabled = true; controls.update(); } }; },
       setAngle(deg) { anim = null; const a = sph(); setSph(a.r, th0 + (deg * Math.PI) / 180, a.ph); controls.update(); },
       home() { animateTo(th0, ph0, 1200, stageDist ? stageDist[M.stage || 1] : dist); },
+      zoomTo(k, dur = 1400) { if (!stageDist) return; const a = sph(); animateTo(a.th, a.ph, dur, stageDist[k]); },
+      jumpStage(k) { if (!stageDist) return; anim = null; const a = sph(); setSph(stageDist[k], a.th, a.ph); controls.update(); },
+      /* light the balls one by one (for counting); calls each(n) after every ball and done(total) at the end */
+      countBalls(each, done, gap = 260) { clearEmphasis(); const list = M.balls.map(([p]) => built.get(keyOf(p))).filter(Boolean);
+        const order = list.map((m) => [m, m.position.clone().applyQuaternion(group.quaternion)]).sort((a, b) => b[1].y - a[1].y || Math.atan2(a[1].x, a[1].z) - Math.atan2(b[1].x, b[1].z)).map((x) => x[0]);
+        let i = 0; const step = () => { if (!alive) return; if (i >= order.length) { done && done(order.length); return; } order[i].material = mat.orange; i++; each && each(i); setTimeout(step, gap); }; step(); },
       stage: () => M.stage || 1, maxStage: M.grow || 0,
       grow() { if (!M.grow) return 0; const next = (M.stage || 1) >= M.grow ? 1 : (M.stage || 1) + 1; M = MODELS[kind](next); M.stage = next; buildParts(next > 1); const a = sph(); animateTo(a.th, a.ph, 900, a.ph < 0.2 ? topDist * stageDist[next] / stageDist[M.grow] : stageDist[next]); return next; },
       dispose() { alive=false;window.removeEventListener('resize',onResize);document.removeEventListener('fullscreenchange',onFull);cancelAnimationFrame(raf);controls.dispose();const gs=new Set(),ms=new Set();scene.traverse(o=>{if(o.geometry)gs.add(o.geometry);if(o.material)(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>ms.add(m))});gs.forEach(g=>g.dispose());ms.forEach(m=>{if(m.map)m.map.dispose();m.dispose()});renderer.dispose();renderer.forceContextLoss();renderer.domElement.remove(); },
     };
   }
-  window.Zome3D = { mount, _M: MODELS };
+  window.Zome3D = { mount, _M: MODELS, parts: { ballGeometry, strutGeometry, lin } };
 })();

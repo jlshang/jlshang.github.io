@@ -49,20 +49,30 @@ class View{
     const up=()=>{this.dragging=false;host.classList.remove("grab")};host.addEventListener("pointerup",up);host.addEventListener("pointercancel",up);
     VIEWS.push(this);this.draw()}
   set(name){this.name=name;this.g=geo(name);this.color=this.mode==="zome"?COL[name]:SOLID_COL[name];this.clearHi();this.showB=null;this.showE=null;this.draw()}
-  clearHi(){this.hiB=new Set();this.hiE=new Set();this.hiF=new Set();this.labels=[]}
+  clearHi(){this.hiB=new Set();this.hiE=new Set();this.hiF=new Set();this.hiV=null;this.labels=[]}
   rot(v){let[x,y,z]=v;let c=Math.cos(this.ay),s=Math.sin(this.ay);[x,z]=[x*c+z*s,-x*s+z*c];c=Math.cos(this.ax);s=Math.sin(this.ax);[y,z]=[y*c-z*s,y*s+z*c];return[x,y,z]}
   proj(v){const D=5,k=D/(D-v[2]),S=Math.min(this.W,this.H)*0.36*this.zoom;return[this.W/2+v[0]*S*k,this.H/2-v[1]*S*k,v[2]]}
-  home(){this.targetAngles=[+(this.host.dataset.ax||-.42),+(this.host.dataset.ay||.6)]}
-  face(i){this.hiF=new Set([i]);this.labels=[];const n=this.g.F[i].n;this.targetAngles=[Math.atan2(n[1],Math.hypot(n[0],n[2])),-Math.atan2(n[0],n[2])];this.draw()}
+  home(){this.spin=this.host.dataset.spin===undefined?0:+this.host.dataset.spin;this.targetAngles=[+(this.host.dataset.ax||-.42),+(this.host.dataset.ay||.6)]}
+  face(i){this.spin=0;this.hiV=null;this.hiF=new Set([i]);this.labels=[];const n=this.g.F[i].n;this.targetAngles=[Math.atan2(n[1],Math.hypot(n[0],n[2]))-0.32,-Math.atan2(n[0],n[2])+0.38];this.draw()}  /* face the viewer at a slight tilt so it still looks 3D */
+  /* the k-th face/vertex counted from the one facing the viewer, so every click shows something new but visible */
+  frontFace(k=0){const r=this.g.F.map((f,i)=>[i,this.rot(f.n)[2]]).sort((a,b)=>b[1]-a[1]);return r[k%r.length][0]}
+  frontVertex(k=0){const r=this.g.V.map((v,i)=>[i,this.rot(v)[2]+.35*this.rot(v)[1]]).sort((a,b)=>b[1]-a[1]);return r[k%r.length][0]}
+  vertex(i){this.spin=0;this.hiV=i;this.hiF=new Set(this.g.F.map((f,k)=>f.v.includes(i)?k:-1).filter(k=>k>=0));this.labels=[];const v=this.g.V[i];
+    const ax=Math.max(-1.2,Math.min(1.2,Math.atan2(v[1],Math.hypot(v[0],v[2]))-0.35));this.targetAngles=[ax,-Math.atan2(v[0],v[2])];this.draw();return this.hiF.size}
   tick(dt){if(this.targetAngles&&!this.dragging){const a=this.targetAngles,k=reduce?1:Math.min(1,dt*7);this.ax+=(a[0]-this.ax)*k;let d=a[1]-this.ay;d=Math.atan2(Math.sin(d),Math.cos(d));this.ay+=d*k;if(Math.abs(a[0]-this.ax)+Math.abs(d)<.002)this.targetAngles=null;this.draw()}else if(!this.dragging&&this.spin&&!reduce){this.ay+=this.spin*dt;this.draw()}}
 
   draw(){
     const g=this.g,R=g.V.map(v=>this.rot(v)),P=R.map(v=>this.proj(v));let out="";const items=[];
     if(this.mode==="solid"){
-      g.F.forEach((f,i)=>{const n=this.rot(f.n);if(n[2]<=0.0001)return;const k=0.5+0.5*Math.max(0,dot(n,LIGHT))+0.08*n[2];
-        const pts=f.v.map(q=>P[q][0].toFixed(1)+","+P[q][1].toFixed(1)).join(" ");
-        const fill=this.hiF.has(i)?shadeHex("#FFB347",k):shadeHex(this.color,k);
-        items.push([f.v.reduce((s,q)=>s+R[q][2],0)/f.v.length,`<polygon points="${pts}" fill="${fill}" stroke="#232634" stroke-width="3" stroke-linejoin="round"/>`])});
+      const S=Math.min(this.W,this.H)*0.36*this.zoom,base=this.color,line=shadeHex(base,.5);
+      const ys=P.map(p=>p[1]),gy=Math.max(...ys)+S*.12;
+      items.push([-99,`<ellipse cx="${(this.W/2).toFixed(1)}" cy="${gy.toFixed(1)}" rx="${(S*.85).toFixed(1)}" ry="${(S*.13).toFixed(1)}" fill="url(#${this.uid}-sh)"/>`]);
+      g.F.forEach((f,i)=>{const n=this.rot(f.n);if(n[2]<=0.0001)return;const lit=Math.max(0,dot(n,LIGHT)),k=0.58+0.42*lit+0.06*n[2];
+        const pts=f.v.map(q=>P[q][0].toFixed(1)+","+P[q][1].toFixed(1)).join(" ");const hi=this.hiF.has(i);
+        const fill=hi?shadeHex("#FFB347",0.8+0.25*lit):shadeHex(base,k);
+        const gl=lit>.55?`<polygon points="${pts}" fill="url(#${this.uid}-gl)" opacity="${((lit-.55)*1.6).toFixed(2)}"/>`:"";
+        items.push([f.v.reduce((s,q)=>s+R[q][2],0)/f.v.length,`<polygon points="${pts}" fill="${fill}" stroke="${hi?"#C2410C":line}" stroke-width="${hi?4.5:3}" stroke-linejoin="round"/>${gl}`])});
+      if(this.hiV!=null){const p=P[this.hiV];items.push([99,`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${(S*.075+6).toFixed(1)}" fill="#E8742A" stroke="#fff" stroke-width="4"/>`])}
     }else{
       const S=Math.min(this.W,this.H)*0.36*this.zoom,br=S*0.085,sw=S*0.055;
       g.F.forEach((f,i)=>{if(!this.hiF.has(i))return;const pts=f.v.map(q=>P[q][0].toFixed(1)+","+P[q][1].toFixed(1)).join(" ");const n=this.rot(f.n);
@@ -75,7 +85,7 @@ class View{
     items.sort((a,b)=>a[0]-b[0]);out=items.map(x=>x[1]).join("");
     const lab=this.labels.map(l=>{let p;if(l.t==="v")p=P[l.i];else if(l.t==="e"){const[a,b]=g.E[l.i];p=[(P[a][0]+P[b][0])/2,(P[a][1]+P[b][1])/2]}else{const f=g.F[l.i];p=[f.v.reduce((s,q)=>s+P[q][0],0)/f.v.length,f.v.reduce((s,q)=>s+P[q][1],0)/f.v.length]}
       return`<g class="lab"><circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="19" fill="#1E2A44"/><text x="${p[0].toFixed(1)}" y="${(p[1]+8).toFixed(1)}" text-anchor="middle" font-size="22" font-weight="900" fill="#fff">${l.n}</text></g>`}).join("");
-    this.svg.innerHTML=`<defs><radialGradient id="${this.uid}-bw" cx="35%" cy="30%" r="70%"><stop offset="0" stop-color="#fff"/><stop offset=".7" stop-color="#E4E8EF"/><stop offset="1" stop-color="#B7BFCC"/></radialGradient><radialGradient id="${this.uid}-bh" cx="35%" cy="30%" r="70%"><stop offset="0" stop-color="#FFE3C2"/><stop offset="1" stop-color="#FF8A2A"/></radialGradient></defs>${out}${lab}`}
+    this.svg.innerHTML=`<defs><radialGradient id="${this.uid}-bw" cx="35%" cy="30%" r="70%"><stop offset="0" stop-color="#fff"/><stop offset=".7" stop-color="#E4E8EF"/><stop offset="1" stop-color="#B7BFCC"/></radialGradient><radialGradient id="${this.uid}-bh" cx="35%" cy="30%" r="70%"><stop offset="0" stop-color="#FFE3C2"/><stop offset="1" stop-color="#FF8A2A"/></radialGradient><radialGradient id="${this.uid}-sh"><stop offset="0" stop-color="#1E2A44" stop-opacity=".28"/><stop offset="1" stop-color="#1E2A44" stop-opacity="0"/></radialGradient><linearGradient id="${this.uid}-gl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".6" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>${out}${lab}`}
   /* order helpers for counting: top-to-bottom, then around */
   order(list,center){return list.map((p,i)=>[i,p]).sort((a,b)=>{const ra=this.rot(a[1]),rb=this.rot(b[1]);return(rb[1]-ra[1])||Math.atan2(ra[0],ra[2])-Math.atan2(rb[0],rb[2])}).map(x=>x[0])}
 }
