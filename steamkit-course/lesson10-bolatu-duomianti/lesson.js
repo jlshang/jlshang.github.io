@@ -131,7 +131,7 @@ function enter(s){
  $$('[data-zome-step]',s).forEach(b=>{b.disabled=false;b.textContent='下一步'});
  const cmpBtn=$('[data-compare-step]',s);if(cmpBtn){cmpBtn.disabled=false;cmpBtn.textContent='看它们的面'}s._cmp=0;s._faceIndex=0;s._vertexIndex=0;$$('.vertex-answer',s).forEach(o=>o.hidden=true);
  $$('[data-img-step]',s).forEach(b=>{b.disabled=false;b.textContent='再加一个'});s._imgIdx=0;const si=$('.step-img',s);if(si&&s.dataset.imgList)si.src='a/vz/'+s.dataset.imgList.split(',')[0]+'.png';const se=$('.step-end',s);if(se)se.hidden=true;
- s._eu=0;$$('[data-euler-row]',s).forEach(tr=>{tr.classList.remove('filled','cur');$$('.cell',tr).forEach(c=>c.hidden=true)});const r0=$('[data-euler-row]',s);if(r0)r0.classList.add('cur');$$('[data-euler-pick]',s).forEach((x,k)=>setPressed(x,k===0));const eb=$('.count-badge',s);if(eb)eb.hidden=true;$$('[data-euler-count]',s).forEach(x=>setPressed(x,false));$$('[data-euler-next]',s).forEach(x=>x.disabled=false);
+ s._eu=0;$$('[data-euler-row]',s).forEach(tr=>{tr.classList.remove('filled','cur');$$('.cell',tr).forEach(c=>c.hidden=true)});const r0=$('[data-euler-row]',s);if(r0)r0.classList.add('cur');$$('[data-euler-pick]',s).forEach((x,k)=>setPressed(x,k===0));const eb=$('.count-badge',s);if(eb)eb.hidden=true;$$('[data-euler-count]',s).forEach(x=>setPressed(x,false));$$('[data-euler-next]',s).forEach(x=>x.disabled=false);$$('[data-euler-sum]',s).forEach(x=>{x.disabled=true;x.classList.remove('nudge')});$$('.euler-ask',s).forEach(x=>{x.hidden=true;const a=$('.ans',x);a.textContent='？';a.classList.remove('got');$('.calc',x).hidden=true});
  $$('.mini-fold',s).forEach(h=>{if(!h._fold)h._fold=new Fold(h);h._fold.setup(+h.dataset.k,+h.dataset.n);h._fold.t=h._fold.target=1;h._fold.draw()});
  $$('.tiling-host',s).forEach(h=>{if(!h._tiling)h._tiling=new Tiling(h);h._tiling.setup(+h.dataset.tiling,1)});const tBtn=$('[data-tiling-more]',s);if(tBtn){tBtn.disabled=false;tBtn.textContent='再拼一圈'}
  if(s.dataset.foldDefault){const host=$('.fold-host',s);if(!host._fold)host._fold=new Fold(host);const [k,n]=s.dataset.foldDefault.split(',').map(Number);pickFold(s,k,n)}
@@ -218,7 +218,10 @@ $$('[data-euler-count]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),v
   v[COUNT_FN[k]](n=>{if(s._counting!==run)return;bd.textContent=nm+' '+n;cue('tick')},n=>{if(s._counting===run){bd.textContent=`${nm} ${n} 个`;bd.classList.remove('pop');void bd.offsetWidth;bd.classList.add('pop');cue()}})});
 $$('[data-euler-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),tr=eulerRow(s);if(!tr||tr.classList.contains('filled'))return;
   $$('.cell',tr).forEach((c,k)=>later(()=>{c.hidden=false;cue()},k*350));tr.classList.add('filled');
-  const rows=$$('[data-euler-row]',s);if(rows.every(r=>r.classList.contains('filled'))){later(()=>celebrate(s),1500)}});
+  const rows=$$('[data-euler-row]',s);if(rows.every(r=>r.classList.contains('filled'))){later(()=>{const sb=$('[data-euler-sum]',s);if(sb){sb.disabled=false;sb.classList.add('nudge')}cue('select')},1200)}});
+$$('[data-euler-sum]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),box=$('.euler-ask',s);b.classList.remove('nudge');
+  if(box.hidden){box.hidden=false;box.classList.remove('pop');void box.offsetWidth;box.classList.add('pop');cue();return}
+  const ans=$('.ans',box);if(ans.textContent==='2')return;ans.textContent='2';ans.classList.add('got');$('.calc',box).hidden=false;b.disabled=true;celebrate(s)});
 $$('[data-zome-scaf]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=$('.zome-host',s);const on=h._scaf=!h._scaf;b.textContent=on?'去掉脚手架':'加脚手架';setPressed(b,on);const st=h._z?h._z.stage():1;zviews=zviews.filter(z=>z.h!==h);if(h._z){h._z.dispose();h._z=null}h.innerHTML='';try{const v=Zome3D.mount(h,h.dataset.zome+(on?'S':''),{fitW:h.clientWidth*.78,fitH:h.clientHeight*.77,stage:st});h._z=v;h._angle=0;zviews.push({h,v});v.home&&v.home()}catch(e){console.warn('scaf remount failed',e)}cue()});
 $$('[data-fold-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),f=$('.fold-host',s)._fold;const max=f.k===4?4:3;const n=(f.n%max)+1;pickFold(s,f.k,n);cue()});
 $$('[data-rules]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');$$('.rule-card',s).forEach(r=>r.hidden=false);b.disabled=true;cue();});
@@ -244,6 +247,20 @@ $$('[data-tile-more]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');if(
     v.jumpStage(cur);b._busy=true;v.growIn(()=>{v.zoomTo(next);b._busy=false})});
   cue();if(last){b.disabled=true;b.textContent='拼满啦！'}});
 $$('[data-tile-home]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');$$('.zome-host',s).forEach(h=>{zviews=zviews.filter(z=>z.h!==h);if(h._z){h._z.dispose();h._z=null}h.innerHTML='';h.dataset.stage=1;zomeHost(h);h._z?.home()});const mb=$('[data-tile-more]',s);if(mb){mb.disabled=false;mb.textContent='再拼一圈'}cue()});
+function setupWall(s){const wall=$('.awall',s),box=$('.acombo',s);if(!wall||!box||box._ready)return;box._ready=true;const opts=(box.dataset.options||'').split(',').filter(Boolean),counts=new Map();
+  box.innerHTML=`<form class="acform"><div class="acfield"><input maxlength="8" aria-label="孩子的猜想" autocomplete="off" placeholder="选一个数，或输入孩子的答案"><button type="button" class="acopen" aria-label="展开选项" aria-expanded="false">▲</button></div><button type="submit" class="acadd" aria-label="贴上去" title="贴上去">贴上去</button></form><ul class="aclist" hidden></ul>`;
+  const form=$('form',box),inp=$('input',box),list=$('.aclist',box),op=$('.acopen',box);const close=()=>{list.hidden=true;op.setAttribute('aria-expanded','false')};
+  const pin=v=>{let c=counts.get(v);if(!c){const n=document.createElement('div');n.className='anote';n.style.setProperty('--rot',((counts.size*37)%9-4)+'deg');const num=/^\d+$/.test(v);n.innerHTML=`<b>${num?v:''}</b><span>${num?'个三角形':v.replace(/[<>&]/g,'')}</span><i class="acount"></i>`;wall.append(n);c={n,v:0};counts.set(v,c);wall.classList.add('has')}
+    c.v++;$('.acount',c.n).textContent=c.v>1?`× ${c.v}`:'';c.n.classList.remove('bump');void c.n.offsetWidth;c.n.classList.add('bump');cue('select')};
+  opts.forEach(v=>{const li=document.createElement('li'),bt=document.createElement('button');bt.type='button';bt.textContent=v+' 个';bt.onclick=()=>{close();pin(v);inp.value=''};li.append(bt);list.append(li)});
+  op.onclick=()=>{list.hidden=!list.hidden;op.setAttribute('aria-expanded',String(!list.hidden));cue('tick')};
+  inp.addEventListener('focus',()=>{list.hidden=false;op.setAttribute('aria-expanded','true')});
+  inp.addEventListener('keydown',e=>e.stopPropagation());
+  form.addEventListener('submit',e=>{e.preventDefault();const v=inp.value.trim().replace(/个$/,'');if(!v)return;close();pin(v);inp.value='';inp.blur()});
+  s.addEventListener('pointerdown',e=>{if(!box.contains(e.target))close()});
+  s._wallReset=()=>{counts.clear();$$('.anote',wall).forEach(n=>n.remove());wall.classList.remove('has');close()}}
+$$('.awall').forEach(w=>setupWall(w.closest('.slide')));
+$$('[data-wall-reset]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');s._wallReset&&s._wallReset();cue('tick')});
 const ZF_NAME={'3,3':'正四面体','3,4':'正八面体','3,5':'正二十面体','4,3':'立方体','5,3':'正十二面体'},ZF_SHAPE={3:'三角形',4:'正方形',5:'正五边形',6:'正六边形'};
 function zfReset(s){s._zfFolded=false;$$('[data-zf-fold]',s).forEach(x=>{x.textContent='聚拢';x.classList.remove('is-on')});$$('.zf-answer',s).forEach(o=>o.hidden=true)}
 $$('[data-zf]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=$('.zfold-host',s),f=h&&h._f;if(!f)return;f.set(+b.dataset.k,+b.dataset.n,b.dataset.color,0,b.dataset.foldColor);$$('[data-zf]',s).forEach(x=>setPressed(x,x===b));zfReset(s);cue()});

@@ -250,3 +250,49 @@ h2 em.hl{font-style:normal;color:var(--orange);font-size:1.18em;padding:0 6px}
 [data-euler-count="e"]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='5' cy='19' r='3.2'/%3E%3Ccircle cx='19' cy='5' r='3.2'/%3E%3Cpath d='M6.5 17.5L17.5 6.5' fill='none' stroke='black' stroke-width='3.4' stroke-linecap='round'/%3E%3C/svg%3E")}
 [data-euler-count="f"]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpolygon points='12,3.5 21,19.5 3,19.5'/%3E%3C/svg%3E")}
 .banner-text h1{font-size:88px;letter-spacing:8px}
+
+/* ---- v20: answer wall (as lesson 5), Euler table grid + V+F−E reveal ---- */
+[data-wall-reset]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 5.5a6.5 6.5 0 1 1-5.8 3.6' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpolygon points='4.2,3.2 9.2,9 3.4,9.6'/%3E%3C/svg%3E")}
+[data-euler-sum]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M8.6 8.6a3.4 3.4 0 1 1 4.8 3.1c-1 .5-1.4 1.2-1.4 2.3v.6' fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round'/%3E%3Ccircle cx='12' cy='19' r='1.7'/%3E%3C/svg%3E")}
+.slide .controls .action.nudge{animation:nudge 1s ease-in-out infinite}
+@keyframes nudge{0%,100%{box-shadow:0 0 0 0 #e8742a88}50%{box-shadow:0 0 0 12px #e8742a00;transform:scale(1.08)}}
+.dark h2 em.hl{color:#FFC60A}
+.awall{position:absolute;border:3px dashed rgba(255,255,255,.28);border-radius:28px;display:flex;flex-wrap:wrap;align-content:flex-start;gap:22px;padding:28px}
+.awall .aempty{margin:auto;color:rgba(255,255,255,.45);font:30px var(--display)}
+.awall.has .aempty{display:none}
+.anote{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:176px;padding:14px 16px 12px;background:#FFF6C9;color:#1E2A44;border-radius:10px;box-shadow:0 8px 18px rgba(0,0,0,.28);transform:rotate(var(--rot));animation:notePop .45s cubic-bezier(.2,1.6,.4,1) both}
+.anote b{font:76px/1 var(--display);color:var(--orange)}
+.anote b:empty{display:none}
+.anote span{font:26px var(--display)}
+.anote .acount{position:absolute;right:-12px;top:-12px;background:#E8742A;color:#fff;font:900 22px var(--body);font-style:normal;border-radius:999px;padding:2px 10px}
+.anote .acount:empty{display:none}
+.anote.bump{animation:notePop .35s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes notePop{0%{transform:rotate(var(--rot)) scale(.4);opacity:0}100%{transform:rotate(var(--rot)) scale(1);opacity:1}}
+.acombo{position:absolute}
+.acform{display:flex;gap:14px;align-items:center}
+.acfield{display:flex;align-items:center;background:#FBF6EC;border-radius:16px;box-shadow:0 4px 0 #C9BFA8;overflow:hidden}
+.acfield input{font:700 28px var(--body);color:#1E2A44;border:none;background:transparent;padding:14px 20px;width:620px;outline:none}
+.acopen{font-size:22px;border:none;background:#E8DFCC;color:#1E2A44;align-self:stretch;width:66px;cursor:pointer}
+.acadd{width:66px;height:66px;padding:0;border-radius:50%;font-size:0;background:#fff;border:3px solid var(--orange);position:relative;flex:none;cursor:pointer;--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 16V5M12 5l-4.2 4.2M12 5l4.2 4.2' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M5 19h14' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E")}
+.acadd::before{content:"";position:absolute;left:16px;top:16px;width:28px;height:28px;background:var(--orange);-webkit-mask:var(--ico) center/contain no-repeat;mask:var(--ico) center/contain no-repeat}
+.acadd:hover{background:#FFF3E6}.acadd:active{transform:scale(.94)}
+.aclist{position:absolute;left:0;bottom:calc(100% + 12px);width:706px;margin:0;padding:12px;list-style:none;background:#FFFDF8;border-radius:18px;box-shadow:0 14px 30px rgba(0,0,0,.35);display:grid;grid-template-columns:repeat(4,1fr);gap:10px;z-index:9}
+.aclist[hidden]{display:none}
+.aclist button{width:100%;font:32px var(--display);color:#1E2A44;background:#F3EBDC;border:none;border-radius:12px;padding:10px;cursor:pointer}
+.aclist button:hover{background:#FFE9A8}
+/* Euler table: clear grid */
+.euler-table{border-collapse:separate;border-spacing:0;border:3px solid #c9d3e3}
+.euler-table th,.euler-table td{border-right:2px solid #d3dbe8;border-bottom:2px solid #d3dbe8}
+.euler-table th{border-right-color:#3b4a6b;border-bottom-color:#3b4a6b}
+.euler-table tr>*:last-child{border-right:none}
+.euler-table tr:last-child td{border-bottom:none}
+.slide[data-id="euler-count"] .euler-table{width:640px;left:760px}
+.euler-ask{position:absolute;left:760px;top:560px;width:640px;text-align:center}
+.euler-ask .q{display:block;font:64px var(--display);color:#fff}
+.euler-ask .ans{font-weight:400;color:#FFC60A}
+.euler-ask .ans.got{color:var(--orange);display:inline-block;animation:hello .4s ease both}
+.euler-ask .calc{display:block;margin-top:10px;font:26px var(--display);color:#ffb676}
+.euler-ask.pop{animation:hello .4s ease both}
+.awall:not(.has){align-content:center;justify-content:center}
+.awall .aempty{text-align:center;margin:0}
+.euler-ask .calc{font-size:22px;white-space:nowrap}
