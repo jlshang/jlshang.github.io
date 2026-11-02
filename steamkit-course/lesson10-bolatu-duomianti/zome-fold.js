@@ -55,7 +55,7 @@
       this.BG = Zome3D.parts.ballGeometry();
       this.cam = new THREE.PerspectiveCamera(18, W / H, 0.5, 2000);
       this.controls = new THREE.OrbitControls(this.cam, r.domElement);
-      Object.assign(this.controls, { enableDamping: true, dampingFactor: 0.08, enablePan: false, enableZoom: true, rotateSpeed: 0.9 });
+      Object.assign(this.controls, { enableDamping: true, dampingFactor: 0.08, enablePan: false, enableZoom: true, zoomSpeed: 2.4, rotateSpeed: 0.9 });
       r.domElement.addEventListener("pointerdown", () => { r.domElement.style.cursor = "grabbing"; });
       r.domElement.addEventListener("pointerup", () => { r.domElement.style.cursor = "grab"; });
       this.center = V(0, 0, 0);

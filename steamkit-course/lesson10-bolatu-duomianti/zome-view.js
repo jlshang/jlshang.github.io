@@ -142,7 +142,7 @@
 
     const camera = new THREE.PerspectiveCamera(18, W / H, 0.5, 900);
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true; controls.dampingFactor = 0.08; controls.enablePan = false; controls.enableZoom = true; controls.zoomSpeed = 0.8; controls.rotateSpeed = 0.9;
+    controls.enableDamping = true; controls.dampingFactor = 0.08; controls.enablePan = false; controls.enableZoom = true; controls.zoomSpeed = 2.4; controls.rotateSpeed = 0.9;
     const el = (M.elev * Math.PI) / 180;
     let dist = 60;
     const home = () => new THREE.Vector3(0, Math.sin(el), Math.cos(el)).multiplyScalar(dist);
@@ -211,9 +211,9 @@
       flip(){animateTo(sph().th,Math.PI*.68,1100)},
       top() { animateTo(sph().th, 0.0001, 1600, stageDist ? topDist * stageDist[M.stage || 1] / stageDist[M.grow] : null); },
       growIn(done) { growDone = done; growT0 = 0; },
-      intro(done, dur = 1600) { if (stageDist) dist = stageDist[M.stage || 1]; let t0 = 0, n = 0; controls.enabled = false; setSph(dist * 1.45, th0 - Math.PI * 2, ph0 + 0.2);
+      intro(done, dur = 1600, turn = Math.PI * 2, from = 1.45) { if (stageDist) dist = stageDist[M.stage || 1]; let t0 = 0, n = 0; controls.enabled = false; setSph(dist * from, th0 - turn, ph0 + 0.2);
         anim = (now) => { if (n++ < 2) { t0 = now; return; } const t = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - t, 3);
-          setSph(dist * (1.45 - 0.45 * e), th0 - Math.PI * 2 * (1 - e), ph0 + 0.2 * (1 - e)); if (t >= 1) { anim = null; controls.enabled = true; controls.update(); done && done(); } }; },
+          setSph(dist * (from - (from - 1) * e), th0 - turn * (1 - e), ph0 + 0.2 * (1 - e)); if (t >= 1) { anim = null; controls.enabled = true; controls.update(); done && done(); } }; },
       spin(dur = 3600) { const a = sph(), t0 = performance.now(); controls.enabled = false;
         anim = (now) => { const t = Math.min(1, (now - t0) / dur), e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
           setSph(a.r, a.th + e * Math.PI * 2, a.ph); if (t >= 1) { anim = null; controls.enabled = true; controls.update(); } }; },
@@ -233,7 +233,7 @@
       countBalls(each, done, gap = 260) { clearEmphasis(); const list = M.balls.map(([p]) => built.get(keyOf(p))).filter(Boolean);
         const order = list.map((m) => [m, m.position.clone().applyQuaternion(group.quaternion)]).sort((a, b) => b[1].y - a[1].y || Math.atan2(a[1].x, a[1].z) - Math.atan2(b[1].x, b[1].z)).map((x) => x[0]);
         let i = 0; const step = () => { if (!alive) return; if (i >= order.length) { done && done(order.length); return; } order[i].material = mat.orange; i++; each && each(i); setTimeout(step, gap); }; step(); },
-      stage: () => M.stage || 1, maxStage: M.grow || 0,
+      stage: () => M.stage || 1, maxStage: M.grow || 0, camDist: () => camera.position.length(),
       grow() { if (!M.grow) return 0; const next = (M.stage || 1) >= M.grow ? 1 : (M.stage || 1) + 1; M = MODELS[kind](next); M.stage = next; buildParts(next > 1); const a = sph(); animateTo(a.th, a.ph, 900, a.ph < 0.2 ? topDist * stageDist[next] / stageDist[M.grow] : stageDist[next]); return next; },
       dispose() { alive=false;window.removeEventListener('resize',onResize);document.removeEventListener('fullscreenchange',onFull);cancelAnimationFrame(raf);controls.dispose();const gs=new Set(),ms=new Set();scene.traverse(o=>{if(o.geometry)gs.add(o.geometry);if(o.material)(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>ms.add(m))});gs.forEach(g=>g.dispose());ms.forEach(m=>{if(m.map)m.map.dispose();m.dispose()});renderer.dispose();renderer.forceContextLoss();renderer.domElement.remove(); },
     };
