@@ -329,7 +329,7 @@
 
     const camera = new THREE.PerspectiveCamera(18, W / H, 0.5, 900);
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true; controls.dampingFactor = 0.08; controls.enablePan = false; controls.enableZoom = true; controls.zoomSpeed = 0.8; controls.rotateSpeed = 0.9;
+    controls.enableDamping = true; controls.dampingFactor = 0.08; controls.enablePan = false; controls.enableZoom = true; controls.zoomSpeed = 2.4; controls.rotateSpeed = 0.9;
     const el = (M.elev * Math.PI) / 180;
     let dist = 60;
     const home = () => new THREE.Vector3(0, Math.sin(el), Math.cos(el)).multiplyScalar(dist);

@@ -1034,7 +1034,7 @@ slides.forEach((s,i)=>{
 stage.addEventListener("click",e=>{const s=slides[cur];if(s.dataset.step&&!e.target.closest("button,.tap,.zoomable"))revealStep(s)});
 /* real 3D Zometool models (loaded on first use) */
 const loadJS=src=>new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)});
-let z3dLib=null;const z3dLoad=()=>z3dLib||(z3dLib=loadJS("a/three.min.js?v=r128").then(()=>loadJS("a/OrbitControls.js?v=r128")).then(()=>loadJS("a/zomeparts.js?v=9beb50f6")).then(()=>loadJS("a/zome3d.js?v=hw11")));
+let z3dLib=null;const z3dLoad=()=>z3dLib||(z3dLib=loadJS("a/three.min.js?v=r128").then(()=>loadJS("a/OrbitControls.js?v=r128")).then(()=>loadJS("a/zomeparts.js?v=9beb50f6")).then(()=>loadJS("a/zome3d.js?v=zoom2")));
 /* several separate models on one slide: they come in one after another, each can be turned and zoomed on its own */
 slides.forEach(s=>{const hosts=[...s.querySelectorAll(".z3dhost")];if(hosts.length<2)return;s.classList.add("multi3d");
   const st=hosts.map(h=>({h,view:null,loading:null}));let timers=[];
