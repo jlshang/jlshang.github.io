@@ -427,6 +427,14 @@ const SFX={
   drop(){tone(700,180,.25,"triangle",.12);setTimeout(SFX.thud,230)},
   reveal(){tone(392,784,.18,"triangle",.12);tone(587,1175,.22,"triangle",.1,.12)}
 };
+/* real CC0 samples (Freesound) — synth above is the fallback */
+const SMP={};["page","select","correct","wrong","fly","tick","win"].forEach(k=>{try{const e=new Audio("a/sfx/"+k+".mp3");e.preload="auto";SMP[k]=e}catch(x){}});
+function sfxPlay(k,vol=.8){const e=SMP[k];if(!e||e.error)return false;try{const c=e.cloneNode();c.volume=vol;const p=c.play();p&&p.catch&&p.catch(()=>{});return true}catch(x){return false}}
+const SYN=Object.assign({},SFX);
+const SMAP={pop:"select",ding:"correct",coin:"correct",reveal:"correct",boing:"wrong",oops:"wrong",hmph:"wrong",wah:"wrong",whoosh:"fly",tick:"tick",cheer:"win",fanfare:"win","fanfare-soft":"win"};
+const SVOL={tick:.6,whoosh:.7,pop:.8,"fanfare-soft":.6};
+for(const n in SMAP){const f=SFX[n];SFX[n]=()=>{if(!soundOn)return;if(!sfxPlay(SMAP[n],SVOL[n]||.85))f()}}
+SFX.page=()=>{if(soundOn)sfxPlay("page",.55)};
 const play=n=>{try{SFX[n]&&SFX[n]()}catch(e){}};
 
 /* ================= confetti ================= */
@@ -925,12 +933,12 @@ let entT=[];
 function entranceSfx(s){entT.forEach(clearTimeout);entT=[];if(s.dataset.sfx==="boom")return;const used=new Set();
   s.querySelectorAll(".el").forEach(e=>{const hit=ENTR.find(([c])=>e.classList.contains(c));if(!hit||e.classList.contains("after"))return;
     const dm=/\bd(\d)\b/.exec(e.className),t=(dm?+dm[1]*150:0)+(hit[0]==="in-drop"?0:40);const key=hit[1]+t;if(used.has(key))return;used.add(key);
-    entT.push(setTimeout(()=>play(hit[1]),t))})}
+    entT.push(setTimeout(()=>{try{SYN[hit[1]]&&SYN[hit[1]]()}catch(e){}},t))})}
 
 /* ================= navigation ================= */
 const countEl=document.getElementById("count"),bar=document.querySelector("#progress i"),notesEl=document.getElementById("notes"),ov=document.getElementById("overview"),nextBtn=document.getElementById("next");
 const esc=t=>t.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
-function go(i){i=Math.max(0,Math.min(N-1,i));
+function go(i){i=Math.max(0,Math.min(N-1,i));if(i!==cur)play("page");
   const old=slides[cur];old._z3dOff&&old._z3dOff();old.querySelectorAll("video").forEach(v=>v.pause());old.classList.remove("on");
   slides.forEach((s,k)=>s.hidden=k!==i);cur=i;const s=slides[i];void s.offsetWidth;s.classList.add("on");
   s.querySelectorAll("video").forEach(v=>{v.currentTime=0;v.play().catch(()=>{})});

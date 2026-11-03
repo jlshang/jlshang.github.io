@@ -1,0 +1,8 @@
+Sound effects from Freesound.org, all CC0 (public domain):
+page.mp3  <- freesound #397548  fs_397548_Page-Turn-01.mp3
+select.mp3  <- freesound #447910  fs_447910_Plop.mp3
+correct.mp3  <- freesound #243701  fs_243701_correct.mp3
+wrong.mp3  <- freesound #540790  fs_540790_Boing-2.mp3
+fly.mp3  <- freesound #511485  fs_511485_cartoon_wink_magic_sparkle-wav.mp3
+tick.mp3  <- freesound #467951  fs_467951_UI-Button-Click.mp3
+win.mp3  <- freesound #521645  fs_521645_WinFantasia-wav.mp3
