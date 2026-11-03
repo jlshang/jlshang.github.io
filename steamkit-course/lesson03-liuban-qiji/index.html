@@ -260,6 +260,7 @@ button:focus-visible,input:focus-visible{outline:4px solid var(--orange);outline
 <div class="el z3dmini" data-kind="s3_tree" data-fitw="398" data-fith="482" style="left:1031.3px;top:180px;width:462.7px;height:560px"></div>
 <div class="el sp in-up d4" style="left:1031.3px;top:746px;width:462.7px;height:44px;"><div class="tx" style="justify-content:flex-start;padding:0;white-space:nowrap;"><p style="text-align:center;line-height:44px;"><span style="font-size:30px;color:#FBF6EC;font-family:var(--display);font-weight:400;">大树枝雪花</span></p></div></div>
 <div class="el sp in-up d4" style="left:1031.3px;top:792px;width:462.7px;height:30px;"><div class="tx" style="justify-content:flex-start;padding:0;white-space:nowrap;"><p style="text-align:center;line-height:30px;"><span style="font-size:20px;color:#B8C2D6;font-family:var(--body);font-weight:400;">主枝再长一节，侧枝再分小枝</span></p></div></div>
+<div class="ctl"><button class="again z3home" aria-label="回正面" title="回正面">回正面</button></div>
 </section>
 <section class="slide" data-n="24" style="background:#F2A65A"  data-sfx="fanfare-soft" hidden>
 <div class="el sp in-up" data-k="0"  style="left:106.7px;top:292.7px;width:1469.9px;height:230.0px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;"><p style="text-align:left;line-height:115.0px;"><span style="font-size:100.0px;color:#1E2A44;font-family:var(--display);font-weight:400;">里面是六边形，</span></p><p style="text-align:left;line-height:115.0px;"><span style="font-size:100.0px;color:#1E2A44;font-family:var(--display);font-weight:400;">外面就是六个瓣</span></p></div></div>
@@ -366,6 +367,7 @@ button:focus-visible,input:focus-visible{outline:4px solid var(--orange);outline
 <div class="el z3dmini" data-kind="s3_ning" data-idle data-fitw="360" data-fith="400" style="left:560px;top:185px;width:480px;height:580px"></div>
 <div class="el z3dmini" data-kind="s3_rui" data-idle data-fitw="360" data-fith="400" style="left:1050px;top:185px;width:480px;height:580px"></div>
 <div class="el sp" style="left:106.7px;top:833.3px;width:1386.7px;height:33.3px;"><div class="tx" style="justify-content:flex-start;padding:6.0px 12.0px 6.0px 12.0px;"><p style="text-align:left;line-height:1.20;"><span style="font-size:18.3px;color:#B8C2D6;font-family:var(--body);font-weight:400;">以上造型感谢 Zometool 发烧友宁宁酱、睿 等提供创意</span></p></div></div>
+<div class="ctl"><button class="again z3home" aria-label="回正面" title="回正面">回正面</button></div>
 </section>
 <section class="slide" data-n="30" style="background:#1E2A44" hidden>
 <div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#FBF6EC;font-family:var(--display);font-weight:400;">课后挑战2：拼一块三层的水分子冰，并找到六边形角度</span></p></div></div>
@@ -967,7 +969,7 @@ stage.addEventListener("touchend",e=>{if(sx===null)return;const dx=e.changedTouc
 const vp=document.getElementById("viewport");function fit(){const r=vp.getBoundingClientRect(),k=Math.min(r.width/1600,r.height/900);stage.style.transform=`translate(-50%,-50%) scale(${k})`}
 addEventListener("resize",fit);fit();
 let last=performance.now();function frame(now){const dt=Math.min(.033,(now-last)/1000);last=now;const L=live.get(cur);if(L){L.step(dt);L.draw()}drawConfetti();requestAnimationFrame(frame)}
-slides.forEach(s=>{const hs=[...s.querySelectorAll(".z3dmini")];if(!hs.length)return;let views=[],live=0;
+slides.forEach(s=>{const hs=[...s.querySelectorAll(".z3dmini")];if(!hs.length)return;let views=[],live=0; s.querySelector(".z3home")?.addEventListener("click",()=>{A();play("tick");views.forEach(v=>v.home())});
   s._z3dEnter=()=>{const my=++live;z3dLoad().then(()=>{if(my!==live)return;views=hs.map((h,k)=>{const v=Zome3D.mount(h,h.dataset.kind,{fitW:+h.dataset.fitw,fitH:+h.dataset.fith,idle:h.hasAttribute("data-idle"),idlePhase:k*2.1});setTimeout(()=>{h.classList.add("on");v.intro(null,1500,"soft")},k*200);return v});play("whoosh")})};
   s._z3dOff=()=>{live++;views.forEach(v=>v.dispose());views=[];hs.forEach(h=>h.classList.remove("on"))}});
 if(stage.querySelector(".z3dhost,.z3dmini"))setTimeout(function z3dPre(){z3dLoad().catch(()=>{})},1200);

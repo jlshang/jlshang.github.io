@@ -392,12 +392,13 @@ button:focus-visible,input:focus-visible{outline:4px solid var(--orange);outline
 </section>
 <section class="slide" data-n="35" style="background:#1E2A44"  hidden>
 <div class="el sp " data-k="0"  style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0.0px 0.0px 0.0px 0.0px;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#FBF6EC;font-family:var(--display);font-weight:400;">更多三角形</span></p></div></div>
-<div class="el pic in-up zoomable" data-k="1" style="left:40px;top:190px;width:480px;height:540px;border-radius:18px;overflow:hidden;background:#152033;"><img class="im" src="a/pylon.webp?v=2" alt="输电铁塔" draggable="false" style="width:480px;height:540px;left:0;top:0;object-fit:cover;object-position:center top;"></div>
+<div class="el z3dmini" data-kind="hwPylon" data-idle data-fitw="400" data-fith="500" style="left:40px;top:190px;width:480px;height:540px"></div>
 <div class="el sp" style="left:40px;top:740px;width:480px;height:44px;"><div class="tx" style="justify-content:flex-start;padding:0;white-space:nowrap;"><p style="text-align:center;line-height:44px;"><span style="font-size:28px;color:#FFFFFF;font-family:var(--body);font-weight:900;">输电铁塔</span></p></div></div>
 <div class="el pic in-up d1 zoomable" data-k="3" style="left:560px;top:190px;width:480px;height:540px;border-radius:18px;overflow:hidden;background:#152033;"><img class="im" src="a/image55.webp" alt="埃菲尔铁塔" draggable="false" style="width:480px;height:540px;left:0;top:0;object-fit:cover;object-position:center;"></div>
 <div class="el sp" style="left:560px;top:740px;width:480px;height:44px;"><div class="tx" style="justify-content:flex-start;padding:0;white-space:nowrap;"><p style="text-align:center;line-height:44px;"><span style="font-size:28px;color:#FFFFFF;font-family:var(--body);font-weight:900;">埃菲尔铁塔</span></p></div></div>
 <div class="el pic in-up d2 zoomable" data-k="5" style="left:1080px;top:190px;width:480px;height:540px;border-radius:18px;overflow:hidden;background:#152033;"><img class="im" src="a/image58.webp" alt="老房子屋顶" draggable="false" style="width:480px;height:540px;left:0;top:0;object-fit:cover;object-position:center;"></div>
 <div class="el sp" style="left:1080px;top:740px;width:480px;height:44px;"><div class="tx" style="justify-content:flex-start;padding:0;white-space:nowrap;"><p style="text-align:center;line-height:44px;"><span style="font-size:28px;color:#FFFFFF;font-family:var(--body);font-weight:900;">老房子屋顶</span></p></div></div>
+<div class="ctl"><button class="again z3home" aria-label="回正面" title="回正面">回正面</button></div>
 </section>
 <section class="slide" data-n="38" style="background:#1E2A44"  data-sfx="fanfare-soft" hidden>
 <div class="el sp" data-k="0" style="left:106.7px;top:106.7px;width:1802.7px;height:61.3px;"><div class="tx" style="justify-content:flex-start;padding:0;white-space:nowrap;"><p style="text-align:left;line-height:61.3px;"><span style="font-size:53.3px;color:#FBF6EC;font-family:var(--display);font-weight:400;">课后挑战1：搭建不同的桥，测试稳定性并逐步改造</span></p></div></div>
@@ -410,6 +411,7 @@ button:focus-visible,input:focus-visible{outline:4px solid var(--orange);outline
 <div class="el z3dmini" data-kind="hwTower" data-idle data-fitw="520" data-fith="560" style="left:90px;top:185px;width:700px;height:620px"></div>
 <div class="el z3dmini" data-kind="hwPylon" data-idle data-fitw="520" data-fith="560" style="left:810px;top:185px;width:700px;height:620px"></div>
 <div class="el sp" style="left:106.7px;top:833.3px;width:1386.7px;height:33.3px;"><div class="tx" style="justify-content:flex-start;padding:6.0px 12.0px 6.0px 12.0px;"><p style="text-align:left;line-height:1.20;"><span style="font-size:18.3px;color:#B8C2D6;font-family:var(--body);font-weight:400;">感谢 Zometool 发烧友宁宁酱为造型提供创意</span></p></div></div>
+<div class="ctl"><button class="again z3home" aria-label="回正面" title="回正面">回正面</button></div>
 </section>
     <canvas id="burst" width="1600" height="900" aria-hidden="true"></canvas>
     <div id="flash" aria-hidden="true"></div>
@@ -1117,7 +1119,7 @@ stage.addEventListener("touchend",e=>{if(sx===null)return;const dx=e.changedTouc
 const vp=document.getElementById("viewport");function fit(){const r=vp.getBoundingClientRect(),k=Math.min(r.width/1600,r.height/900);stage.style.transform=`translate(-50%,-50%) scale(${k})`}
 addEventListener("resize",fit);fit();
 let last=performance.now();function frame(now){const dt=Math.min(.033,(now-last)/1000);last=now;const L=live.get(cur);if(L){L.step(dt);L.draw()}drawConfetti();requestAnimationFrame(frame)}
-slides.forEach(s=>{const hs=[...s.querySelectorAll(".z3dmini")];if(!hs.length)return;let views=[],live=0;
+slides.forEach(s=>{const hs=[...s.querySelectorAll(".z3dmini")];if(!hs.length)return;let views=[],live=0; s.querySelector(".z3home")?.addEventListener("click",()=>{A();play("tick");views.forEach(v=>v.home())});
   s._z3dEnter=()=>{const my=++live;z3dLoad().then(()=>{if(my!==live)return;views=hs.map((h,k)=>{const v=Zome3D.mount(h,h.dataset.kind,{fitW:+h.dataset.fitw,fitH:+h.dataset.fith,idle:h.hasAttribute("data-idle"),idlePhase:k*2.1});setTimeout(()=>{h.classList.add("on");v.intro(null,900,"quick")},k*200);return v});play("whoosh")})};
   s._z3dOff=()=>{live++;views.forEach(v=>v.dispose());views=[];hs.forEach(h=>h.classList.remove("on"))}});
 if(stage.querySelector(".z3dhost,.z3dmini"))setTimeout(function z3dPre(){z3dLoad().catch(()=>{})},1200);

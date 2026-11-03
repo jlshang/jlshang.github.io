@@ -296,3 +296,6 @@ h2 em.hl{font-style:normal;color:var(--orange);font-size:1.18em;padding:0 6px}
 .awall:not(.has){align-content:center;justify-content:center}
 .awall .aempty{text-align:center;margin:0}
 .euler-ask .calc{font-size:22px;white-space:nowrap}
+
+.banner-text.two h1{font-size:96px;letter-spacing:10px}
+.banner-text.two .sub2{margin:6px 0 0;font:44px var(--display);color:#8a5a2a;letter-spacing:6px}
