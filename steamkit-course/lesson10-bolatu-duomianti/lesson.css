@@ -299,3 +299,6 @@ h2 em.hl{font-style:normal;color:var(--orange);font-size:1.18em;padding:0 6px}
 
 .banner-text.two h1{font-size:96px;letter-spacing:10px}
 .banner-text.two .sub2{margin:6px 0 0;font:44px var(--display);color:#8a5a2a;letter-spacing:6px}
+
+.banner-text.one h1{font-size:80px;letter-spacing:6px;white-space:nowrap}
+.banner-text.one h1{font-size:70px;letter-spacing:4px}
