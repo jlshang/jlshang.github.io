@@ -98,10 +98,12 @@
       green: new THREE.MeshStandardMaterial({ color: lin(0x0f7d30), roughness: 0.32, metalness: 0.05, side: THREE.DoubleSide }),
     };
     mat.orange=new THREE.MeshStandardMaterial({color:lin(0xffa332),roughness:.4,side:THREE.DoubleSide});
-    mat.cyan=new THREE.MeshStandardMaterial({color:lin(0x25b5c8),roughness:.32,metalness:.05,side:THREE.DoubleSide});
+    mat.cyan=new THREE.MeshStandardMaterial({color:lin(0x2ab7c9),roughness:.32,metalness:.05,side:THREE.DoubleSide});
+    const shp=(k)=>String(k||'yellow').split(':')[0],col=(k)=>{const c=String(k||'yellow').split(':');return mat[c[1]||c[0]]||mat.yellow};
     const BG = ballGeometry(), built = new Map(), popping = [];
     const prevKeys = new Set(), growing = [];
-    if (opt.from && MODELS[opt.from]) { const P0 = MODELS[opt.from](); const kk = (p) => p.toArray().map((x) => x.toFixed(2)).join();
+    const fromK = opt.from ? String(opt.from).split('@') : null;   // "name@stage" grows new parts out of that earlier stage
+    if (fromK && MODELS[fromK[0]]) { const P0 = MODELS[fromK[0]](fromK[1] ? +fromK[1] : undefined); const kk = (p) => p.toArray().map((x) => x.toFixed(2)).join();
       P0.balls.forEach(([p]) => prevKeys.add(kk(p))); P0.struts.forEach(([a, b]) => { prevKeys.add(kk(a) + "|" + kk(b)); prevKeys.add(kk(b) + "|" + kk(a)); }); }
     const keyOf = (a, b) => a.toArray().map((x) => x.toFixed(2)).join() + (b ? "|" + b.toArray().map((x) => x.toFixed(2)).join() : "");
     function buildParts(pop) {
@@ -112,18 +114,18 @@
       for (const [a, b, kd] of M.struts) { const k = keyOf(a, b); want.add(k); if (built.has(k)) continue;
         if (prevKeys.size && !prevKeys.has(k)) {          // a new strut: grow it out of the part that was already there
           const [s0, s1] = prevKeys.has(keyOf(b)) && !prevKeys.has(keyOf(a)) ? [b, a] : [a, b], A = cpos(s0), B = cpos(s1);
-          const geo = strutGeometry(A, B, kd || "yellow"), q = new THREE.Quaternion().setFromUnitVectors(B.clone().sub(A).normalize(), V(0, 1, 0));
+          const geo = strutGeometry(A, B, shp(kd)), q = new THREE.Quaternion().setFromUnitVectors(B.clone().sub(A).normalize(), V(0, 1, 0));
           geo.translate(-A.x, -A.y, -A.z); geo.applyMatrix4(new THREE.Matrix4().makeRotationFromQuaternion(q));
-          const m = new THREE.Mesh(geo, mat[kd || "yellow"]); m.position.copy(A); m.quaternion.copy(q.clone().invert()); m.scale.set(1, 0.001, 1);
+          const m = new THREE.Mesh(geo, col(kd)); m.position.copy(A); m.quaternion.copy(q.clone().invert()); m.scale.set(1, 0.001, 1);
           group.add(m); built.set(k, m); growing.push({ m, end: keyOf(s1) }); continue;
         }
-        const m = new THREE.Mesh(strutGeometry(cpos(a), cpos(b), kd || "yellow"), mat[kd || "yellow"]); group.add(m); built.set(k, m); if (pop) { m.scale.setScalar(0.01); popping.push(m); } }
+        const m = new THREE.Mesh(strutGeometry(cpos(a), cpos(b), shp(kd)), col(kd)); group.add(m); built.set(k, m); if (pop) { m.scale.setScalar(0.01); popping.push(m); } }
       for (const [k, m] of built) if (!want.has(k)) { group.remove(m); if (m.geometry !== BG) m.geometry.dispose(); built.delete(k); }
     }
     buildParts(false);
     const emphasis=new THREE.Group();group.add(emphasis);
     const faceMat=new THREE.MeshBasicMaterial({color:0xffb04e,transparent:true,opacity:.55,side:THREE.DoubleSide,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1});
-    function clearEmphasis(){while(emphasis.children.length){const m=emphasis.children[0];emphasis.remove(m);m.geometry.dispose()}for(const [p] of M.balls){const m=built.get(keyOf(p));if(m)m.material=mat.white}}
+    function clearEmphasis(){while(emphasis.children.length){const m=emphasis.children[0];emphasis.remove(m);m.geometry.dispose()}for(const [p] of M.balls){const m=built.get(keyOf(p));if(m)m.material=mat.white}for(const [a,b,kd] of M.struts){const m=built.get(keyOf(a,b));if(m)m.material=col(kd)}}
     function markFaces(ids,vertex){clearEmphasis();for(const index of ids){const face=M.faces?.[index];if(!face)continue;const points=face.map(i=>cpos(M.balls[i][0])),pos=[];for(let i=1;i<points.length-1;i++)pos.push(...points[0].toArray(),...points[i].toArray(),...points[i+1].toArray());const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));emphasis.add(new THREE.Mesh(g,faceMat));}
       if(vertex!=null){const m=built.get(keyOf(M.balls[vertex][0]));if(m)m.material=mat.orange}return ids.length;
     }
@@ -142,7 +144,7 @@
 
     const camera = new THREE.PerspectiveCamera(18, W / H, 0.5, 900);
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true; controls.dampingFactor = 0.08; controls.enablePan = false; controls.enableZoom = true; controls.zoomSpeed = 0.8; controls.rotateSpeed = 0.9;
+    controls.enableDamping = true; controls.dampingFactor = 0.08; controls.enablePan = false; controls.enableZoom = true; controls.zoomSpeed = 2.4; controls.rotateSpeed = 0.9;
     const el = (M.elev * Math.PI) / 180;
     let dist = 60;
     const home = () => new THREE.Vector3(0, Math.sin(el), Math.cos(el)).multiplyScalar(dist);
@@ -211,18 +213,33 @@
       flip(){animateTo(sph().th,Math.PI*.68,1100)},
       top() { animateTo(sph().th, 0.0001, 1600, stageDist ? topDist * stageDist[M.stage || 1] / stageDist[M.grow] : null); },
       growIn(done) { growDone = done; growT0 = 0; },
-      intro(done, dur = 1600) { if (stageDist) dist = stageDist[M.stage || 1]; let t0 = 0, n = 0; controls.enabled = false; setSph(dist * 1.45, th0 - Math.PI * 2, ph0 + 0.2);
+      intro(done, dur = 1600, turn = Math.PI * 2, from = 1.45) { if (stageDist) dist = stageDist[M.stage || 1]; let t0 = 0, n = 0; controls.enabled = false; setSph(dist * from, th0 - turn, ph0 + 0.2);
         anim = (now) => { if (n++ < 2) { t0 = now; return; } const t = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - t, 3);
-          setSph(dist * (1.45 - 0.45 * e), th0 - Math.PI * 2 * (1 - e), ph0 + 0.2 * (1 - e)); if (t >= 1) { anim = null; controls.enabled = true; controls.update(); done && done(); } }; },
+          setSph(dist * (from - (from - 1) * e), th0 - turn * (1 - e), ph0 + 0.2 * (1 - e)); if (t >= 1) { anim = null; controls.enabled = true; controls.update(); done && done(); } }; },
       spin(dur = 3600) { const a = sph(), t0 = performance.now(); controls.enabled = false;
         anim = (now) => { const t = Math.min(1, (now - t0) / dur), e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
           setSph(a.r, a.th + e * Math.PI * 2, a.ph); if (t >= 1) { anim = null; controls.enabled = true; controls.update(); } }; },
       setAngle(deg) { anim = null; const a = sph(); setSph(a.r, th0 + (deg * Math.PI) / 180, a.ph); controls.update(); },
       home() { animateTo(th0, ph0, 1200, stageDist ? stageDist[M.stage || 1] : dist); },
-      stage: () => M.stage || 1, maxStage: M.grow || 0,
+      zoomTo(k, dur = 1400) { if (!stageDist) return; const a = sph(); animateTo(a.th, a.ph, dur, stageDist[k]); },
+      jumpStage(k) { if (!stageDist) return; anim = null; const a = sph(); setSph(stageDist[k], a.th, a.ph); controls.update(); },
+      /* light the balls one by one (for counting); calls each(n) after every ball and done(total) at the end */
+      /* light rods / faces one by one (top to bottom, around), same contract as countBalls */
+      markBalls(pts) { clearEmphasis(); let n = 0; for (const p of pts) { const m = built.get(keyOf(p)); if (m) { m.material = mat.orange; n++; } } return n; },
+      countEdges(each, done, gap = 160) { clearEmphasis(); const list = M.struts.map(([a, b]) => [built.get(keyOf(a, b)), a.clone().add(b).multiplyScalar(0.5).sub(center).applyQuaternion(group.quaternion)]).filter((x) => x[0]);
+        list.sort((p, q) => q[1].y - p[1].y || Math.atan2(p[1].x, p[1].z) - Math.atan2(q[1].x, q[1].z)); let i = 0;
+        const step = () => { if (!alive) return; if (i >= list.length) { done && done(list.length); return; } list[i][0].material = mat.orange; i++; each && each(i); setTimeout(step, gap); }; step(); },
+      countFaces(each, done, gap = 300) { clearEmphasis(); const F = (M.faces || []).map((f) => { const pts = f.map((k) => cpos(M.balls[k][0])); const c = pts.reduce((s, p) => s.add(p), new THREE.Vector3()).multiplyScalar(1 / pts.length).applyQuaternion(group.quaternion); return [pts, c]; });
+        F.sort((p, q) => q[1].y - p[1].y || Math.atan2(p[1].x, p[1].z) - Math.atan2(q[1].x, q[1].z)); let i = 0;
+        const step = () => { if (!alive) return; if (i >= F.length) { done && done(F.length); return; } const pts = F[i][0], pos = []; for (let j = 1; j < pts.length - 1; j++) pos.push(...pts[0].toArray(), ...pts[j].toArray(), ...pts[j + 1].toArray());
+          const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); emphasis.add(new THREE.Mesh(g, faceMat)); i++; each && each(i); setTimeout(step, gap); }; step(); },
+      countBalls(each, done, gap = 260) { clearEmphasis(); const list = M.balls.map(([p]) => built.get(keyOf(p))).filter(Boolean);
+        const order = list.map((m) => [m, m.position.clone().applyQuaternion(group.quaternion)]).sort((a, b) => b[1].y - a[1].y || Math.atan2(a[1].x, a[1].z) - Math.atan2(b[1].x, b[1].z)).map((x) => x[0]);
+        let i = 0; const step = () => { if (!alive) return; if (i >= order.length) { done && done(order.length); return; } order[i].material = mat.orange; i++; each && each(i); setTimeout(step, gap); }; step(); },
+      stage: () => M.stage || 1, maxStage: M.grow || 0, camDist: () => camera.position.length(),
       grow() { if (!M.grow) return 0; const next = (M.stage || 1) >= M.grow ? 1 : (M.stage || 1) + 1; M = MODELS[kind](next); M.stage = next; buildParts(next > 1); const a = sph(); animateTo(a.th, a.ph, 900, a.ph < 0.2 ? topDist * stageDist[next] / stageDist[M.grow] : stageDist[next]); return next; },
       dispose() { alive=false;window.removeEventListener('resize',onResize);document.removeEventListener('fullscreenchange',onFull);cancelAnimationFrame(raf);controls.dispose();const gs=new Set(),ms=new Set();scene.traverse(o=>{if(o.geometry)gs.add(o.geometry);if(o.material)(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>ms.add(m))});gs.forEach(g=>g.dispose());ms.forEach(m=>{if(m.map)m.map.dispose();m.dispose()});renderer.dispose();renderer.forceContextLoss();renderer.domElement.remove(); },
     };
   }
-  window.Zome3D = { mount, _M: MODELS };
+  window.Zome3D = { mount, _M: MODELS, parts: { ballGeometry, strutGeometry, lin } };
 })();
