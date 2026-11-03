@@ -428,10 +428,10 @@ const SFX={
   reveal(){tone(392,784,.18,"triangle",.12);tone(587,1175,.22,"triangle",.1,.12)}
 };
 /* real CC0 samples (Freesound) — synth above is the fallback */
-const SMP={};["page","select","correct","wrong","fly","tick","win"].forEach(k=>{try{const e=new Audio("a/sfx/"+k+".mp3");e.preload="auto";SMP[k]=e}catch(x){}});
+const SMP={};["page","select","correct","wrong","fly","tick"].forEach(k=>{try{const e=new Audio("a/sfx/"+k+".mp3");e.preload="auto";SMP[k]=e}catch(x){}});
 function sfxPlay(k,vol=.8){const e=SMP[k];if(!e||e.error)return false;try{const c=e.cloneNode();c.volume=vol;const p=c.play();p&&p.catch&&p.catch(()=>{});return true}catch(x){return false}}
 const SYN=Object.assign({},SFX);
-const SMAP={pop:"select",ding:"correct",coin:"correct",reveal:"correct",boing:"wrong",oops:"wrong",hmph:"wrong",wah:"wrong",whoosh:"fly",tick:"tick",cheer:"win",fanfare:"win","fanfare-soft":"win"};
+const SMAP={pop:"select",ding:"correct",coin:"correct",reveal:"correct",boing:"wrong",oops:"wrong",hmph:"wrong",wah:"wrong",whoosh:"fly",tick:"tick"};
 const SVOL={tick:.6,whoosh:.7,pop:.8,"fanfare-soft":.6};
 for(const n in SMAP){const f=SFX[n];SFX[n]=()=>{if(!soundOn)return;if(!sfxPlay(SMAP[n],SVOL[n]||.85))f()}}
 SFX.page=()=>{if(soundOn)sfxPlay("page",.55)};

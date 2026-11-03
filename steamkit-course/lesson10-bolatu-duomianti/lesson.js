@@ -5,10 +5,10 @@ const {View,Fold,Tiling,geo,views}=ClassroomGeometry;
 let current=0,zviews=[],zfolds=[],sound=true,audio=null,timers=[],bits=[],last=performance.now();
 const cv=$('#confetti'),cx=cv.getContext('2d');
 /* real CC0 samples (Freesound) — synth below is the fallback */
-const SMP={};["page","select","correct","wrong","fly","tick","win"].forEach(k=>{try{const e=new Audio("a/sfx/"+k+".mp3");e.preload="auto";SMP[k]=e}catch(x){}});
+const SMP={};["page","select","correct","wrong","fly","tick"].forEach(k=>{try{const e=new Audio("a/sfx/"+k+".mp3");e.preload="auto";SMP[k]=e}catch(x){}});
 function sfxPlay(k,vol=.8){const e=SMP[k];if(!e||e.error)return false;try{const c=e.cloneNode();c.volume=vol;const p=c.play();p&&p.catch&&p.catch(()=>{});return true}catch(x){return false}}
-const CMAP={pop:'select',select:'select',page:'page',tick:'tick',wrong:'wrong',fly:'fly',win:'win',correct:'correct'},CVOL={page:.55,tick:.6,pop:.75,select:.75};
-function cue(kind='pop'){if(!sound)return;if(sfxPlay(CMAP[kind]||'select',CVOL[kind]||.85))return;try{audio??=new(window.AudioContext||window.webkitAudioContext)();audio.resume();const t0=audio.currentTime;
+const CMAP={pop:'select',select:'select',page:'page',tick:'tick',wrong:'wrong',fly:'fly',correct:'correct'},CVOL={page:.55,tick:.6,pop:.75,select:.75};
+function cue(kind='pop'){if(!sound)return;if(kind!=='win'&&sfxPlay(CMAP[kind]||'select',CVOL[kind]||.85))return;try{audio??=new(window.AudioContext||window.webkitAudioContext)();audio.resume();const t0=audio.currentTime;
   const tone=(hz,at,dur,type='triangle',vol=.06,to=null)=>{const o=audio.createOscillator(),g=audio.createGain(),t=t0+at;o.type=type;o.frequency.setValueAtTime(hz,t);if(to)o.frequency.exponentialRampToValueAtTime(to,t+dur);g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);o.connect(g);g.connect(audio.destination);o.start(t);o.stop(t+dur+.05)};
   if(kind==='win')[523,659,784,1046].forEach((hz,i)=>tone(hz,i*.1,.25));
   else if(kind==='page'){const n=audio.sampleRate*.22,buf=audio.createBuffer(1,n,audio.sampleRate),d=buf.getChannelData(0);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.sin(Math.PI*i/n);const src=audio.createBufferSource(),f=audio.createBiquadFilter(),g=audio.createGain();src.buffer=buf;f.type='bandpass';f.frequency.setValueAtTime(600,t0);f.frequency.exponentialRampToValueAtTime(2400,t0+.2);f.Q.value=1.2;g.gain.value=.12;src.connect(f);f.connect(g);g.connect(audio.destination);src.start(t0)}
