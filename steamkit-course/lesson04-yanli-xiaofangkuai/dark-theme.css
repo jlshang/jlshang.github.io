@@ -1,0 +1,20 @@
+/* One backdrop across every scene, including embedded legacy full-slide layers.
+   Photos, hanging title artwork, models, and animation timing remain unchanged. */
+.stage,.slide.dark,.page01-cover,.dark .p02-paper,.dark .dc-photo-shapes{
+  background:#1e2a44;color:#f7f5ed;
+}
+.dark .p02-waves{display:none}
+.dark .p02-title,.dark .p02-question,.dark .original-photo-title{color:#f7f5ed}
+.dark .p02-drag-hint,.dark .p02-page-number{color:#c4d1e2}
+.dark .p02-kicker{color:#efb16e}
+.dark .guess-list button{background:#293951;border-color:#64748d;color:#f7f5ed}
+.dark .guess-list b{color:#efb16e}
+.dark .guess-list button:hover:not(:disabled),.dark .guess-list button.selected{
+  background:#3a485d;border-color:#efb16e;color:#fff7e9;
+}
+.dark .photo-pair figcaption,.dark .shape-comparison figcaption,.dark .shape-caption{color:#c4d1e2}
+.dark .dc-photo-choice:focus-visible{outline-color:#efb16e}
+.dark .dc-photo-choice[aria-pressed="true"]{border-color:#efb16e}
+.dark-cover-logo{position:absolute;left:54px;top:34px;width:250px;height:58px;object-fit:contain;background:#faf7f0;border-radius:12px;padding:6px 10px}
+.dark-cover-rabbit{position:absolute;right:68px;top:233px;width:475px;height:590px;object-fit:contain}
+.dark-cover-tagline{position:absolute;left:210px;top:625px;max-width:820px;padding:18px 30px;margin:0;border:2px solid #dcac64;border-radius:27px;background:#293951;color:#f7dfab;font-size:31px;letter-spacing:1px}

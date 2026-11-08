@@ -1,0 +1,36 @@
+/* Model-only controls live in the top-right corner of their own view, not on the slide floor. */
+.model-reset{left:auto!important;bottom:auto!important;right:12px;top:10px;width:46px;height:46px;min-width:0;padding:10px;display:grid;place-items:center;border-radius:50%;border:1px solid #8d9db333;background:#ffffff09;color:#aabdd2;z-index:4;opacity:.65;transition:opacity .15s,background .15s}
+.model-reset svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.model-reset span{position:absolute;right:54px;top:7px;white-space:nowrap;font-size:18px;line-height:30px;padding:0 10px;border-radius:7px;background:#0d1a2bdd;color:#eff3fa;opacity:0;pointer-events:none;transition:opacity .15s}.model-reset:hover,.model-reset:focus-visible{opacity:1;background:#ffffff18}.model-reset:hover span,.model-reset:focus-visible span{opacity:1}
+.light .model-reset{background:#2637470a;color:#3c576c}.model-host:hover .model-reset{opacity:1}
+/* A single continuous reveal: salt fades as the pair grows out from its position. */
+.intro-heap{pointer-events:none;animation:salt-to-ions .95s ease both}
+@keyframes salt-to-ions{0%{opacity:1;transform:none}75%,100%{opacity:0;transform:translateY(35px) scale(.6)}}
+.ion-lab[data-phase="emerging"] .pair-names,.ion-lab[data-phase="emerging"] .ion-choices{opacity:0}
+.ion-lab .pair-names,.ion-lab .ion-choices{transition:opacity .28s}
+/* Native box and actual native parts. Quantities stay visible after unpacking. */
+.materials-tray{position:absolute;inset:0}.materials-tray .materials-box{position:absolute;left:545px;top:225px;width:510px;height:535px;transform-origin:center;object-fit:contain;transition:none}
+.materials-tray.unpacked .materials-box{left:545px;top:225px;animation:box-to-corner 1.2s cubic-bezier(.2,.7,.25,1) both}
+@keyframes box-to-corner{to{transform:translate(-580px,190px) scale(.48)}}
+.material-card{position:absolute;top:270px;width:250px;text-align:center;animation:part-out 1.2s cubic-bezier(.2,.7,.25,1) both;animation-delay:calc(var(--slot)*.08s)}
+@keyframes part-out{from{opacity:0;transform:translate(calc((1.05 - var(--slot))*275px),120px) scale(.35)}to{opacity:1;transform:none}}
+.material-visual{height:245px;position:relative}.material-card .model-reset{display:none!important}.material-card h2{font-size:27px;font-weight:600;white-space:nowrap;margin:25px 0 0}.material-quantity{font-size:44px;color:#f0b678;font-weight:700;margin:17px 0}.material-card small{font-size:22px;color:#becbdb}
+.materials-reuse{position:absolute;left:410px;right:150px;top:755px;text-align:center;font-size:25px;color:#9eafc4;animation:reveal .5s .9s both}
+/* Only the right-hand diagram is retained, enlarged, then the two ions travel out. */
+.size-source{left:145px;top:255px;width:460px}.size-source img{display:block;width:460px;height:505px;object-fit:contain;border-radius:14px}.size-source p{font-size:24px;margin:16px 0 0}
+.size-compare{left:800px;top:250px;width:680px}.size-compare h2{font-size:42px;margin:10px 0 26px}.size-compare p{font-size:28px;line-height:1.6;white-space:nowrap}
+.extracted-ions{position:absolute;inset:0;pointer-events:none}.extracted-ions>div{position:absolute;display:grid;place-items:center;border-radius:50%;box-shadow:inset -18px -18px 30px #0004,inset 12px 12px 24px #fff5;font-size:35px;animation:extract-ion 1.15s cubic-bezier(.2,.7,.25,1) both}
+.extract-na{left:905px;top:475px;width:130px;height:130px;background:#e06b58;--from-x:-558px;--from-y:-55px;--from-scale:.4}
+.extract-cl{left:1180px;top:430px;width:220px;height:220px;background:#52abd1;--from-x:-870px;--from-y:53px;--from-scale:.55}
+@keyframes extract-ion{0%{opacity:0;transform:translate(var(--from-x),var(--from-y)) scale(var(--from-scale))}12%{opacity:1}100%{opacity:1;transform:none}}
+/* Large lattice: focus the middle before inspecting the whole. */
+.lattice-guide{position:absolute;left:1120px;top:305px;width:365px}.lattice-guide>small{font-size:23px;color:#b4c5da}.lattice-guide h2{font-size:39px;line-height:1.55;margin:22px 0 30px;color:#f3c28c}
+.lattice-axis-row,.lattice-scope-row{display:flex;gap:12px;margin:20px 0}.lattice-guide button{border:1px solid #8495ad77;background:#ffffff05;color:#d7e2ee;border-radius:20px;font-size:23px;padding:12px 17px;white-space:nowrap}.lattice-guide button[aria-pressed="true"]{background:#edaa65;color:#1e2a44;border-color:#edaa65}.lattice-scope-row{padding-top:16px;border-top:1px solid #8292a633}.lattice-scope-row button{font-size:21px}.lattice-legend{display:flex;gap:13px;align-items:center;font-size:24px;color:#c5d2e3;margin-top:38px}
+/* Camera scale is identical before/after; the final large crystal slides aside. */
+.growth-comparison{position:absolute;inset:0}.growth-comparison [data-model-key="growth"]{transition:transform .9s cubic-bezier(.2,.7,.25,1)}
+.growth-comparison [data-model-key="growth-original"]{opacity:0;pointer-events:none;transition:opacity .75s .2s}
+.compare-ready [data-model-key="growth"]{transform:translateX(375px)}.compare-ready [data-model-key="growth-original"]{opacity:1;pointer-events:auto}
+.comparison-label{position:absolute;top:720px;width:650px;text-align:center;font-size:29px;color:#ccd6e4;opacity:0;transition:opacity .6s .35s}.small-label{left:100px}.large-label{left:850px}.comparison-arrow{position:absolute;left:720px;top:480px;width:160px;height:60px;opacity:0;transition:opacity .6s .35s}.comparison-arrow path{fill:none;stroke:#efb16e;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}.compare-ready .comparison-label,.compare-ready .comparison-arrow{opacity:1}
+.shared-explanation{position:absolute;left:220px;right:220px;top:765px;margin:0;text-align:center;font-size:34px;line-height:1.5;color:#f0b678}
+/* Last two pages deliberately use the same navy, not the old cream slide. */
+.dark .homework-copy{color:#f3f3ed}.dark .homework-copy h2{color:#efb16e}.dark .homework-copy p{color:#d4dfea}.dark .homework-photo{border-radius:12px}.dark .experiment-photos img{border-radius:12px}
+@media(prefers-reduced-motion:reduce){.intro-heap{display:none}.material-card,.materials-tray.unpacked .materials-box,.extracted-ions>div,.materials-reuse{animation:none}.materials-tray.unpacked .materials-box{transform:translate(-580px,190px) scale(.48)}.growth-comparison [data-model-key],.comparison-label,.comparison-arrow,.ion-lab .pair-names,.ion-lab .ion-choices{transition:none}}

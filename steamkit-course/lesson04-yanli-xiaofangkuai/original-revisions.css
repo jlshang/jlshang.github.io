@@ -1,0 +1,105 @@
+/* Isolated requested revisions; do not load discovery.css. */
+.senses-title{position:absolute;left:85px;top:100px;margin:0;font-size:57px;font-weight:800;color:#253e45}
+.original-rabbit-lattice{position:absolute;left:845px;top:215px;width:680px;height:550px;object-fit:contain;mix-blend-mode:darken;filter:brightness(1.06);background:transparent;border:0;box-shadow:none}
+.original-queue-prompt{animation:original-prompt-arrive .01s .85s both}
+@keyframes original-prompt-arrive{from{opacity:0;visibility:hidden}to{opacity:1;visibility:visible}}
+.original-trivia-bg{position:absolute;inset:0;background:radial-gradient(circle at 95% 5%,#d4eaf0,transparent 45%),linear-gradient(145deg,#eff7f8,#f9fbf6)}
+.original-trivia-tag{position:absolute;left:85px;top:38px;padding:8px 24px;border:3px solid #a1cbd5;border-radius:18px;background:#e1f0f4;color:#4c8393;font-size:28px;font-weight:800;transform:rotate(-4deg);box-shadow:0 5px 0 #cce2e8}
+.original-trivia-title{position:absolute;left:85px;top:106px;margin:0;font-size:51px;color:#345e70}
+#stage[data-page="17"] .p17-source{top:210px;padding:15px 5px 12px;background:#ffffffb8;border:3px solid #d0e3e8;border-radius:30px;box-shadow:0 9px 0 #dcebef66}
+/* Only the right-hand source diagram (x=450..765), not the blue left panel. */
+#stage[data-page="17"] .p17-source-window{position:relative;width:418px;height:460px;overflow:hidden;margin:auto;border-radius:20px}
+#stage[data-page="17"] .p17-source img{position:absolute;right:0;top:0;width:auto;max-width:none;height:460px;object-fit:contain;border-radius:0;margin:0}
+#stage[data-page="17"] .p17-panel{top:210px;border:3px solid #d0e3e8;background:#ffffffb8;border-radius:30px;box-shadow:0 9px 0 #dcebef66}
+#stage[data-page="17"] .p17-panel h2{color:#345e70}
+.original-photo-title{position:absolute;left:100px;top:72px;margin:0;font-size:48px;letter-spacing:1px;font-weight:750;color:#293c4b;z-index:2}
+.dc-photo-duo figure{position:absolute;margin:0}
+.dc-photo-duo img{width:100%;height:100%;object-fit:fill;border-radius:48px}
+.dc-photo-duo .dc-photo-choice{border-radius:48px}
+.dc-photo-choice-scene .dc-choice-rabbit{left:645px;top:440px}
+@media(prefers-reduced-motion:reduce){
+ .dc-cover-tag,.original-queue-prompt,.dc-photos-jumping .dc-source-photos figure,.dc-photos-jumping .dc-shape-from-photo{animation:none!important}
+}
+.p02-manual .p02-background,.p02-manual .p02-bottle,.p02-manual .p02-pile{pointer-events:none;user-select:none}
+.p02-manual .p02-bottle{transition:none}
+.p02-manual .p02-pile{opacity:0;transform:scale(0)}
+.p02-bottle-handle{position:absolute;left:20%;top:16%;width:26%;height:68%;z-index:4;border:0;background:transparent;cursor:grab;touch-action:none;border-radius:20px}
+.p02-bottle-handle:active{cursor:grabbing}
+.p02-bottle-handle:hover:not(:disabled),.p02-bottle-handle:active{background:transparent;border-color:transparent;box-shadow:none}
+.p02-bottle-handle:focus-visible{outline:3px solid #f7efcf;outline-offset:2px}
+.p02-manual-grains{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:0;fill:#fffefa}
+.p02-manual-pouring .p02-manual-grains{opacity:1}
+.p02-manual-grains circle{animation:p02-manual-fall .4s var(--fall-delay) linear infinite;animation-play-state:paused}
+.p02-manual-pouring .p02-manual-grains circle{animation-play-state:running}
+@keyframes p02-manual-fall{from{transform:translate(0,0);opacity:1}to{transform:translate(30px,145px);opacity:.4}}
+.p02-drag-hint{position:absolute;left:800px;top:770px;transform:translateX(-50%);width:max-content;max-width:720px;margin:0;color:#637363;font-size:31px;line-height:1.5;text-align:center}
+@media(prefers-reduced-motion:reduce){.p02-manual-grains circle{animation:none}}
+
+
+.dc-cover-art{position:absolute;inset:0;width:100%;height:100%;overflow:hidden;pointer-events:none}
+.dc-cover-art-source{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.dc-cover-tag{animation:dc-tag-drop .86s var(--drop-delay) cubic-bezier(.22,.7,.3,1) both}
+.dc-animated-cover:not([data-ready="true"]) .dc-cover-tag{animation-play-state:paused;visibility:hidden}
+@keyframes dc-tag-drop{0%{transform:translateY(-640px)}68%{transform:translateY(12px)}84%{transform:translateY(-6px)}100%{transform:translateY(0)}}
+
+.dc-photo-shapes{position:absolute;inset:0;background:#faf7f0;color:#293c4b}
+.dc-source-photos.salt-photos{background:transparent;pointer-events:none}
+.dc-source-photos figure{transform-origin:50% 50%}
+.dc-source-photos figure img{height:410px}
+.dc-photos-extracted .dc-source-photos figure{transform:translateY(220px) scale(.34)}
+.dc-photos-extracted .dc-source-photos figcaption{visibility:hidden}
+.dc-shape-from-photo.shape-card{left:130px;top:220px;width:620px}
+.dc-shape-from-photo.shape-card[data-origin="1"]{left:850px}
+.dc-shape-from-photo.shape-card svg{width:410px;height:310px}
+.dc-shape-from-photo.shape-card h2{font-size:30px;margin:22px 0}
+.dc-photos-jumping .dc-source-photos figure{animation:dc-photo-retreat .85s ease both}
+.dc-photos-jumping .dc-shape-from-photo{animation:dc-shape-jump .9s cubic-bezier(.2,.7,.25,1) both}
+.dc-photos-jumping .dc-shape-from-photo[data-origin="1"]{animation-delay:.12s}
+@keyframes dc-photo-retreat{from{transform:none;opacity:1}to{transform:translateY(220px) scale(.34);opacity:1}}
+@keyframes dc-shape-jump{0%{opacity:0;transform:translateY(90px) scale(.15)}25%{opacity:1}70%{transform:translateY(-25px) scale(1.04)}100%{opacity:1;transform:none}}
+
+.dc-photo-duo .dc-photo-choice{
+ display:block;width:100%;height:100%;padding:0;border:4px solid transparent;
+ border-radius:32px;background:transparent;cursor:pointer;touch-action:manipulation;
+ transition:border-color .15s,transform .15s
+}
+.dc-photo-duo .dc-photo-choice:hover:not(:disabled){background:transparent;border-color:#a4b9a8;transform:translateY(-4px)}
+.dc-photo-duo .dc-photo-choice:focus-visible{outline:5px solid #326d96;outline-offset:6px}
+.dc-photo-duo .dc-photo-choice[aria-pressed="true"]{border-color:#6c8578}
+.dc-photo-duo .dc-photo-choice img{display:block;border-radius:25px}
+.dc-choice-rabbit{position:absolute;left:645px;top:473px;width:330px;height:322px;z-index:5;pointer-events:none;transform-origin:50% 100%;color:#bb634c}
+.dc-choice-rabbit svg{width:100%;height:100%;overflow:visible}
+.dc-choice-rabbit[data-phase="hidden"]{visibility:hidden}
+.dc-choice-rabbit[data-phase="entering"]{animation:dc-rabbit-enter .46s cubic-bezier(.2,.7,.3,1) both}
+.dc-choice-rabbit[data-phase="leaving"]{animation:dc-rabbit-leave .52s ease-in both}
+/* Mirror the whole character + held sign toward the left photo. A separate
+   wrapper keeps facing independent of entrance, head-shake and bounce poses.
+   Counter-mirror the symbol around x=299 so the checkmark stays readable. */
+.dc-rabbit-facing,.dc-rabbit-sign [data-rabbit-symbol]{transform-box:view-box;transform-origin:0 0}
+.dc-choice-rabbit[data-mood="happy"] .dc-rabbit-facing{transform:translateX(430px) scaleX(-1)}
+.dc-choice-rabbit[data-mood="happy"] [data-rabbit-symbol]{transform:translateX(598px) scaleX(-1)}
+.dc-rabbit-head{transform-box:view-box;transform-origin:155px 260px}
+.dc-rabbit-smile{display:none}
+.dc-choice-rabbit[data-mood="happy"]{color:#38855d}
+.dc-choice-rabbit[data-mood="happy"] .dc-rabbit-smile{display:block}
+.dc-choice-rabbit[data-mood="happy"][data-phase="reacting"] .dc-rabbit-bounce{animation:dc-rabbit-cheer .85s ease-in-out 2}
+.dc-choice-rabbit[data-mood="sad"][data-phase="reacting"] .dc-rabbit-head{animation:dc-rabbit-no .55s ease-in-out 3}
+.dc-choice-status{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@keyframes dc-rabbit-enter{from{opacity:0;transform:translateY(155px) rotate(-9deg)}to{opacity:1;transform:translateY(0) rotate(0)}}
+@keyframes dc-rabbit-leave{to{opacity:0;transform:translateY(165px) rotate(7deg)}}
+@keyframes dc-rabbit-no{0%,100%{transform:rotate(0)}25%{transform:rotate(-7deg)}75%{transform:rotate(7deg)}}
+@keyframes dc-rabbit-cheer{0%,45%,100%{transform:translateY(0)}22%{transform:translateY(-24px)}67%{transform:translateY(-13px)}}
+@media(prefers-reduced-motion:reduce){
+ .dc-photo-duo .dc-photo-choice{transition:none}
+ .dc-photo-duo .dc-photo-choice:hover:not(:disabled){transform:none}
+ .dc-choice-rabbit,.dc-choice-rabbit *{animation:none!important}
+}
+
+/* Retain the PPT photo masks: picture5 crops 3.905% off the bottom. */
+.dc-photo-duo .dc-photo-choice{overflow:hidden;border-radius:60px}
+.dc-photo-duo .dc-photo-choice img{border-radius:0}
+.dc-photo-duo [data-photo-choice="left"] img{height:104.0647276%;max-height:none}
+
+/* Total follows the last pair; no fourth teacher click. Reduced motion is
+   covered by the player's global animation-delay/duration override. */
+.neighbor-total-follow{animation:reveal .45s .55s both}

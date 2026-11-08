@@ -1,0 +1,9 @@
+/* Scope transition to the stage; external navigation remains usable throughout. */
+.microscope-transition{position:absolute;inset:0;overflow:hidden;background:transparent;z-index:15;pointer-events:auto}
+.microscope-macro{position:absolute;inset:0;transform-origin:804px 558px;will-change:transform,opacity}
+@property --aperture{syntax:'<length>';initial-value:1000px;inherits:false}
+.microscope-lens{position:absolute;inset:0;background:radial-gradient(circle at center,transparent 0 var(--aperture),#050912 calc(var(--aperture) + 24px));pointer-events:none}
+
+.size-compare{left:790px;top:235px;width:660px;text-align:center}
+.size-compare h2{font-size:38px;margin:0 0 18px}
+.size-compare p{font-size:30px}
