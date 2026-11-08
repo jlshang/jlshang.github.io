@@ -4,7 +4,7 @@ import {models,mountModel} from './review-model.js';
 import {batchContent,bindBatch,cleanupBatch,BATCH_MAX} from './batch-scenes.js';
 import {NEW_MAX,kitchen,methods,micro,why,ions,conclusion,bindNew,cleanupNew} from './new-scenes.js';
 // Stable scene ids preserve all 22 existing interactions; visible page 3 is new scene 23.
-const SCENES=[1,50,55,51,54,5,52,60,61,62,63,38,39,41,40,42,44,22];
+const SCENES=[1,50,55,51,5,52,60,61,62,63,38,39,41,40,42,44,22];
 const $=s=>document.querySelector(s);
 const visiblePage=()=>SCENES.indexOf(state.page)+1;
 const adjacentScene=delta=>SCENES[visiblePage()-1+delta];
@@ -78,8 +78,8 @@ function content(){
   const stages=['cross-3d','grid-1','grid-2','grid-3','grid-4'].map(id=>choose(grid,(q,i)=>models[id].balls.some(b=>b.every((v,k)=>Math.abs(v-q[k])<1e-6))));
   return title('第 4 步：把十字变成小方块')+host('cube',{id:'grid-4',balls:stages[s],height:21},'left:300px;top:190px;width:1000px;height:640px')+stepButtons('接着搭');
  }
- if(p===51)return micro(state,title,window.originalRevisions.photos(deck.slides[5]))+stepButtons('揭晓');
- if(p===52)return ions(state,title)+(s===0?'<button class="review-next-step round zoom-go" data-action="advance" title="放大看看" aria-label="放大看看"><span aria-hidden="true">🔍</span></button>':'');
+ if(p===51)return s===0?micro(state,title,window.originalRevisions.photos(deck.slides[5])):why(state,title);
+ if(p===52)return ions(state,title)+'';
  if(p===53)return conclusion(title,host);
  if(p===22)return homework();
  const revised=batchContent({state,deck,title,host,modelScene,stepButtons,dots,legend});
@@ -224,17 +224,19 @@ function render(animate=false){
  updatePanels();resize();
 }
 function goReset(){state.method='';}
+const MODEL_PAGES=new Set([60,61,62,63,38,39,42,44]);
+function navCue(n){return n===1?'cover':[5,41].includes(n)?'chapter':n===22?'finish':MODEL_PAGES.has(n)?'model':'page';}
 function go(n){
  if(!SCENES.includes(n))return;
  if(n!==state.page)goReset();
  const macro=state.page===23&&n===3?$('#slide').cloneNode(true):null;
  cancelMicroscopeTransition();
  state.page=n;state.step=0;state.axis=0;state.rowError=false;state.record=false;state.toc=false;
- history.replaceState(null,'',`#salt/${visiblePage()}`);render();if(macro)enterMicroscope(macro);if(state.sound&&navigator.userActivation?.hasBeenActive)sound.play('nav');
+ history.replaceState(null,'',`#salt/${visiblePage()}`);render();if(macro)enterMicroscope(macro);if(state.sound&&navigator.userActivation?.hasBeenActive)sound.play(navCue(n));
 }
 function advance(){
  if(state.step>=(maxSteps[state.page]||0))return;
- state.step++;render(true);if(state.sound)sound.play('reveal');
+ state.step++;render(true);if(state.sound)sound.play(state.page===39?'grow':[61,62,63].includes(state.page)?'plus':'reveal');
 }
 function downloadRecord(){
  const text='我的盐晶体观察记录\\n'.replace('\\n','\n')+Object.entries(fieldNames).map(([k,t])=>`${t}\n${state.recordValues[k]||'（未填写）'}`).join('\n\n')+'\n\n比较条件：同一批、同样多的盐水，同样的杯子；只改变放的地方（窗台 / 冰箱）。\n成人准备，实验材料不入口。\n';
@@ -242,9 +244,10 @@ function downloadRecord(){
  const a=document.createElement('a');a.href=url;a.download='盐晶体观察记录.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 document.addEventListener('click',e=>{
+ if(e.target.closest('.salt-grain')){advance();if(state.sound)sound.play('grow');return;}
  const b=e.target.closest('button');if(!b)return;
  if(b.dataset.go){go(+b.dataset.go);return;}
- if(b.dataset.guess!==undefined){state.guess=+b.dataset.guess;render();return;}
+ if(b.dataset.guess!==undefined){state.guess=+b.dataset.guess;render();if(state.sound)sound.play('select');return;}
  if(b.dataset.row){
   if(state.step>=2)return;
   if(b.dataset.row===(state.step===0?'white':'black')){state.step++;state.rowError=false;render(true);if(state.sound)sound.play('step');}
@@ -270,7 +273,7 @@ $('#stepback').onclick=()=>{state.step=Math.max(0,state.step-1);render();};
 $('#prev').onclick=()=>go(adjacentScene(-1));$('#next').onclick=()=>go(adjacentScene(1));
 $('#toc').onclick=()=>{state.toc=!state.toc;state.notes=false;updatePanels();};
 $('#notebutton').onclick=()=>{state.notes=!state.notes;state.toc=false;updatePanels();};
-$('#sound').onclick=()=>{state.sound=!state.sound;$('#sound').textContent='声音：'+(state.sound?'开':'关');$('#sound').setAttribute('aria-pressed',state.sound);};
+$('#sound').onclick=()=>{state.sound=!state.sound;sound.setEnabled(state.sound);$('#sound').textContent='声音：'+(state.sound?'开':'关');$('#sound').setAttribute('aria-pressed',state.sound);};
 $('#fullscreen').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();}catch{/* Fullscreen may be denied inside embedding contexts. */}};
 document.addEventListener('keydown',e=>{
  if(e.target.matches('input,textarea')||e.target.closest('.p02-bottle-handle'))return;

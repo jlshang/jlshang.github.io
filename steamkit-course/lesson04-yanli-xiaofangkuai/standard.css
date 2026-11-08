@@ -148,3 +148,9 @@
 .method-row.big .method-card.chosen{box-shadow:0 0 0 8px var(--orange),0 0 40px 8px #e8742a88;transform:translateY(-8px)}
 .method-row.big .method-card.banned{background:#e5e1da!important;color:#8a8f98!important}
 .react-card .react-big{font-size:90px;margin:0;color:inherit}
+/* v6 merged page 4 */
+.why-art.slide-in{animation:why-slide .6s cubic-bezier(.2,.9,.3,1) both}
+@keyframes why-slide{from{transform:translateX(160px) scale(.9);opacity:.4}to{transform:none;opacity:1}}
+.why-guesses.big{top:200px}
+.why-ask{margin:0 0 6px;font:44px var(--display);color:#fbf6ec;white-space:nowrap}
+.salt-grain{transition:transform .2s}.salt-grain:hover{transform:scale(1.06)}

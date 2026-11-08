@@ -1,6 +1,6 @@
 // v2 scenes: kitchen (50), microscope + why (51), ion drag chain (52), conclusion (53).
 // v3 scenes: kitchen answer wall (50), microscope 对/错 (51), why guesses (54), ion drag chain (52), conclusion (53).
-export const NEW_MAX={50:0,55:0,51:0,54:0,52:1,53:0};
+export const NEW_MAX={50:0,55:0,51:1,54:0,52:1,53:0};
 const WALL_OPTIONS=[['闻一闻','👃'],['尝一尝','👅'],['看一看','🔍']];
 const wallState=new Map();
 
@@ -25,7 +25,7 @@ function bindWall(sound){
   }
   wall.classList.toggle('has',wallState.size>0);
  };
- const pin=name=>{wallState.set(name,(wallState.get(name)||0)+1);paint();const notes=[...wall.querySelectorAll('.anote')];const n=notes[[...wallState.keys()].indexOf(name)];n?.classList.add('bump');sound?.('select');};
+ const pin=name=>{wallState.set(name,(wallState.get(name)||0)+1);paint();const notes=[...wall.querySelectorAll('.anote')];const n=notes[[...wallState.keys()].indexOf(name)];n?.classList.add('bump');sound?.('pin');};
  const onOpen=()=>{list.hidden=!list.hidden;op.setAttribute('aria-expanded',String(!list.hidden));};
  const onFocus=()=>{list.hidden=false;op.setAttribute('aria-expanded','true');};
  const onInput=()=>{const v=inp.value.trim();list.querySelectorAll('li').forEach(li=>li.hidden=!!v&&!li.textContent.includes(v));};
@@ -57,13 +57,14 @@ function bindMicro(sound){
  const h=e=>{const ok=e.currentTarget.dataset.photoChoice==='left';btns.forEach(b=>{b.classList.toggle('picked',b===e.currentTarget);b.classList.toggle('ok',b===e.currentTarget&&ok);b.classList.toggle('no',b===e.currentTarget&&!ok);});
   const f=e.currentTarget.closest('figure').getBoundingClientRect(),st=document.querySelector('#stage').getBoundingClientRect(),k=st.width/1600;
   v.className='verdict show '+(ok?'ok':'no');v.innerHTML=ok?'<i>✓</i>对！':'<i>✗</i>错';v.style.left=((f.left-st.left)/k+(f.width/k)/2-110)+'px';v.style.top=((f.top-st.top)/k+(f.height/k)+24)+'px';
-  sound?.(ok?'correct':'wrong');};
+  sound?.(ok?'correct':'wrong');
+  if(ok)setTimeout(()=>{if(document.querySelector('.v3-micro'))window.courseware.advance();},1300);};
  btns.forEach(b=>b.addEventListener('click',h));return ()=>btns.forEach(b=>b.removeEventListener('click',h));
 }
 
 export function why(state,title){
  const guesses=['工厂把盐切成了小方块','盐里面的小粒子，排得整整齐齐','我有别的猜想'];
- return title('盐为什么是小方块？')+`<img class="why-art" src="assets/p06-shape5.jpeg" alt="显微镜下的盐粒" draggable="false"><div class="why-guesses big">${guesses.map((t,i)=>`<button data-guess="${i}" class="${state.guess===i?'selected':''}" aria-pressed="${state.guess===i}" style="--i:${i}"><b>${'ABC'[i]}</b>${t}</button>`).join('')}</div>`;
+ return title('盐粒都是小方块！为什么？')+`<img class="why-art slide-in" src="assets/p06-shape5.jpeg" alt="显微镜下的盐粒" draggable="false"><div class="why-guesses big"><p class="why-ask">盐为什么是小方块？</p>${guesses.map((t,i)=>`<button data-guess="${i}" class="${state.guess===i?'selected':''}" aria-pressed="${state.guess===i}" style="--i:${i}"><b>${'ABC'[i]}</b>${t}</button>`).join('')}</div>`;
 }
 
 // ---------- Page 52: one grain zooms into ions; drag to build Na-Cl chain ----------
@@ -78,7 +79,7 @@ const face=(kind)=>{
 };
 export function ions(state,title){
  if(state.step===0)return title('一粒盐，放大再放大')+
-  `<div class="grain-stage"><svg class="salt-grain" viewBox="0 0 300 300" role="img" aria-label="一粒小方块盐"><path d="M50 95L150 45L250 95L150 145Z" fill="#ffffff"/><path d="M50 95L150 145V255L50 205Z" fill="#d6e2ee"/><path d="M150 145L250 95V205L150 255Z" fill="#eaf1f7"/></svg></div>`;
+  `<div class="grain-stage"><svg class="salt-grain" data-action="advance" tabindex="0" style="cursor:zoom-in" viewBox="0 0 300 300" role="img" aria-label="一粒小方块盐"><path d="M50 95L150 45L250 95L150 145Z" fill="#ffffff"/><path d="M50 95L150 145V255L50 205Z" fill="#d6e2ee"/><path d="M150 145L250 95V205L150 255Z" fill="#eaf1f7"/></svg></div>`;
  return title('钠和氯，怎样排在一起？')+
   `<div class="zoom-flash" aria-hidden="true"></div><svg id="ion-field" class="ion-field" viewBox="0 0 1600 900" role="application" aria-label="拖动钠和氯：同类会弹开，钠和氯会吸住连起来">
    
@@ -95,7 +96,7 @@ export function bindNew({state,sound}){
  if(state.page===52&&state.step===1)cleanupIon=bindIons(sound);
  if(state.page===50)cleanupIon=bindWall(sound);
  if(state.page===51)cleanupIon=bindMicro(sound);
- if(state.page===55){const h=e=>{const b=e.target.closest('[data-method]');if(!b)return;state.method=b.dataset.method;sound?.(b.dataset.method==='taste'?'wrong':b.dataset.method==='look'?'correct':'select');window.__rerender?.();};document.querySelector('#slide').addEventListener('click',h);cleanupIon=()=>document.querySelector('#slide')?.removeEventListener('click',h);}
+ if(state.page===55){const h=e=>{const b=e.target.closest('[data-method]');if(!b)return;state.method=b.dataset.method;sound?.(b.dataset.method==='taste'?'wrong':b.dataset.method==='look'?'good':'tick');window.__rerender?.();};document.querySelector('#slide').addEventListener('click',h);cleanupIon=()=>document.querySelector('#slide')?.removeEventListener('click',h);}
  if(state.page===53)confetti();
 }
 
@@ -144,7 +145,7 @@ function bindIons(sound){
   other.el.classList.remove('shake');void other.el.getBBox();other.el.classList.add('shake');
   moving.el.classList.remove('shake');void moving.el.getBBox();moving.el.classList.add('shake');
   hint.textContent='';
-  play('wrong');
+  play('repel');
  }
  const ends=c=>c.length===1?[c[0]]:[c[0],c[c.length-1]];
  function nearestEnd(c,maxGap){
@@ -194,7 +195,7 @@ function bindIons(sound){
    chains=chains.filter(x=>x!==t&&x!==c);chains.push(merged);
    layout(merged,b);merged.forEach(o=>place(o));
    [a,b].forEach(o=>{o.el.classList.remove('snap');void o.el.getBBox();o.el.classList.add('snap');});
-   play('reveal');
+   play('snap');
    hint.textContent='';
    later(drawRods,0);
    drawRods();
@@ -206,7 +207,7 @@ function bindIons(sound){
   done=true;
   const c=chains[0],anchor=c[0];
   const width=c[c.length-1].x-c[0].x;anchor.x=800-width/2;anchor.y=500;layout(c,anchor);c.forEach(o=>place(o));
-  later(()=>{drawRods();svg.classList.add('complete');hint.innerHTML='<b>钠、氯、钠、氯……一个隔一个！</b>';play('correct');},380);
+  later(()=>{drawRods();svg.classList.add('complete');hint.innerHTML='<b>钠、氯、钠、氯……一个隔一个！</b>';play('cheer');},380);
   const host=document.createElement('div');host.className='confetti';document.querySelector('#slide').append(host);confetti();
  }
  // keep rods synced while the CSS transitions run

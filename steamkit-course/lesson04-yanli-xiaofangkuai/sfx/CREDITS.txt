@@ -1,0 +1,17 @@
+Sound effects from Freesound.org, all CC0 (public domain), from the project library 「音效试听」:
+page1.mp3  <- freesound #397548  fs_397548_Page-Turn-01.mp3
+page2.mp3  <- freesound #346835  fs_346835_PageTurn-wav.mp3
+page3.mp3  <- freesound #457767  fs_457767_turnPage-mp3.mp3
+swoosh.mp3  <- freesound #419341  fs_419341_Swoosh-ogg.mp3
+whoosh.mp3  <- freesound #449996  fs_449996_whoosh_short_mid-wav.mp3
+magic.mp3  <- freesound #511485  fs_511485_cartoon_wink_magic_sparkle-wav.mp3
+sparkle.mp3  <- freesound #715067  fs_715067_achievement-sparkle.mp3
+plop.mp3  <- freesound #447910  fs_447910_Plop.mp3
+pop.mp3  <- freesound #258269  fs_258269_Mouth-pop.mp3
+click.mp3  <- freesound #467951  fs_467951_UI-Button-Click.mp3
+tick.mp3  <- freesound #201766  fs_201766_tick-__.mp3
+correct.mp3  <- freesound #243701  fs_243701_correct.mp3
+bell.mp3  <- freesound #538147  fs_538147_Correct-Bell.mp3
+boing.mp3  <- freesound #540790  fs_540790_Boing-2.mp3
+yay.mp3  <- freesound #563845  fs_563845_yay-mp3.mp3
+fanfare.mp3  <- freesound #521645  fs_521645_WinFantasia-wav.mp3
