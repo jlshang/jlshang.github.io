@@ -2,9 +2,10 @@ import {enterMicroscope,cancelMicroscopeTransition} from './microscope-transitio
 import {LESSON} from './lesson.js';
 import {models,mountModel} from './review-model.js';
 import {batchContent,bindBatch,cleanupBatch,BATCH_MAX} from './batch-scenes.js';
+import {CAF2_STAGES} from './caf2-stages.js';
 import {NEW_MAX,kitchen,methods,micro,why,ions,conclusion,bindNew,cleanupNew} from './new-scenes.js';
 // Stable scene ids preserve all 22 existing interactions; visible page 3 is new scene 23.
-const SCENES=[1,50,55,51,5,52,60,61,62,63,39,38,41,40,42,44,56,22];
+const SCENES=[1,50,55,51,5,59,52,60,61,62,63,39,38,41,40,42,44,56,57,22];
 const $=s=>document.querySelector(s);
 const visiblePage=()=>SCENES.indexOf(state.page)+1;
 const adjacentScene=delta=>SCENES[visiblePage()-1+delta];
@@ -18,7 +19,7 @@ const axes=[0,2,1];
 const axisLine=a=>choose(grid,p=>p.every((v,k)=>k===axes[a]||Math.abs(v)<EPS));
 const bottomCenter=choose(grid,p=>p[1]<-EPS&&Math.abs(p[0])+Math.abs(p[2])<EPS);
 const layerStages=[bottomCenter,choose(grid,p=>p[1]<-EPS&&Math.abs(p[2])<EPS),choose(grid,p=>p[1]<-EPS&&p[2]<EPS),layer];
-const maxSteps={...BATCH_MAX,...NEW_MAX,60:0,61:4,62:3,63:4,39:3,2:1,4:1,6:1,8:2,9:3,10:3,11:2,14:3,15:2,16:1,19:3,21:3};
+const maxSteps={...BATCH_MAX,...NEW_MAX,52:0,59:0,60:0,61:4,62:3,63:4,39:3,57:3,2:1,4:1,6:1,8:2,9:3,10:3,11:2,14:3,15:2,16:1,19:3,21:3};
 const state={page:1,step:0,guess:null,axis:0,notes:false,toc:false,sound:true,record:false,rowError:false,recordValues:{}};
 let deck,controllers=new Map(),pour=null,scope=0,storingFailed=false;
 try{state.recordValues=JSON.parse(localStorage.getItem('salt-review-record')||'{}');if(!state.recordValues||typeof state.recordValues!=='object')state.recordValues={};}catch{state.recordValues={};}
@@ -57,7 +58,7 @@ function content(){
  if(p===50)return kitchen(state,title);
  if(p===55)return methods(state,title);
  if(p===54)return why(state,title);
- if(p===60)return title('第 1 步：搭一个氯化钠')+host('nacl1',{id:'nacl-pair',height:9,yaw:.35,pitch:.25},'left:100px;top:200px;width:820px;height:600px')+
+ if(p===60)return title('第 1 步：搭一个氯化钠 <span class="ionf t">NaCl</span>')+host('nacl1',{id:'nacl-pair',height:9,yaw:.35,pitch:.25},'left:100px;top:200px;width:820px;height:600px')+
   '<div class="build-key"><p><span class="dot black"></span>黑球 = 钠 <b class="ionf">Na⁺</b></p><p><span class="dot white"></span>白球 = 氯 <b class="ionf">Cl⁻</b></p><p><span class="rod"></span>蓝短棍 = 把它们连在一起</p></div>';
  if(p===61){
   const stages=[[0,1],[0,1,2],[0,1,2,3],[0,1,2,3,4],[0,1,2,3,4,5]];
@@ -74,13 +75,21 @@ function content(){
   const ids=m.balls.flatMap((q,i)=>q.every((v,k)=>Math.abs(Math.round((v-o[k])/sp))<=lim[k])?[i]:[]);
   return title('小盐晶体，是怎样长大的？')+host('grow-build',{id:'lattice-5',balls:ids,height:40,yaw:.42,pitch:.24},'left:250px;top:180px;width:1100px;height:660px')+plusButton('向外拼一层');
  }
+ if(p===57){const st=s;
+  const cap=(name,f,rows)=>`<div class="ch-card"><h3>${name}<b class="ionf">${f}</b></h3>${rows.map(([c,t])=>`<p><span class="dot ${c}"></span>${t}</p>`).join('')}</div>`;
+  return title('课后挑战 1　盐的亲戚：氯化铯和萤石')+
+   host('cscl',{id:'cscl',height:11,yaw:.5,pitch:.32},'left:70px;top:150px;width:700px;height:470px')+
+   host('caf2',{id:'caf2-big',balls:CAF2_STAGES[st],height:[20,28,42,60][st],yaw:.5,pitch:.32},'left:830px;top:150px;width:700px;height:470px')+
+   `<div class="ch-col" style="left:70px">${cap('氯化铯 ','CsCl',[['black','黑球 = 铯 Cs⁺'],['white','白球 = 氯 Cl⁻'],['rod','蓝短棍：连成方块'],['rod y','黄短棍：铯连到 8 个角']])}</div>`+
+   `<div class="ch-col" style="left:830px">${cap('萤石 ','CaF₂',[['black','黑球 = 钙 Ca²⁺'],['white','白球 = 氟 F⁻'],['rod','蓝短棍：连成小方块'],['rod y','黄短棍：氟连到 4 个钙']])}<p class="grow-tag2">${['1 格','2 格','4 格','8 格'][st]}</p></div>`+plusButton('萤石再拼一格');}
  if(p===56)return title('拼搭你喜欢的盐粒')+host('fav-a',{id:'twin-octa',height:19,yaw:.5,pitch:.28},'left:60px;top:170px;width:730px;height:640px')+host('fav-b',{id:'cube-octa',height:28,yaw:.55,pitch:.32},'left:810px;top:170px;width:730px;height:640px');
  if(p===63){
   const stages=['cross-3d','grid-1','grid-2','grid-3','grid-4'].map(id=>choose(grid,(q,i)=>models[id].balls.some(b=>b.every((v,k)=>Math.abs(v-q[k])<1e-6))));
   return title('第 4 步：把十字变成小方块')+host('cube',{id:'grid-4',balls:stages[s],height:21},'left:300px;top:190px;width:1000px;height:640px')+stepButtons('接着搭');
  }
  if(p===51)return s===0?micro(state,title,window.originalRevisions.photos(deck.slides[5])):why(state,title);
- if(p===52)return ions(state,title)+'';
+ if(p===59)return ions({...state,step:0},title);
+ if(p===52)return ions({...state,step:1},title);
  if(p===53)return conclusion(title,host);
  if(p===22)return homework();
  const revised=batchContent({state,deck,title,host,modelScene,stepButtons,dots,legend});
@@ -225,7 +234,7 @@ function render(animate=false){
  updatePanels();resize();
 }
 function goReset(){state.methods=new Set();}
-const MODEL_PAGES=new Set([60,61,62,63,38,39,42,44,56]);
+const MODEL_PAGES=new Set([60,61,62,63,38,39,42,44,56,57,58]);
 function navCue(n){return n===1?'cover':[5,41].includes(n)?'chapter':n===22?'finish':MODEL_PAGES.has(n)?'model':'page';}
 function go(n){
  if(!SCENES.includes(n))return;
@@ -237,7 +246,7 @@ function go(n){
 }
 function advance(){
  if(state.step>=(maxSteps[state.page]||0))return;
- state.step++;render(true);if(state.sound)sound.play(state.page===39?'grow':[61,62,63].includes(state.page)?'plus':'reveal');
+ state.step++;render(true);if(state.sound)sound.play(state.page===39?'grow':[57,61,62,63].includes(state.page)?'plus':'reveal');
 }
 function downloadRecord(){
  const text='我的盐晶体观察记录\\n'.replace('\\n','\n')+Object.entries(fieldNames).map(([k,t])=>`${t}\n${state.recordValues[k]||'（未填写）'}`).join('\n\n')+'\n\n比较条件：同一批、同样多的盐水，同样的杯子；只改变放的地方（窗台 / 冰箱）。\n成人准备，实验材料不入口。\n';
@@ -245,7 +254,8 @@ function downloadRecord(){
  const a=document.createElement('a');a.href=url;a.download='盐晶体观察记录.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 document.addEventListener('click',e=>{
- if(e.target.closest('.salt-grain')){advance();if(state.sound)sound.play('grow');return;}
+ if(e.target.closest('.salt-grain')){go(52);if(state.sound)sound.play('grow');return;}
+ if(e.target.closest('.react-scope')){go(51);return;}
  const b=e.target.closest('button');if(!b)return;
  if(b.dataset.go){go(+b.dataset.go);return;}
  if(b.dataset.guess!==undefined){state.guess=+b.dataset.guess;render();if(state.sound)sound.play('select');return;}

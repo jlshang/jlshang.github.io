@@ -8,6 +8,7 @@ import {planInsertion,sampleInsertion} from './insertion-motion.js';
 import {COORDINATION_MODELS,coordinationStage} from './coordination-models.js';
 import {PART_MODELS} from './part-models.js';
 import {EXTRA_MODELS} from './model-extras.js';
+import {yellowStrut} from './zome-yellow.js';
 const allModels={...MODELS,...PART_MODELS,...EXTRA_MODELS,...COORDINATION_MODELS,'lattice-5':LATTICE_MODEL};
 
 // One WebGL renderer, separate real scenes copied synchronously to each visible canvas.
@@ -19,7 +20,7 @@ for(const [name,source] of Object.entries(SHAPES)){
  g.setIndex(source.indices);g.computeVertexNormals();
  geometries[name]=toCreasedNormals(g,59*Math.PI/180);
 }
-for(const [name,color]of Object.entries({black:'#363636',white:'#ececec',BLUE:'#0081df',GREEN:'#07943a',yellow:'#e9c23c',blueball:'#2f86d8'}))
+for(const [name,color]of Object.entries({black:'#363636',white:'#ececec',BLUE:'#0081df',GREEN:'#07943a',YELLOW:'#f2c230',yellow:'#e9c23c',blueball:'#2f86d8'}))
  materials[name]=new T.MeshStandardMaterial({color,roughness:.62,metalness:0});
 for(const [name,material] of Object.entries(materials)){
  ghostMaterials[name]=material.clone();
@@ -44,6 +45,7 @@ function buildScene(id){
   mesh.position.fromArray(p);mesh.userData={part:'ball',index:i,material:model.ballColors[i]};group.add(mesh);
  });
  model.struts.forEach((e,i)=>{
+  if(e.color==='YELLOW'){const mesh=new T.Mesh(yellowStrut(model.balls[e.a],model.balls[e.b]),materials.YELLOW);mesh.castShadow=true;mesh.receiveShadow=true;mesh.userData={part:'strut',index:i,material:'YELLOW'};group.add(mesh);return;}
   const mesh=new T.Mesh(geometries[e.color==='BLUE'?'b0':'g0'],materials[e.color]);
   mesh.castShadow=true;mesh.receiveShadow=true;
   mesh.matrix.fromArray(e.rotation);mesh.matrix.setPosition(...model.balls[e.a]);
@@ -92,7 +94,8 @@ export function renderModel(canvas,id,{yaw=.545,pitch=.274,height=17,orthographi
   }
   mesh.visible=e&&rods?rods.has(index):!visible||(e?visible.has(e.a)&&visible.has(e.b):visible.has(index));
   const offset=(e?strutOffsets:ballOffsets)[index]||[0,0,0];
-  if(e){
+  if(e&&e.color==='YELLOW'){mesh.matrixAutoUpdate=false;mesh.matrix.makeTranslation(...offset);}
+  else if(e){
    mesh.matrix.fromArray(e.rotation);
    mesh.matrix.setPosition(...model.balls[e.a].map((v,k)=>v+offset[k]));
   }else mesh.position.fromArray(model.balls[index].map((v,k)=>v+offset[k]));

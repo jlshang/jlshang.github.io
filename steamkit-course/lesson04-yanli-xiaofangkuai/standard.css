@@ -189,3 +189,45 @@
 .ionf{font-family:'Times New Roman',Georgia,serif;font-style:italic;font-weight:700;color:#f6c343;fill:#f6c343;letter-spacing:1px}
 .build-key .ionf{font-size:40px;margin-left:6px}
 .ion text .ionf{font-size:28px}
+.ch-cap{position:absolute;top:745px;width:730px;margin:0;text-align:center;font:40px var(--display);color:#fbf6ec}
+.el-key{position:absolute;left:1010px;top:300px}
+.el-key p{margin:0 0 26px;font:38px var(--display);color:#fbf6ec;display:flex;align-items:center;gap:18px;white-space:nowrap}
+.el-key .dot{width:40px;height:40px;border-radius:50%;display:inline-block}
+.el-key .dot.black{background:#2b2f36;box-shadow:inset 0 0 0 3px #6b7480}
+.el-key .dot.white{background:#f2f2ee}
+.el-key .dot.rod{width:46px;height:12px;border-radius:6px;background:#2f6bd8}
+.el-key .dot.rod.y{background:#f2c230}
+.el-key .ionf{font-size:38px}
+.grow-tag{position:absolute;left:1010px;top:620px;margin:0;font:56px var(--display);color:#f2c230}
+.ch-col{position:absolute;top:630px;width:700px;display:flex;justify-content:center;align-items:flex-start;gap:30px}
+.ch-card{padding:14px 26px;border-radius:22px;background:#293951}
+.ch-card h3{margin:0 0 8px;font:36px var(--display);color:#fbf6ec;font-weight:400}
+.ch-card h3 .ionf{font-size:32px}
+.ch-card p{margin:0 0 6px;font:24px var(--display);color:#fbf6ec;display:flex;align-items:center;gap:12px;white-space:nowrap;float:left;width:50%}
+.ch-card p:nth-of-type(odd){clear:left}
+.ch-card .dot{width:26px;height:26px;border-radius:50%;display:inline-block;flex:none}
+.ch-card .dot.black{background:#2b2f36;box-shadow:inset 0 0 0 3px #6b7480}
+.ch-card .dot.white{background:#f2f2ee}
+.ch-card .dot.rod{width:32px;height:9px;border-radius:5px;background:#2f6bd8}
+.ch-card .dot.rod.y{background:#f2c230}
+.ch-card::after{content:"";display:block;clear:both}
+.ch-card{width:600px;box-sizing:border-box}
+.grow-tag2{position:absolute;right:-6px;top:-560px;margin:0;font:40px var(--display);color:#f2c230}
+/* v9: per-card reaction + bottom popup */
+.scene-55 .method-row.big{top:215px}
+.react-pop{position:absolute;left:0;right:0;margin:auto;top:640px;width:fit-content;min-width:720px;display:flex;align-items:center;gap:28px;padding:18px 48px 18px 30px;border-radius:30px;background:#fffdf7;color:#26364d;box-shadow:0 12px 30px #0006;opacity:0;transform:translateY(40px) scale(.96);pointer-events:none}
+.react-pop.show{pointer-events:auto}
+.react-pop.in{opacity:1;transform:none;transition:opacity .3s,transform .45s cubic-bezier(.3,1.5,.5,1)}
+.react-pop>img,.react-scope img{width:210px;height:210px;object-fit:contain;margin:-70px 0 -20px}
+.react-pop p{margin:0}
+.react-pop b{display:block;font:48px var(--display);font-weight:400;white-space:nowrap}
+.react-pop span{display:block;margin-top:6px;font-size:30px;color:#6b7686}
+.react-pop.warn b{color:#d98a12}.react-pop.no b{color:#d6452f}.react-pop.ok b{color:#2f8a50}
+.react-pop.warn{border-left:14px solid #f2a516}.react-pop.no{border-left:14px solid #e5483a}.react-pop.ok{border-left:14px solid #3a9a5b}
+.react-scope{border:none;background:none;padding:0;cursor:pointer;animation:scopebob 1.6s ease-in-out infinite}
+.react-scope:hover img{transform:scale(1.08)}.react-scope img{transition:transform .2s}
+@keyframes scopebob{50%{transform:translateY(-8px)}}
+.scene-5 .chapter-art-std{left:860px!important;top:170px!important;width:720px!important;height:620px!important}
+.ionf.t{font-family:var(--body);font-weight:800;margin-left:10px}
+.cover-banner{top:160px;width:1560px;height:639px}
+.banner-text{top:508px}.banner-text h1{font-size:74px}
