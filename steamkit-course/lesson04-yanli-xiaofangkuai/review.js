@@ -4,7 +4,7 @@ import {models,mountModel} from './review-model.js';
 import {batchContent,bindBatch,cleanupBatch,BATCH_MAX} from './batch-scenes.js';
 import {NEW_MAX,kitchen,methods,micro,why,ions,conclusion,bindNew,cleanupNew} from './new-scenes.js';
 // Stable scene ids preserve all 22 existing interactions; visible page 3 is new scene 23.
-const SCENES=[1,50,55,51,5,52,60,61,62,63,38,39,41,40,42,44,22];
+const SCENES=[1,50,55,51,5,52,60,61,62,63,39,38,41,56,40,42,44,22];
 const $=s=>document.querySelector(s);
 const visiblePage=()=>SCENES.indexOf(state.page)+1;
 const adjacentScene=delta=>SCENES[visiblePage()-1+delta];
@@ -74,6 +74,7 @@ function content(){
   const ids=m.balls.flatMap((q,i)=>q.every((v,k)=>Math.abs(Math.round((v-o[k])/sp))<=lim[k])?[i]:[]);
   return title('小盐晶体，是怎样长大的？')+host('grow-build',{id:'lattice-5',balls:ids,height:40,yaw:.42,pitch:.24},'left:250px;top:180px;width:1100px;height:660px')+plusButton('向外拼一层');
  }
+ if(p===56)return title('拼搭你喜欢的盐粒')+host('fav-a',{id:'twin-octa',height:19,yaw:.5,pitch:.28},'left:60px;top:170px;width:730px;height:640px')+host('fav-b',{id:'cube-octa',height:28,yaw:.55,pitch:.32},'left:810px;top:170px;width:730px;height:640px');
  if(p===63){
   const stages=['cross-3d','grid-1','grid-2','grid-3','grid-4'].map(id=>choose(grid,(q,i)=>models[id].balls.some(b=>b.every((v,k)=>Math.abs(v-q[k])<1e-6))));
   return title('第 4 步：把十字变成小方块')+host('cube',{id:'grid-4',balls:stages[s],height:21},'left:300px;top:190px;width:1000px;height:640px')+stepButtons('接着搭');
@@ -223,8 +224,8 @@ function render(animate=false){
  $('#progress').value=visiblePage();$('#prev').disabled=state.page===1;$('#next').disabled=visiblePage()===LESSON.length;
  updatePanels();resize();
 }
-function goReset(){state.method='';}
-const MODEL_PAGES=new Set([60,61,62,63,38,39,42,44]);
+function goReset(){state.methods=new Set();}
+const MODEL_PAGES=new Set([60,61,62,63,38,39,42,44,56]);
 function navCue(n){return n===1?'cover':[5,41].includes(n)?'chapter':n===22?'finish':MODEL_PAGES.has(n)?'model':'page';}
 function go(n){
  if(!SCENES.includes(n))return;

@@ -19,7 +19,7 @@ for(const [name,source] of Object.entries(SHAPES)){
  g.setIndex(source.indices);g.computeVertexNormals();
  geometries[name]=toCreasedNormals(g,59*Math.PI/180);
 }
-for(const [name,color]of Object.entries({black:'#363636',white:'#ececec',BLUE:'#0081df',GREEN:'#07943a'}))
+for(const [name,color]of Object.entries({black:'#363636',white:'#ececec',BLUE:'#0081df',GREEN:'#07943a',yellow:'#e9c23c',blueball:'#2f86d8'}))
  materials[name]=new T.MeshStandardMaterial({color,roughness:.62,metalness:0});
 for(const [name,material] of Object.entries(materials)){
  ghostMaterials[name]=material.clone();

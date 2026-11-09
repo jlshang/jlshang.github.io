@@ -1,7 +1,8 @@
 // v2 scenes: kitchen (50), microscope + why (51), ion drag chain (52), conclusion (53).
 // v3 scenes: kitchen answer wall (50), microscope 对/错 (51), why guesses (54), ion drag chain (52), conclusion (53).
 export const NEW_MAX={50:0,55:0,51:1,54:0,52:1,53:0};
-const WALL_OPTIONS=[['闻一闻','👃'],['尝一尝','👅'],['看一看','🔍']];
+const WALL_OPTIONS=[['闻一闻','media/ico_smell.png'],['尝一尝','media/ico_taste.png'],['看一看','media/ico_look.png']];
+const ICON_IMG={'闻一闻':'media/ico_smell.png','尝一尝':'media/ico_taste.png','看一看':'media/ico_look.png'};
 const wallState=new Map();
 
 export function kitchen(state,title){
@@ -9,13 +10,13 @@ export function kitchen(state,title){
   `<img class="kitchen-art" src="media/salt_shaker.png" alt="卡通调料罐和倒出来的一堆白色颗粒（卡通形象）" draggable="false">`+
   `<p class="kitchen-ask">有什么办法知道？</p>`+
   `<div class="awall" aria-live="polite"><span class="aempty">孩子说的办法，贴在这里</span></div>`+
-  `<div class="acombo"><form class="acform"><div class="acfield"><input maxlength="8" aria-label="孩子说的办法" autocomplete="off" placeholder="输入或选一个办法"><button type="button" class="acopen" aria-label="展开选项" aria-expanded="false">▲</button></div><button type="submit" class="acadd" aria-label="贴上去" title="贴上去">贴上去</button></form><ul class="aclist" hidden>${WALL_OPTIONS.map(([n,i])=>`<li><button type="button" data-wall="${n}"><span>${i}</span>${n}</button></li>`).join('')}</ul></div>`+
+  `<div class="acombo"><form class="acform"><div class="acfield"><input maxlength="8" aria-label="孩子说的办法" autocomplete="off" placeholder="输入或选一个办法"><button type="button" class="acopen" aria-label="展开选项" aria-expanded="false">▲</button></div><button type="submit" class="acadd" aria-label="贴上去" title="贴上去">贴上去</button></form><ul class="aclist" hidden>${WALL_OPTIONS.map(([n,i])=>`<li><button type="button" data-wall="${n}"><img src="${i}" alt="">${n}</button></li>`).join('')}</ul></div>`+
   `<button class="review-next-step round areset" aria-label="清空" title="清空"><span aria-hidden="true">↺</span></button>`;
 }
 function bindWall(sound){
  const root=document.querySelector('#slide');const wall=root.querySelector('.awall');if(!wall)return()=>{};
  const form=root.querySelector('.acform'),inp=root.querySelector('.acfield input'),list=root.querySelector('.aclist'),op=root.querySelector('.acopen');
- const icon=n=>(WALL_OPTIONS.find(o=>o[0]===n)||[0,'💡'])[1];
+ const icon=n=>ICON_IMG[n]?`<img src="${ICON_IMG[n]}" alt="">`:'💡';
  const close=()=>{list.hidden=true;op.setAttribute('aria-expanded','false');};
  const paint=()=>{
   wall.querySelectorAll('.anote').forEach(n=>n.remove());
@@ -40,23 +41,20 @@ function bindWall(sound){
 }
 
 export function methods(state,title){
- const cards=[['smell','👃','闻一闻'],['taste','👅','尝一尝'],['look','🔍','看一看']];
- const pick=state.method||'';
- const react={
-  smell:'<div class="react-card pop"><span class="react-big">🤷</span><p><b>闻不出来！</b><span>盐和糖，几乎都没有气味</span></p></div>',
-  taste:'<div class="react-card no pop"><img src="media/notaste.png" alt="小兔捂住嘴巴摇头（卡通形象）"><p><b>不认识的东西，不能尝！</b><span>做实验的第一条规矩</span></p></div>',
-  look:'<div class="react-card ok pop"><span class="react-big">🔬</span><p><b>好办法！放大看一看</b><span>用显微镜，看看颗粒的样子</span></p></div>'};
- return title('哪个办法，又安全又管用？')+`<div class="method-row big">${cards.map(([k,i,t],n)=>`<button class="method-card${pick===k?' chosen':''}${pick===k&&k==='taste'?' banned':''}" data-method="${k}" style="--i:${n}"><span class="method-icon">${i}</span><strong>${t}</strong>${pick===k&&k==='taste'?'<i class="ban-stamp" aria-hidden="true"></i>':''}</button>`).join('')}</div>`+(pick?react[pick]:'');
+ const cards=[['smell','media/ico_smell.png','闻一闻','!','闻不出来'],['taste','media/ico_taste.png','尝一尝','','不能尝！'],['look','media/ico_look.png','看一看','✓','好办法！']];
+ const seen=state.methods||(state.methods=new Set());
+ return title('哪个办法，又安全又管用？')+`<div class="method-row big">${cards.map(([k,img,t,mark,say],n)=>{const on=seen.has(k);
+  return `<button class="method-card m-${k}${on?' shown':''}" data-method="${k}" style="--i:${n}"><img class="method-img" src="${img}" alt=""><strong>${t}</strong>${on?`<span class="m-say">${say}</span>${k==='taste'?'<i class="ban-stamp" aria-hidden="true"></i>':`<i class="m-badge">${mark}</i>`}`:''}</button>`;}).join('')}</div>`;
 }
 
 export function micro(state,title,photos){
- return title('显微镜下，哪个是盐？为什么？')+photos.replace('dc-photo-choice-scene','dc-photo-choice-scene v3-micro').replace(/<div class="dc-choice-rabbit"[\s\S]*?<\/svg><\/div>/,'')+'<div class="verdict" aria-live="polite"></div>';
+ return title('显微镜下，哪个是盐？')+photos.replace('dc-photo-choice-scene','dc-photo-choice-scene v3-micro').replace(/<div class="dc-choice-rabbit"[\s\S]*?<\/svg><\/div>/,'')+'<div class="verdict" aria-live="polite"></div>';
 }
 function bindMicro(sound){
  const btns=[...document.querySelectorAll('[data-photo-choice]')],v=document.querySelector('.verdict');if(!v)return()=>{};
  const h=e=>{const ok=e.currentTarget.dataset.photoChoice==='left';btns.forEach(b=>{b.classList.toggle('picked',b===e.currentTarget);b.classList.toggle('ok',b===e.currentTarget&&ok);b.classList.toggle('no',b===e.currentTarget&&!ok);});
   const f=e.currentTarget.closest('figure').getBoundingClientRect(),st=document.querySelector('#stage').getBoundingClientRect(),k=st.width/1600;
-  v.className='verdict show '+(ok?'ok':'no');v.innerHTML=ok?'<i>✓</i>对！':'<i>✗</i>错';v.style.left=((f.left-st.left)/k+(f.width/k)/2-110)+'px';v.style.top=((f.top-st.top)/k+(f.height/k)+24)+'px';
+  v.className='verdict show '+(ok?'ok':'no');v.innerHTML=ok?'✓':'✗';v.style.left=((f.left-st.left)/k+(f.width/k)/2-110)+'px';v.style.top=((f.top-st.top)/k+(f.height/k)+24)+'px';
   sound?.(ok?'correct':'wrong');
   if(ok)setTimeout(()=>{if(document.querySelector('.v3-micro'))window.courseware.advance();},1300);};
  btns.forEach(b=>b.addEventListener('click',h));return ()=>btns.forEach(b=>b.removeEventListener('click',h));
@@ -64,7 +62,7 @@ function bindMicro(sound){
 
 export function why(state,title){
  const guesses=['工厂把盐切成了小方块','盐里面的小粒子，排得整整齐齐','我有别的猜想'];
- return title('盐粒都是小方块！为什么？')+`<img class="why-art slide-in" src="assets/p06-shape5.jpeg" alt="显微镜下的盐粒" draggable="false"><div class="why-guesses big"><p class="why-ask">盐为什么是小方块？</p>${guesses.map((t,i)=>`<button data-guess="${i}" class="${state.guess===i?'selected':''}" aria-pressed="${state.guess===i}" style="--i:${i}"><b>${'ABC'[i]}</b>${t}</button>`).join('')}</div>`;
+ return `<img class="why-art slide-in" src="assets/p06-shape5.jpeg" alt="显微镜下的盐粒" draggable="false"><div class="why-guesses big"><p class="why-ask">盐为什么是小方块？</p>${guesses.map((t,i)=>`<button data-guess="${i}" class="${state.guess===i?'selected':''}" aria-pressed="${state.guess===i}" style="--i:${i}"><b>${'ABC'[i]}</b>${t}</button>`).join('')}</div>`;
 }
 
 // ---------- Page 52: one grain zooms into ions; drag to build Na-Cl chain ----------
@@ -96,7 +94,7 @@ export function bindNew({state,sound}){
  if(state.page===52&&state.step===1)cleanupIon=bindIons(sound);
  if(state.page===50)cleanupIon=bindWall(sound);
  if(state.page===51)cleanupIon=bindMicro(sound);
- if(state.page===55){const h=e=>{const b=e.target.closest('[data-method]');if(!b)return;state.method=b.dataset.method;sound?.(b.dataset.method==='taste'?'wrong':b.dataset.method==='look'?'good':'tick');window.__rerender?.();};document.querySelector('#slide').addEventListener('click',h);cleanupIon=()=>document.querySelector('#slide')?.removeEventListener('click',h);}
+ if(state.page===55){const h=e=>{const b=e.target.closest('[data-method]');if(!b)return;(state.methods||(state.methods=new Set())).add(b.dataset.method);sound?.(b.dataset.method==='look'?'good':'wrong');window.__rerender?.();};document.querySelector('#slide').addEventListener('click',h);cleanupIon=()=>document.querySelector('#slide')?.removeEventListener('click',h);}
  if(state.page===53)confetti();
 }
 
