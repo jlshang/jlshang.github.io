@@ -22,12 +22,13 @@ for(const [name,source] of Object.entries(SHAPES)){
 }
 for(const [name,color]of Object.entries({black:'#363636',white:'#ececec',BLUE:'#0081df',GREEN:'#07943a',YELLOW:'#f2c230',yellow:'#e9c23c',blueball:'#2f86d8'}))
  materials[name]=new T.MeshStandardMaterial({color,roughness:.62,metalness:0});
-// Black balls on the dark page: a soft cool rim (Fresnel) lifts their silhouette without changing the ball colour.
-materials.black.onBeforeCompile=sh=>{
- sh.fragmentShader=sh.fragmentShader.replace('#include <opaque_fragment>',
-  'float rimF=pow(1.0-clamp(dot(normalize(normal),normalize(vViewPosition)),0.0,1.0),2.2);\n outgoingLight+=vec3(0.62,0.72,0.9)*rimF*0.85;\n#include <opaque_fragment>');
-};
-materials.black.customProgramCacheKey=()=>'black-rim';
+// Black balls: pure black, glossy plastic (like the red parts in lessons 10/11); a soft studio environment
+// gives them visible highlights on the dark page without greying the colour.
+materials.black=new T.MeshPhysicalMaterial({color:'#0b0b0d',roughness:.28,metalness:0,clearcoat:1,clearcoatRoughness:.12,envMapIntensity:1.6});
+const studioEnv=(()=>{let tex=null;return r=>{if(tex)return tex;const env=new T.Scene();env.background=new T.Color('#151821');
+ const panel=(w,h,c,x,y,z)=>{const m=new T.Mesh(new T.PlaneGeometry(w,h),new T.MeshBasicMaterial({color:c,side:T.DoubleSide}));m.position.set(x,y,z);m.lookAt(0,0,0);env.add(m);};
+ panel(6,3,'#ffffff',-4,6,6);panel(4,4,'#cfdcf5',7,2,3);panel(8,2,'#9fb2d6',0,-1,-8);panel(3,3,'#ffffff',2,8,-3);
+ const pm=new T.PMREMGenerator(r);tex=pm.fromScene(env,.02).texture;pm.dispose();return tex;};})();
 for(const [name,material] of Object.entries(materials)){
  ghostMaterials[name]=material.clone();
  Object.assign(ghostMaterials[name],{transparent:true,opacity:.12,depthWrite:false});
@@ -39,6 +40,7 @@ function getRenderer(){
   renderer.setPixelRatio(1);renderer.outputColorSpace=T.SRGBColorSpace;
   renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
   renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;
+  materials.black.envMap=studioEnv(renderer);materials.black.needsUpdate=true;
  }
  return renderer;
 }
