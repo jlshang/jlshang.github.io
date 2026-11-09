@@ -4,7 +4,7 @@ import {models,mountModel} from './review-model.js';
 import {batchContent,bindBatch,cleanupBatch,BATCH_MAX} from './batch-scenes.js';
 import {NEW_MAX,kitchen,methods,micro,why,ions,conclusion,bindNew,cleanupNew} from './new-scenes.js';
 // Stable scene ids preserve all 22 existing interactions; visible page 3 is new scene 23.
-const SCENES=[1,50,55,51,5,52,60,61,62,63,39,38,41,56,40,42,44,22];
+const SCENES=[1,50,55,51,5,52,60,61,62,63,39,38,41,40,42,44,56,22];
 const $=s=>document.querySelector(s);
 const visiblePage=()=>SCENES.indexOf(state.page)+1;
 const adjacentScene=delta=>SCENES[visiblePage()-1+delta];
@@ -58,7 +58,7 @@ function content(){
  if(p===55)return methods(state,title);
  if(p===54)return why(state,title);
  if(p===60)return title('第 1 步：搭一个氯化钠')+host('nacl1',{id:'nacl-pair',height:9,yaw:.35,pitch:.25},'left:100px;top:200px;width:820px;height:600px')+
-  '<div class="build-key"><p><span class="dot black"></span>黑球 = 钠（小个子）</p><p><span class="dot white"></span>白球 = 氯（大个子）</p><p><span class="rod"></span>蓝短棍 = 把它们连在一起</p></div>';
+  '<div class="build-key"><p><span class="dot black"></span>黑球 = 钠 <b class="ionf">Na⁺</b></p><p><span class="dot white"></span>白球 = 氯 <b class="ionf">Cl⁻</b></p><p><span class="rod"></span>蓝短棍 = 把它们连在一起</p></div>';
  if(p===61){
   const stages=[[0,1],[0,1,2],[0,1,2,3],[0,1,2,3,4],[0,1,2,3,4,5]];
   return title('第 2 步：搭更多氯化钠')+host('nacl-row',{id:'row-six',balls:stages[s],height:16,yaw:0,pitch:.2},'left:60px;top:200px;width:1480px;height:600px')+plusButton('再接一颗');
@@ -66,7 +66,7 @@ function content(){
  if(p===62){
   const stages=[[0],[0,1,2],[0,1,2,3,4],[0,1,2,3,4,5,6]];
   return title('第 3 步：一个钠，周围有几个氯？')+host('cross3',{id:'cross-3d',balls:stages[s],height:17},'left:150px;top:200px;width:820px;height:620px')+
-   `<div class="neighbor-tally">${s===0?'<p class="ask">黑球周围，<br>能接几颗白球？</p>':['左右：2 个','上下：2 个','前后：2 个'].slice(0,s).map((t,i)=>`<p class="${i===s-1?'pop':''}">${t}</p>`).join('')}${s===3?'<p class="tally-total pop">一共 6 个邻居！</p>':''}</div>`+plusButton('再接一对');
+   `<div class="neighbor-tally">${s===0?'':['左右：2 个','上下：2 个','前后：2 个'].slice(0,s).map((t,i)=>`<p class="${i===s-1?'pop':''}">${t}</p>`).join('')}${s===3?'<p class="tally-total pop">一共 6 个邻居！</p>':''}</div>`+plusButton('再接一对');
  }
  if(p===39){
   const m=models['lattice-5'],o=m.balls[62],sp=5.23606797749979;

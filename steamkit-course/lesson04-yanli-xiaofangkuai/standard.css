@@ -186,3 +186,6 @@
 .method-row.big{left:0!important;right:0!important;width:auto!important;justify-content:center!important}
 .scene-41 .chapter-number{left:70px}.scene-41 .chapter-title.long{left:240px;font-size:52px}
 .scene-41 .chapter-art-std{left:1110px;top:200px;width:460px;height:500px}
+.ionf{font-family:'Times New Roman',Georgia,serif;font-style:italic;font-weight:700;color:#f6c343;fill:#f6c343;letter-spacing:1px}
+.build-key .ionf{font-size:40px;margin-left:6px}
+.ion text .ionf{font-size:28px}

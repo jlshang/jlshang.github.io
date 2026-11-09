@@ -82,7 +82,7 @@ export function ions(state,title){
   `<div class="zoom-flash" aria-hidden="true"></div><svg id="ion-field" class="ion-field" viewBox="0 0 1600 900" role="application" aria-label="拖动钠和氯：同类会弹开，钠和氯会吸住连起来">
    
    <g id="ion-rods"></g>
-   ${START.map(([k,x,y],i)=>`<g class="ion ion-${k}" data-ion="${i}" data-kind="${k}" style="transform:translate(${x}px,${y}px)"><g class="ion-idle" style="--d:${(i*.37).toFixed(2)}s"><circle class="ion-glow" r="${R[k]+16}"/><circle class="ion-hit" r="${R[k]*1.35}" fill="transparent"/><image href="${k==='na'?'media/ion_na.png':'media/ion_cl.png'}" x="${-R[k]*2.05}" y="${-R[k]*1.95}" width="${R[k]*4.1}" height="${R[k]*4.1}" preserveAspectRatio="xMidYMid meet"/><text y="${R[k]*1.9+30}" text-anchor="middle">${k==='na'?'钠':'氯'}</text></g></g>`).join('')}
+   ${START.map(([k,x,y],i)=>`<g class="ion ion-${k}" data-ion="${i}" data-kind="${k}" style="transform:translate(${x}px,${y}px)"><g class="ion-idle" style="--d:${(i*.37).toFixed(2)}s"><circle class="ion-glow" r="${R[k]+16}"/><circle class="ion-hit" r="${R[k]*1.35}" fill="transparent"/><image href="${k==='na'?'media/ion_na.png':'media/ion_cl.png'}" x="${-R[k]*2.05}" y="${-R[k]*1.95}" width="${R[k]*4.1}" height="${R[k]*4.1}" preserveAspectRatio="xMidYMid meet"/><text y="${R[k]*1.9+30}" text-anchor="middle">${k==='na'?'钠':'氯'}<tspan class="ionf" dx="8">${k==='na'?'Na⁺':'Cl⁻'}</tspan></text></g></g>`).join('')}
   </svg>
   <p class="ion-hint" role="status"></p>`;
 }
