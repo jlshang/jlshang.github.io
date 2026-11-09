@@ -4,7 +4,7 @@ rd=lambda p:open(os.path.join(D,p),encoding='utf-8').read()
 MIME={'webp':'image/webp','png':'image/png','jpg':'image/jpeg','mp3':'audio/mpeg','ttf':'font/ttf','woff2':'font/woff2'}
 def uri(p):
   b=open(os.path.join(D,p),'rb').read();return f"data:{MIME[p.rsplit('.',1)[1]]};base64,"+base64.b64encode(b).decode()
-html=rd('index.html');css=rd('lesson.css');js=rd('lesson.js')
+html=rd('index.html');html=re.sub(r'<meta name="robots"[^>]*><script src="\.\./gate\.js[^"]*"></script>','',html);css=rd('lesson.css');js=rd('lesson.js')
 # font subset to used characters
 text=re.sub(r'<[^>]+>','',html)+js
 chars=''.join(sorted(set(text)))+'0123456789：，。？！'
