@@ -89,10 +89,20 @@ export function mountModel(host,spec){
  update(spec,false);
  // Gentle entrance: fade in while turning half a turn and settling slightly closer; ease-out cubic over 2.4s.
  if(spec.intro!==false&&!reduced()){
-  const from={...base,yaw:base.yaw-Math.PI,pitch:base.pitch+.1,height:base.height*1.15};
+  // Entrance styles differ by page: spin (half turn), zoom (comes in from far), tilt (drops from a top view),
+  // swing (small side-to-side settle), rise (slides up while fading in).
+  const kind=typeof spec.intro==='string'?spec.intro:'spin';
+  const FROM={spin:{yaw:base.yaw-Math.PI,pitch:base.pitch+.1,height:base.height*1.15,dur:2400},
+   zoom:{yaw:base.yaw-.35,pitch:base.pitch,height:base.height*2.6,dur:1800},
+   tilt:{yaw:base.yaw+.25,pitch:Math.min(1.35,base.pitch+1.05),height:base.height*1.1,dur:2000},
+   swing:{yaw:base.yaw+.9,pitch:base.pitch+.05,height:base.height*1.05,dur:1700},
+   rise:{yaw:base.yaw,pitch:base.pitch-.25,height:base.height*1.2,dur:1500}}[kind]||null;
+  const from={...base,...FROM,dur:undefined};
   view={...from};draw();host.dataset.intro='running';
-  canvas.style.opacity='0';canvas.style.transition='opacity 1.4s ease-out';requestAnimationFrame(()=>requestAnimationFrame(()=>{canvas.style.opacity='1';}));
-  tweenView(from,base,2400);
+  canvas.style.opacity='0';canvas.style.transition='opacity 1.2s ease-out'+(kind==='rise'?',transform 1.5s cubic-bezier(.2,1,.3,1)':'');
+  if(kind==='rise')canvas.style.transform='translateY(60px)';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{canvas.style.opacity='1';if(kind==='rise')canvas.style.transform='none';}));
+  tweenView(from,base,FROM.dur);
  }
  return {update,dispose(){disposed=true;cancelAnimationFrame(frame);cancelAnimationFrame(introFrame);pointers.clear();if(spec.syncView){const set=syncGroups.get(spec.syncView);set?.delete(receiver);if(!set?.size)syncGroups.delete(spec.syncView);}},draw};
 }

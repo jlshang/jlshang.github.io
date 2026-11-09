@@ -22,6 +22,12 @@ for(const [name,source] of Object.entries(SHAPES)){
 }
 for(const [name,color]of Object.entries({black:'#363636',white:'#ececec',BLUE:'#0081df',GREEN:'#07943a',YELLOW:'#f2c230',yellow:'#e9c23c',blueball:'#2f86d8'}))
  materials[name]=new T.MeshStandardMaterial({color,roughness:.62,metalness:0});
+// Black balls on the dark page: a soft cool rim (Fresnel) lifts their silhouette without changing the ball colour.
+materials.black.onBeforeCompile=sh=>{
+ sh.fragmentShader=sh.fragmentShader.replace('#include <opaque_fragment>',
+  'float rimF=pow(1.0-clamp(dot(normalize(normal),normalize(vViewPosition)),0.0,1.0),2.2);\n outgoingLight+=vec3(0.62,0.72,0.9)*rimF*0.85;\n#include <opaque_fragment>');
+};
+materials.black.customProgramCacheKey=()=>'black-rim';
 for(const [name,material] of Object.entries(materials)){
  ghostMaterials[name]=material.clone();
  Object.assign(ghostMaterials[name],{transparent:true,opacity:.12,depthWrite:false});

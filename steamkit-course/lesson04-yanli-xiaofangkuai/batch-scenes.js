@@ -3,7 +3,7 @@ import {models} from './review-model.js';
 import {stageInfo,SHARED_BALLS} from './assembly-stages.js';
 import {coordinationStage} from './coordination-models.js';
 import {bindIonInteraction,ionMarkup,cleanupIonInteraction} from './ion-interaction.js';
-export const BATCH_MAX={7:1,31:2,32:3,35:0,36:4,37:1,38:0,39:1,40:1,41:0,42:3,43:0,44:2,46:1,47:0};
+export const BATCH_MAX={7:1,31:2,32:3,35:0,36:4,37:1,38:0,39:1,40:1,41:0,42:3,43:0,44:1,46:1,47:0};
 const all=m=>m.balls.map((_,i)=>i);
 const defs=`<defs><radialGradient id="na" cx="30%" cy="25%"><stop stop-color="#818995"/><stop offset=".6" stop-color="#454a51"/><stop offset="1" stop-color="#282d35"/></radialGradient><radialGradient id="cl" cx="30%" cy="25%"><stop stop-color="#fff"/><stop offset=".6" stop-color="#f0f0ed"/><stop offset="1" stop-color="#bcc5d0"/></radialGradient></defs>`;
 const sphere=(x,y,r,kind,label)=>`<g class="science-ion"><circle cx="${x}" cy="${y}" r="${r}" fill="${kind==='unknown'?'#faf7f0':`url(#${kind})`}" stroke="#92a2b8" stroke-width="2"/><text x="${x}" y="${y+10}" text-anchor="middle" fill="${kind==='na'?'#fff':'#26364d'}" font-size="${kind==='cl'?28:22}" font-weight="700">${label}</text></g>`;
@@ -68,7 +68,7 @@ export function batchContent(c){
  if(p===41)return '<span class="chapter-number">2</span><h1 class="chapter-title">盐粒会变形吗？</h1><img class="chapter-art-std" src="media/ch2.png" alt="小兔托着下巴思考，爷爷举起手指，中间是一个带问号的方块（卡通形象）" draggable="false">';
  if(p===42)return title('在特殊环境（尿素、甲酰胺）里')+host('octa-growing',octaSpec(s),'left:290px;top:190px;width:1020px;height:640px')+stepButtons('继续拼搭');
  if(p===43)return title('两组邻居，可以共用粒子')+host('shared',{id:'shared-octa',height:21,highlight:SHARED_BALLS},'left:240px;top:230px;width:1120px;height:520px')+'<p class="shared-explanation">橙圈中的两颗球，两组邻居都用到了</p>';
- if(p===44)return title('换一个中心，还能找到八面体吗？')+host('na-center',coordinationStage('na',s),'left:150px;top:260px;width:600px;height:440px')+host('cl-center',coordinationStage('cl',s),'left:850px;top:260px;width:600px;height:440px')+'<p class="coord-label left"><b class="ionf">Na⁺</b> 在中心</p><p class="coord-label right"><b class="ionf">Cl⁻</b> 在中心</p>'+stepButtons('继续拼搭');
+ if(p===44)return title('换一个中心，还能找到八面体吗？')+host('na-center',coordinationStage('na',s?2:1),'left:150px;top:260px;width:600px;height:440px')+host('cl-center',coordinationStage('cl',s?2:0),'left:850px;top:260px;width:600px;height:440px')+'<p class="coord-label left"><b class="ionf">Na⁺</b> 在中心</p><p class="coord-label right"><b class="ionf">Cl⁻</b> 在中心</p>'+stepButtons('继续拼搭');
  if(p===46)return title('今日作业')+`<div class="homework-copy"><h2>任务 1</h2><p>拼搭氯化钠晶体结构，对比氯离子和钠离子为中心的八面体配位环境。</p>${s?'<div class="homework-extra"><h2>任务 2（选做）</h2><p>家人协助，配制饱和盐水。静置观察，看看盐晶体会不会出现。连续几天拍照，记录大小和形状变化。</p></div>':''}</div>${host('homework-native',{id:'shared-octa',height:20,highlight:SHARED_BALLS},'left:970px;top:190px;width:500px;height:370px')}${s?'<img class="homework-photo" src="assets/p26-shape6.png" alt="观察盐晶体的实拍">':''}`+stepButtons('看看选做任务');
  if(p===47)return title('实验记录：我的盐晶体长大了吗？')+'<p class="review-sub">每天在相近的时间观察：有没有晶体？形状、大小有什么变化？</p><div class="experiment-photos"><img src="assets/p27-shape5.png" alt="原版盐晶体观察示例一"><img src="assets/p27-shape6.png" alt="原版盐晶体观察示例二"></div>';
  return null;

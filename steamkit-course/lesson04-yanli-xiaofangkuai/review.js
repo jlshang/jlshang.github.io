@@ -19,13 +19,15 @@ const axes=[0,2,1];
 const axisLine=a=>choose(grid,p=>p.every((v,k)=>k===axes[a]||Math.abs(v)<EPS));
 const bottomCenter=choose(grid,p=>p[1]<-EPS&&Math.abs(p[0])+Math.abs(p[2])<EPS);
 const layerStages=[bottomCenter,choose(grid,p=>p[1]<-EPS&&Math.abs(p[2])<EPS),choose(grid,p=>p[1]<-EPS&&p[2]<EPS),layer];
-const maxSteps={...BATCH_MAX,...NEW_MAX,52:0,59:0,60:0,61:4,62:3,63:4,39:3,57:0,64:3,2:1,4:1,6:1,8:2,9:3,10:3,11:2,14:3,15:2,16:1,19:3,21:3};
+const maxSteps={...BATCH_MAX,...NEW_MAX,52:0,59:0,60:0,61:4,62:3,63:4,39:3,57:0,64:0,2:1,4:1,6:1,8:2,9:3,10:3,11:2,14:3,15:2,16:1,19:3,21:3};
 const state={page:1,step:0,guess:null,axis:0,notes:false,toc:false,sound:true,record:false,rowError:false,recordValues:{}};
 let deck,controllers=new Map(),pour=null,scope=0,storingFailed=false;
 try{state.recordValues=JSON.parse(localStorage.getItem('salt-review-record')||'{}');if(!state.recordValues||typeof state.recordValues!=='object')state.recordValues={};}catch{state.recordValues={};}
 const sound=window.createCourseSound(window.AudioContext||window.webkitAudioContext);
 const specs=new Map();
+const INTRO={nacl1:'spin','nacl-row':'zoom',cross3:'tilt',cube:'spin','grow-build':'zoom','clear-lattice':'tilt','octa-growing':'swing','na-center':'rise','cl-center':'rise','fav-a':'spin','fav-b':'spin',cscl:'tilt',caf2:'tilt','caf2-grow':'zoom'};
 function host(key,spec,style=''){
+ if(spec.intro===undefined&&INTRO[key])spec={...spec,intro:INTRO[key]};
  specs.set(key,spec);
  return `<div class="model-host" data-model-key="${key}" data-model="${spec.id}" style="${style}"><canvas tabindex="0" role="img" aria-label="黑白真实连接球与标准杆模型，可旋转、缩放"></canvas><span class="model-status" role="status">三维模型加载中…</span><button class="model-reset" aria-label="恢复本模型初始视角"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10a8 8 0 1 1 1.5 7M4 4v6h6"/></svg><span>恢复视角</span></button></div>`;
 }
@@ -84,13 +86,16 @@ function content(){
    host('caf2',{id:'caf2-big',balls:CAF2_STAGES[0],height:23,yaw:.5,pitch:.32},'left:870px;top:150px;width:620px;height:480px')+
    `<div class="ch-col" style="left:70px">${cap('氯化铯 ','CsCl',[['black','黑球 = 铯 Cs⁺'],['white','白球 = 氯 Cl⁻'],['rod','蓝短棍：连成方块'],['rod y','黄短棍：铯连到 8 个角']])}</div>`+
    `<div class="ch-col" style="left:830px">${fl}</div>`;
+  const k=state.caf??1;
   return title('课后挑战2：搭一块大萤石')+
-   host('caf2-grow',{id:'caf2-big',balls:CAF2_STAGES[s],height:[20,23,27,32][s],yaw:.5,pitch:.32},'left:70px;top:150px;width:960px;height:690px')+
-   `<div class="ch-col side">${fl}<p class="grow-note">点 <b>＋</b>，一块接一块拼大</p></div>`+plusButton('萤石再拼一块');}
+   host('caf2-grow',{id:'caf2-big',balls:CAF2_STAGES[k],height:[23,28,30,35][k],yaw:.5,pitch:.32},'left:70px;top:150px;width:960px;height:690px')+
+   `<div class="ch-col side">${fl}<p class="grow-note">点 <b>＋</b> 拼大，点 <b>－</b> 拆小</p></div>`+
+   (k<3?`<button class="review-next-step round plus" data-action="cafplus" aria-label="萤石再拼一块"><span aria-hidden="true">＋</span></button>`:'')+
+   (k>0?`<button class="review-next-step round minus" style="${k<3?'':'right:132px'}" data-action="cafminus" aria-label="萤石拆小一点"><span aria-hidden="true">－</span></button>`:'');}
  if(p===65)return title('拓展挑战：养一颗大盐粒')+
   `<ol class="grow-steps"><li>请大人帮忙，配一杯很浓的盐水</li><li>倒进浅盘，放在安静的地方</li><li>每天同一时间，拍一张照片</li><li>记一记：盐粒多大？什么形状？</li></ol>`+
   `<div class="grow-photos"><img src="assets/p26-shape6.png" alt="手指捏着一颗方方的大盐粒（实拍）"><img src="assets/p27-shape5.png" alt="两颗透明的大盐粒（实拍）"></div>`+
-  `<p class="task-safety grow-safe">盐水不入口；用完的盐水请大人处理。</p>`;
+  `<div class="grow-warn"><img src="media/notaste.png" alt="米兔捂住嘴巴摇头（卡通形象）"><p><b>盐水不能喝，不入口！</b><span>用完的盐水，请大人处理</span></p></div>`;
  if(p===56)return title('拼搭你喜欢的盐粒')+host('fav-a',{id:'twin-octa',height:19,yaw:.5,pitch:.28},'left:60px;top:170px;width:730px;height:640px')+host('fav-b',{id:'cube-octa',height:28,yaw:.55,pitch:.32},'left:810px;top:170px;width:730px;height:640px');
  if(p===63){
   const stages=['cross-3d','grid-1','grid-2','grid-3','grid-4'].map(id=>choose(grid,(q,i)=>models[id].balls.some(b=>b.every((v,k)=>Math.abs(v-q[k])<1e-6))));
@@ -242,7 +247,7 @@ function render(animate=false){
  $('#progress').value=visiblePage();$('#prev').disabled=state.page===1;$('#next').disabled=visiblePage()===LESSON.length;
  updatePanels();resize();
 }
-function goReset(){state.methods=new Set();state.labels=false;state.saltShown=false;state.ionReset=false;}
+function goReset(){state.methods=new Set();state.labels=false;state.saltShown=false;state.ionReset=false;state.caf=1;}
 const MODEL_PAGES=new Set([60,61,62,63,38,39,42,44,56,57,58,64]);
 function navCue(n){return n===1?'cover':[5,41].includes(n)?'chapter':n===65?'finish':MODEL_PAGES.has(n)?'model':'page';}
 function go(n){
@@ -283,6 +288,7 @@ document.addEventListener('click',e=>{
  if(a==='toc'){state.toc=!state.toc;state.notes=false;updatePanels();}
  if(a==='record'){state.record=!state.record;render();if(state.record)$('[data-record]')?.focus();}
  if(a==='download')downloadRecord();
+ if(a==='cafplus'||a==='cafminus'){state.caf=Math.max(0,Math.min(3,(state.caf??1)+(a==='cafplus'?1:-1)));render(true);if(state.sound)sound.play(a==='cafplus'?'plus':'reset');}
  if(a==='ionreset'){state.ionReset=true;render();if(state.sound)sound.play('reset');}
  if(a==='labels'){state.labels=!state.labels;render();if(state.sound)sound.play('pin');}
 });

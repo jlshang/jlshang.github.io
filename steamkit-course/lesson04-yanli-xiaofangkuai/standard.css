@@ -262,3 +262,14 @@
 #slide .label-toggle .ionf{font-size:26px}
 .grow-steps li{white-space:nowrap}
 .grow-steps li{font-size:36px;margin-bottom:34px}
+/* v12 */
+.slide:has(.ctl-home) .review-next-step.round.minus{right:216px}
+.review-next-step.round.minus span{transform:none;font-size:42px;font-weight:900;line-height:1}
+.grow-warn{position:absolute;left:90px;top:640px;width:760px;display:flex;align-items:center;gap:22px;padding:12px 28px 12px 16px;border-radius:26px;background:#fff4e8;border:5px solid #e5483a;box-sizing:border-box;animation:v2pop .5s .3s both}
+.grow-warn img{width:150px;height:150px;object-fit:contain;margin:-40px 0 -20px}
+.grow-warn p{margin:0}.grow-warn b{display:block;font:44px var(--display);font-weight:400;color:#d6452f;white-space:nowrap}
+.grow-warn span{display:block;margin-top:4px;font:28px var(--display);color:#6b5a4e}
+.grow-steps li{margin-bottom:22px}
+/* v12: soft light behind each 3D model so black balls stand out on the dark page */
+.model-host::before{content:"";position:absolute;left:50%;top:50%;width:min(92%,900px);aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(closest-side,rgba(78,102,148,.55),rgba(58,78,118,.28) 55%,rgba(31,42,68,0));pointer-events:none;z-index:0}
+.model-host canvas{position:relative;z-index:1}

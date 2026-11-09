@@ -44,7 +44,7 @@ function bindWall(sound){
 const METHOD_REACT={
  smell:{mark:'!',say:'闻不出来',pop:'<img src="media/nosmell.png" alt="小兔闻了闻，皱眉摇头（卡通形象）"><p><b>闻不出来！</b><span>盐和糖，几乎都没有气味</span></p>',cls:'warn'},
  taste:{mark:'',say:'不能尝！',pop:'<img src="media/notaste.png" alt="小兔捂住嘴巴摇头（卡通形象）"><p><b>不认识的东西，不能尝！</b><span>做实验的第一条规矩</span></p>',cls:'no'},
- look:{mark:'✓',say:'好办法！',pop:'<span class="react-scope"><img src="media/scope.png" alt="卡通显微镜"></span><p><b>好办法！放大看一看</b><span>点一下，放大看看</span></p>',cls:'ok'}};
+ look:{mark:'✓',say:'好办法！',pop:'<span class="react-scope"><img src="media/scope.png" alt="卡通显微镜"></span><p><b>好办法！放大看一看</b></p>',cls:'ok'}};
 export function methods(state,title){
  const cards=[['smell','media/ico_smell.png','闻一闻'],['taste','media/ico_taste.png','尝一尝'],['look','media/ico_look.png','看一看']];
  return title('哪个办法，又安全又管用？')+`<div class="method-row big">${cards.map(([k,img,t],n)=>`<button class="method-card m-${k}" data-method="${k}" style="--i:${n}"><img class="method-img" src="${img}" alt=""><strong>${t}</strong></button>`).join('')}</div><div class="react-pop" aria-live="polite"></div>`;
