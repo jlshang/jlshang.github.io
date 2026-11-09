@@ -64,19 +64,28 @@ $$('[data-tally]').forEach(c=>c.onclick=()=>{const n=$('.tally-n',c);c._n=(c._n|
 $$('[data-tally-reset]').forEach(b=>b.onclick=()=>{$$('[data-tally]',b.closest('.slide')).forEach(c=>{c._n=0;$('.tally-n',c).textContent=''});cue('tick')});
 // p3 draw
 $$('[data-draw]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),p=$('.paper',s),sv=$('.scribble',s);p.classList.remove('drawing');sv.classList.remove('drawing');void p.offsetWidth;p.classList.add('drawing');sv.classList.add('drawing');cue('tick')});
-// p4 zoom
-const ATOM_POS=[[40,60,-12],[160,30,8],[290,70,-6],[80,170,10],[210,150,-14],[330,190,6],[30,280,4],[150,270,-8],[280,300,12],[120,370,-4],[250,380,9],[350,330,-10]];
-$$('.lens2 .atoms').forEach(a=>{a.innerHTML=ATOM_POS.map(([x,y,r],i)=>`<img src="a/atom.webp" alt="" style="left:${x}px;top:${y}px;--r:${r}deg;animation-delay:${-i*.37}s">`).join('')});
-$$('[data-zoom]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');s._z=(s._z||0)+1;if(s._z===1){$('.lens1',s).classList.add('show');cue('fly')}else if(s._z===2){$('.lens2',s).classList.add('show');later(()=>{$('.zoom-word',s).classList.add('show');cue('correct')},500);b.disabled=true}});
-$$('[data-zoom-reset]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');s._z=0;$$('.lens,.zoom-word',s).forEach(x=>x.classList.remove('show'));$('[data-zoom]',s).disabled=false;cue('tick')});
+// p3 continuous zoom: 笔迹 → 石墨 → 碳原子
+(function(){const svg=$('.flakes-big');if(!svg)return;let h='';let seed=7;const R=()=>(seed=(seed*9301+49297)%233280)/233280;
+ for(let i=0;i<46;i++){const x=R()*1500-120,y=R()*640-10,w=180+R()*260,a=(R()-.5)*22,n=3+Math.floor(R()*4);let g='';for(let j=0;j<n;j++){const c=78+Math.round(R()*40),dx=(R()-.5)*30,hh=12+R()*8;g+=`<path d="M${dx} ${j*15} l${w*.08} -${hh*.6} l${w*.9} 0 l${w*.06} ${hh*.6} l-${w*.1} ${hh*.5} l-${w*.86} 0z" fill="rgb(${c},${c+4},${c+12})" stroke="#2a2e35" stroke-width="2.5"/><path d="M${dx+w*.1} ${j*15-hh*.45} l${w*.85} 0" stroke="#ffffff60" stroke-width="3"/>`}h+=`<g transform="translate(${x} ${y}) rotate(${a})">${g}</g>`}
+ svg.innerHTML=h;
+ const f=$('.atom-field');let k='';seed=3;for(let i=0;i<22;i++){const x=R()*1240,y=R()*520,sz=130+R()*70,r=(R()-.5)*40;k+=`<img src="a/atom.webp" alt="" style="left:${x-20}px;top:${y-20}px;width:${sz}px;--r:${r}deg;animation-delay:${-R()*3}s">`}f.innerHTML=k})();
+const ZF=[[640,382],[690,330]];  // zoom focus points (inside the stroke, inside a flake)
+function zoomReset(s){const L=$$('.zl',s);L.forEach((l,i)=>{l.style.transition='none';l.style.transform='none';l.style.clipPath=i?'circle(0px at 50% 50%)':'none';l.style.zIndex=i;l.classList.remove('tagged')});s._z=0}
+$$('[data-zoom]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),L=$$('.zl',s),k=s._z||0;if(k>=2)return;s._z=k+1;const cur=L[k],nxt=L[k+1],[fx,fy]=ZF[k];
+ nxt.style.transition='none';nxt.style.transform='none';nxt.style.clipPath=`circle(70px at ${fx}px ${fy}px)`;
+ cur.style.transformOrigin=`${fx}px ${fy}px`;cur.style.transition='transform 1.9s cubic-bezier(.5,0,.3,1)';
+ const ring=$('.zoom-ring',s);ring.style.left=fx+'px';ring.style.top=fy+'px';ring.classList.remove('go');void ring.offsetWidth;ring.classList.add('go');
+ void nxt.offsetWidth;nxt.style.transition='clip-path 1.9s cubic-bezier(.7,0,.35,1)';
+ requestAnimationFrame(()=>{cur.style.transform='scale(4)';nxt.style.clipPath=`circle(1600px at ${fx}px ${fy}px)`});cue('fly');
+ later(()=>{nxt.classList.add('tagged');cue('correct');if(k===1){b.disabled=true;later(()=>celebrate(s),300)}},1900)});
 // p5 hands
 $$('[data-hands]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),bs=$$('.hand-badge',s),k=s._h=(s._h||0)+1;if(k>4)return;bs[k-1].classList.add('show');$('.big-count',s).textContent=k;cue(k===4?'correct':'tick');if(k===4){b.disabled=true;later(()=>celebrate(s),400)}});
 $$('[data-hands-reset]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');s._h=0;$$('.hand-badge',s).forEach(x=>x.classList.remove('show'));$('.big-count',s).textContent='';$('[data-hands]',s).disabled=false;cue('tick')});
-// balloons
-function mountBalloon(h){const p15=h.dataset.start==='cross';const v=CV.balloons(h,{start:h.dataset.start==='cross'?'cross':+h.dataset.start,colors:p15?[0xff8a2a,0xf4f6fa,0xf4f6fa,0xf4f6fa]:[0xf4f6fa]});h._b=v;views.push(v);return v}
-$$('[data-balloon-add]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=$('.balloon-host',s);h._b.set(3);b.disabled=true;$('[data-cap="2"]',s).hidden=true;pop($('[data-cap="3"]',s));cue('fly');later(()=>celebrate(s),900)});
-$$('[data-balloon-reset]').forEach(b=>b.onclick=()=>{go(current)});
-$$('[data-release]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=$('.balloon-host',s);h._b.set('tet');b.disabled=true;cue('fly');later(()=>{$('[data-guess="tet"]',s).classList.add('right');celebrate(s)},1300)});
+// Q 版碳的手
+function mountArms(h){const p15=h.dataset.start==='cross';const v=ArmView.mount(h,{body:'a/atom_body.webp',start:h.dataset.start,size:p15?330:330,dy:p15?10:40,reach:p15?.92:.85,colors:p15?['#ff8a2a','#f4f5f8','#f4f5f8','#f4f5f8']:[],spin:p15?.28:0,elev:p15?22:0,yaw0:p15?.35:0});h._b=v;views.push(v);return v}
+$$('[data-arm-spread]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=$('.arm-host',s);h._b.set('two');b.disabled=true;pop($('[data-cap="1"]',s));cue('fly');$('[data-arm-add]',s).classList.add('nudge')});
+$$('[data-arm-add]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=$('.arm-host',s);if(!$('[data-arm-spread]',s).disabled){h._b.set('two');$('[data-arm-spread]',s).disabled=true}b.classList.remove('nudge');h._b.set('three0');cue('select');later(()=>{h._b.set('three');cue('fly')},700);b.disabled=true;$('[data-cap="1"]',s).hidden=true;later(()=>{pop($('[data-cap="2"]',s));celebrate(s)},1700)});
+$$('[data-release]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=$('.arm-host',s);h._b.set('tet');b.disabled=true;cue('fly');later(()=>{$('[data-guess="tet"]',s).classList.add('right');celebrate(s)},1400)});
 // p8 three hands
 const HAND_CAP=['白球的三角孔朝上','隔一个孔，插一根蓝短棍','再隔一个孔，插第 2 根','3 只手，平平地分开','朝上的孔空着：第 4 只手'];
 $$('[data-hand-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=host(s),k=h._step+1;if(k>4)return;if(k<=3){stepTo(s,h,k,HAND_CAP);cue('fly')}else{h._step=4;h._v.setMarker(C.hand3.b[0],N,true);const cap=$('.step-cap',s);cap.textContent=HAND_CAP[4];pop(cap);cue('correct');later(()=>celebrate(s),500);b.disabled=true}});
@@ -84,11 +93,9 @@ $$('[data-hand-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=h
 $$('[data-ring-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=host(s),k=h._step+1;if(k>4)return;h._step=k;cue('fly');
  h._v.setModel(C.ring[k],true,()=>{if(k<4)return;b.disabled=true;const R=C.ring[4].b,ring=[0,1,4,5,6,3].map(i=>R[i]);let n=0;const out=$('.big-count',s);
   const step=()=>{n++;h._v.highlight(0,ring.slice(0,n),[]);out.textContent=n;cue('tick');if(n<6)later(step,420);else{const sp=[];for(let i=0;i<6;i++)sp.push([ring[i],ring[(i+1)%6]]);h._v.highlight(0,ring,sp);pop($('.done-cap',s));later(()=>celebrate(s),250)}};later(step,350)})});
-// p10 angles
-$$('[data-angle-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),k=s._a=(s._a||0)+1,ns=$$('.ang-n',s);
- if(k===1){ns[0].classList.add('show','pop');cue('correct')}
- else if(k===2){const h=$$('.zome-host',s)[1];h.classList.add('show');$$('.model-name',s)[1].classList.add('show');if(!h._v)mountZome(h);h._v.intro('spin');cue('fly')}
- else if(k===3){ns[1].classList.add('show','pop');cue('correct');b.disabled=true;later(()=>celebrate(s),300)}});
+// p9 arcs around the hexagon
+$$('[data-arcs]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),v=host(s)._v,P=C.hex.b;b.disabled=true;let n=0;const out=$('.big-count',s);
+ const step=()=>{const i=n;v.addArc(P[i],P[(i+5)%6],P[(i+1)%6]);n++;out.textContent=n;cue('tick');if(n<6)later(step,550);else later(()=>{pop($('.arc-cap',s));celebrate(s)},400)};step()});
 // p11 net
 $$('[data-net-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=host(s),k=h._step+1;if(k>4)return;h._step=k;h._v.setModel(C.net[k],true);cue('fly');if(k===4){b.disabled=true;$('[data-net-name]',s).classList.add('nudge')}});
 $$('[data-net-name]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=host(s);if(h._step<4){h._step=4;h._v.setModel(C.net[4],true);$('[data-net-next]',s).disabled=true}b.classList.remove('nudge');pop($('.name-tag',s));cue('correct');later(()=>celebrate(s),300)});
@@ -98,8 +105,10 @@ $$('[data-layer-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),v=
 $$('[data-layer-push]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),v=host(s)._v;if(!s._layer){$('[data-layer-next]',s).click();return}b.classList.remove('nudge');v.showGroup(2,false);v.slideGroup(1,SLIDE_DIR,6.5,2600);pop($('.slide-cap',s));cue('fly');setPressed(b,true)});
 $$('[data-layer-why]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),p=$('.side-view',s);p.hidden=false;p.classList.remove('show');void p.offsetWidth;p.classList.add('show');cue('correct')});
 $$('.side-view .row').forEach(r=>r.innerHTML='<img src="a/atom.webp" alt="">'.repeat(3));
-// p14 reveal
-$$('[data-reveal]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');$$('.c-badge',s).forEach((c,i)=>later(()=>{c.classList.add('show');cue('select')},i*350));later(()=>{pop($('.reveal-cap',s));celebrate(s)},850);b.disabled=true});
+// p13 choice
+$$('[data-choice]').forEach(c=>c.onclick=()=>{const s=c.closest('.slide');if(s._done)return;const ok=c.dataset.choice==='yes';c.classList.remove('wrong','right');void c.offsetWidth;c.classList.add(ok?'right':'wrong');cue(ok?'correct':'wrong');if(ok){s._done=1;$$('.choice',s).forEach(x=>{if(x!==c)x.classList.add('dim')});later(()=>celebrate(s),300)}else later(()=>c.classList.remove('wrong'),1100)});
+// p14 labels
+$$('[data-labs]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),L=$$('.later-lab',s),k=s._f||0;if(k>=L.length)return;L[k].classList.add('show');s._f=k+1;cue('select');if(s._f===L.length){b.disabled=true;$('.vs-q',s).classList.add('show')}});
 // p16 unit
 const UNIT_CAP=['找一个三角孔','插一根黄短棍，再翻过来','围着中间，找 3 个三角孔','再插第 3 根','正中间的孔留空'];
 $$('[data-unit-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=host(s),k=h._step+1;if(k>4)return;h._v.setMarker(null,null,false);stepTo(s,h,k,UNIT_CAP);cue('fly');
@@ -128,23 +137,23 @@ function enter(s){
  s.classList.remove('celebrating');
  $$('.zome-host',s).forEach(h=>{h.dataset.step=h.dataset.step||'0';h._step=+h.dataset.step;if(h.classList.contains('later')){h.classList.remove('show');return}mountZome(h)});
  $$('.zome-host.later',s).forEach(h=>{h._v=null});
- $$('.balloon-host',s).forEach(mountBalloon);
+ $$('.arm-host',s).forEach(mountArms);if($('.zoomer',s))zoomReset(s);
  $$('.model-name.later').forEach(x=>x.classList.remove('show'));
  $$('.ang-n,.push-res',s).forEach(x=>x.classList.remove('show','pop'));
  $$('.caption.step-cap',s).forEach(c=>{c.textContent=s.querySelector('[data-hand-next]')?HAND_CAP[0]:s.querySelector('[data-unit-next]')?UNIT_CAP[0]:'';c.hidden=false});
- $$('.done-cap,.slide-cap,.reveal-cap,.chair-cap,.name-tag,.side-view',s).forEach(x=>x.hidden=true);
- $$('[data-cap]',s).forEach(x=>x.hidden=x.dataset.cap!=='2');
+ $$('.done-cap,.slide-cap,.reveal-cap,.chair-cap,.name-tag,.side-view,.arc-cap',s).forEach(x=>x.hidden=true);
+ $$('[data-cap]',s).forEach(x=>x.hidden=true);
  $$('.big-count',s).forEach(x=>x.textContent='');
- $$('.hand-badge,.c-badge,.fam,.lens,.zoom-word',s).forEach(x=>x.classList.remove('show'));
+ $$('.hand-badge,.c-badge:not(.keep),.fam,.later-lab,.vs-q',s).forEach(x=>x.classList.remove('show'));$$('.choice',s).forEach(x=>x.classList.remove('right','wrong','dim'));
  $$('.recap',s).forEach(x=>x.classList.remove('open'));
  $$('.guess-card',s).forEach(x=>x.classList.remove('right'));
  $$('.paper,.scribble:not(.on)',s).forEach(x=>x.classList.remove('drawing'));
  $$('.controls .action',s).forEach(b=>{b.disabled=false;b.classList.remove('nudge');b.removeAttribute('aria-pressed')});
- s._z=s._h=s._a=s._f=s._layer=s._chair=0;
+ s._h=s._a=s._f=s._layer=s._chair=s._done=0;if(!$('.zoomer',s))s._z=0;
  // p16: point at the first hole
  const u=$('[data-model="unit"]',s);if(u&&u._v)later(()=>u._v.setMarker(UNIT.b[0],N,true),900);
 }
-function leave(){timers.forEach(clearTimeout);timers=[];views.forEach(v=>v.dispose());views=[];$$('.zome-host,.balloon-host').forEach(h=>{h._v=null;h._b=null});bits=[];cx.clearRect(0,0,1600,900)}
+function leave(){timers.forEach(clearTimeout);timers=[];views.forEach(v=>v.dispose());views=[];$$('.zome-host,.arm-host').forEach(h=>{h._v=null;h._b=null});bits=[];cx.clearRect(0,0,1600,900)}
 function go(i,force){i=Math.max(0,Math.min(slides.length-1,i));if(i!==current)cue('page');leave();slides.forEach((s,n)=>{s.hidden=n!==i;s.classList.remove('on')});current=i;const s=slides[i];void s.offsetWidth;s.classList.add('on');enter(s);
  $('#prev').disabled=i===0;$('#next').disabled=i===slides.length-1;$('#count').textContent=`${i+1} / ${slides.length}`;$('#progress i').style.width=(i+1)/slides.length*100+'%';
  const nt=$('#notes');nt.replaceChildren();const close=document.createElement('button');close.className='overlay-close';close.textContent='关闭 ×';close.onclick=()=>toggle('notes','btnNotes',false);const title=document.createElement('h3');title.textContent=`${i+1}. ${s.dataset.title}（${s.dataset.minutes} 分钟）`;nt.append(close,title);$('.notes',s).textContent.trim().split('\n').forEach(line=>{const p=document.createElement('p');p.textContent=line.trim();nt.append(p)});

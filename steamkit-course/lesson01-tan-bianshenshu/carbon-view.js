@@ -146,6 +146,7 @@
     /* dashed outline between model points */
     let dashes = null;
     function setDashes(pairs) {
+      arcs.children.forEach((m) => { const w = Math.min(1, (now - m.userData.t0) / 350); m.scale.setScalar(Math.max(.001, w)); });
       if (dashes) { extra.remove(dashes); dashes.traverse((o) => o.geometry && o.geometry.dispose()); dashes = null; }
       if (!pairs || !pairs.length) return;
       dashes = new THREE.Group(); const dm = new THREE.MeshBasicMaterial({ color: lin(0xffa45c) });
@@ -163,6 +164,15 @@
       (strutPairs || []).forEach(([a, b]) => { const ka = key3(a), kb = key3(b), k = ka < kb ? ka + "|" + kb : kb + "|" + ka; const m = g.struts.get(k); if (m) m.material = mat.hot; });
     }
 
+    /* orange angle sectors at a ball: [[c,a,b],...] (model coords) */
+    const arcs = new THREE.Group(); extra.add(arcs);
+    function addArc(c, a, b, r = 2.6) {
+      const C0 = vec(c).sub(center), u = vec(a).sub(vec(c)).normalize(), v = vec(b).sub(vec(c)).normalize(), th = Math.acos(Math.max(-1, Math.min(1, u.dot(v)))), w = v.clone().addScaledVector(u, -u.dot(v)).normalize();
+      const pos = [], n = 24; for (let i = 0; i < n; i++) { const t0 = (th * i) / n, t1 = (th * (i + 1)) / n; const p0 = u.clone().multiplyScalar(Math.cos(t0)).addScaledVector(w, Math.sin(t0)).multiplyScalar(r), p1 = u.clone().multiplyScalar(Math.cos(t1)).addScaledVector(w, Math.sin(t1)).multiplyScalar(r); pos.push(0, 0, 0, p0.x, p0.y, p0.z, p1.x, p1.y, p1.z); }
+      const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+      const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: lin(0xff8a2a), transparent: true, opacity: .85, side: THREE.DoubleSide, depthTest: false })); m.renderOrder = 5; m.position.copy(C0); m.userData.t0 = performance.now(); m.scale.setScalar(.001); arcs.add(m);
+    }
+    function clearArcs() { while (arcs.children.length) { const m = arcs.children[0]; arcs.remove(m); m.geometry.dispose(); } }
     let anim = null, raf = 0, alive = true, growT0 = null, growDone = null, slide = null, shake = null, introAnim = null;
     const sph = () => { const p = camera.position, r = p.length(); return { r, th: Math.atan2(p.x, p.z), ph: Math.acos(p.y / r) }; };
     const setSph = (r, th, ph) => { camera.position.set(r * Math.sin(ph) * Math.sin(th), r * Math.cos(ph), r * Math.sin(ph) * Math.cos(th)); camera.lookAt(0, 0, 0); };
@@ -184,6 +194,7 @@
       }
       if (popping.length) { popping.forEach((p) => { p.t = (p.t || 0) + 1 / 60; const w = Math.min(1, p.t / .4); p.mesh.scale.setScalar(Math.max(.001, w * (1 + .25 * Math.sin(w * Math.PI)))); }); for (let i = popping.length - 1; i >= 0; i--) if (popping[i].t >= .4) { popping[i].mesh.scale.setScalar(1); popping.splice(i, 1); } }
       if (marker) { const t = (now - marker.userData.t0) / 1000, w = Math.min(1, t / .5); marker.scale.setScalar(Math.max(.001, w * (1 + .2 * Math.sin(w * Math.PI)) * (1 + .06 * Math.sin(t * 5)))); }
+      arcs.children.forEach((m) => { const w = Math.min(1, (now - m.userData.t0) / 350); m.scale.setScalar(Math.max(.001, w)); });
       if (dashes) { const t = Math.min(1, (now - dashes.userData.t0) / 600); dashes.children.forEach((c, i) => c.visible = i / dashes.children.length <= t); }
       groups.forEach((g) => { if (g.target) { g.offset.lerp(g.target, .12); g.obj.position.copy(g.offset); if (g.offset.distanceTo(g.target) < .01) { g.offset.copy(g.target); g.obj.position.copy(g.offset); g.target = null; } } });
       if (slide) slide(now);
@@ -199,7 +210,7 @@
       groups,
       setModel(m, animate = true, done, gi = 0) { setGroupModel(groups[gi], m, animate); growDone = done || null; if (!animate || !growing.length) { growDone = null; done && done(); } },
       refit(m, dur = 900) { const pts = m.b.map((p) => vec(p).sub(center)); const a = sph(); const dv = camera.position.clone().normalize(); const d = Math.max(fitDist(dv, pts), dist * .45); animateTo(a.th, a.ph, d, dur); },
-      setMarker, setDashes, highlight,
+      setMarker, setDashes, highlight, addArc, clearArcs,
       showGroup(gi, on) { groups[gi].obj.visible = on; },
       moveGroup(gi, off, instant) { const g = groups[gi]; g.target = vec(off); if (instant) { g.offset.copy(g.target); g.obj.position.copy(g.offset); g.target = null; } },
       dropIn(gi, from, done) { const g = groups[gi]; const to = g.offset.clone(); g.offset.copy(to.clone().add(vec(from))); g.obj.position.copy(g.offset); g.obj.visible = true; g.target = to; setTimeout(() => done && done(), 900); },
@@ -226,36 +237,5 @@
     return api;
   }
 
-  /* ---------- balloons: "手和手，离得越远越好" ---------- */
-  const TET = [[1, 1, 1], [1, -1, -1], [-1, 1, -1], [-1, -1, 1]].map((a) => vec(a).normalize());
-  const CONF = {
-    2: [V(1, 0, 0), V(-1, 0, 0)],
-    3: [0, 1, 2].map((i) => V(Math.cos(Math.PI / 2 + (i * 2 * Math.PI) / 3), Math.sin(Math.PI / 2 + (i * 2 * Math.PI) / 3), 0)),
-    cross: [V(0, 1, 0), V(1, 0, 0), V(0, -1, 0), V(-1, 0, 0)],
-  };
-  // tetrahedron with first balloon straight up, 3 below
-  (function () { const q = new THREE.Quaternion().setFromUnitVectors(TET[0], V(0, 1, 0)); CONF.tet = TET.map((v) => v.clone().applyQuaternion(q)); const r = new THREE.Quaternion().setFromAxisAngle(V(0, 1, 0), -Math.atan2(CONF.tet[1].x, CONF.tet[1].z) + Math.PI / 2); CONF.tet = CONF.tet.map((v) => v.applyQuaternion(r)); })();
-  function balloons(host, opt) {
-    const W = host.clientWidth, H = host.clientHeight;
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); renderer.setPixelRatio(Math.min(2.5, (window.devicePixelRatio || 1) * 1.25)); renderer.setSize(W, H); renderer.setClearColor(0, 0); renderer.outputEncoding = THREE.sRGBEncoding;
-    renderer.domElement.style.cssText = "width:100%;height:100%;display:block;touch-action:none;cursor:grab"; host.appendChild(renderer.domElement);
-    const scene = new THREE.Scene(); scene.add(new THREE.HemisphereLight(0xffffff, 0x6a7488, .7)); const key = new THREE.DirectionalLight(0xffffff, .8); scene.add(key);
-    const camera = new THREE.PerspectiveCamera(30, W / H, .1, 200); camera.position.set(0, 2.2, 15); camera.lookAt(0, 0, 0);
-    const controls = new THREE.OrbitControls(camera, renderer.domElement); controls.enablePan = false; controls.enableDamping = true; controls.minDistance = 8; controls.maxDistance = 26;
-    const root = new THREE.Group(); scene.add(root);
-    const knot = new THREE.Mesh(new THREE.SphereGeometry(.42, 24, 16), new THREE.MeshStandardMaterial({ color: lin(0x5a6478), roughness: .6 })); root.add(knot);
-    const geo = new THREE.SphereGeometry(1, 40, 28); geo.scale(1.25, 1.75, 1.25); geo.translate(0, 2.35, 0);
-    const neck = new THREE.CylinderGeometry(.12, .3, .65, 12); neck.translate(0, .45, 0);
-    const COLS = opt.colors || [0xf4f6fa, 0xf4f6fa, 0xf4f6fa, 0xff8a2a];
-    const list = [];
-    function make(i) { const g = new THREE.Group(), m = new THREE.MeshStandardMaterial({ color: lin(COLS[i % COLS.length]), roughness: .25, metalness: .02 }); g.add(new THREE.Mesh(geo, m), new THREE.Mesh(neck, m)); g.userData = { dir: V(0, 1, 0), target: V(0, 1, 0), s: .001 }; root.add(g); list.push(g); return g; }
-    function set(dirs, instant) { while (list.length < dirs.length) { const g = make(list.length); g.userData.dir.copy(dirs[list.length - 1] || V(0, 1, 0)); } while (list.length > dirs.length) root.remove(list.pop()); list.forEach((g, i) => { g.userData.target = dirs[i].clone().normalize(); if (instant) { g.userData.dir.copy(g.userData.target); g.userData.s = 1; } }); }
-    let raf = 0, alive = true, wob = 0;
-    function tick() { if (!alive) return; controls.update(); wob += .016;
-      list.forEach((g, i) => { const u = g.userData; u.dir.lerp(u.target, .07).normalize(); u.s += (1 - u.s) * .12; g.quaternion.setFromUnitVectors(V(0, 1, 0), u.dir); const b = 1 + .02 * Math.sin(wob * 2 + i); g.scale.set(u.s * b, u.s, u.s * b); });
-      key.position.copy(camera.position).add(V(-6, 8, 2)); renderer.render(scene, camera); raf = requestAnimationFrame(tick); }
-    set(CONF[opt.start || 2], true); raf = requestAnimationFrame(tick);
-    return { set: (name) => set(CONF[name]), dispose() { alive = false; cancelAnimationFrame(raf); controls.dispose(); renderer.dispose(); renderer.forceContextLoss && renderer.forceContextLoss(); renderer.domElement.remove(); }, home() { camera.position.set(0, 2.2, 15); controls.update(); } };
-  }
-  window.CarbonView = { mount, balloons, vec };
+  window.CarbonView = { mount, vec };
 })();
