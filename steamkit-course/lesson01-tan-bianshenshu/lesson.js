@@ -124,6 +124,7 @@ function cross(a,b){return[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1
 // p19 push
 $$('[data-push]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),d=host(s);d._v.shakeGroup(0,.5,900);cue('wrong');later(()=>pop($('.push-cap',s)),600);b.disabled=true});
 $$('[data-use-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),f=$$('.use',s),k=s._f||0;if(k>=f.length)return;f[k].classList.add('show');s._f=k+1;cue('select');if(s._f===f.length){b.disabled=true;later(()=>celebrate(s),400)}});
+$$('[data-pair]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');s.classList.add('paired');b.disabled=true;cue('fly');later(()=>{cue('correct');celebrate(s)},1300)});
 // p20 family
 $$('[data-fam-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),f=$$('.fam:not(.keep)',s),k=s._f||0;if(k>=f.length)return;f[k].classList.add('show');s._f=k+1;cue('select');if(s._f===f.length){b.disabled=true;later(()=>celebrate(s),400)}});
 // p21 recap
@@ -138,14 +139,14 @@ function enter(s){
  s.classList.remove('celebrating');
  $$('.zome-host',s).forEach(h=>{h.dataset.step=h.dataset.step||'0';h._step=+h.dataset.step;if(h.classList.contains('later')){h.classList.remove('show');return}mountZome(h)});
  $$('.zome-host.later',s).forEach(h=>{h._v=null});
- if($('.zoomer',s))zoomReset(s);s.classList.remove('handed');
+ if($('.zoomer',s))zoomReset(s);s.classList.remove('handed','paired');
  $$('.model-name.later').forEach(x=>x.classList.remove('show'));
  $$('.ang-n,.push-res',s).forEach(x=>x.classList.remove('show','pop'));
  $$('.caption.step-cap',s).forEach(c=>{c.textContent=s.querySelector('[data-hand-next]')?HAND_CAP[0]:s.querySelector('[data-unit-next]')?UNIT_CAP[0]:'';c.hidden=false});
  $$('.done-cap,.slide-cap,.reveal-cap,.chair-cap,.name-tag,.side-view,.arc-cap,.push-cap',s).forEach(x=>x.hidden=true);
  $$('[data-cap]',s).forEach(x=>x.hidden=true);
  $$('.big-count',s).forEach(x=>x.textContent='');
- $$('.hand-badge,.c-badge:not(.keep),.fam:not(.keep),.use',s).forEach(x=>x.classList.remove('show'));$$('.choice',s).forEach(x=>x.classList.remove('right','wrong','dim'));
+ $$('.hand-badge,.c-badge:not(.keep),.fam:not(.keep)',s).forEach(x=>x.classList.remove('show'));$$('.choice',s).forEach(x=>x.classList.remove('right','wrong','dim'));
  $$('.recap',s).forEach(x=>x.classList.remove('open'));
  $$('.guess-card',s).forEach(x=>x.classList.remove('right'));
  $$('.paper,.scribble:not(.on)',s).forEach(x=>x.classList.remove('drawing'));
