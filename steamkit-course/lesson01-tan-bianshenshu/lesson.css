@@ -211,3 +211,5 @@ h2{position:absolute;left:90px;right:90px;top:58px;margin:0;font:56px/1.2 var(--
 .spark{position:absolute;left:705px;top:425px;font-size:80px;color:#ffc60a;opacity:0;transform:scale(.3);transition:opacity .3s 1s,transform .5s cubic-bezier(.2,1.8,.4,1) 1s;text-shadow:0 0 20px #ffc60a}
 .paired .spark{opacity:1;transform:scale(1)}
 .glow{transition:left 1.1s,width 1.1s}
+/* v9: 放大层没有底色，沿用纸的颜色，避免出现长方形放大的边 */
+.zoomer{background:#fffdf8}.z0,.z1,.z2{background:transparent!important}
