@@ -11,7 +11,7 @@ export function kitchen(state,title){
   `<p class="kitchen-ask">有什么办法知道？</p>`+
   `<div class="awall" aria-live="polite"><span class="aempty">孩子说的办法，贴在这里</span></div>`+
   `<div class="acombo"><form class="acform"><div class="acfield"><input maxlength="8" aria-label="孩子说的办法" autocomplete="off" placeholder="输入或选一个办法"><button type="button" class="acopen" aria-label="展开选项" aria-expanded="false">▲</button></div><button type="submit" class="acadd" aria-label="贴上去" title="贴上去">贴上去</button></form><ul class="aclist" hidden>${WALL_OPTIONS.map(([n,i])=>`<li><button type="button" data-wall="${n}"><img src="${i}" alt="">${n}</button></li>`).join('')}</ul></div>`+
-  `<button class="review-next-step round areset" aria-label="清空" title="清空"><span aria-hidden="true">↺</span></button>`;
+  `<button class="review-next-step round areset" aria-label="清空"><span aria-hidden="true">↺</span></button>`;
 }
 function bindWall(sound){
  const root=document.querySelector('#slide');const wall=root.querySelector('.awall');if(!wall)return()=>{};
@@ -51,7 +51,7 @@ export function methods(state,title){
 function bindMethods(sound){
  const root=document.querySelector('#slide');const pop=root.querySelector('.react-pop');if(!pop)return()=>{};
  const h=e=>{const b=e.target.closest('[data-method]');if(!b)return;const k=b.dataset.method,r=METHOD_REACT[k];
-  if(!b.classList.contains('shown')){b.classList.add('shown');b.insertAdjacentHTML('beforeend',`<span class="m-say">${r.say}</span>`+(k==='taste'?'<i class="ban-stamp" aria-hidden="true"></i>':`<i class="m-badge">${r.mark}</i>`));}
+  if(!b.classList.contains('shown')){b.classList.add('shown');b.insertAdjacentHTML('beforeend',(k==='taste'?'<i class="ban-stamp" aria-hidden="true"></i>':`<i class="m-badge">${r.mark}</i>`));}
   pop.className='react-pop show '+r.cls;pop.innerHTML=r.pop;void pop.offsetWidth;pop.classList.add('in');
   sound?.(k==='look'?'good':'wrong');};
  root.addEventListener('click',h);return ()=>root.removeEventListener('click',h);
@@ -72,7 +72,7 @@ function bindMicro(sound){
 
 export function why(state,title){
  const guesses=['工厂把盐切成了小方块','盐里面的小粒子，排得整整齐齐','我有别的猜想'];
- return `<img class="why-art slide-in" src="assets/p06-shape5.jpeg" alt="显微镜下的盐粒" draggable="false"><div class="why-guesses big"><p class="why-ask">盐为什么是小方块？</p>${guesses.map((t,i)=>`<button data-guess="${i}" class="${state.guess===i?'selected':''}" aria-pressed="${state.guess===i}" style="--i:${i}"><b>${'ABC'[i]}</b>${t}</button>`).join('')}</div>`;
+ return `<img class="why-art slide-in" src="assets/p06-shape5.jpeg" alt="显微镜下的盐粒" draggable="false"><div class="why-guesses big"><p class="why-ask">盐粒为什么是小方块？</p>${guesses.map((t,i)=>`<button data-guess="${i}" class="${state.guess===i?'selected':''}" aria-pressed="${state.guess===i}" style="--i:${i}"><b>${'ABC'[i]}</b>${t}</button>`).join('')}</div>`;
 }
 
 // ---------- Page 52: one grain zooms into ions; drag to build Na-Cl chain ----------
@@ -88,7 +88,7 @@ const face=(kind)=>{
 export function ions(state,title){
  if(state.step===0)return title('一粒盐里面，是什么？')+
   `<div class="grain-stage"><svg class="salt-grain" data-action="advance" tabindex="0" style="cursor:zoom-in" viewBox="0 0 300 300" role="img" aria-label="一粒小方块盐"><path d="M50 95L150 45L250 95L150 145Z" fill="#ffffff"/><path d="M50 95L150 145V255L50 205Z" fill="#d6e2ee"/><path d="M150 145L250 95V205L150 255Z" fill="#eaf1f7"/></svg></div>`;
- return title('钠离子和氯离子，怎样排在一起？')+
+ return title('钠<span class="ionf p">（Na⁺）</span>和氯<span class="ionf p">（Cl⁻）</span>，怎样排在一起？')+
   `<div class="zoom-flash" aria-hidden="true"></div><svg id="ion-field" class="ion-field" viewBox="0 0 1600 900" role="application" aria-label="拖动钠和氯：同类会弹开，钠和氯会吸住连起来">
    
    <g id="ion-rods"></g>
@@ -231,6 +231,6 @@ function bindIons(sound){
 export function conclusion(title,host){
  return title('排得整整齐齐，就长成小方块！')+
   host('answer-cube',{id:'grid-4',height:16},'left:70px;top:215px;width:700px;height:560px')+
-  `<figure class="celebrate-art"><img src="media/celebrate.webp" alt="小兔举起盐方块，阿基米德爷爷竖起大拇指（卡通形象）"></figure>
+  `<figure class="celebrate-art"><img src="media/celebrate.webp" alt="小兔举起方方的盐粒，阿基米德爷爷竖起大拇指（卡通形象）"></figure>
   <div class="answer-two"><p><span>里面</span>钠和氯一个隔一个，排成方格</p><p><span>外面</span>一层层长大，还是小方块</p></div><div class="confetti"></div>`;
 }

@@ -19,7 +19,7 @@ export function mountModel(host,spec){
  function draw(){
   if(disposed||!host.isConnected)return;
   try{
-   renderModel(canvas,spec.id,{...view,...current,focusBalls:focus,highlight:spec.highlight||[],ghostOpacity:spec.ghostOpacity??.12});
+   renderModel(canvas,spec.id,{...view,...current,focusBalls:focus,highlight:spec.highlight||[],ghostOpacity:spec.ghostOpacity??.12,labels:spec.labels||null});
    host.dataset.focus=JSON.stringify(focus);host.dataset.highlight=JSON.stringify(spec.highlight||[]);host.dataset.ghostOpacity=spec.ghostOpacity??.12;host.dataset.ready='true';host.dataset.yaw=view.yaw;host.dataset.height=view.height;
   }catch(e){host.dataset.ready='error';host.querySelector('.model-status').textContent='三维显示失败，请刷新重试';console.error(e);}
  }
@@ -28,6 +28,7 @@ export function mountModel(host,spec){
  if(spec.syncView){if(!syncGroups.has(spec.syncView))syncGroups.set(spec.syncView,new Set());syncGroups.get(spec.syncView).add(receiver);}
  function update(next,animate=true){
   cancelAnimationFrame(frame);focus=next.focus??null;spec={...spec,...next};
+  if(next.height&&next.height!==base.height){base.height=next.height;tweenView({...view},{...view,height:next.height},900);}
   const balls=next.balls??model.balls.map((_,i)=>i),set=new Set(balls);
   const rods=next.struts??model.struts.flatMap((e,i)=>set.has(e.a)&&set.has(e.b)?[i]:[]);
   const same=JSON.stringify(target)===JSON.stringify(balls)&&JSON.stringify(targetRods)===JSON.stringify(rods);

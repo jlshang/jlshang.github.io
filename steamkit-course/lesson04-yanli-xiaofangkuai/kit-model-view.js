@@ -80,7 +80,7 @@ function focusLattice(axis){
   mesh.material=(on?materials:ghostMaterials)[material];mesh.castShadow=on;mesh.renderOrder=on?1:0;mesh.userData.active=!!axis&&on;
  }
 }
-export function renderModel(canvas,id,{yaw=.545,pitch=.274,height=17,orthographic=false,axis=0,visibleBalls=null,visibleStruts=null,ballOffsets={},strutOffsets={},highlight=[],focusBalls=null,ghostOpacity=.12}={}){
+export function renderModel(canvas,id,{yaw=.545,pitch=.274,height=17,orthographic=false,axis=0,visibleBalls=null,visibleStruts=null,ballOffsets={},strutOffsets={},highlight=[],focusBalls=null,ghostOpacity=.12,labels=null}={}){
  const {scene,lights,group,model}=buildScene(id),r=getRenderer(),w=canvas.width,h=canvas.height;
  if(id==='lattice-5')focusLattice(axis);
  for(const material of Object.values(ghostMaterials))material.opacity=ghostOpacity;
@@ -121,6 +121,19 @@ export function renderModel(canvas,id,{yaw=.545,pitch=.274,height=17,orthographi
   ctx.beginPath();ctx.arc(x,y,radius,0,Math.PI*2);
   ctx.strokeStyle='#fffaf2';ctx.lineWidth=8;ctx.stroke();
   ctx.strokeStyle='#d77916';ctx.lineWidth=4;ctx.stroke();
+ }
+ if(labels){
+  ctx.textAlign='center';ctx.textBaseline='top';
+  labels.forEach((text,index)=>{
+   if(!text||(visible&&!visible.has(index)))return;
+   const p=new T.Vector3().fromArray(model.balls[index]).add(group.position);
+   const edge=p.clone().add(new T.Vector3(1.3,0,0).applyQuaternion(camera.quaternion));
+   p.project(camera);edge.project(camera);
+   const x=(p.x+1)*w/2,y=(1-p.y)*h/2,radius=Math.abs(edge.x-p.x)*w/2;
+   ctx.font=`italic 700 ${Math.round(Math.max(26,radius*.9))}px "Times New Roman",serif`;
+   ctx.lineWidth=6;ctx.strokeStyle='#1f2a44';ctx.strokeText(text,x,y+radius+10);
+   ctx.fillStyle='#f5c542';ctx.fillText(text,x,y+radius+10);
+  });
  }
 }
 export function resetViews(){views.clear();}

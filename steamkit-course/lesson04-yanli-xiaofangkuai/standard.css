@@ -231,3 +231,24 @@
 .ionf.t{font-family:var(--body);font-weight:800;margin-left:10px}
 .cover-banner{top:160px;width:1560px;height:639px}
 .banner-text{top:508px}.banner-text h1{font-size:74px}
+/* v10 */
+.label-toggle{position:absolute;right:200px;bottom:62px;height:76px;padding:0 34px;border-radius:40px;border:5px solid var(--orange);background:#fffdf7;color:#26364d;font:34px var(--display);cursor:pointer;box-shadow:0 6px 0 #c9bfae}
+.label-toggle .ionf{font-size:32px;color:#d98a12}
+.label-toggle.on{background:#fbe9c8}
+.coord-label .ionf{font-size:36px;font-style:italic}
+.coord-label{font:34px var(--display)}
+.ch-col{top:650px}
+.ch-col.side{top:260px;left:1060px;width:480px;flex-direction:column;align-items:stretch;gap:24px}
+.ch-col.side .ch-card{width:480px}.ch-col.side .ch-card p{float:none;width:auto}
+.grow-note{margin:0;font:30px var(--display);color:#fbf6ec;text-align:center}.grow-note b{color:var(--orange)}
+.grow-steps{position:absolute;left:90px;top:190px;width:760px;margin:0;padding:0;list-style:none;counter-reset:g}
+.grow-steps li{counter-increment:g;position:relative;margin:0 0 26px;padding:18px 24px 18px 92px;border-radius:24px;background:#293951;font:32px/1.4 var(--display);color:#fbf6ec}
+.grow-steps li::before{content:counter(g);position:absolute;left:22px;top:50%;transform:translateY(-50%);width:52px;height:52px;border-radius:50%;background:var(--orange);color:#fff;font:34px/52px var(--display);text-align:center}
+.grow-photos{position:absolute;left:900px;top:190px;width:620px;display:flex;flex-direction:column;gap:22px}
+.grow-photos img{width:620px;height:290px;object-fit:cover;border-radius:24px;box-shadow:0 10px 26px #0006}
+.grow-safe{top:760px!important;color:#c9d2de!important}
+.scene-41 .chapter-number{left:100px}.scene-41 .chapter-art-std{left:860px!important;top:170px!important;width:720px!important;height:620px!important}
+#slide .label-toggle{background:#fffdf7!important;color:#26364d!important;border:5px solid var(--orange)!important;opacity:1!important}
+#slide .label-toggle.on{background:#fbe9c8!important}
+.ionf.p{margin:0 2px;font-family:var(--body);font-weight:800}
+.scene-41 .chapter-art-std{left:760px!important;top:230px!important;width:820px!important;height:500px!important}

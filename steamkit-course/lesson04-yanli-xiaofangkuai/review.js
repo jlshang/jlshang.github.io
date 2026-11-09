@@ -5,7 +5,7 @@ import {batchContent,bindBatch,cleanupBatch,BATCH_MAX} from './batch-scenes.js';
 import {CAF2_STAGES} from './caf2-stages.js';
 import {NEW_MAX,kitchen,methods,micro,why,ions,conclusion,bindNew,cleanupNew} from './new-scenes.js';
 // Stable scene ids preserve all 22 existing interactions; visible page 3 is new scene 23.
-const SCENES=[1,50,55,51,5,59,52,60,61,62,63,39,38,41,40,42,44,56,57,22];
+const SCENES=[1,50,55,51,5,59,52,60,61,62,63,39,38,41,42,44,56,57,64,65];
 const $=s=>document.querySelector(s);
 const visiblePage=()=>SCENES.indexOf(state.page)+1;
 const adjacentScene=delta=>SCENES[visiblePage()-1+delta];
@@ -19,7 +19,7 @@ const axes=[0,2,1];
 const axisLine=a=>choose(grid,p=>p.every((v,k)=>k===axes[a]||Math.abs(v)<EPS));
 const bottomCenter=choose(grid,p=>p[1]<-EPS&&Math.abs(p[0])+Math.abs(p[2])<EPS);
 const layerStages=[bottomCenter,choose(grid,p=>p[1]<-EPS&&Math.abs(p[2])<EPS),choose(grid,p=>p[1]<-EPS&&p[2]<EPS),layer];
-const maxSteps={...BATCH_MAX,...NEW_MAX,52:0,59:0,60:0,61:4,62:3,63:4,39:3,57:3,2:1,4:1,6:1,8:2,9:3,10:3,11:2,14:3,15:2,16:1,19:3,21:3};
+const maxSteps={...BATCH_MAX,...NEW_MAX,52:0,59:0,60:0,61:4,62:3,63:4,39:3,57:0,64:3,2:1,4:1,6:1,8:2,9:3,10:3,11:2,14:3,15:2,16:1,19:3,21:3};
 const state={page:1,step:0,guess:null,axis:0,notes:false,toc:false,sound:true,record:false,rowError:false,recordValues:{}};
 let deck,controllers=new Map(),pour=null,scope=0,storingFailed=false;
 try{state.recordValues=JSON.parse(localStorage.getItem('salt-review-record')||'{}');if(!state.recordValues||typeof state.recordValues!=='object')state.recordValues={};}catch{state.recordValues={};}
@@ -27,7 +27,7 @@ const sound=window.createCourseSound(window.AudioContext||window.webkitAudioCont
 const specs=new Map();
 function host(key,spec,style=''){
  specs.set(key,spec);
- return `<div class="model-host" data-model-key="${key}" data-model="${spec.id}" style="${style}"><canvas tabindex="0" role="img" aria-label="黑白真实连接球与标准杆模型，可旋转、缩放"></canvas><span class="model-status" role="status">三维模型加载中…</span><button class="model-reset" aria-label="恢复本模型初始视角" title="恢复视角"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10a8 8 0 1 1 1.5 7M4 4v6h6"/></svg><span>恢复视角</span></button></div>`;
+ return `<div class="model-host" data-model-key="${key}" data-model="${spec.id}" style="${style}"><canvas tabindex="0" role="img" aria-label="黑白真实连接球与标准杆模型，可旋转、缩放"></canvas><span class="model-status" role="status">三维模型加载中…</span><button class="model-reset" aria-label="恢复本模型初始视角"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10a8 8 0 1 1 1.5 7M4 4v6h6"/></svg><span>恢复视角</span></button></div>`;
 }
 const title=(t,sub='')=>`<h1 class="review-title">${t}</h1>${sub?`<p class="review-sub">${sub}</p>`:''}`;
 const dots=(n,i)=>`<div class="step-dots" aria-label="第${i+1}步，共${n}步">${Array.from({length:n},(_,k)=>`<i class="${k<=i?'on':''}"></i>`).join('')}</div>`;
@@ -42,12 +42,12 @@ function modelScene(heading,spec,copy,{sub='',key='main',style='',counts=true}={
 }
 function plusButton(label){
  const max=maxSteps[state.page]||0;
- return state.step<max?`<button class="review-next-step round plus" data-action="advance" aria-label="${label}" title="${label}"><span aria-hidden="true">＋</span></button>`:'';
+ return state.step<max?`<button class="review-next-step round plus" data-action="advance" aria-label="${label}"><span aria-hidden="true">＋</span></button>`:'';
 }
 function stepButtons(label='下一步'){
  const max=maxSteps[state.page]||0;
  if([2,4,8].includes(state.page))return '';
- return state.step<max?`<button class="review-next-step round" data-action="advance" aria-label="${label}" title="${label}"><span aria-hidden="true">▶</span></button>`:'';
+ return state.step<max?`<button class="review-next-step round" data-action="advance" aria-label="${label}"><span aria-hidden="true">▶</span></button>`:'';
 }
 function chapter(n,heading,sub){
  return `<span class="chapter-number">${n}</span><div class="chapter-copy"><small>${sub}</small><h1>${heading}</h1><div class="chapter-rule"></div></div>`+
@@ -62,7 +62,8 @@ function content(){
   '<div class="build-key"><p><span class="dot black"></span>黑球 = 钠 <b class="ionf">Na⁺</b></p><p><span class="dot white"></span>白球 = 氯 <b class="ionf">Cl⁻</b></p><p><span class="rod"></span>蓝短棍 = 把它们连在一起</p></div>';
  if(p===61){
   const stages=[[0,1],[0,1,2],[0,1,2,3],[0,1,2,3,4],[0,1,2,3,4,5]];
-  return title('第 2 步：搭更多氯化钠')+host('nacl-row',{id:'row-six',balls:stages[s],height:16,yaw:0,pitch:.2},'left:60px;top:200px;width:1480px;height:600px')+plusButton('再接一颗');
+  const lab=s===4&&state.labels?['Na⁺','Cl⁻','Na⁺','Cl⁻','Na⁺','Cl⁻']:null;
+  return title('第 2 步：搭更多氯化钠')+host('nacl-row',{id:'row-six',balls:stages[s],height:16,yaw:0,pitch:.2,labels:lab},'left:60px;top:200px;width:1480px;height:600px')+plusButton('再接一颗')+(s===4?`<button class="label-toggle${state.labels?' on':''}" data-action="labels">${state.labels?'隐藏':'标出'} <b class="ionf">Na⁺</b> / <b class="ionf">Cl⁻</b></button>`:'');
  }
  if(p===62){
   const stages=[[0],[0,1,2],[0,1,2,3,4],[0,1,2,3,4,5,6]];
@@ -73,15 +74,23 @@ function content(){
   const m=models['lattice-5'],o=m.balls[62],sp=5.23606797749979;
   const lim=[[1,1,1],[2,1,1],[2,1,2],[2,2,2]][s];
   const ids=m.balls.flatMap((q,i)=>q.every((v,k)=>Math.abs(Math.round((v-o[k])/sp))<=lim[k])?[i]:[]);
-  return title('小盐晶体，是怎样长大的？')+host('grow-build',{id:'lattice-5',balls:ids,height:40,yaw:.42,pitch:.24},'left:250px;top:180px;width:1100px;height:660px')+plusButton('向外拼一层');
+  return title('小盐粒，是怎样长大的？')+host('grow-build',{id:'lattice-5',balls:ids,height:40,yaw:.42,pitch:.24},'left:250px;top:180px;width:1100px;height:660px')+plusButton('向外拼一层');
  }
- if(p===57){const st=s;
+ if(p===57||p===64){
   const cap=(name,f,rows)=>`<div class="ch-card"><h3>${name}<b class="ionf">${f}</b></h3>${rows.map(([c,t])=>`<p><span class="dot ${c}"></span>${t}</p>`).join('')}</div>`;
-  return title('课后挑战 1　盐的亲戚：氯化铯和萤石')+
-   host('cscl',{id:'cscl',height:11,yaw:.5,pitch:.32},'left:70px;top:150px;width:700px;height:470px')+
-   host('caf2',{id:'caf2-big',balls:CAF2_STAGES[st],height:[20,28,42,60][st],yaw:.5,pitch:.32},'left:830px;top:150px;width:700px;height:470px')+
+  const fl=cap('萤石 ','CaF₂',[['black','黑球 = 钙 Ca²⁺'],['white','白球 = 氟 F⁻'],['rod','蓝短棍：连成小方块'],['rod y','黄短棍：氟连到 4 个钙']]);
+  if(p===57)return title('课后挑战1：盐的亲戚——氯化铯和萤石')+
+   host('cscl',{id:'cscl',height:14,yaw:.5,pitch:.32},'left:110px;top:150px;width:620px;height:480px')+
+   host('caf2',{id:'caf2-big',balls:CAF2_STAGES[0],height:23,yaw:.5,pitch:.32},'left:870px;top:150px;width:620px;height:480px')+
    `<div class="ch-col" style="left:70px">${cap('氯化铯 ','CsCl',[['black','黑球 = 铯 Cs⁺'],['white','白球 = 氯 Cl⁻'],['rod','蓝短棍：连成方块'],['rod y','黄短棍：铯连到 8 个角']])}</div>`+
-   `<div class="ch-col" style="left:830px">${cap('萤石 ','CaF₂',[['black','黑球 = 钙 Ca²⁺'],['white','白球 = 氟 F⁻'],['rod','蓝短棍：连成小方块'],['rod y','黄短棍：氟连到 4 个钙']])}<p class="grow-tag2">${['1 格','2 格','4 格','8 格'][st]}</p></div>`+plusButton('萤石再拼一格');}
+   `<div class="ch-col" style="left:830px">${fl}</div>`;
+  return title('课后挑战2：搭一块大萤石')+
+   host('caf2-grow',{id:'caf2-big',balls:CAF2_STAGES[s],height:[20,23,27,32][s],yaw:.5,pitch:.32},'left:70px;top:150px;width:960px;height:690px')+
+   `<div class="ch-col side">${fl}<p class="grow-note">点 <b>＋</b>，一块接一块拼大</p></div>`+plusButton('萤石再拼一块');}
+ if(p===65)return title('拓展挑战：养一颗大盐粒')+
+  `<ol class="grow-steps"><li>请大人帮忙，配一杯很浓的盐水：盐放到化不开为止。</li><li>倒进干净的浅盘或杯子，放在不会被碰到的地方。</li><li>每天在差不多的时间，拍一张照片。</li><li>记一记：长出盐粒了吗？有多大？是什么形状？</li></ol>`+
+  `<div class="grow-photos"><img src="assets/p26-shape6.png" alt="手指捏着一颗方方的大盐粒（实拍）"><img src="assets/p27-shape5.png" alt="两颗透明的大盐粒（实拍）"></div>`+
+  `<p class="task-safety grow-safe">盐水不入口；用完的盐水请大人处理。</p><button class="record-open" data-action="record">打开观察记录 ↗</button>`+(state.record?recordPanel():'');
  if(p===56)return title('拼搭你喜欢的盐粒')+host('fav-a',{id:'twin-octa',height:19,yaw:.5,pitch:.28},'left:60px;top:170px;width:730px;height:640px')+host('fav-b',{id:'cube-octa',height:28,yaw:.55,pitch:.32},'left:810px;top:170px;width:730px;height:640px');
  if(p===63){
   const stages=['cross-3d','grid-1','grid-2','grid-3','grid-4'].map(id=>choose(grid,(q,i)=>models[id].balls.some(b=>b.every((v,k)=>Math.abs(v-q[k])<1e-6))));
@@ -98,7 +107,7 @@ function content(){
  if(p===2)return window.photoPour.render(state);
  if(p===23)return title('我们在显微镜下看看')+'<img class="microscope-photo" src="assets/p05-shape8.png" alt="原课件真实照片：三个孩子围着显微镜观察">';
  if(p===3)return title('显微镜下，猜猜哪一张是盐？')+window.originalRevisions.photos(deck.slides[5]);
- if(p===4)return title('盐为什么是小方块？')+`<img class="guess-rabbit" src="media/thinking-rabbit-redrawn.webp" alt="正在思考的黄色小兔">`+
+ if(p===4)return title('盐粒为什么是小方块？')+`<img class="guess-rabbit" src="media/thinking-rabbit-redrawn.webp" alt="正在思考的黄色小兔">`+
   (!s?'<button class="review-next-step guess-start" data-action="advance">我来猜一猜</button>':`<div class="guess-list">${['工厂把盐切成小方块','里面的小粒子排得有规律','我有别的猜想'].map((t,i)=>`<button data-guess="${i}" class="${state.guess===i?'selected':''}" aria-pressed="${state.guess===i}"><b>${'ABC'[i]}</b>${t}</button>`).join('')}</div>`);
  if(p===5)return chapter(1,'盐里面，<br>藏着什么？','先找规律，再动手');
  if(p===6)return title('认识两位小伙伴')+(!s?'<img class="ions-heap" src="media/page09-salt/heap.png" alt="一小堆白色盐粒">':`
@@ -183,8 +192,8 @@ function homework(){
    <article class="task-card"><small>探究</small><h2>哪杯长出的盐晶体大？</h2><p>两杯一样的盐水：一杯放窗台，一杯放冰箱。</p><strong>带回来：观察记录</strong></article>
   </div><p class="task-safety">请大人帮忙准备盐水；实验材料不入口。</p><button class="record-open" data-action="record">打开实验记录 ↗</button>`+(state.record?recordPanel():'');
 }
-const fieldNames={prediction:'我预测：哪杯长出的晶体更大？',date:'观察日期',open:'窗台那杯：看到了什么？',covered:'冰箱那杯：看到了什么？'};
-function recordPanel(){return `<section class="record-panel" role="dialog" aria-label="我的盐晶体观察记录"><h2>我的盐晶体观察记录</h2><button class="close" data-action="record">关闭 ×</button><div class="record-fields">${Object.entries(fieldNames).map(([k,label])=>`<label>${label}${['open','covered'].includes(k)?`<textarea data-record="${k}">${esc(state.recordValues[k])}</textarea>`:`<input data-record="${k}" type="${k==='date'?'date':'text'}" value="${esc(state.recordValues[k])}">`}</label>`).join('')}</div><p id="save-status">${storingFailed?'此浏览器无法保存，请下载记录。':'输入后保存在当前浏览器；换设备请下载记录。'}</p><div class="record-actions"><button data-action="download">下载记录 ↓</button></div></section>`;}
+const fieldNames={date:'开始日期',d1:'第 1 天：有没有长出盐粒？是什么形状？',d3:'第 3 天：变大了吗？',d7:'第 7 天：最大的一颗有多大？'};
+function recordPanel(){return `<section class="record-panel" role="dialog" aria-label="我的盐粒观察记录"><h2>我的盐粒观察记录</h2><button class="close" data-action="record">关闭 ×</button><div class="record-fields">${Object.entries(fieldNames).map(([k,label])=>`<label>${label}${['d1','d3','d7'].includes(k)?`<textarea data-record="${k}">${esc(state.recordValues[k])}</textarea>`:`<input data-record="${k}" type="${k==='date'?'date':'text'}" value="${esc(state.recordValues[k])}">`}</label>`).join('')}</div><p id="save-status">${storingFailed?'此浏览器无法保存，请下载记录。':'输入后保存在当前浏览器；换设备请下载记录。'}</p><div class="record-actions"><button data-action="download">下载记录 ↓</button></div></section>`;}
 function resize(){
  const r=$('#viewport').getBoundingClientRect();
  $('#stage').style.transform=`scale(${Math.min(r.width/1600,r.height/900)})`;
@@ -217,7 +226,7 @@ function render(animate=false){
  }
  for(const {controller} of old.values())controller.dispose();
  const resets=[...$('#slide').querySelectorAll('.model-host:not([data-interactive="false"]) .model-reset')];
- if(resets.length){const h=document.createElement('button');h.className='ctl-home';h.title='回正面';h.setAttribute('aria-label','回正面');h.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="7" width="11" height="11" rx="2"/><path d="M15 6a5.5 5.5 0 0 1 5 5M20 11l1.6-2.4M20 11l-2.6-1"/></svg>';h.onclick=()=>{resets.forEach(b=>b.click());if(state.sound)sound.play('select');};$('#slide').append(h);}
+ if(resets.length){const h=document.createElement('button');h.className='ctl-home';h.setAttribute('aria-label','回正面');h.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="7" width="11" height="11" rx="2"/><path d="M15 6a5.5 5.5 0 0 1 5 5M20 11l1.6-2.4M20 11l-2.6-1"/></svg>';h.onclick=()=>{resets.forEach(b=>b.click());if(state.sound)sound.play('select');};$('#slide').append(h);}
  window.originalRevisions.bindScene();bindBatch({state,advance});bindNew({state,sound:k=>{if(state.sound)sound.play(k);}});
  if(false){
   const scene=$('.p02-scene'),images=[...scene.querySelectorAll('img')];
@@ -233,9 +242,9 @@ function render(animate=false){
  $('#progress').value=visiblePage();$('#prev').disabled=state.page===1;$('#next').disabled=visiblePage()===LESSON.length;
  updatePanels();resize();
 }
-function goReset(){state.methods=new Set();}
-const MODEL_PAGES=new Set([60,61,62,63,38,39,42,44,56,57,58]);
-function navCue(n){return n===1?'cover':[5,41].includes(n)?'chapter':n===22?'finish':MODEL_PAGES.has(n)?'model':'page';}
+function goReset(){state.methods=new Set();state.labels=false;}
+const MODEL_PAGES=new Set([60,61,62,63,38,39,42,44,56,57,58,64]);
+function navCue(n){return n===1?'cover':[5,41].includes(n)?'chapter':n===65?'finish':MODEL_PAGES.has(n)?'model':'page';}
 function go(n){
  if(!SCENES.includes(n))return;
  if(n!==state.page)goReset();
@@ -249,9 +258,9 @@ function advance(){
  state.step++;render(true);if(state.sound)sound.play(state.page===39?'grow':[57,61,62,63].includes(state.page)?'plus':'reveal');
 }
 function downloadRecord(){
- const text='我的盐晶体观察记录\\n'.replace('\\n','\n')+Object.entries(fieldNames).map(([k,t])=>`${t}\n${state.recordValues[k]||'（未填写）'}`).join('\n\n')+'\n\n比较条件：同一批、同样多的盐水，同样的杯子；只改变放的地方（窗台 / 冰箱）。\n成人准备，实验材料不入口。\n';
+ const text='我的盐粒观察记录\\n'.replace('\\n','\n')+Object.entries(fieldNames).map(([k,t])=>`${t}\n${state.recordValues[k]||'（未填写）'}`).join('\n\n')+'\n\n请大人帮忙配盐水，，实验材料不入口。\n';
  const url=URL.createObjectURL(new Blob(['\ufeff'+text],{type:'text/plain;charset=utf-8'}));
- const a=document.createElement('a');a.href=url;a.download='盐晶体观察记录.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+ const a=document.createElement('a');a.href=url;a.download='盐粒观察记录.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 document.addEventListener('click',e=>{
  if(e.target.closest('.salt-grain')){go(52);if(state.sound)sound.play('grow');return;}
@@ -273,6 +282,7 @@ document.addEventListener('click',e=>{
  if(a==='toc'){state.toc=!state.toc;state.notes=false;updatePanels();}
  if(a==='record'){state.record=!state.record;render();if(state.record)$('[data-record]')?.focus();}
  if(a==='download')downloadRecord();
+ if(a==='labels'){state.labels=!state.labels;render();if(state.sound)sound.play('pin');}
 });
 document.addEventListener('input',e=>{
  const key=e.target.dataset.record;if(!key)return;
