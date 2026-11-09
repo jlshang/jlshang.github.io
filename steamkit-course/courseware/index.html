@@ -67,12 +67,13 @@ const LESSONS = [
   { no: 5, title: "空间大力士", q: "谁是稳定性之王？三角形！", href: "../lesson05-kongjian-dalishi/", img: "img/l05.webp", pages: 28 },
   { no: 10, title: "世界的五张王牌", q: "为什么正多面体只有五种？", href: "../lesson10-bolatu-duomianti/", img: "img/l10.webp?v=6", pages: 22 },
   { no: 11, title: "开普勒的宇宙世界", q: "5 种形状，套出一个宇宙", href: "../lesson11-kaipule-yuzhou/", img: "img/l11.webp?v=3", pages: 20 },
+  { no: 0, title: "碳的变身术", q: "同样是碳，为什么一软一硬？", href: "../lesson-tan-bianshenshu/", img: "img/ltan.webp?v=1", pages: 22 },
 ];
 const grid = document.getElementById("grid");
-LESSONS.sort((a, b) => a.no - b.no).forEach((l) => {
+LESSONS.sort((a, b) => (a.no || 99) - (b.no || 99)).forEach((l) => {
   const a = document.createElement("a");
   a.className = "card"; a.href = l.href;
-  a.innerHTML = `<div class="thumb"><img src="${l.img}" alt="${l.title} 封面" loading="lazy"><div class="no">第 ${l.no} 节</div></div>
+  a.innerHTML = `<div class="thumb"><img src="${l.img}" alt="${l.title} 封面" loading="lazy"><div class="no">${l.no ? `第 ${l.no} 节` : "新课"}</div></div>
     <div class="body"><div class="title">${l.title}</div><p class="q">${l.q}</p>
     <div class="go"><span>${l.pages} 页</span><b>开始上课 →</b></div></div>`;
   grid.appendChild(a);
