@@ -252,3 +252,13 @@
 #slide .label-toggle.on{background:#fbe9c8!important}
 .ionf.p{margin:0 2px;font-family:var(--body);font-weight:800}
 .scene-41 .chapter-art-std{left:760px!important;top:230px!important;width:820px!important;height:500px!important}
+/* v11 */
+.salt-name{position:absolute;left:90px;width:560px;top:745px;margin:0;text-align:center;font:72px var(--display);color:#fbf6ec;animation:v2pop .45s cubic-bezier(.3,1.6,.5,1) both}
+.scene-50 .kitchen-art{cursor:pointer}
+.react-pop.ok{cursor:pointer}
+.react-scope,.react-scope:hover,.react-scope:focus{background:none!important;box-shadow:none!important;border:0!important;outline:none}
+.ion-reset{z-index:5}
+#slide .label-toggle{right:132px;bottom:38px;height:66px;padding:0 22px;font-size:26px;border-width:3px!important;box-shadow:none}
+#slide .label-toggle .ionf{font-size:26px}
+.grow-steps li{white-space:nowrap}
+.grow-steps li{font-size:36px;margin-bottom:34px}

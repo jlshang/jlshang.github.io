@@ -1,13 +1,14 @@
 // v2 scenes: kitchen (50), microscope + why (51), ion drag chain (52), conclusion (53).
 // v3 scenes: kitchen answer wall (50), microscope 对/错 (51), why guesses (54), ion drag chain (52), conclusion (53).
-export const NEW_MAX={50:0,55:0,51:1,54:0,52:1,53:0};
+export const NEW_MAX={50:1,55:0,51:1,54:0,52:1,53:0};
 const WALL_OPTIONS=[['闻一闻','media/ico_smell.png'],['尝一尝','media/ico_taste.png'],['看一看','media/ico_look.png']];
 const ICON_IMG={'闻一闻':'media/ico_smell.png','尝一尝':'media/ico_taste.png','看一看':'media/ico_look.png'};
 const wallState=new Map();
 
-export function kitchen(state,title){
- return title('厨房里的白色调料，是什么？')+
-  `<img class="kitchen-art" src="media/salt_shaker.png" alt="卡通调料罐和倒出来的一堆白色颗粒（卡通形象）" draggable="false">`+
+export function kitchen(state,title,stepBtn){
+ const art=`<img class="kitchen-art" src="media/salt_shaker.png" alt="卡通调料罐和倒出来的一堆白色颗粒（卡通形象）" draggable="false">`+(state.saltShown?'<p class="salt-name">盐</p>':'');
+ if(state.step===0)return title('厨房里的白色调料，你猜是什么？')+art+stepBtn;
+ return title('厨房里的白色调料，你猜是什么？')+art+
   `<p class="kitchen-ask">有什么办法知道？</p>`+
   `<div class="awall" aria-live="polite"><span class="aempty">孩子说的办法，贴在这里</span></div>`+
   `<div class="acombo"><form class="acform"><div class="acfield"><input maxlength="8" aria-label="孩子说的办法" autocomplete="off" placeholder="输入或选一个办法"><button type="button" class="acopen" aria-label="展开选项" aria-expanded="false">▲</button></div><button type="submit" class="acadd" aria-label="贴上去" title="贴上去">贴上去</button></form><ul class="aclist" hidden>${WALL_OPTIONS.map(([n,i])=>`<li><button type="button" data-wall="${n}"><img src="${i}" alt="">${n}</button></li>`).join('')}</ul></div>`+
@@ -43,7 +44,7 @@ function bindWall(sound){
 const METHOD_REACT={
  smell:{mark:'!',say:'闻不出来',pop:'<img src="media/nosmell.png" alt="小兔闻了闻，皱眉摇头（卡通形象）"><p><b>闻不出来！</b><span>盐和糖，几乎都没有气味</span></p>',cls:'warn'},
  taste:{mark:'',say:'不能尝！',pop:'<img src="media/notaste.png" alt="小兔捂住嘴巴摇头（卡通形象）"><p><b>不认识的东西，不能尝！</b><span>做实验的第一条规矩</span></p>',cls:'no'},
- look:{mark:'✓',say:'好办法！',pop:'<button class="react-scope" aria-label="打开显微镜，去看一看"><img src="media/scope.png" alt="卡通显微镜"></button><p><b>好办法！放大看一看</b><span>点一下显微镜</span></p>',cls:'ok'}};
+ look:{mark:'✓',say:'好办法！',pop:'<span class="react-scope"><img src="media/scope.png" alt="卡通显微镜"></span><p><b>好办法！放大看一看</b><span>点一下，放大看看</span></p>',cls:'ok'}};
 export function methods(state,title){
  const cards=[['smell','media/ico_smell.png','闻一闻'],['taste','media/ico_taste.png','尝一尝'],['look','media/ico_look.png','看一看']];
  return title('哪个办法，又安全又管用？')+`<div class="method-row big">${cards.map(([k,img,t],n)=>`<button class="method-card m-${k}" data-method="${k}" style="--i:${n}"><img class="method-img" src="${img}" alt=""><strong>${t}</strong></button>`).join('')}</div><div class="react-pop" aria-live="polite"></div>`;
@@ -88,8 +89,7 @@ const face=(kind)=>{
 export function ions(state,title){
  if(state.step===0)return title('一粒盐里面，是什么？')+
   `<div class="grain-stage"><svg class="salt-grain" data-action="advance" tabindex="0" style="cursor:zoom-in" viewBox="0 0 300 300" role="img" aria-label="一粒小方块盐"><path d="M50 95L150 45L250 95L150 145Z" fill="#ffffff"/><path d="M50 95L150 145V255L50 205Z" fill="#d6e2ee"/><path d="M150 145L250 95V205L150 255Z" fill="#eaf1f7"/></svg></div>`;
- return title('钠<span class="ionf p">（Na⁺）</span>和氯<span class="ionf p">（Cl⁻）</span>，怎样排在一起？')+
-  `<div class="zoom-flash" aria-hidden="true"></div><svg id="ion-field" class="ion-field" viewBox="0 0 1600 900" role="application" aria-label="拖动钠和氯：同类会弹开，钠和氯会吸住连起来">
+ return title('钠<span class="ionf p">（Na⁺）</span>和氯<span class="ionf p">（Cl⁻）</span>')+(state.ionReset?'':'<div class="zoom-flash" aria-hidden="true"></div>')+'<button class="review-next-step round ion-reset" data-action="ionreset" aria-label="撤销，重新排"><span aria-hidden="true">↺</span></button>'+`<svg id="ion-field" class="ion-field" viewBox="0 0 1600 900" role="application" aria-label="拖动钠和氯：同类会弹开，钠和氯会吸住连起来">
    
    <g id="ion-rods"></g>
    ${START.map(([k,x,y],i)=>`<g class="ion ion-${k}" data-ion="${i}" data-kind="${k}" style="transform:translate(${x}px,${y}px)"><g class="ion-idle" style="--d:${(i*.37).toFixed(2)}s"><circle class="ion-glow" r="${R[k]+16}"/><circle class="ion-hit" r="${R[k]*1.35}" fill="transparent"/><image href="${k==='na'?'media/ion_na.png':'media/ion_cl.png'}" x="${-R[k]*2.05}" y="${-R[k]*1.95}" width="${R[k]*4.1}" height="${R[k]*4.1}" preserveAspectRatio="xMidYMid meet"/><text y="${R[k]*1.9+30}" text-anchor="middle"><tspan class="ionf">${k==='na'?'Na⁺':'Cl⁻'}</tspan></text></g></g>`).join('')}

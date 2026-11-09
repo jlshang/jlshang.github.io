@@ -55,7 +55,7 @@ function chapter(n,heading,sub){
 }
 function content(){
  const p=state.page,s=state.step;
- if(p===50)return kitchen(state,title);
+ if(p===50)return kitchen(state,title,stepButtons('有什么办法知道？'));
  if(p===55)return methods(state,title);
  if(p===54)return why(state,title);
  if(p===60)return title('第 1 步：搭一个氯化钠 <span class="ionf t">NaCl</span>')+host('nacl1',{id:'nacl-pair',height:9,yaw:.35,pitch:.25},'left:100px;top:200px;width:820px;height:600px')+
@@ -88,9 +88,9 @@ function content(){
    host('caf2-grow',{id:'caf2-big',balls:CAF2_STAGES[s],height:[20,23,27,32][s],yaw:.5,pitch:.32},'left:70px;top:150px;width:960px;height:690px')+
    `<div class="ch-col side">${fl}<p class="grow-note">点 <b>＋</b>，一块接一块拼大</p></div>`+plusButton('萤石再拼一块');}
  if(p===65)return title('拓展挑战：养一颗大盐粒')+
-  `<ol class="grow-steps"><li>请大人帮忙，配一杯很浓的盐水：盐放到化不开为止。</li><li>倒进干净的浅盘或杯子，放在不会被碰到的地方。</li><li>每天在差不多的时间，拍一张照片。</li><li>记一记：长出盐粒了吗？有多大？是什么形状？</li></ol>`+
+  `<ol class="grow-steps"><li>请大人帮忙，配一杯很浓的盐水</li><li>倒进浅盘，放在安静的地方</li><li>每天同一时间，拍一张照片</li><li>记一记：盐粒多大？什么形状？</li></ol>`+
   `<div class="grow-photos"><img src="assets/p26-shape6.png" alt="手指捏着一颗方方的大盐粒（实拍）"><img src="assets/p27-shape5.png" alt="两颗透明的大盐粒（实拍）"></div>`+
-  `<p class="task-safety grow-safe">盐水不入口；用完的盐水请大人处理。</p><button class="record-open" data-action="record">打开观察记录 ↗</button>`+(state.record?recordPanel():'');
+  `<p class="task-safety grow-safe">盐水不入口；用完的盐水请大人处理。</p>`;
  if(p===56)return title('拼搭你喜欢的盐粒')+host('fav-a',{id:'twin-octa',height:19,yaw:.5,pitch:.28},'left:60px;top:170px;width:730px;height:640px')+host('fav-b',{id:'cube-octa',height:28,yaw:.55,pitch:.32},'left:810px;top:170px;width:730px;height:640px');
  if(p===63){
   const stages=['cross-3d','grid-1','grid-2','grid-3','grid-4'].map(id=>choose(grid,(q,i)=>models[id].balls.some(b=>b.every((v,k)=>Math.abs(v-q[k])<1e-6))));
@@ -242,7 +242,7 @@ function render(animate=false){
  $('#progress').value=visiblePage();$('#prev').disabled=state.page===1;$('#next').disabled=visiblePage()===LESSON.length;
  updatePanels();resize();
 }
-function goReset(){state.methods=new Set();state.labels=false;}
+function goReset(){state.methods=new Set();state.labels=false;state.saltShown=false;state.ionReset=false;}
 const MODEL_PAGES=new Set([60,61,62,63,38,39,42,44,56,57,58,64]);
 function navCue(n){return n===1?'cover':[5,41].includes(n)?'chapter':n===65?'finish':MODEL_PAGES.has(n)?'model':'page';}
 function go(n){
@@ -264,7 +264,8 @@ function downloadRecord(){
 }
 document.addEventListener('click',e=>{
  if(e.target.closest('.salt-grain')){go(52);if(state.sound)sound.play('grow');return;}
- if(e.target.closest('.react-scope')){go(51);return;}
+ if(e.target.closest('.react-pop.ok')){go(51);return;}
+ if(e.target.closest('.kitchen-art')&&state.page===50&&!state.saltShown){state.saltShown=true;render();if(state.sound)sound.play('pin');return;}
  const b=e.target.closest('button');if(!b)return;
  if(b.dataset.go){go(+b.dataset.go);return;}
  if(b.dataset.guess!==undefined){state.guess=+b.dataset.guess;render();if(state.sound)sound.play('select');return;}
@@ -282,6 +283,7 @@ document.addEventListener('click',e=>{
  if(a==='toc'){state.toc=!state.toc;state.notes=false;updatePanels();}
  if(a==='record'){state.record=!state.record;render();if(state.record)$('[data-record]')?.focus();}
  if(a==='download')downloadRecord();
+ if(a==='ionreset'){state.ionReset=true;render();if(state.sound)sound.play('reset');}
  if(a==='labels'){state.labels=!state.labels;render();if(state.sound)sound.play('pin');}
 });
 document.addEventListener('input',e=>{
