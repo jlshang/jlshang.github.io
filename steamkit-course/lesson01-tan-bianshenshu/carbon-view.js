@@ -166,14 +166,14 @@
 
     /* orange angle sectors at a ball: [[c,a,b],...] (model coords) */
     const arcs = new THREE.Group(); extra.add(arcs);
-    function addArc(c, a, b, r = 2.6) {
+    function addArc(c, a, b, r = 2.6, ring = 0) {
       const C0 = vec(c).sub(center), u = vec(a).sub(vec(c)).normalize(), v = vec(b).sub(vec(c)).normalize(), th = Math.acos(Math.max(-1, Math.min(1, u.dot(v)))), w = v.clone().addScaledVector(u, -u.dot(v)).normalize();
-      const pos = [], n = 24; for (let i = 0; i < n; i++) { const t0 = (th * i) / n, t1 = (th * (i + 1)) / n; const p0 = u.clone().multiplyScalar(Math.cos(t0)).addScaledVector(w, Math.sin(t0)).multiplyScalar(r), p1 = u.clone().multiplyScalar(Math.cos(t1)).addScaledVector(w, Math.sin(t1)).multiplyScalar(r); pos.push(0, 0, 0, p0.x, p0.y, p0.z, p1.x, p1.y, p1.z); }
+      const pos = [], n = 24, gap = ring ? .28 : 0; for (let i = 0; i < n; i++) { const t0 = gap + ((th - 2 * gap) * i) / n, t1 = gap + ((th - 2 * gap) * (i + 1)) / n; const p0 = u.clone().multiplyScalar(Math.cos(t0)).addScaledVector(w, Math.sin(t0)).multiplyScalar(r), p1 = u.clone().multiplyScalar(Math.cos(t1)).addScaledVector(w, Math.sin(t1)).multiplyScalar(r); if (ring) { const k = (r - ring) / r, q0 = p0.clone().multiplyScalar(k), q1 = p1.clone().multiplyScalar(k); pos.push(q0.x, q0.y, q0.z, p0.x, p0.y, p0.z, p1.x, p1.y, p1.z, q0.x, q0.y, q0.z, p1.x, p1.y, p1.z, q1.x, q1.y, q1.z); } else pos.push(0, 0, 0, p0.x, p0.y, p0.z, p1.x, p1.y, p1.z); }
       const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
       const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: lin(0xff8a2a), transparent: true, opacity: .85, side: THREE.DoubleSide, depthTest: false })); m.renderOrder = 5; m.position.copy(C0); m.userData.t0 = performance.now(); m.scale.setScalar(.001); arcs.add(m);
     }
     function clearArcs() { while (arcs.children.length) { const m = arcs.children[0]; arcs.remove(m); m.geometry.dispose(); } }
-    let anim = null, raf = 0, alive = true, growT0 = null, growDone = null, slide = null, shake = null, introAnim = null;
+    let morph = null, spinY = 0, anim = null, raf = 0, alive = true, growT0 = null, growDone = null, slide = null, shake = null, introAnim = null;
     const sph = () => { const p = camera.position, r = p.length(); return { r, th: Math.atan2(p.x, p.z), ph: Math.acos(p.y / r) }; };
     const setSph = (r, th, ph) => { camera.position.set(r * Math.sin(ph) * Math.sin(th), r * Math.cos(ph), r * Math.sin(ph) * Math.cos(th)); camera.lookAt(0, 0, 0); };
     const ease = (t) => (t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
@@ -197,6 +197,8 @@
       arcs.children.forEach((m) => { const w = Math.min(1, (now - m.userData.t0) / 350); m.scale.setScalar(Math.max(.001, w)); });
       if (dashes) { const t = Math.min(1, (now - dashes.userData.t0) / 600); dashes.children.forEach((c, i) => c.visible = i / dashes.children.length <= t); }
       groups.forEach((g) => { if (g.target) { g.offset.lerp(g.target, .12); g.obj.position.copy(g.offset); if (g.offset.distanceTo(g.target) < .01) { g.offset.copy(g.target); g.obj.position.copy(g.offset); g.target = null; } } });
+      if (morph) morph(now);
+      if (spinY) root.rotation.y += spinY;
       if (slide) slide(now);
       if (shake) shake(now);
       key.position.copy(camera.position).add(V(-20, 30, 10));
@@ -207,6 +209,7 @@
     renderer.domElement.addEventListener("pointerup", () => { renderer.domElement.style.cursor = "grab"; });
 
     const api = {
+      _tmp: null,
       groups,
       setModel(m, animate = true, done, gi = 0) { setGroupModel(groups[gi], m, animate); growDone = done || null; if (!animate || !growing.length) { growDone = null; done && done(); } },
       refit(m, dur = 900) { const pts = m.b.map((p) => vec(p).sub(center)); const a = sph(); const dv = camera.position.clone().normalize(); const d = Math.max(fitDist(dv, pts), dist * .45); animateTo(a.th, a.ph, d, dur); },
@@ -217,6 +220,30 @@
       slideGroup(gi, dir, amp, period = 2600) { const g = groups[gi], base = g.offset.clone(), d = vec(dir).normalize(), t0 = performance.now(); slide = (now) => { const t = (now - t0) / period; g.obj.position.copy(base).addScaledVector(d, amp * Math.sin(t * Math.PI * 2) * Math.min(1, t * 2)); }; },
       stopSlide() { slide = null; groups.forEach((g) => g.obj.position.copy(g.offset)); },
       shakeGroup(gi, amp = .25, dur = 900) { const g = groups[gi], base = g.offset.clone(), t0 = performance.now(); shake = (now) => { const t = (now - t0) / dur; if (t >= 1) { g.obj.position.copy(base); shake = null; return; } g.obj.position.set(base.x + amp * Math.sin(t * 60) * (1 - t), base.y, base.z + amp * Math.cos(t * 47) * (1 - t)); }; },
+      /* arm-by-arm morph between two star models (same order: centre first, then ends) */
+      morphTo(A, B, dur = 1800, done) {
+        const g = groups[0]; g.obj.visible = false; const tmp = new THREE.Group(); root.add(tmp);
+        const c0 = vec(A.b[0]).sub(center), arms = [];
+        const centreBall = new THREE.Mesh(ballGeometry(), mat.white); centreBall.position.copy(c0); tmp.add(centreBall);
+        A.s.forEach(([a, b, kA], k) => {
+          const dA = vec(A.b[b]).sub(vec(A.b[a])), dB = vec(B.b[B.s[k][1]]).sub(vec(B.b[B.s[k][0]])), kB = B.s[k][2];
+          const gA = strutAlongY(dA, dA.length(), kA), gB = strutAlongY(dB, dB.length(), kB);
+          const m = new THREE.Mesh(gA.geo, mat[kA].clone()); m.position.copy(c0); m.quaternion.copy(gA.q); tmp.add(m);
+          const ball = new THREE.Mesh(ballGeometry(), mat.white); tmp.add(ball);
+          arms.push({ m, ball, dA: dA.clone().normalize(), dB: dB.clone().normalize(), LA: dA.length(), LB: dB.length(), gA, gB, cA: new THREE.Color().copy(mat[kA].color), cB: new THREE.Color().copy(mat[kB].color), swapped: false });
+        });
+        const place = (e) => arms.forEach((r) => {
+          const q = r.gA.q.clone().slerp(r.gB.q, e), L = r.LA + (r.LB - r.LA) * e;
+          if (e >= .5 && !r.swapped) { r.m.geometry = r.gB.geo; r.swapped = true; } if (e < .5 && r.swapped) { r.m.geometry = r.gA.geo; r.swapped = false; }
+          r.m.quaternion.copy(q); r.m.scale.y = L / (e >= .5 ? r.LB : r.LA); r.m.material.color.copy(r.cA).lerp(r.cB, e);
+          r.ball.position.copy(c0).add(V(0, 1, 0).applyQuaternion(q).multiplyScalar(L));
+        });
+        place(0); const t0 = performance.now();
+        morph = (now) => { const t = Math.min(1, (now - t0) / dur), e = t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; place(e); if (t >= 1) { morph = null; done && done(); } };
+        api._tmp = tmp;
+      },
+      unmorph() { if (api._tmp) { root.remove(api._tmp); api._tmp = null; } morph = null; groups[0].obj.visible = true; },
+      spin(v) { spinY = v; },
       home(dur = 1100) { animateTo(h0.th, h0.ph, dist, dur); },
       /* look along a model-space direction (camera placed on that side) */
       lookFrom(dirModel, dur = 1400, k = 1) { const w = vec(dirModel).normalize().applyQuaternion(root.quaternion); const r = fitDist(w, fitPts()) * k; animateTo(Math.atan2(w.x, w.z), Math.acos(Math.max(-1, Math.min(1, w.y))), r, dur); },

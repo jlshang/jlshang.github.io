@@ -168,3 +168,22 @@ h2{position:absolute;left:90px;right:90px;top:58px;margin:0;font:56px/1.2 var(--
 /* v2: p14 */
 .later-lab{opacity:0;transition:opacity .35s,transform .35s;transform:translateY(10px)}.later-lab.show{opacity:1;transform:none}
 .vs-q{position:absolute;left:760px;top:300px;width:80px;text-align:center;font:150px/1 var(--display);color:var(--orange);opacity:0;transform:scale(.5);transition:opacity .3s,transform .45s cubic-bezier(.2,1.6,.4,1)}.vs-q.show{opacity:1;transform:none}
+/* v3 */
+.z0-pencil{position:absolute;left:1089px;top:4px;width:215px;height:330px;object-fit:contain;pointer-events:none}
+.stroke-ink{fill:none;stroke:#3d4048;stroke-width:26;stroke-linecap:round}
+.hit{fill:none;stroke:transparent;stroke-width:90;stroke-linecap:round;cursor:zoom-in;pointer-events:stroke}
+.z0 .scribble{animation:glowline 2.2s ease-in-out infinite}
+@keyframes glowline{0%,100%{filter:drop-shadow(0 0 0 #e8742a00)}50%{filter:drop-shadow(0 0 14px #e8742acc)}}
+.zl{transform-origin:50% 50%}
+.flake{cursor:zoom-in;transition:filter .2s}.flake:hover{filter:brightness(1.25) drop-shadow(0 0 8px #e8742a)}
+.z1 .flakes-big{animation:breathe 2.6s ease-in-out infinite}
+@keyframes breathe{50%{filter:brightness(1.08)}}
+.c-dot{position:absolute;padding:0;border:0;background:none;cursor:pointer;transform:translate(var(--tx,0),var(--ty,0)) rotate(var(--r,0deg));transition:transform .8s cubic-bezier(.2,1.3,.35,1),opacity .4s,width .8s,height .8s;animation:float 3s ease-in-out infinite}
+.c-dot img{width:100%;height:100%;object-fit:contain;pointer-events:none}
+.c-dot:hover{filter:drop-shadow(0 0 10px #e8742a)}
+.c-dot.faded{opacity:.18}
+.c-dot.picked{z-index:5;animation:none;transform:translate(var(--tx),var(--ty)) rotate(0) scale(2.4)}
+.atom-plain,.atom-hands{transition:opacity .6s}
+.atom-hands{opacity:0}.handed .atom-hands{opacity:1}.handed .atom-plain{opacity:0}
+.slide.on .hello-in{animation:hello .6s ease both}.celebrating .atom-hands{animation:cheer .65s ease 2}
+.atom-field .c-dot img{position:static;display:block;animation:none;width:100%;height:100%}

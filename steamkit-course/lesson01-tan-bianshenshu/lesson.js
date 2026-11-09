@@ -41,6 +41,9 @@ const SPEC={
  layers2:{up:N,elev:20,yaw:12,fit:.78,frame:{b:L0.b.concat(L0.b.map(p=>add(p,LIFT)))}},
  unit:{up:NEG,elev:16,yaw:20,fit:.72,frame:UNIT,steps:C.unit},
  diamond:{up:NEG,elev:16,yaw:20,fit:.82,frame:D2,steps:C.diamond},
+ dia4:{up:NEG,elev:16,yaw:20,fit:.86,frame:C.dia4,steps:[C.dia4]},
+ c60:{up:[0,0,1],elev:10,yaw:0,fit:.86,frame:C.c60,steps:[C.c60]},
+ morph:{up:[0,1,0],elev:8,yaw:0,fit:.62,frame:{b:C.crossM.b.concat(C.tetM.b)},steps:[C.crossM]},
 };
 function mountZome(h){
  const name=h.dataset.model,sp=SPEC[name],st=+(h.dataset.step||0);
@@ -64,31 +67,28 @@ $$('[data-tally]').forEach(c=>c.onclick=()=>{const n=$('.tally-n',c);c._n=(c._n|
 $$('[data-tally-reset]').forEach(b=>b.onclick=()=>{$$('[data-tally]',b.closest('.slide')).forEach(c=>{c._n=0;$('.tally-n',c).textContent=''});cue('tick')});
 // p3 draw
 $$('[data-draw]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),p=$('.paper',s),sv=$('.scribble',s);p.classList.remove('drawing');sv.classList.remove('drawing');void p.offsetWidth;p.classList.add('drawing');sv.classList.add('drawing');cue('tick')});
-// p3 continuous zoom: 笔迹 → 石墨 → 碳原子
+// p3 continuous zoom: 笔迹 → 石墨 → 碳原子 (click the object itself)
 (function(){const svg=$('.flakes-big');if(!svg)return;let h='';let seed=7;const R=()=>(seed=(seed*9301+49297)%233280)/233280;
- for(let i=0;i<46;i++){const x=R()*1500-120,y=R()*640-10,w=180+R()*260,a=(R()-.5)*22,n=3+Math.floor(R()*4);let g='';for(let j=0;j<n;j++){const c=78+Math.round(R()*40),dx=(R()-.5)*30,hh=12+R()*8;g+=`<path d="M${dx} ${j*15} l${w*.08} -${hh*.6} l${w*.9} 0 l${w*.06} ${hh*.6} l-${w*.1} ${hh*.5} l-${w*.86} 0z" fill="rgb(${c},${c+4},${c+12})" stroke="#2a2e35" stroke-width="2.5"/><path d="M${dx+w*.1} ${j*15-hh*.45} l${w*.85} 0" stroke="#ffffff60" stroke-width="3"/>`}h+=`<g transform="translate(${x} ${y}) rotate(${a})">${g}</g>`}
+ for(let i=0;i<46;i++){const x=R()*1500-120,y=R()*640-10,w=180+R()*260,a=(R()-.5)*22,n=3+Math.floor(R()*4);let g='';for(let j=0;j<n;j++){const c=78+Math.round(R()*40),dx=(R()-.5)*30,hh=12+R()*8;g+=`<path d="M${dx} ${j*15} l${w*.08} -${hh*.6} l${w*.9} 0 l${w*.06} ${hh*.6} l-${w*.1} ${hh*.5} l-${w*.86} 0z" fill="rgb(${c},${c+4},${c+12})" stroke="#2a2e35" stroke-width="2.5"/><path d="M${dx+w*.1} ${j*15-hh*.45} l${w*.85} 0" stroke="#ffffff60" stroke-width="3"/>`}h+=`<g class="flake" data-dive transform="translate(${x} ${y}) rotate(${a})">${g}</g>`}
  svg.innerHTML=h;
- const f=$('.atom-field');let k='';seed=3;for(let i=0;i<22;i++){const x=R()*1240,y=R()*520,sz=130+R()*70,r=(R()-.5)*40;k+=`<img src="a/atom.webp" alt="" style="left:${x-20}px;top:${y-20}px;width:${sz}px;--r:${r}deg;animation-delay:${-R()*3}s">`}f.innerHTML=k})();
-const ZF=[[640,382],[690,330]];  // zoom focus points (inside the stroke, inside a flake)
-function zoomReset(s){const L=$$('.zl',s);L.forEach((l,i)=>{l.style.transition='none';l.style.transform='none';l.style.clipPath=i?'circle(0px at 50% 50%)':'none';l.style.zIndex=i;l.classList.remove('tagged')});s._z=0}
-$$('[data-zoom]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),L=$$('.zl',s),k=s._z||0;if(k>=2)return;s._z=k+1;const cur=L[k],nxt=L[k+1],[fx,fy]=ZF[k];
- nxt.style.transition='none';nxt.style.transform='none';nxt.style.clipPath=`circle(70px at ${fx}px ${fy}px)`;
- cur.style.transformOrigin=`${fx}px ${fy}px`;cur.style.transition='transform 1.9s cubic-bezier(.5,0,.3,1)';
- const ring=$('.zoom-ring',s);ring.style.left=fx+'px';ring.style.top=fy+'px';ring.classList.remove('go');void ring.offsetWidth;ring.classList.add('go');
- void nxt.offsetWidth;nxt.style.transition='clip-path 1.9s cubic-bezier(.7,0,.35,1)';
- requestAnimationFrame(()=>{cur.style.transform='scale(4)';nxt.style.clipPath=`circle(1600px at ${fx}px ${fy}px)`});cue('fly');
- later(()=>{nxt.classList.add('tagged');cue('correct');if(k===1){b.disabled=true;later(()=>celebrate(s),300)}},1900)});
+ const f=$('.atom-field');let k='';seed=5;const used=[];for(let i=0;i<40&&used.length<16;i++){const x=40+R()*1120,y=20+R()*420;if(used.some(([u,v])=>Math.hypot(u-x,v-y)<190))continue;used.push([x,y]);const sz=130+R()*50,r=(R()-.5)*30;k+=`<button class="c-dot" style="left:${x}px;top:${y}px;width:${sz}px;height:${sz}px;--r:${r}deg;animation-delay:${-R()*3}s" aria-label="一个碳原子"><img src="a/atom_body.webp" alt=""></button>`}f.innerHTML=k})();
+function zoomReset(s){$$('.zl',s).forEach((l,i)=>{l.getAnimations().forEach(a=>a.cancel());l.style.opacity=i?0:1;l.style.pointerEvents=i?'none':'auto';l.classList.remove('tagged')});$$('.c-dot',s).forEach(d=>d.classList.remove('picked','faded'));s._z=0;s._dive=false}
+function dive(s,ev){if(s._dive)return;const L=$$('.zl',s),k=s._z||0;if(k>=2)return;s._dive=true;
+ const zr=$('.zoomer',s).getBoundingClientRect(),sc=zr.width/1380,fx=(ev.clientX-zr.left)/sc,fy=(ev.clientY-zr.top)/sc,cur=L[k],nxt=L[k+1],o=`${fx}px ${fy}px`;
+ cur.style.transformOrigin=o;nxt.style.transformOrigin=o;nxt.style.pointerEvents='auto';cur.style.pointerEvents='none';
+ const D=1700,E='cubic-bezier(.55,0,.25,1)';
+ cur.animate([{transform:'scale(1)',filter:'blur(0px)',opacity:1},{transform:'scale(9)',filter:'blur(2px)',opacity:1,offset:.6},{transform:'scale(22)',filter:'blur(14px)',opacity:0}],{duration:D,easing:E,fill:'forwards'});
+ nxt.animate([{transform:'scale(.12)',filter:'blur(12px)',opacity:0},{transform:'scale(.35)',filter:'blur(8px)',opacity:0,offset:.45},{transform:'scale(1)',filter:'blur(0px)',opacity:1}],{duration:D,easing:E,fill:'forwards'});
+ cue('fly');s._z=k+1;later(()=>{nxt.classList.add('tagged');cue('correct');s._dive=false},D)}
+$$('.zoomer').forEach(z=>z.addEventListener('click',ev=>{const s=z.closest('.slide');if(ev.target.closest('[data-dive]'))dive(s,ev);
+ const d=ev.target.closest('.c-dot');if(d&&s._z===2&&!d.classList.contains('picked')){$$('.c-dot',s).forEach(x=>x.classList.toggle('faded',x!==d));const zr=z.getBoundingClientRect(),sc=zr.width/1380;d.style.setProperty('--tx',(690-(parseFloat(d.style.left)+d.offsetWidth/2))+'px');d.style.setProperty('--ty',(270-(parseFloat(d.style.top)+d.offsetHeight/2))+'px');d.classList.add('picked');cue('select');later(()=>celebrate(s),600)}}));
 // p5 hands
-$$('[data-hands]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),bs=$$('.hand-badge',s),k=s._h=(s._h||0)+1;if(k>4)return;bs[k-1].classList.add('show');$('.big-count',s).textContent=k;cue(k===4?'correct':'tick');if(k===4){b.disabled=true;later(()=>celebrate(s),400)}});
-$$('[data-hands-reset]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');s._h=0;$$('.hand-badge',s).forEach(x=>x.classList.remove('show'));$('.big-count',s).textContent='';$('[data-hands]',s).disabled=false;cue('tick')});
-// Q 版碳的手
-function mountArms(h){const p15=h.dataset.start==='cross';const v=ArmView.mount(h,{body:'a/atom_body.webp',start:h.dataset.start,size:p15?330:330,dy:p15?10:40,reach:p15?.92:.85,colors:p15?['#ff8a2a','#f4f5f8','#f4f5f8','#f4f5f8']:[],spin:p15?.28:0,elev:p15?22:0,yaw0:p15?.35:0});h._b=v;views.push(v);return v}
-$$('[data-arm-spread]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=$('.arm-host',s);h._b.set('two');b.disabled=true;pop($('[data-cap="1"]',s));cue('fly');$('[data-arm-add]',s).classList.add('nudge')});
-$$('[data-arm-add]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=$('.arm-host',s);if(!$('[data-arm-spread]',s).disabled){h._b.set('two');$('[data-arm-spread]',s).disabled=true}b.classList.remove('nudge');h._b.set('three0');cue('select');later(()=>{h._b.set('three');cue('fly')},700);b.disabled=true;$('[data-cap="1"]',s).hidden=true;later(()=>{pop($('[data-cap="2"]',s));celebrate(s)},1700)});
-$$('[data-release]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=$('.arm-host',s);h._b.set('tet');b.disabled=true;cue('fly');later(()=>{$('[data-guess="tet"]',s).classList.add('right');celebrate(s)},1400)});
+$$('[data-hands]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),bs=$$('.hand-badge',s),k=s._h=(s._h||0)+1;if(k>4)return;if(k===1){s.classList.add('handed');cue('fly')}bs[k-1].classList.add('show');$('.big-count',s).textContent=k;cue(k===4?'correct':'tick');if(k===4){b.disabled=true;later(()=>celebrate(s),400)}});
+$$('[data-hands-reset]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');s._h=0;s.classList.remove('handed');$$('.hand-badge',s).forEach(x=>x.classList.remove('show'));$('.big-count',s).textContent='';$('[data-hands]',s).disabled=false;cue('tick')});
+$$('[data-release]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),v=host(s)._v;b.disabled=true;cue('fly');v.morphTo(C.crossM,C.tetM,1900,()=>{v.spin(.004);$('[data-guess="tet"]',s).classList.add('right');cue('correct');celebrate(s)})});
 // p8 three hands
-const HAND_CAP=['白球的三角孔朝上','隔一个孔，插一根蓝短棍','再隔一个孔，插第 2 根','3 只手，平平地分开','朝上的孔空着：第 4 只手'];
-$$('[data-hand-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=host(s),k=h._step+1;if(k>4)return;if(k<=3){stepTo(s,h,k,HAND_CAP);cue('fly')}else{h._step=4;h._v.setMarker(C.hand3.b[0],N,true);const cap=$('.step-cap',s);cap.textContent=HAND_CAP[4];pop(cap);cue('correct');later(()=>celebrate(s),500);b.disabled=true}});
+const HAND_CAP=['白球的三角孔朝上','隔一个孔，插一根蓝短棍','再隔一个孔，插第 2 根','3 只手，离得一样远','朝上的孔空着：第 4 只手'];
+$$('[data-hand-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=host(s),k=h._step+1;if(k>4)return;if(k<=3){stepTo(s,h,k,HAND_CAP);cue('fly');if(k===3)later(()=>{const P=C.hand3.b;[[1,2],[2,3],[3,1]].forEach(([i,j],n)=>later(()=>{h._v.addArc(P[0],P[i],P[j],3.1,1.1);cue('tick')},n*300))},1300)}else{h._step=4;h._v.setMarker(C.hand3.b[0],N,true);const cap=$('.step-cap',s);cap.textContent=HAND_CAP[4];pop(cap);cue('correct');later(()=>celebrate(s),500);b.disabled=true}});
 // p9 ring
 $$('[data-ring-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=host(s),k=h._step+1;if(k>4)return;h._step=k;cue('fly');
  h._v.setModel(C.ring[k],true,()=>{if(k<4)return;b.disabled=true;const R=C.ring[4].b,ring=[0,1,4,5,6,3].map(i=>R[i]);let n=0;const out=$('.big-count',s);
@@ -137,7 +137,7 @@ function enter(s){
  s.classList.remove('celebrating');
  $$('.zome-host',s).forEach(h=>{h.dataset.step=h.dataset.step||'0';h._step=+h.dataset.step;if(h.classList.contains('later')){h.classList.remove('show');return}mountZome(h)});
  $$('.zome-host.later',s).forEach(h=>{h._v=null});
- $$('.arm-host',s).forEach(mountArms);if($('.zoomer',s))zoomReset(s);
+ if($('.zoomer',s))zoomReset(s);s.classList.remove('handed');
  $$('.model-name.later').forEach(x=>x.classList.remove('show'));
  $$('.ang-n,.push-res',s).forEach(x=>x.classList.remove('show','pop'));
  $$('.caption.step-cap',s).forEach(c=>{c.textContent=s.querySelector('[data-hand-next]')?HAND_CAP[0]:s.querySelector('[data-unit-next]')?UNIT_CAP[0]:'';c.hidden=false});
@@ -149,11 +149,11 @@ function enter(s){
  $$('.guess-card',s).forEach(x=>x.classList.remove('right'));
  $$('.paper,.scribble:not(.on)',s).forEach(x=>x.classList.remove('drawing'));
  $$('.controls .action',s).forEach(b=>{b.disabled=false;b.classList.remove('nudge');b.removeAttribute('aria-pressed')});
- s._h=s._a=s._f=s._layer=s._chair=s._done=0;if(!$('.zoomer',s))s._z=0;
+ s._h=s._a=s._f=s._layer=s._chair=s._done=0;
  // p16: point at the first hole
  const u=$('[data-model="unit"]',s);if(u&&u._v)later(()=>u._v.setMarker(UNIT.b[0],N,true),900);
 }
-function leave(){timers.forEach(clearTimeout);timers=[];views.forEach(v=>v.dispose());views=[];$$('.zome-host,.arm-host').forEach(h=>{h._v=null;h._b=null});bits=[];cx.clearRect(0,0,1600,900)}
+function leave(){timers.forEach(clearTimeout);timers=[];views.forEach(v=>v.dispose());views=[];$$('.zome-host').forEach(h=>{h._v=null});bits=[];cx.clearRect(0,0,1600,900)}
 function go(i,force){i=Math.max(0,Math.min(slides.length-1,i));if(i!==current)cue('page');leave();slides.forEach((s,n)=>{s.hidden=n!==i;s.classList.remove('on')});current=i;const s=slides[i];void s.offsetWidth;s.classList.add('on');enter(s);
  $('#prev').disabled=i===0;$('#next').disabled=i===slides.length-1;$('#count').textContent=`${i+1} / ${slides.length}`;$('#progress i').style.width=(i+1)/slides.length*100+'%';
  const nt=$('#notes');nt.replaceChildren();const close=document.createElement('button');close.className='overlay-close';close.textContent='关闭 ×';close.onclick=()=>toggle('notes','btnNotes',false);const title=document.createElement('h3');title.textContent=`${i+1}. ${s.dataset.title}（${s.dataset.minutes} 分钟）`;nt.append(close,title);$('.notes',s).textContent.trim().split('\n').forEach(line=>{const p=document.createElement('p');p.textContent=line.trim();nt.append(p)});
