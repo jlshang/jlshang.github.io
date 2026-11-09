@@ -77,10 +77,10 @@ export function mountModel(host,spec){
   draw();share();
  };
  let introFrame=0;
- function tweenView(from,to,dur,done){
+ function tweenView(from,to,dur,done,ease){
   cancelAnimationFrame(introFrame);let t0=0,n=0;
   const step=now=>{if(disposed)return;if(n++<2){t0=now;introFrame=requestAnimationFrame(step);return;}
-   const t=Math.min(1,(now-t0)/dur),e=1-Math.pow(1-t,3);
+   const t=Math.min(1,(now-t0)/dur),e=t>=1?1:ease==='wobble'?1-Math.pow(1-t,2)*Math.cos(2.2*Math.PI*t):1-Math.pow(1-t,3);
    view={...view,yaw:from.yaw+(to.yaw-from.yaw)*e,pitch:from.pitch+(to.pitch-from.pitch)*e,height:from.height+(to.height-from.height)*e};draw();
    if(t<1)introFrame=requestAnimationFrame(step);else{host.dataset.intro='done';done&&done();}};
   introFrame=requestAnimationFrame(step);
@@ -93,16 +93,16 @@ export function mountModel(host,spec){
   // swing (small side-to-side settle), rise (slides up while fading in).
   const kind=typeof spec.intro==='string'?spec.intro:'spin';
   const FROM={spin:{yaw:base.yaw-Math.PI,pitch:base.pitch+.1,height:base.height*1.15,dur:2400},
-   zoom:{yaw:base.yaw-.35,pitch:base.pitch,height:base.height*2.6,dur:1800},
-   tilt:{yaw:base.yaw+.25,pitch:Math.min(1.35,base.pitch+1.05),height:base.height*1.1,dur:2000},
-   swing:{yaw:base.yaw+.9,pitch:base.pitch+.05,height:base.height*1.05,dur:1700},
-   rise:{yaw:base.yaw,pitch:base.pitch-.25,height:base.height*1.2,dur:1500}}[kind]||null;
+   zoom:{yaw:base.yaw-.6,pitch:base.pitch,height:base.height*5,dur:2200},
+   tilt:{yaw:base.yaw+.3,pitch:1.5,height:base.height*1.15,dur:2300},
+   swing:{yaw:base.yaw+.8,pitch:base.pitch+.45,height:base.height*1.25,dur:2600},
+   rise:{yaw:base.yaw,pitch:base.pitch-.35,height:base.height*1.1,dur:1700}}[kind]||null;
   const from={...base,...FROM,dur:undefined};
   view={...from};draw();host.dataset.intro='running';
-  canvas.style.opacity='0';canvas.style.transition='opacity 1.2s ease-out'+(kind==='rise'?',transform 1.5s cubic-bezier(.2,1,.3,1)':'');
-  if(kind==='rise')canvas.style.transform='translateY(60px)';
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{canvas.style.opacity='1';if(kind==='rise')canvas.style.transform='none';}));
-  tweenView(from,base,FROM.dur);
+  canvas.style.opacity='0';canvas.style.transition=(kind==='spin'?'opacity 1.2s ease-out':'opacity .45s ease-out');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{canvas.style.opacity='1';}));
+  if(kind==='rise'&&canvas.animate)canvas.animate([{transform:'translateY(200px) scale(.85)'},{transform:'translateY(-12px) scale(1.02)',offset:.7},{transform:'none'}],{duration:1600,easing:'cubic-bezier(.2,.8,.3,1)'});
+  tweenView(from,base,FROM.dur,null,kind==='swing'?'wobble':null);
  }
  return {update,dispose(){disposed=true;cancelAnimationFrame(frame);cancelAnimationFrame(introFrame);pointers.clear();if(spec.syncView){const set=syncGroups.get(spec.syncView);set?.delete(receiver);if(!set?.size)syncGroups.delete(spec.syncView);}},draw};
 }
