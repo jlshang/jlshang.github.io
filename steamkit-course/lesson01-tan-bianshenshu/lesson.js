@@ -144,7 +144,7 @@ function enter(s){
  $$('.done-cap,.slide-cap,.reveal-cap,.chair-cap,.name-tag,.side-view,.arc-cap',s).forEach(x=>x.hidden=true);
  $$('[data-cap]',s).forEach(x=>x.hidden=true);
  $$('.big-count',s).forEach(x=>x.textContent='');
- $$('.hand-badge,.c-badge:not(.keep),.fam,.later-lab,.vs-q',s).forEach(x=>x.classList.remove('show'));$$('.choice',s).forEach(x=>x.classList.remove('right','wrong','dim'));
+ $$('.hand-badge,.c-badge:not(.keep),.fam',s).forEach(x=>x.classList.remove('show'));$$('.choice',s).forEach(x=>x.classList.remove('right','wrong','dim'));
  $$('.recap',s).forEach(x=>x.classList.remove('open'));
  $$('.guess-card',s).forEach(x=>x.classList.remove('right'));
  $$('.paper,.scribble:not(.on)',s).forEach(x=>x.classList.remove('drawing'));
