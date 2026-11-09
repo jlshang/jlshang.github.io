@@ -48,12 +48,12 @@ const SPEC={
 function mountZome(h){
  const name=h.dataset.model,sp=SPEC[name],st=+(h.dataset.step||0);
  let groups;
- if(name==='layers')groups=[{model:L0},{model:L0,offset:LIFT},{model:SUP}];
+ if(name==='layers')groups=[{model:L0},{model:L0,offset:LIFT}];
  else if(name==='layers2')groups=[{model:L0},{model:L0,offset:LIFT}];
  else groups=[{model:sp.steps[Math.min(st,sp.steps.length-1)]}];
  const frame=h.dataset.step!==undefined&&name==='diamond'?sp.steps[st]:sp.frame;
  const v=CV.mount(h,{groups,up:sp.up,elev:sp.elev,yaw:sp.yaw,fit:sp.fit*(h.classList.contains('mini')?1.1:1),frame,center:centroid(sp.frame||groups[0].model)});
- if(name==='layers'){v.showGroup(1,false);v.showGroup(2,false)}
+ if(name==='layers'){v.showGroup(1,false)}
  h._v=v;h._step=st;views.push(v);
  if(!reduce&&h.dataset.still===undefined)v.intro(name==='layers'||name==='layers2'?'drop':name==='unit'?'swing':name.startsWith('diam')?'zoom':name==='net'||name==='ring'?'rise':'spin');
  return v}
@@ -97,12 +97,12 @@ $$('[data-ring-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=h
 $$('[data-arcs]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),v=host(s)._v,P=C.hex.b;b.disabled=true;let n=0;const out=$('.big-count',s);
  const step=()=>{const i=n;v.addArc(P[i],P[(i+5)%6],P[(i+1)%6]);n++;out.textContent=n;cue('tick');if(n<6)later(step,550);else later(()=>{pop($('.arc-cap',s));celebrate(s)},400)};step()});
 // p11 net
-$$('[data-net-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=host(s),k=h._step+1;if(k>4)return;h._step=k;h._v.setModel(C.net[k],true);cue('fly');if(k===4){b.disabled=true;$('[data-net-name]',s).classList.add('nudge')}});
+$$('[data-net-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=host(s),k=h._step+1;if(k>4)return;h._step=k;h._v.setModel(C.net[k],true);cue('fly');if(k===4){b.disabled=true;later(()=>celebrate(s),1500)}});
 $$('[data-net-name]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=host(s);if(h._step<4){h._step=4;h._v.setModel(C.net[4],true);$('[data-net-next]',s).disabled=true}b.classList.remove('nudge');pop($('.name-tag',s));cue('correct');later(()=>celebrate(s),300)});
 // p12 layers
 const SLIDE_DIR=C.hand3.b[1].map((x,i)=>x-C.hand3.b[0][i]);
-$$('[data-layer-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),v=host(s)._v;b.disabled=true;cue('fly');v.dropIn(1,LIFT.map(x=>x*3.2),()=>{v.showGroup(2,true);cue('select')});s._layer=1;$('[data-layer-push]',s).classList.add('nudge')});
-$$('[data-layer-push]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),v=host(s)._v;if(!s._layer){$('[data-layer-next]',s).click();return}b.classList.remove('nudge');v.showGroup(2,false);v.slideGroup(1,SLIDE_DIR,6.5,2600);pop($('.slide-cap',s));cue('fly');setPressed(b,true)});
+$$('[data-layer-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),v=host(s)._v;b.disabled=true;cue('fly');v.dropIn(1,LIFT.map(x=>x*3.2),()=>cue('select'));s._layer=1;$('[data-layer-push]',s).classList.add('nudge')});
+$$('[data-layer-push]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),v=host(s)._v;if(!s._layer){$('[data-layer-next]',s).click();return}b.classList.remove('nudge');v.slideGroup(1,SLIDE_DIR,6.5,2600);pop($('.slide-cap',s));cue('fly');setPressed(b,true)});
 $$('[data-layer-why]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),p=$('.side-view',s);p.hidden=false;p.classList.remove('show');void p.offsetWidth;p.classList.add('show');cue('correct')});
 $$('.side-view .row').forEach(r=>r.innerHTML='<img src="a/atom.webp" alt="">'.repeat(3));
 // p13 choice
@@ -122,9 +122,9 @@ $$('[data-chair-side]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),v=
  const c=centroid({b:CHAIR}),a=CHAIR[0].map((x,i)=>x-CHAIR[3][i]),n=cross(CHAIR[0].map((x,i)=>x-c[i]),CHAIR[2].map((x,i)=>x-c[i])),side=cross(n,a);v.lookFrom(side,1500,.85);later(()=>{pop($('.chair-cap',s));cue('correct')},1500)});
 function cross(a,b){return[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]]}
 // p19 push
-$$('[data-push]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),[g,d]=$$('.zome-host',s);g._v.moveGroup(1,add(LIFT,SLIDE_DIR,1.6));d._v.shakeGroup(0,.5,900);cue('fly');$$('.push-res',s).forEach((x,i)=>later(()=>{x.classList.add('show','pop');cue(i?'wrong':'select')},500+i*700));b.disabled=true});
+$$('[data-push]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),d=host(s);d._v.shakeGroup(0,.5,900);cue('wrong');later(()=>pop($('.push-cap',s)),600);b.disabled=true});
 // p20 family
-$$('[data-fam-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),f=$$('.fam',s),k=s._f||0;if(k>=f.length)return;f[k].classList.add('show');s._f=k+1;cue('select');if(s._f===f.length){b.disabled=true;later(()=>celebrate(s),400)}});
+$$('[data-fam-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),f=$$('.fam:not(.keep)',s),k=s._f||0;if(k>=f.length)return;f[k].classList.add('show');s._f=k+1;cue('select');if(s._f===f.length){b.disabled=true;later(()=>celebrate(s),400)}});
 // p21 recap
 $$('[data-recap]').forEach(c=>c.onclick=()=>{c.classList.add('open');cue('select');const s=c.closest('.slide');if($$('[data-recap]',s).every(x=>x.classList.contains('open')))later(()=>celebrate(s),500)});
 // common
@@ -141,10 +141,10 @@ function enter(s){
  $$('.model-name.later').forEach(x=>x.classList.remove('show'));
  $$('.ang-n,.push-res',s).forEach(x=>x.classList.remove('show','pop'));
  $$('.caption.step-cap',s).forEach(c=>{c.textContent=s.querySelector('[data-hand-next]')?HAND_CAP[0]:s.querySelector('[data-unit-next]')?UNIT_CAP[0]:'';c.hidden=false});
- $$('.done-cap,.slide-cap,.reveal-cap,.chair-cap,.name-tag,.side-view,.arc-cap',s).forEach(x=>x.hidden=true);
+ $$('.done-cap,.slide-cap,.reveal-cap,.chair-cap,.name-tag,.side-view,.arc-cap,.push-cap',s).forEach(x=>x.hidden=true);
  $$('[data-cap]',s).forEach(x=>x.hidden=true);
  $$('.big-count',s).forEach(x=>x.textContent='');
- $$('.hand-badge,.c-badge:not(.keep),.fam',s).forEach(x=>x.classList.remove('show'));$$('.choice',s).forEach(x=>x.classList.remove('right','wrong','dim'));
+ $$('.hand-badge,.c-badge:not(.keep),.fam:not(.keep)',s).forEach(x=>x.classList.remove('show'));$$('.choice',s).forEach(x=>x.classList.remove('right','wrong','dim'));
  $$('.recap',s).forEach(x=>x.classList.remove('open'));
  $$('.guess-card',s).forEach(x=>x.classList.remove('right'));
  $$('.paper,.scribble:not(.on)',s).forEach(x=>x.classList.remove('drawing'));
