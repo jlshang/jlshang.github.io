@@ -39,6 +39,16 @@
   .q{margin:0;color:#3D4A66;font-size:15px}
   .go{margin-top:auto;padding-top:10px;width:100%;display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:13.5px}
   .go b{color:var(--orange);font-size:15px}
+  .unit{margin:34px 0 14px;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+  .unit:first-child{margin-top:0}
+  .unit h2{margin:0;font-family:var(--display);font-weight:400;font-size:30px;color:var(--paper)}
+  .unit h2 b{color:var(--orange);font-weight:400;margin-right:10px}
+  .unit span{color:#AEB7CC;font-size:15px}
+  .card.soon{cursor:default;opacity:.62;box-shadow:none}
+  .card.soon:hover{transform:none;border-color:transparent;box-shadow:none}
+  .card.soon .thumb{background:repeating-linear-gradient(135deg,#1A2338 0 14px,#1E2840 14px 28px)}
+  .soon-mark{font-family:var(--display);font-size:22px;color:#C9D1E4;letter-spacing:.1em}
+  .card.soon .go b{color:var(--muted)}
   footer{margin-top:36px;padding-top:18px;border-top:1px solid rgba(255,255,255,.12);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:#AEB7CC;font-size:13.5px}
   footer a{color:var(--sun)}
   @media (max-width:520px){header{padding-top:22px}.title{font-size:24px}}
@@ -53,30 +63,54 @@
     </div>
   </header>
 
-  <main class="grid" id="grid" aria-label="课程列表"></main>
+  <main id="list" aria-label="课程列表"></main>
 
   <footer>
     <span>上课时按 ← → 翻页，N 看讲师备注，F 全屏</span>
   </footer>
 </div>
 <script>
-// 新增一节课：在这里加一行即可（按节次排序）
-const LESSONS = [
-  { no: 3, title: "六瓣的奇迹", q: "为什么雪花都是六个瓣？", href: "../lesson03-liuban-qiji/", img: "img/l03.webp?v=2", pages: 28 },
-  { no: 4, title: "盐粒为什么是小方块", q: "钠和氯，一个隔一个", href: "../lesson04-yanli-xiaofangkuai/", img: "img/l04.webp", pages: 20 },
-  { no: 5, title: "空间大力士", q: "谁是稳定性之王？三角形！", href: "../lesson05-kongjian-dalishi/", img: "img/l05.webp", pages: 28 },
-  { no: 10, title: "世界的五张王牌", q: "为什么正多面体只有五种？", href: "../lesson10-bolatu-duomianti/", img: "img/l10.webp?v=6", pages: 17 },
-  { no: 11, title: "开普勒的宇宙世界", q: "5 种形状，套出一个宇宙", href: "../lesson11-kaipule-yuzhou/", img: "img/l11.webp?v=3", pages: 20 },
-  { no: 1, title: "碳的变身术", q: "同样是碳，为什么一软一硬？", href: "../lesson01-tan-bianshenshu/", img: "img/l01.webp?v=1", pages: 21 },
+// 课次顺序按 11.10 课程大纲（12 节 · 5 个单元）。新课上线：给对应一行补上 href、img、pages。
+const UNITS = [
+  { no: "一", name: "看不见的排列", tag: "化学 · 自然" },
+  { no: "二", name: "结构与运动", tag: "物理 · 工程" },
+  { no: "三", name: "生命的几何", tag: "生物" },
+  { no: "四", name: "泡泡与高维", tag: "物理 · 艺术" },
+  { no: "五", name: "完美形状与宇宙", tag: "几何 · 天文" },
 ];
-const grid = document.getElementById("grid");
-LESSONS.sort((a, b) => (a.no || 99) - (b.no || 99)).forEach((l) => {
-  const a = document.createElement("a");
-  a.className = "card"; a.href = l.href;
-  a.innerHTML = `<div class="thumb"><img src="${l.img}" alt="${l.title} 封面" loading="lazy"><div class="no">${l.no ? `第 ${l.no} 节` : "新课"}</div></div>
-    <div class="body"><div class="title">${l.title}</div><p class="q">${l.q}</p>
-    <div class="go"><span>${l.pages} 页</span><b>开始上课 →</b></div></div>`;
-  grid.appendChild(a);
+const LESSONS = [
+  { no: 1, unit: 0, title: "碳的变身术", q: "同样是碳，铅笔芯为什么软、钻石为什么硬？", href: "../lesson01-tan-bianshenshu/", img: "img/l01.webp?v=1", pages: 21 },
+  { no: 2, unit: 0, title: "盐粒的形状", q: "厨房里的盐，为什么都是小方块？", href: "../lesson04-yanli-xiaofangkuai/", img: "img/l04.webp", pages: 20 },
+  { no: 3, unit: 0, title: "六瓣的奇迹", q: "雪花为什么都是六个瓣？", href: "../lesson03-liuban-qiji/", img: "img/l03.webp?v=2", pages: 28 },
+  { no: 4, unit: 1, title: "转不倒的陀螺", q: "怎样的陀螺转得最久？" },
+  { no: 5, unit: 1, title: "空间大力士", q: "大桥为什么都是三角形？", href: "../lesson05-kongjian-dalishi/", img: "img/l05.webp", pages: 28 },
+  { no: 6, unit: 1, title: "球馆屋顶的秘密", q: "体育馆的大圆顶，是用什么拼的？" },
+  { no: 7, unit: 2, title: "病毒的盔甲", q: "放大上万倍，病毒为什么像一颗多面骰子？" },
+  { no: 8, unit: 2, title: "生命的螺旋楼梯", q: "病毒注射的 DNA，长什么样？" },
+  { no: 9, unit: 3, title: "吹出方形泡泡", q: "立方体框里，会出现什么形状的泡泡？" },
+  { no: 10, unit: 3, title: "影子里的四维", q: "手电筒照出的「方块套方块」，是谁的影子？" },
+  { no: 11, unit: 4, title: "世界的五张王牌", q: "为什么正多面体只有五种？", href: "../lesson10-bolatu-duomianti/", img: "img/l10.webp?v=6", pages: 17 },
+  { no: 12, unit: 4, title: "开普勒的宇宙世界", q: "五位伙伴套起来，谁在最里面？", href: "../lesson11-kaipule-yuzhou/", img: "img/l11.webp?v=3", pages: 20 },
+];
+const list = document.getElementById("list");
+UNITS.forEach((u, ui) => {
+  const head = document.createElement("div");
+  head.className = "unit";
+  head.innerHTML = `<h2><b>${u.no}</b>${u.name}</h2><span>${u.tag}</span>`;
+  const grid = document.createElement("div");
+  grid.className = "grid";
+  LESSONS.filter((l) => l.unit === ui).sort((a, b) => a.no - b.no).forEach((l) => {
+    const ready = !!l.href;
+    const c = document.createElement(ready ? "a" : "div");
+    c.className = ready ? "card" : "card soon";
+    if (ready) c.href = l.href;
+    const thumb = ready ? `<img src="${l.img}" alt="${l.title} 封面" loading="lazy">` : `<span class="soon-mark">制作中</span>`;
+    c.innerHTML = `<div class="thumb">${thumb}<div class="no">第 ${l.no} 节</div></div>
+      <div class="body"><div class="title">${l.title}</div><p class="q">${l.q}</p>
+      <div class="go"><span>${ready ? l.pages + " 页" : ""}</span><b>${ready ? "开始上课 →" : "即将上线"}</b></div></div>`;
+    grid.appendChild(c);
+  });
+  list.appendChild(head); list.appendChild(grid);
 });
 </script>
 </body>
