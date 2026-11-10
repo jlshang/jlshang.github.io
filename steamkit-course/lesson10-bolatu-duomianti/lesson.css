@@ -302,3 +302,6 @@ h2 em.hl{font-style:normal;color:var(--orange);font-size:1.18em;padding:0 6px}
 
 .banner-text.one h1{font-size:80px;letter-spacing:6px;white-space:nowrap}
 .banner-text.one h1{font-size:70px;letter-spacing:4px}
+
+.goal p .vfe{color:#ffb676;font-weight:700}
+.goal p .vfe i{font-style:normal;font-weight:400;font-size:22px;color:var(--paper);opacity:.8;margin-left:3px}
