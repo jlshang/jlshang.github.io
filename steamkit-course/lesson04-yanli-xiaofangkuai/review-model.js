@@ -68,14 +68,8 @@ export function mountModel(host,spec){
  };
  canvas.onpointerup=canvas.onpointercancel=canvas.onlostpointercapture=e=>{pointers.delete(e.pointerId);pinch=distance();};
  canvas.addEventListener('wheel',e=>{if(!interactive)return;e.preventDefault();view.height=Math.max(base.height*.75,Math.min(base.height*1.7,view.height*Math.exp(e.deltaY*.001)));draw();share();},{passive:false});
- canvas.onkeydown=e=>{
-  if(!interactive)return;
-  if(!e.key.startsWith('Arrow'))return;
-  e.preventDefault();e.stopPropagation();
-  if(e.key==='ArrowLeft')view.yaw+=.12;if(e.key==='ArrowRight')view.yaw-=.12;
-  if(e.key==='ArrowUp')view.pitch=Math.min(1.25,view.pitch+.1);if(e.key==='ArrowDown')view.pitch=Math.max(-1.25,view.pitch-.1);
-  draw();share();
- };
+ // Arrow keys belong to page turning; the model is rotated by dragging only.
+
  let introFrame=0;
  function tweenView(from,to,dur,done,ease){
   cancelAnimationFrame(introFrame);let t0=0,n=0;

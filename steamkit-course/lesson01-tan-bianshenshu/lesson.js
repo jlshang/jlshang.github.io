@@ -173,3 +173,7 @@ addEventListener('keydown',e=>{if(e.key==='Escape'){toggle('overview','btnGrid',
  if(['arrowright','pagedown',' '].includes(k)){e.preventDefault();go(current+1)}else if(['arrowleft','pageup'].includes(k)){e.preventDefault();go(current-1)}else if(k==='home')go(0);else if(k==='end')go(slides.length-1);else if(k==='n')$('#btnNotes').click();else if(k==='g')$('#btnGrid').click();else if(k==='f')$('#btnFull').click();else if(k==='m')$('#btnSound').click()});
 const start=Math.max(0,Math.min(slides.length-1,(parseInt(location.hash.slice(1))||1)-1));current=-1;go(start);
 })();
+
+// After a mouse/touch click, drop focus from the clicked control or model so later key presses
+// (arrow keys for page turning) never draw a keyboard focus frame around it.
+document.addEventListener('pointerup',()=>setTimeout(()=>{const a=document.activeElement;if(a&&a!==document.body&&!a.matches('input,textarea,select'))a.blur();}),true);

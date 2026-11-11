@@ -29,7 +29,7 @@ const INTRO={nacl1:'spin','nacl-row':'zoom',cube:'spin','grow-build':'zoom','cle
 function host(key,spec,style=''){
  if(spec.intro===undefined&&INTRO[key])spec={...spec,intro:INTRO[key]};
  specs.set(key,spec);
- return `<div class="model-host" data-model-key="${key}" data-model="${spec.id}" style="${style}"><canvas tabindex="0" role="img" aria-label="黑白真实连接球与标准杆模型，可旋转、缩放"></canvas><span class="model-status" role="status">三维模型加载中…</span><button class="model-reset" aria-label="恢复本模型初始视角"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10a8 8 0 1 1 1.5 7M4 4v6h6"/></svg><span>恢复视角</span></button></div>`;
+ return `<div class="model-host" data-model-key="${key}" data-model="${spec.id}" style="${style}"><canvas tabindex="-1" role="img" aria-label="黑白真实连接球与标准杆模型，可旋转、缩放"></canvas><span class="model-status" role="status">三维模型加载中…</span><button class="model-reset" aria-label="恢复本模型初始视角"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10a8 8 0 1 1 1.5 7M4 4v6h6"/></svg><span>恢复视角</span></button></div>`;
 }
 const title=(t,sub='')=>`<h1 class="review-title">${t}</h1>${sub?`<p class="review-sub">${sub}</p>`:''}`;
 const dots=(n,i)=>`<div class="step-dots" aria-label="第${i+1}步，共${n}步">${Array.from({length:n},(_,k)=>`<i class="${k<=i?'on':''}"></i>`).join('')}</div>`;
@@ -308,6 +308,9 @@ $('#toc').onclick=()=>{state.toc=!state.toc;state.notes=false;updatePanels();};
 $('#notebutton').onclick=()=>{state.notes=!state.notes;state.toc=false;updatePanels();};
 $('#sound').onclick=()=>{state.sound=!state.sound;sound.setEnabled(state.sound);$('#sound').textContent='声音：'+(state.sound?'开':'关');$('#sound').setAttribute('aria-pressed',state.sound);};
 $('#fullscreen').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();}catch{/* Fullscreen may be denied inside embedding contexts. */}};
+// After a mouse/touch click, drop focus from the clicked control or model so later key presses
+// (arrow keys for page turning) never draw a keyboard focus frame around it.
+document.addEventListener('pointerup',()=>setTimeout(()=>{const a=document.activeElement;if(a&&a!==document.body&&!a.matches('input,textarea,select'))a.blur();}),true);
 document.addEventListener('keydown',e=>{
  if(e.target.matches('input,textarea')||e.target.closest('.p02-bottle-handle'))return;
  const key=e.key.toLowerCase();

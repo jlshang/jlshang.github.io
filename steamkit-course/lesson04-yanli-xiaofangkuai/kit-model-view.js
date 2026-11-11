@@ -195,13 +195,7 @@ export function mountAll(container){
   });
   const stop=()=>{drag=null;};
   canvas.addEventListener('pointerup',stop);canvas.addEventListener('pointercancel',stop);canvas.addEventListener('lostpointercapture',stop);
-  canvas.addEventListener('keydown',e=>{
-   if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key))return;
-   e.preventDefault();e.stopPropagation();
-   if(e.key==='ArrowLeft')view.yaw+=.12;if(e.key==='ArrowRight')view.yaw-=.12;
-   if(e.key==='ArrowUp')view.pitch=Math.max(-1.3,view.pitch-.12);
-   if(e.key==='ArrowDown')view.pitch=Math.min(1.3,view.pitch+.12);draw();
-  });
+
   host._draw=draw;
   if(key.startsWith('22-')&&id.startsWith('octa-')&&host.classList.contains('reveal'))animateOutline(host);else if(host.dataset.assembly)updateAssembly(host,+host.dataset.step,false);else if(host.dataset.coordination)updateCoordination(host,+host.dataset.step,false);else draw();
  }
