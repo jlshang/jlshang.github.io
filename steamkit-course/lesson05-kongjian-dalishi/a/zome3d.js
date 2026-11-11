@@ -417,5 +417,41 @@
       dispose() { alive = false; window.removeEventListener("resize", onResize); cancelAnimationFrame(raf); renderer.dispose(); host.removeChild(renderer.domElement); },
     };
   }
-  window.Zome3D = { mount, _M: MODELS };
+
+  /* ---------- flat layer: real vZome parts drawn at 2D positions (lesson 5 weight test) ---------- */
+  function flatLayer(host, W, H) {
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    const pr = () => { const k = host.getBoundingClientRect().width / (host.clientWidth || 1); return Math.min(3, (window.devicePixelRatio || 1) * Math.max(1, k)); };
+    renderer.setPixelRatio(pr()); renderer.setSize(host.clientWidth, host.clientHeight); renderer.setClearColor(0x000000, 0); renderer.outputEncoding = THREE.sRGBEncoding;
+    renderer.domElement.style.cssText = "position:absolute;left:0;top:0;width:100%;height:100%;display:block;pointer-events:none";
+    host.appendChild(renderer.domElement);
+    const onResize = () => { renderer.setPixelRatio(pr()); renderer.setSize(host.clientWidth, host.clientHeight); }; window.addEventListener("resize", onResize);
+    const cam = new THREE.OrthographicCamera(0, W, 0, -H, -500, 500); cam.position.set(0, 0, 100);
+    const scene = new THREE.Scene();
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x9aa3b0, 0.6));
+    const key = new THREE.DirectionalLight(0xffffff, 0.8); key.position.set(-3, 4, 6); scene.add(key);
+    const fill = new THREE.DirectionalLight(0xffffff, 0.3); fill.position.set(4, -2, 6); scene.add(fill);
+    const mat = {
+      white: new THREE.MeshStandardMaterial({ color: lin(0xe3e6eb), roughness: 0.42, metalness: 0.02, side: THREE.DoubleSide }),
+      blue: new THREE.MeshStandardMaterial({ color: lin(0x1d6f9e), roughness: 0.32, metalness: 0.05, side: THREE.DoubleSide }),
+      green: new THREE.MeshStandardMaterial({ color: lin(0x0f7d30), roughness: 0.32, metalness: 0.05, side: THREE.DoubleSide }),
+    };
+    const tmpl = {}, tlen = {};
+    ["blue", "green"].forEach((k) => { const P = window.ZOMEPARTS[k]; tlen[k] = Math.hypot(...P.dir); tmpl[k] = strutGeometry(V(0, 0, 0), V(tlen[k], 0, 0), k); });
+    const BG = ballGeometry(), pools = { ball: [], blue: [], green: [] };
+    const get = (kind, n) => { const pool = pools[kind]; while (pool.length <= n) { const m = new THREE.Mesh(kind === "ball" ? BG : tmpl[kind], kind === "ball" ? mat.white : mat[kind]); scene.add(m); pool.push(m); } return pool[n]; };
+    let scale = 10;   // model units -> px; balls use the blue-strut scale
+    function draw(balls, struts, unitPx) {
+      if (unitPx) scale = unitPx / tlen.blue;
+      const used = { ball: 0, blue: 0, green: 0 };
+      for (const [a, b, kind] of struts) { const m = get(kind, used[kind]++), dx = b[0] - a[0], dy = b[1] - a[1], len = Math.hypot(dx, dy);
+        m.visible = true; m.position.set(a[0], -a[1], 0); m.rotation.set(0, 0, Math.atan2(-dy, dx)); const k = len / tlen[kind]; m.scale.set(k, scale * 1.7, scale * 1.7); }
+      for (const p of balls) { const m = get("ball", used.ball++); m.visible = true; m.position.set(p[0], -p[1], 40); m.scale.setScalar(scale * 1.9); }
+      for (const k in pools) pools[k].forEach((m, i) => { if (i >= used[k]) m.visible = false; });
+      renderer.render(scene, cam);
+    }
+    function dispose() { window.removeEventListener("resize", onResize); renderer.dispose(); renderer.domElement.remove(); }
+    return { draw, dispose };
+  }
+  window.Zome3D = { mount, flatLayer, _M: MODELS };
 })();
