@@ -305,3 +305,10 @@ h2 em.hl{font-style:normal;color:var(--orange);font-size:1.18em;padding:0 6px}
 
 .goal p .vfe{color:#ffb676;font-weight:700}
 .goal p .vfe i{font-style:normal;font-weight:400;font-size:22px;color:var(--paper);opacity:.8;margin-left:3px}
+.model-name.model-all{font:56px var(--display);color:#ffb676;letter-spacing:6px;padding-top:44px}
+.model-name.model-all .brace{position:absolute;left:110px;right:110px;top:0;height:30px;border:5px solid #ffb676;border-top:0;border-radius:0 0 26px 26px}
+.model-name.model-all .brace::after{content:"";position:absolute;left:50%;bottom:-18px;width:5px;height:18px;margin-left:-2.5px;background:#ffb676}
+.slide[data-id="fold-tri"] .zfold-host,.slide[data-id="fold-square"] .zfold-host,.slide[data-id="fold-pentagon"] .zfold-host{width:820px !important}
+.zf-real{position:absolute;touch-action:none;cursor:grab;opacity:0;transform:translateY(40px) scale(.85);transition:opacity .5s,transform .7s cubic-bezier(.3,1.5,.5,1)}
+.zf-real.in{opacity:1;transform:none}
+.zf-real::before{content:"";position:absolute;inset:8% 10%;border-radius:50%;background:radial-gradient(closest-side,#ffffff14,transparent);pointer-events:none}

@@ -63,7 +63,8 @@
       let last = performance.now();
       const tick = (now) => {
         if (!this.alive) return; const dt = Math.min(0.05, (now - last) / 1000); last = now;
-        if (Math.abs(this.t - this.target) > 1e-4) { this.t += (this.target - this.t) * Math.min(1, dt * 2.6); if (Math.abs(this.t - this.target) < 0.002) this.t = this.target; this.place(); }
+        if (Math.abs(this.t - this.target) > 1e-4) { const d = this.target - this.t; this.t += this.opt.separate ? Math.sign(d) * Math.min(Math.abs(d), dt * 0.6) : d * Math.min(1, dt * 2.6); if (Math.abs(this.t - this.target) < 0.002) this.t = this.target; this.place(); }
+        if (this.pendWiggle && Math.abs(this.t - this.target) < 0.003) { this.pendWiggle = false; this.wiggle = { u: 0 }; }
         if (this.wiggle) { this.wiggle.u += dt; const u = this.wiggle.u; this.place(Math.sin(u * 14) * 0.05 * Math.max(0, 1 - u / 0.9)); if (u > 0.9) { this.wiggle = null; this.place(); } }
         this.controls.update(); this.key.position.copy(this.cam.position).add(V(-25, 35, 0));
         r.render(sc, this.cam); this.raf = requestAnimationFrame(tick);
@@ -72,13 +73,20 @@
     }
     /* foldColor: rods fade to this colour as the corner closes (blue triangles shown as the green tet/oct corner) */
     set(k, n, color, t = 0, foldColor = null) {
-      this.k = k; this.n = n; this.color = color; this.foldColor = foldColor && foldColor !== color ? foldColor : null; this.t = this.target = t;
+      this.k = k; this.n = n; this.color = color; this.pendWiggle = false; this.wiggle = null; this.foldColor = foldColor && foldColor !== color ? foldColor : null; this.t = this.target = t;
       if (this.rodMat) this.rodMat.dispose(); this.rodMat = this.mat[color].clone();
       while (this.group.children.length) { const m = this.group.children.pop(); if (m.geometry !== this.BG) m.geometry.dispose(); if (m.material && m.material.userData.own) m.material.dispose(); }
       const L = LEN()[color], L0 = layout(k, n, 0, L), L1 = layout(k, n, 1, L);
       this.L = L; this.info = L0;
+      if (this.opt.separate) {
+        /* every polygon is its own piece: own balls, own struts (like loose triangles on the table) */
+        this.balls = []; this.struts = [];
+        L0.faces.forEach((f) => f.forEach((id, j) => { const m = new THREE.Mesh(this.BG, id === 0 && this.opt.markApex !== false ? this.mat.orange : this.mat.white); this.group.add(m); this.balls.push(m);
+          const r = new THREE.Mesh(new THREE.BufferGeometry(), this.rodMat); this.group.add(r); this.struts.push(r); }));
+      } else {
       this.balls = L0.pts.map((_, i) => { const m = new THREE.Mesh(this.BG, i === 0 && this.opt.markApex !== false ? this.mat.orange : this.mat.white); this.group.add(m); return m; });
       this.struts = L0.edges.map(() => { const m = new THREE.Mesh(new THREE.BufferGeometry(), this.rodMat); this.group.add(m); return m; });
+      }
       this.fills = L0.faces.map((_, i) => {
         const bad = L0.over && i === n - 1;
         const mm = new THREE.MeshBasicMaterial({ color: bad ? FILL.bad : FILL[color], transparent: true, opacity: bad ? 0.5 : 0.28, side: THREE.DoubleSide, depthWrite: false });
@@ -86,7 +94,7 @@
       });
       /* camera: fit both the flat and the folded layout (each centred, as place() centres them) from a raised angle */
       const cen = (P) => { const c = V(0, 0, 0); P.forEach((p) => c.add(p)); return P.map((p) => p.clone().sub(c.clone().multiplyScalar(1 / P.length))); };
-      const all = cen(L0.pts).concat(cen(L1.pts)), fit = this.opt.fit || 0.82;
+      const all = this.opt.separate ? cen(this.sepPts(L0, 1)).concat(cen(L1.pts)) : cen(L0.pts).concat(cen(L1.pts)), fit = this.opt.fit || 0.82;
       const el = ((this.opt.elev ?? 38) * Math.PI) / 180, az = ((this.opt.az ?? 0) * Math.PI) / 180, dir = V(Math.sin(az) * Math.cos(el), Math.sin(el), Math.cos(az) * Math.cos(el));
       let d = 100;
       for (let it = 0; it < 6; it++) {
@@ -99,7 +107,16 @@
       this.cam.position.copy(this.home0); this.controls.target.set(0, 0, 0); this.controls.minDistance = d * 0.4; this.controls.maxDistance = d * 1.8; this.controls.update();
       this.place();
     }
+    /* separate pieces: each polygon pulled slightly in (a visible seam) and, while spread, pushed away from the shared corner */
+    sepPts(g, spread) {
+      const out = [], L = this.L;
+      g.faces.forEach((f) => { const c = V(0, 0, 0); f.forEach((id) => c.add(g.pts[id])); c.multiplyScalar(1 / f.length);
+        const dir = c.clone().sub(g.pts[0]); dir.y = 0; if (dir.lengthSq() > 1e-9) dir.normalize();
+        f.forEach((id) => out.push(g.pts[id].clone().sub(c).multiplyScalar(0.9).add(c).addScaledVector(dir, spread * L * 0.5))); });
+      return out;
+    }
     place(jiggle = 0) {
+      if (this.opt.separate) return this.placeSep(jiggle);
       const g = layout(this.k, this.n, Math.max(0, Math.min(1, this.t + jiggle)), this.L), sp = Zome3D.parts.strutGeometry;
       if (jiggle && !g.can) g.pts.forEach((p, i) => { if (i) p.y -= Math.abs(jiggle) * this.L * 0.6; });   // tries to lift, springs back
       const c = V(0, 0, 0); g.pts.forEach((p) => c.add(p)); c.multiplyScalar(1 / g.pts.length); this.center.copy(c);
@@ -114,9 +131,25 @@
       g.faces.forEach((f, i) => { const pos = []; for (let j = 1; j < f.length - 1; j++) pos.push(...P[f[0]].toArray(), ...P[f[j]].toArray(), ...P[f[j + 1]].toArray());
         const m = this.fills[i]; m.geometry.dispose(); m.geometry = new THREE.BufferGeometry(); m.geometry.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3)); });
     }
+    placeSep(jiggle = 0) {
+      const SP = 0.32, t = this.t, ease = (u) => u * u * (3 - 2 * u);
+      const spread = 1 - ease(Math.max(0, Math.min(1, t / SP))), ft = ease(Math.max(0, Math.min(1, (t - SP) / (1 - SP))));
+      const g = layout(this.k, this.n, Math.max(0, Math.min(1, ft + jiggle)), this.L), sp = Zome3D.parts.strutGeometry;
+      if (jiggle && !g.can) g.pts.forEach((p, i) => { if (i) p.y -= Math.abs(jiggle) * this.L * 0.6; });
+      const Q = this.sepPts(g, spread), c = V(0, 0, 0); g.pts.forEach((p) => c.add(p)); c.multiplyScalar(1 / g.pts.length);
+      let q = 0;
+      g.faces.forEach((f, fi) => { const k = f.length, P = Q.slice(q, q + k).map((p) => p.sub(c)), pos = [];
+        P.forEach((p, j) => { this.balls[q + j].position.copy(p); const m = this.struts[q + j]; m.geometry.dispose(); m.geometry = sp(p, P[(j + 1) % k], this.color); });
+        for (let j = 1; j < k - 1; j++) pos.push(...P[0].toArray(), ...P[j].toArray(), ...P[j + 1].toArray());
+        const m = this.fills[fi]; m.geometry.dispose(); m.geometry = new THREE.BufferGeometry(); m.geometry.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+        q += k; });
+    }
     /* returns "folded" | "flat" | "over" so the page can say what happened */
-    fold() { if (this.info.can) { this.target = 1; return "folded"; } this.wiggle = { u: 0 }; return this.info.over ? "over" : "flat"; }
-    unfold() { this.target = 0; }
+    fold() { if (this.info.can) { this.target = 1; return "folded"; }
+      if (this.opt.separate) { this.target = 0.32; this.pendWiggle = true; return this.info.over ? "over" : "flat"; }
+      this.wiggle = { u: 0 }; return this.info.over ? "over" : "flat"; }
+    get done() { return Math.abs(this.t - this.target) < 0.003; }
+    unfold() { this.target = 0; this.pendWiggle = false; }
     home() { const p0 = this.cam.position.clone(), p1 = this.home0.clone(), t0 = performance.now(); this.controls.enabled = false;
       const step = (now) => { const u = Math.min(1, (now - t0) / 900), e = u < 0.5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2;
         const r = p0.length() + (p1.length() - p0.length()) * e; this.cam.position.copy(p0.clone().normalize().lerp(p1.clone().normalize(), e).normalize().multiplyScalar(r)); this.cam.lookAt(0, 0, 0);

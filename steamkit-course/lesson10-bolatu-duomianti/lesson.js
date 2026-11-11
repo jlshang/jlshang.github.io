@@ -130,7 +130,7 @@ function enter(s){
  $$('[data-model-switch]',s).forEach((x,i)=>setPressed(x,i===0));const nameBtn=$('[data-names]',s);if(nameBtn){nameBtn.disabled=false;nameBtn.textContent='看名字'}
  s.classList.remove('nat-on');const natBtn=$('[data-nature]',s);if(natBtn){natBtn.disabled=false;natBtn.textContent='揭晓答案'}
  const tm=$('[data-tile-more]',s);if(tm){tm.disabled=false;tm.textContent='再拼一圈';tm._busy=false}
- $$('.zfold-host',s).forEach(h=>{try{const f=new ZomeFold(h,{k:+h.dataset.k,n:+h.dataset.n,color:h.dataset.color,foldColor:h.dataset.foldColor,t:h.dataset.static!==undefined?1:0,elev:h.dataset.elev?+h.dataset.elev:undefined,fit:h.dataset.fit?+h.dataset.fit:undefined,markApex:h.dataset.static===undefined});h._f=f;zfolds.push(f)}catch(e){console.error('fold failed',e)}});
+ $$('.zfold-host',s).forEach(h=>{try{const f=new ZomeFold(h,{k:+h.dataset.k,n:+h.dataset.n,color:h.dataset.color,foldColor:h.dataset.foldColor,t:h.dataset.static!==undefined?1:0,elev:h.dataset.elev?+h.dataset.elev:undefined,fit:h.dataset.fit?+h.dataset.fit:undefined,markApex:h.dataset.static===undefined,separate:h.dataset.separate!==undefined});h._f=f;zfolds.push(f)}catch(e){console.error('fold failed',e)}});
  $$('[data-zf]',s).forEach((b,i)=>setPressed(b,i===0));$$('.zf-answer',s).forEach(o=>{o.hidden=true;o.textContent=''});$$('[data-zf-fold]',s).forEach(b=>{b.textContent='聚拢';b.classList.remove('is-on')});s._zfFolded=false;
  $$('[data-zome-step]',s).forEach(b=>{b.disabled=false;b.textContent='下一步'});
  const cmpBtn=$('[data-compare-step]',s);if(cmpBtn){cmpBtn.disabled=false;cmpBtn.textContent='看它们的面'}s._cmp=0;s._faceIndex=0;s._vertexIndex=0;$$('.vertex-answer',s).forEach(o=>o.hidden=true);
@@ -140,7 +140,7 @@ function enter(s){
  $$('.tiling-host',s).forEach(h=>{if(!h._tiling)h._tiling=new Tiling(h);h._tiling.setup(+h.dataset.tiling,1)});const tBtn=$('[data-tiling-more]',s);if(tBtn){tBtn.disabled=false;tBtn.textContent='再拼一圈'}
  if(s.dataset.foldDefault){const host=$('.fold-host',s);if(!host._fold)host._fold=new Fold(host);const [k,n]=s.dataset.foldDefault.split(',').map(Number);pickFold(s,k,n)}
 }
-function leave(){timers.forEach(clearTimeout);timers=[];zfolds.forEach(f=>f.dispose());zfolds=[];$$('.zfold-host',slides[current]).forEach(h=>h._f=null);for(const {h,v} of zviews){v.dispose();h._z=null}zviews=[];bits=[];cx.clearRect(0,0,1600,900);$$('.zome-fallback',slides[current]).forEach(x=>x.remove())}
+function leave(){timers.forEach(clearTimeout);timers=[];zfolds.forEach(f=>f.dispose());zfolds=[];$$('.zfold-host',slides[current]).forEach(h=>h._f=null);$$('.zf-real',slides[current]).forEach(h=>{h._f=null;h.hidden=true;h.classList.remove('in')});clearInterval(slides[current]._zfPoll);for(const {h,v} of zviews){v.dispose();h._z=null}zviews=[];bits=[];cx.clearRect(0,0,1600,900);$$('.zome-fallback',slides[current]).forEach(x=>x.remove())}
 function go(i){i=Math.max(0,Math.min(slides.length-1,i));if(i!==current)cue('page');leave();slides.forEach((s,n)=>{s.hidden=n!==i;s.classList.remove('on')});current=i;const s=slides[i];s.classList.add('on');enter(s);$('#prev').disabled=i===0;$('#next').disabled=i===slides.length-1;$('#count').textContent=`${i+1} / ${slides.length}`;$('#progress i').style.width=(i+1)/slides.length*100+'%';$('#notes').replaceChildren();const close=document.createElement('button');close.className='overlay-close';close.textContent='关闭 ×';close.onclick=()=>toggle('notes','btnNotes',false);const title=document.createElement('h3');title.textContent=`${i+1}. ${s.dataset.title}`;$('#notes').append(close,title);$('.notes',s).textContent.split('\n').forEach(line=>{const p=document.createElement('p');p.textContent=line;$('#notes').append(p)});$$('#overview [data-i]').forEach(b=>b.setAttribute('aria-current',String(+b.dataset.i===i)));try{history.replaceState(null,'','#'+(i+1))}catch{} }
 window.__go=go;
 function toggle(id,bid,value){const e=$('#'+id),on=value??e.hidden;e.hidden=!on;$('#'+bid).setAttribute('aria-pressed',String(on));if(on&&id==='overview')$('#overview [aria-current=true]')?.focus();if(!on)$('#'+bid).focus()}
@@ -266,11 +266,15 @@ function setupWall(s){const wall=$('.awall',s),box=$('.acombo',s);if(!wall||!box
 $$('.awall').forEach(w=>setupWall(w.closest('.slide')));
 $$('[data-wall-reset]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');s._wallReset&&s._wallReset();cue('tick')});
 const ZF_NAME={'3,3':'正四面体','3,4':'正八面体','3,5':'正二十面体','4,3':'立方体','5,3':'正十二面体'},ZF_SHAPE={3:'三角形',4:'正方形',5:'正五边形',6:'正六边形'};
-function zfReset(s){s._zfFolded=false;$$('[data-zf-fold]',s).forEach(x=>{x.textContent='聚拢';x.classList.remove('is-on')});$$('.zf-answer',s).forEach(o=>o.hidden=true)}
+function zfReal(s,show){const h=$('.zf-real',s);if(!h)return;clearInterval(s._zfPoll);if(h._f){zfolds=zfolds.filter(z=>z!==h._f);h._f.dispose();h._f=null}h.hidden=true;h.classList.remove('in');
+  if(!show)return;const b=$('[data-zf][aria-pressed=true]',s),f=$('.zfold-host',s)?._f;if(!b||!b.dataset.real||!f)return;
+  s._zfPoll=setInterval(()=>{if(!f.alive){clearInterval(s._zfPoll);return}if(f.t<0.995)return;clearInterval(s._zfPoll);h.hidden=false;
+    const r=new ZomeFold(h,{k:f.k,n:f.n,color:b.dataset.real,t:1,fit:0.78});h._f=r;zfolds.push(r);requestAnimationFrame(()=>h.classList.add('in'));cue('fly')},80)}
+function zfReset(s){s._zfFolded=false;zfReal(s,false);$$('[data-zf-fold]',s).forEach(x=>{x.textContent='聚拢';x.classList.remove('is-on')});$$('.zf-answer',s).forEach(o=>o.hidden=true)}
 $$('[data-zf]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=$('.zfold-host',s),f=h&&h._f;if(!f)return;f.set(+b.dataset.k,+b.dataset.n,b.dataset.color,0,b.dataset.foldColor);$$('[data-zf]',s).forEach(x=>setPressed(x,x===b));zfReset(s);cue()});
 $$('[data-zf-fold]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),f=$('.zfold-host',s)?._f;if(!f)return;const o=$('.zf-answer',s);
   if(s._zfFolded){f.unfold();zfReset(s);b.classList.remove('is-on');cue();return}
-  const r=f.fold();if(r==='folded')cue('fly');else cue('wrong');o.hidden=false;o.classList.toggle('bad',r!=='folded');
+  const r=f.fold();if(r==='folded')cue('fly');else cue('wrong');o.hidden=false;if(r==='folded')zfReal(s,true);o.classList.toggle('bad',r!=='folded');
   if(r==='folded'){s._zfFolded=true;b.textContent='摊开';b.classList.add('is-on');o.textContent=`鼓起来了！是${ZF_NAME[f.k+','+f.n]}的一个角`;later(()=>celebrate(s),900)}
   else o.textContent=r==='over'?`${f.n} 个${ZF_SHAPE[f.k]}挤不下，叠在一起了`:`${f.n} 个${ZF_SHAPE[f.k]}平平的，鼓不起来`;cue()});
 $$('[data-zf-home]').forEach(b=>b.onclick=()=>$('.zfold-host',b.closest('.slide'))?._f?.home());
