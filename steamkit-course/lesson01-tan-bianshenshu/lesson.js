@@ -38,6 +38,7 @@ const SPEC={
  pent:{up:C.pentNormal,elev:62,yaw:0,fit:.86,steps:[C.pent]},
  net:{up:N,elev:50,yaw:12,fit:.85,frame:C.net[4],steps:C.net},
  layers:{up:N,elev:20,yaw:12,fit:.8,frame:{b:L0.b.concat(L0.b.map(p=>add(p,LIFT)))}},
+ stack:{up:N,elev:16,yaw:12,fit:.8,frame:{b:L0.b.concat(L0.b.map(p=>add(p,LIFT)))}},
  layers2:{up:N,elev:20,yaw:12,fit:.78,frame:{b:L0.b.concat(L0.b.map(p=>add(p,LIFT)))}},
  unit:{up:NEG,elev:16,yaw:20,fit:.72,frame:UNIT,steps:C.unit},
  diamond:{up:NEG,elev:16,yaw:20,fit:.82,frame:D2,steps:C.diamond},
@@ -50,12 +51,13 @@ function mountZome(h){
  let groups;
  if(name==='layers')groups=[{model:L0},{model:L0,offset:LIFT}];
  else if(name==='layers2')groups=[{model:L0},{model:L0,offset:LIFT}];
+ else if(name==='stack')groups=[{model:L0},{model:L0,offset:LIFT},{model:{nb:true,b:[],s:[]}}];
  else groups=[{model:sp.steps[Math.min(st,sp.steps.length-1)]}];
  const frame=h.dataset.step!==undefined&&name==='diamond'?sp.steps[st]:sp.frame;
  const v=CV.mount(h,{groups,up:sp.up,elev:sp.elev,yaw:sp.yaw,fit:sp.fit*(h.classList.contains('mini')?1.1:1),frame,center:centroid(sp.frame||groups[0].model)});
- if(name==='layers'){v.showGroup(1,false)}
+ if(name==='layers'||name==='stack'){v.showGroup(1,false)}
  h._v=v;h._step=st;views.push(v);
- if(!reduce&&h.dataset.still===undefined)v.intro(name==='layers'||name==='layers2'?'drop':name==='unit'?'swing':name.startsWith('diam')?'zoom':name==='net'||name==='ring'?'rise':'spin');
+ if(!reduce&&h.dataset.still===undefined)v.intro(name==='layers'||name==='layers2'||name==='stack'?'drop':name==='unit'?'swing':name.startsWith('diam')?'zoom':name==='net'||name==='ring'?'rise':'spin');
  return v}
 function centroid(m){const c=[0,0,0];m.b.forEach(p=>{c[0]+=p[0];c[1]+=p[1];c[2]+=p[2]});return c.map(x=>x/m.b.length)}
 const host=s=>$('.zome-host',s);
@@ -71,7 +73,7 @@ $$('[data-draw]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),p=$('.pa
 (function(){const svg=$('.flakes-big');if(!svg)return;let h='';let seed=7;const R=()=>(seed=(seed*9301+49297)%233280)/233280;
  for(let i=0;i<46;i++){const x=R()*1500-120,y=R()*640-10,w=180+R()*260,a=(R()-.5)*22,n=3+Math.floor(R()*4);let g='';for(let j=0;j<n;j++){const c=78+Math.round(R()*40),dx=(R()-.5)*30,hh=12+R()*8;g+=`<path d="M${dx} ${j*15} l${w*.08} -${hh*.6} l${w*.9} 0 l${w*.06} ${hh*.6} l-${w*.1} ${hh*.5} l-${w*.86} 0z" fill="rgb(${c},${c+4},${c+12})" stroke="#2a2e35" stroke-width="2.5"/><path d="M${dx+w*.1} ${j*15-hh*.45} l${w*.85} 0" stroke="#ffffff60" stroke-width="3"/>`}h+=`<g class="flake" data-dive transform="translate(${x} ${y}) rotate(${a})">${g}</g>`}
  svg.innerHTML=h;
- const f=$('.atom-field');let k='';seed=5;const used=[];for(let i=0;i<40&&used.length<16;i++){const x=40+R()*1120,y=20+R()*420;if(used.some(([u,v])=>Math.hypot(u-x,v-y)<190))continue;used.push([x,y]);const sz=130+R()*50,r=(R()-.5)*30;k+=`<button class="c-dot" style="left:${x}px;top:${y}px;width:${sz}px;height:${sz}px;--r:${r}deg;animation-delay:${-R()*3}s" aria-label="一个碳原子"><img src="a/atom_body.webp" alt=""></button>`}f.innerHTML=k})();
+ const f=$('.atom-field');let k='';seed=5;const used=[];for(let i=0;i<400&&used.length<30;i++){const x=40+R()*1120,y=20+R()*420;if(used.some(([u,v])=>Math.hypot(u-x,v-y)<122))continue;used.push([x,y]);const sz=92+R()*30,r=(R()-.5)*30;k+=`<button class="c-dot" style="left:${x}px;top:${y}px;width:${sz}px;height:${sz}px;--r:${r}deg;animation-delay:${-R()*3}s" aria-label="一个碳原子"><img src="a/atom_body.webp" alt=""></button>`}f.innerHTML=k})();
 function zoomReset(s){$$('.zl',s).forEach((l,i)=>{l.getAnimations().forEach(a=>a.cancel());l.style.opacity=i?0:1;l.style.pointerEvents=i?'none':'auto';l.classList.remove('tagged')});$$('.c-dot',s).forEach(d=>d.classList.remove('picked','faded'));s._z=0;s._dive=false}
 function dive(s,ev){if(s._dive)return;const L=$$('.zl',s),k=s._z||0;if(k>=2)return;s._dive=true;
  const zr=$('.zoomer',s).getBoundingClientRect(),sc=zr.width/1380,fx=(ev.clientX-zr.left)/sc,fy=(ev.clientY-zr.top)/sc,cur=L[k],nxt=L[k+1],o=`${fx}px ${fy}px`;
@@ -88,7 +90,7 @@ $$('[data-hands-reset]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');s
 $$('[data-release]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=$('.zome-host.later',s);b.disabled=true;$('[data-guess="tet"]',s).classList.add('right');$('[data-guess="flat"]',s).classList.add('dim');cue('correct');s.classList.add('revealed');later(()=>{h.classList.add('show');if(!h._v)mountZome(h);h._v.spin(.004);cue('fly');celebrate(s)},650)});
 // p8 three hands
 const HAND_CAP=['白球的三角孔朝上','隔一个孔，插一根蓝短棍','再隔一个孔，插第 2 根','3 只手，离得一样远','朝上的孔空着：第 4 只手'];
-$$('[data-hand-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=host(s),k=h._step+1;if(k>4)return;if(k<=3){stepTo(s,h,k,HAND_CAP);cue('fly');if(k===3)later(()=>{const P=C.hand3.b;[[1,2],[2,3],[3,1]].forEach(([i,j],n)=>later(()=>{h._v.addArc(P[0],P[i],P[j],3.1,1.1);cue('tick')},n*300))},1300)}else{h._step=4;h._v.setMarker(C.hand3.b[0],N,true);const cap=$('.step-cap',s);cap.textContent=HAND_CAP[4];pop(cap);cue('correct');later(()=>celebrate(s),500);b.disabled=true}});
+$$('[data-hand-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=host(s),k=h._step+1;if(k>4)return;if(k<=3){stepTo(s,h,k,HAND_CAP);cue('fly');if(k===3)later(()=>{const P=C.hand3.b;[[1,2],[2,3],[3,1]].forEach(([i,j],n)=>later(()=>{h._v.addArc(P[0],P[i],P[j],3.1,1.1,'120°');cue('tick')},n*300))},1300)}else{h._step=4;h._v.setMarker(C.hand3.b[0],N,true);const cap=$('.step-cap',s);cap.textContent=HAND_CAP[4];pop(cap);cue('correct');later(()=>celebrate(s),500);b.disabled=true}});
 // p9 ring
 $$('[data-ring-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=host(s),k=h._step+1;if(k>4)return;h._step=k;cue('fly');
  h._v.setModel(C.ring[k],true,()=>{if(k<4)return;b.disabled=true;const R=C.ring[4].b,ring=[0,1,4,5,6,3].map(i=>R[i]);let n=0;const out=$('.big-count',s);
@@ -105,8 +107,16 @@ $$('[data-layer-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),v=
 $$('[data-layer-push]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),v=host(s)._v;if(!s._layer){$('[data-layer-next]',s).click();return}b.classList.remove('nudge');v.slideGroup(1,SLIDE_DIR,6.5,2600);pop($('.slide-cap',s));cue('fly');setPressed(b,true)});
 $$('[data-layer-why]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),p=$('.side-view',s);p.hidden=false;p.classList.remove('show');void p.offsetWidth;p.classList.add('show');cue('correct')});
 $$('.side-view .row').forEach(r=>r.innerHTML='<img src="a/atom.webp" alt="">'.repeat(3));
+// p2 vote reveal
+$$('[data-vote-reveal]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');b.disabled=true;$$('.vote-card',s).forEach(c=>c.classList.add(c.dataset.key==='yes'?'right':'wrong'));cue('wrong');later(()=>{$$('.vote-card.wrong',s).forEach(c=>c.classList.add('dim'));cue('correct');pop($('.vote-cap',s));celebrate(s)},700)});
+// p11 stack: second layer + yellow supports
+const STACK_CAP=['再拼一层网，叠在上面','插上黄短棍，把两层连起来'];
+$$('[data-stack-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=host(s),v=h._v,k=(s._f||0)+1;if(k>2)return;s._f=k;const cap=$('.step-cap',s);cap.textContent=STACK_CAP[k-1];pop(cap);cue('fly');
+ if(k===1)v.dropIn(1,LIFT.map(x=>x*3.2),()=>cue('select'));else{b.disabled=true;v.setModel(SUP,true,()=>{cue('correct');celebrate(s)},2)}});
+// p14 answer
+$$('[data-ans]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');b.disabled=true;pop($('.ans-cap',s));cue('correct');later(()=>celebrate(s),300)});
 // p13 choice
-$$('[data-choice]').forEach(c=>c.onclick=()=>{const s=c.closest('.slide');if(s._done)return;const ok=c.dataset.choice==='yes';c.classList.remove('wrong','right');void c.offsetWidth;c.classList.add(ok?'right':'wrong');cue(ok?'correct':'wrong');if(ok){s._done=1;$$('.choice',s).forEach(x=>{if(x!==c)x.classList.add('dim')});later(()=>celebrate(s),300)}else later(()=>c.classList.remove('wrong'),1100)});
+$$('[data-choice]').forEach(c=>c.onclick=()=>{const s=c.closest('.slide');if(s._done)return;const ok=c.dataset.choice==='yes';c.classList.remove('wrong','right');void c.offsetWidth;c.classList.add(ok?'right':'wrong');cue(ok?'correct':'wrong');if(ok){s._done=1;$$('.choice',s).forEach(x=>{if(x!==c)x.classList.add('dim')});later(()=>celebrate(s),300);const t=$('.choice-tip',s);if(t)later(()=>pop(t),700)}else later(()=>c.classList.remove('wrong'),1100)});
 // p14 labels
 $$('[data-labs]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),L=$$('.later-lab',s),k=s._f||0;if(k>=L.length)return;L[k].classList.add('show');s._f=k+1;cue('select');if(s._f===L.length){b.disabled=true;$('.vs-q',s).classList.add('show')}});
 // p16 unit
@@ -117,12 +127,12 @@ $$('[data-unit-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=h
 $$('[data-dia-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=host(s),k=h._step+1;if(k>2)return;h._step=k;h._v.setModel(C.diamond[k],true);h._v.refit(C.diamond[k],1400);cue('fly');if(k===2){b.disabled=true;later(()=>celebrate(s),1800)}});
 // p18 chair
 const CHAIR=C.chair.map(i=>D2.b[i]),CHAIR_S=CHAIR.map((p,i)=>[p,CHAIR[(i+1)%6]]);
-$$('[data-chair]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),v=host(s)._v;v.highlight(0,CHAIR,CHAIR_S,true);cue('correct');s._chair=1});
-$$('[data-chair-side]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),v=host(s)._v;if(!s._chair){v.highlight(0,CHAIR,CHAIR_S,true);s._chair=1}
+$$('[data-chair]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),v=host(s)._v;if(s._chair){v.highlight(0,[],[],false);s._chair=0;setPressed(b,false);cue('tick');return}v.highlight(0,CHAIR,CHAIR_S,true);cue('correct');s._chair=1;setPressed(b,true)});
+$$('[data-chair-side]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),v=host(s)._v;if(s._side){s._side=0;v.home();setPressed(b,false);$('.chair-cap',s).hidden=true;cue('tick');return}s._side=1;setPressed(b,true);if(!s._chair){v.highlight(0,CHAIR,CHAIR_S,true);s._chair=1;setPressed($('[data-chair]',s),true)}
  const c=centroid({b:CHAIR}),a=CHAIR[0].map((x,i)=>x-CHAIR[3][i]),n=cross(CHAIR[0].map((x,i)=>x-c[i]),CHAIR[2].map((x,i)=>x-c[i])),side=cross(n,a);v.lookFrom(side,1500,.85);later(()=>{pop($('.chair-cap',s));cue('correct')},1500)});
 function cross(a,b){return[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]]}
 // p19 push
-$$('[data-push]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),d=host(s);d._v.shakeGroup(0,.5,900);cue('wrong');later(()=>pop($('.push-cap',s)),600);b.disabled=true});
+$$('[data-push]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),d=host(s);d._v.shakeGroup(0,.5,900);cue('wrong');later(()=>pop($('.push-cap',s)),600);later(()=>{const k=$('.keyword',s);if(k){pop(k);cue('correct');celebrate(s)}},1500);b.disabled=true});
 $$('[data-use-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),f=$$('.use',s),k=s._f||0;if(k>=f.length)return;f[k].classList.add('show');s._f=k+1;cue('select');if(s._f===f.length){b.disabled=true;later(()=>celebrate(s),400)}});
 $$('[data-pair]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');s.classList.add('paired');b.disabled=true;cue('fly');later(()=>{cue('correct');celebrate(s)},1300)});
 // p20 family
@@ -143,15 +153,17 @@ function enter(s){
  $$('.model-name.later').forEach(x=>x.classList.remove('show'));
  $$('.ang-n,.push-res',s).forEach(x=>x.classList.remove('show','pop'));
  $$('.caption.step-cap',s).forEach(c=>{c.textContent=s.querySelector('[data-hand-next]')?HAND_CAP[0]:s.querySelector('[data-unit-next]')?UNIT_CAP[0]:'';c.hidden=false});
- $$('.done-cap,.slide-cap,.reveal-cap,.chair-cap,.name-tag,.side-view,.arc-cap,.push-cap',s).forEach(x=>x.hidden=true);
+ $$('.done-cap,.slide-cap,.reveal-cap,.chair-cap,.name-tag,.side-view,.arc-cap,.push-cap,.vote-cap,.choice-tip,.ans-cap,.keyword',s).forEach(x=>x.hidden=true);
  $$('[data-cap]',s).forEach(x=>x.hidden=true);
  $$('.big-count',s).forEach(x=>x.textContent='');
  $$('.hand-badge,.c-badge:not(.keep),.fam:not(.keep)',s).forEach(x=>x.classList.remove('show'));$$('.choice',s).forEach(x=>x.classList.remove('right','wrong','dim'));
  $$('.recap',s).forEach(x=>x.classList.remove('open'));
  $$('.guess-card',s).forEach(x=>x.classList.remove('right','dim'));
+ $$('.vote-card',s).forEach(x=>x.classList.remove('right','wrong','dim'));
+ $$('[data-tally]',s).forEach(c=>{c._n=0;const n=$('.tally-n',c);if(n)n.textContent=''});
  $$('.paper,.scribble:not(.on)',s).forEach(x=>x.classList.remove('drawing'));
  $$('.controls .action',s).forEach(b=>{b.disabled=false;b.classList.remove('nudge');b.removeAttribute('aria-pressed')});
- s._h=s._a=s._f=s._layer=s._chair=s._done=0;
+ s._h=s._a=s._f=s._layer=s._chair=s._side=s._done=0;
  // p16: point at the first hole
  const u=$('[data-model="unit"]',s);if(u&&u._v)later(()=>u._v.setMarker(UNIT.b[0],N,true),900);
 }

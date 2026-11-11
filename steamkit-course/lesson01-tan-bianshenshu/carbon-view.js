@@ -146,7 +146,7 @@
     /* dashed outline between model points */
     let dashes = null;
     function setDashes(pairs) {
-      arcs.children.forEach((m) => { const w = Math.min(1, (now - m.userData.t0) / 350); m.scale.setScalar(Math.max(.001, w)); });
+      arcs.children.forEach((m) => { const w = Math.min(1, (now - m.userData.t0) / 350); if (m.userData.sprite) m.material.opacity = w; else m.scale.setScalar(Math.max(.001, w)); });
       if (dashes) { extra.remove(dashes); dashes.traverse((o) => o.geometry && o.geometry.dispose()); dashes = null; }
       if (!pairs || !pairs.length) return;
       dashes = new THREE.Group(); const dm = new THREE.MeshBasicMaterial({ color: lin(0xffa45c) });
@@ -166,13 +166,16 @@
 
     /* orange angle sectors at a ball: [[c,a,b],...] (model coords) */
     const arcs = new THREE.Group(); extra.add(arcs);
-    function addArc(c, a, b, r = 2.6, ring = 0) {
+    function addArc(c, a, b, r = 2.6, ring = 0, label = '') {
       const C0 = vec(c).sub(center), u = vec(a).sub(vec(c)).normalize(), v = vec(b).sub(vec(c)).normalize(), th = Math.acos(Math.max(-1, Math.min(1, u.dot(v)))), w = v.clone().addScaledVector(u, -u.dot(v)).normalize();
       const pos = [], n = 24, gap = ring ? .28 : 0; for (let i = 0; i < n; i++) { const t0 = gap + ((th - 2 * gap) * i) / n, t1 = gap + ((th - 2 * gap) * (i + 1)) / n; const p0 = u.clone().multiplyScalar(Math.cos(t0)).addScaledVector(w, Math.sin(t0)).multiplyScalar(r), p1 = u.clone().multiplyScalar(Math.cos(t1)).addScaledVector(w, Math.sin(t1)).multiplyScalar(r); if (ring) { const k = (r - ring) / r, q0 = p0.clone().multiplyScalar(k), q1 = p1.clone().multiplyScalar(k); pos.push(q0.x, q0.y, q0.z, p0.x, p0.y, p0.z, p1.x, p1.y, p1.z, q0.x, q0.y, q0.z, p1.x, p1.y, p1.z, q1.x, q1.y, q1.z); } else pos.push(0, 0, 0, p0.x, p0.y, p0.z, p1.x, p1.y, p1.z); }
       const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
       const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: lin(0xff8a2a), transparent: true, opacity: .85, side: THREE.DoubleSide, depthTest: false })); m.renderOrder = 5; m.position.copy(C0); m.userData.t0 = performance.now(); m.scale.setScalar(.001); arcs.add(m);
+      if (label) { const cv = document.createElement('canvas'); cv.width = 256; cv.height = 128; const g2 = cv.getContext('2d'); g2.font = 'bold 84px Classroom, sans-serif'; g2.textAlign = 'center'; g2.textBaseline = 'middle'; g2.lineWidth = 14; g2.strokeStyle = '#1e2a44'; g2.strokeText(label, 128, 66); g2.fillStyle = '#ffb676'; g2.fillText(label, 128, 66);
+        const tex = new THREE.CanvasTexture(cv); tex.encoding = THREE.sRGBEncoding; const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest: false, transparent: true })); sp.renderOrder = 6;
+        const bis = u.clone().add(v).normalize(); sp.position.copy(C0).addScaledVector(bis, r + 2.2); sp.scale.set(3.6, 1.8, 1); sp.userData.t0 = performance.now(); sp.userData.sprite = 1; arcs.add(sp); }
     }
-    function clearArcs() { while (arcs.children.length) { const m = arcs.children[0]; arcs.remove(m); m.geometry.dispose(); } }
+    function clearArcs() { while (arcs.children.length) { const m = arcs.children[0]; arcs.remove(m); m.geometry && m.geometry.dispose(); } }
     let morph = null, spinY = 0, anim = null, raf = 0, alive = true, growT0 = null, growDone = null, slide = null, shake = null, introAnim = null;
     const sph = () => { const p = camera.position, r = p.length(); return { r, th: Math.atan2(p.x, p.z), ph: Math.acos(p.y / r) }; };
     const setSph = (r, th, ph) => { camera.position.set(r * Math.sin(ph) * Math.sin(th), r * Math.cos(ph), r * Math.sin(ph) * Math.cos(th)); camera.lookAt(0, 0, 0); };
@@ -194,7 +197,7 @@
       }
       if (popping.length) { popping.forEach((p) => { p.t = (p.t || 0) + 1 / 60; const w = Math.min(1, p.t / .4); p.mesh.scale.setScalar(Math.max(.001, w * (1 + .25 * Math.sin(w * Math.PI)))); }); for (let i = popping.length - 1; i >= 0; i--) if (popping[i].t >= .4) { popping[i].mesh.scale.setScalar(1); popping.splice(i, 1); } }
       if (marker) { const t = (now - marker.userData.t0) / 1000, w = Math.min(1, t / .5); marker.scale.setScalar(Math.max(.001, w * (1 + .2 * Math.sin(w * Math.PI)) * (1 + .06 * Math.sin(t * 5)))); }
-      arcs.children.forEach((m) => { const w = Math.min(1, (now - m.userData.t0) / 350); m.scale.setScalar(Math.max(.001, w)); });
+      arcs.children.forEach((m) => { const w = Math.min(1, (now - m.userData.t0) / 350); if (m.userData.sprite) m.material.opacity = w; else m.scale.setScalar(Math.max(.001, w)); });
       if (dashes) { const t = Math.min(1, (now - dashes.userData.t0) / 600); dashes.children.forEach((c, i) => c.visible = i / dashes.children.length <= t); }
       groups.forEach((g) => { if (g.target) { g.offset.lerp(g.target, .12); g.obj.position.copy(g.offset); if (g.offset.distanceTo(g.target) < .01) { g.offset.copy(g.target); g.obj.position.copy(g.offset); g.target = null; } } });
       if (morph) morph(now);

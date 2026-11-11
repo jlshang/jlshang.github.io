@@ -223,3 +223,24 @@ h2{position:absolute;left:90px;right:90px;top:58px;margin:0;font:56px/1.2 var(--
 .revealed .guess-card.big{top:690px;transform:scale(.62);transform-origin:center top}
 .revealed .guess-card.big[data-guess="flat"]{left:620px}.revealed .guess-card.big[data-guess="tet"]{left:980px}
 .guess-card.dim{opacity:.35}
+
+/* v12 */
+.vote-card{transition:transform .15s,opacity .4s,filter .4s}
+.vote-card::after{content:'';position:absolute;right:-22px;bottom:-22px;width:84px;height:84px;border-radius:50%;font:56px/84px sans-serif;text-align:center;color:#fff;transform:scale(0);transition:transform .35s cubic-bezier(.2,1.6,.4,1)}
+.vote-card.right::after{content:'✓';background:#3a9a5b;transform:none}
+.vote-card.wrong::after{content:'✗';background:#c94a3a;transform:none}
+.vote-card.right{box-shadow:0 0 0 8px #3a9a5b,0 8px 0 #0003;transform:scale(1.06)}
+.vote-card.wrong{animation:shake .5s}.vote-card.dim{opacity:.35;filter:grayscale(.6)}
+.z0 .scribble{animation:none}
+.scribble path.glow-under{stroke:#ff9a3c;stroke-width:70;stroke-dasharray:none;stroke-dashoffset:0;opacity:.0;filter:blur(14px);animation:glowpulse 1.6s ease-in-out infinite}
+.scribble path.run{stroke:#fff6c8;stroke-width:26;stroke-dasharray:140 1900;stroke-dashoffset:2040;opacity:1;filter:drop-shadow(0 0 10px #ffb84a) drop-shadow(0 0 22px #ff8a2a);animation:runlight 2.4s linear infinite;pointer-events:none}
+.scribble path.run.r2{animation-delay:-1.2s}
+.scribble .ripple{fill:none;stroke:#ff8a2a;stroke-width:6;transform-box:fill-box;transform-origin:center;animation:ripple 1.8s ease-out infinite;pointer-events:none}
+.scribble .ripple.d2{animation-delay:-.9s}
+.scribble path.hit,.scribble path.glow-under,.scribble path.stroke-ink{pointer-events:auto}
+@keyframes glowpulse{0%,100%{opacity:.25}50%{opacity:.85}}
+@keyframes runlight{to{stroke-dashoffset:0}}
+@keyframes ripple{0%{transform:scale(.4);opacity:.9}100%{transform:scale(3.2);opacity:0}}
+.zome-host.later:not(.show){pointer-events:none}
+.guess-card.big{cursor:pointer}
+.keyword{position:absolute;right:150px;top:190px;padding:18px 46px;border-radius:999px;background:#e8742a;color:#fff;font:84px var(--display);box-shadow:0 10px 0 #0004,0 0 40px #ff9a3c88;transform:rotate(-4deg)}

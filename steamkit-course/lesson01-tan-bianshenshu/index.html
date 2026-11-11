@@ -1,4 +1,4 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><script src="../gate.js?v=1"></script><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#1e2a44"><title>碳的变身术 · Zometool 拼搭课</title><link rel="icon" href="data:,"><link rel="stylesheet" href="lesson.css?v=11"></head><body><div id="app"><div id="viewport"><main id="stage" aria-label="课件">
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><script src="../gate.js?v=1"></script><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#1e2a44"><title>碳的变身术 · Zometool 拼搭课</title><link rel="icon" href="data:,"><link rel="stylesheet" href="lesson.css?v=12"></head><body><div id="app"><div id="viewport"><main id="stage" aria-label="课件">
 
 <!-- ================= 开场 ================= -->
 <section class="slide dark cover" data-title="碳的变身术" data-sec="开场" data-minutes="0.5" hidden>
@@ -14,28 +14,29 @@
 <section class="slide dark" data-title="铅笔里，有铅吗？" data-sec="开场" data-minutes="2" hidden>
 <h2>铅笔里，有铅吗？</h2>
 <img class="art mascot pencil-kid" src="a/pencil_kid.webp" alt="写字的卡通铅笔" style="left:90px;top:175px;width:680px;height:580px">
-<button class="vote-card yes" data-tally style="left:860px;top:300px"><i class="opt">A</i><b>有</b><span class="tally-n"></span></button>
-<button class="vote-card no" data-tally style="left:1170px;top:300px"><i class="opt">B</i><b>没有</b><span class="tally-n"></span></button>
-<div class="controls"><button class="action i-reset" data-tally-reset aria-label="清空"></button></div>
+<button class="vote-card yes" data-tally data-key="no" style="left:860px;top:300px"><i class="opt">A</i><b>有</b><span class="tally-n"></span></button>
+<button class="vote-card no" data-tally data-key="yes" style="left:1170px;top:300px"><i class="opt">B</i><b>没有</b><span class="tally-n"></span></button>
+<p class="caption vote-cap" hidden>笔芯里，没有铅！</p>
+<div class="controls"><button class="action i-next" data-vote-reveal aria-label="揭晓答案"></button><button class="action i-reset" data-replay aria-label="重来"></button></div>
 <aside class="notes">【节奏】2 分钟。先让每个孩子想 10 秒，再一起投票。
-【互动】请孩子在评论区打 A（有）或 B（没有）。老师每看到一票就点一下对应的卡片，卡片上的数字加 1。右下角按钮清空。
+【互动】请孩子在评论区打 A（有）或 B（没有）。老师每看到一票就点一下对应的卡片，卡片上的数字加 1。投完票点右下角 ▶ 揭晓：B 出现绿色对勾，A 摇头、出现红叉后变暗，下方出现“笔芯里，没有铅！”。右下角 ↺ 重来会清空票数。
 【讲解】请拿起一支铅笔，在纸上写一个字。它的名字里有个“铅”字，笔芯里真的有铅吗？觉得有的打 A，觉得没有的打 B。
-【预期回答·不要提前说】多数孩子会选“有”。答案是没有，下一页放大笔迹时揭晓。请一两个选“没有”的孩子说说是怎么知道的。
+【预期回答·不要提前说】多数孩子会选“有”。答案是 B 没有，点 ▶ 揭晓，给选 B 的孩子点个赞。“那笔迹里到底是什么？”留到下一页放大去找。请一两个选“没有”的孩子说说是怎么知道的。
 【易错与准备】这一页只投票，不评价对错。铅笔是卡通形象。</aside></section>
 
 <section class="slide dark" data-title="笔迹里面有什么？" data-sec="开场" data-minutes="3" hidden>
 <h2>笔迹里面有什么？</h2>
 <div class="zoomer" style="left:110px;top:140px;width:1380px;height:640px">
- <div class="zl z0"><svg viewBox="0 0 1380 640" class="scribble on"><defs><filter id="grain"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="4"/><feColorMatrix values="0 0 0 0 .2  0 0 0 0 .21  0 0 0 0 .24  0 0 0 -1.1 .95"/><feComposite in2="SourceGraphic" operator="in"/><feBlend in="SourceGraphic" mode="multiply"/></filter></defs><path class="stroke-ink" filter="url(#grain)" d="M150 430 C 260 240, 380 530, 520 370 S 760 200, 880 390 S 1040 470, 1130 330"/><path class="hit" data-dive d="M150 430 C 260 240, 380 530, 520 370 S 760 200, 880 390 S 1040 470, 1130 330"/></svg><img class="z0-pencil" src="a/pencil_solo.webp" alt="卡通铅笔"></div>
+ <div class="zl z0"><svg viewBox="0 0 1380 640" class="scribble on"><defs><filter id="grain"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="4"/><feColorMatrix values="0 0 0 0 .2  0 0 0 0 .21  0 0 0 0 .24  0 0 0 -1.1 .95"/><feComposite in2="SourceGraphic" operator="in"/><feBlend in="SourceGraphic" mode="multiply"/></filter></defs><path class="glow-under" d="M150 430 C 260 240, 380 530, 520 370 S 760 200, 880 390 S 1040 470, 1130 330"/><path class="stroke-ink" filter="url(#grain)" d="M150 430 C 260 240, 380 530, 520 370 S 760 200, 880 390 S 1040 470, 1130 330"/><path class="run" d="M150 430 C 260 240, 380 530, 520 370 S 760 200, 880 390 S 1040 470, 1130 330"/><path class="run r2" d="M150 430 C 260 240, 380 530, 520 370 S 760 200, 880 390 S 1040 470, 1130 330"/><circle class="ripple" cx="520" cy="370" r="40"/><circle class="ripple d2" cx="520" cy="370" r="40"/><circle class="ripple" cx="880" cy="390" r="40"/><circle class="ripple d2" cx="880" cy="390" r="40"/><path class="hit" data-dive d="M150 430 C 260 240, 380 530, 520 370 S 760 200, 880 390 S 1040 470, 1130 330"/></svg><img class="z0-pencil" src="a/pencil_solo.webp" alt="卡通铅笔"></div>
  <div class="zl z1"><svg viewBox="0 0 1380 640" class="flakes-big"></svg><span class="z-tag">石墨</span></div>
  <div class="zl z2"><div class="atom-field"></div><span class="z-tag">碳原子</span></div>
 </div>
 <div class="controls"><button class="action i-reset" data-replay aria-label="重来"></button></div>
 <aside class="notes">【节奏】3 分钟。点笔迹 → 点石墨 → 点一个碳原子，一路钻进笔迹里。
-【互动】① 点纸上的笔迹（笔迹会轻轻闪光提示能点）：镜头从点的地方钻进去，看到一片一片叠在一起的灰黑色薄片，出现“石墨”。② 点任意一片石墨：再钻进去，看到一群碳原子在晃动，出现“碳原子”。③ 点任意一个碳原子：它跳到中间变大，其他的退到后面。可以请孩子指挥老师点哪一个。
-【讲解】揭晓刚才的投票：笔迹里没有铅！放大一看，是一片片小薄片，它叫石墨，铅笔芯就是用石墨加黏土做的。石墨再放大、再放大，里面藏着数不清的小粒子，叫“碳原子”。碳原子小到看不见，用普通放大镜也看不见。我们请一个碳原子出来，看看它长什么样。
+【互动】① 点纸上的笔迹（笔迹整条发光、有两道亮光沿着笔迹跑、两处光圈一圈圈往外扩，提示这里能点）：镜头从点的地方钻进去，看到一片一片叠在一起的灰黑色薄片，出现“石墨”。② 点任意一片石墨：再钻进去，看到一群碳原子在晃动，出现“碳原子”。③ 点任意一个碳原子：它跳到中间变大，其他的退到后面。可以请孩子指挥老师点哪一个。
+【讲解】刚才说了，笔芯里没有铅。那笔迹里是什么？放大一看，是一片片小薄片，它叫石墨，铅笔芯就是用石墨加黏土做的。石墨再放大、再放大，里面藏着数不清的小粒子，叫“碳原子”。碳原子小到看不见，用普通放大镜也看不见。我们请一个碳原子出来，看看它长什么样。
 【互动】问：这么多碳原子，是乱糟糟堆在一起的，还是排着队？先别回答，我们今天自己搭出来看。
-【老师心里有数】很久以前，人们以为石墨是一种铅，把它叫“黑铅”，“铅笔”的名字就是这样来的。黏土越多，笔芯越硬，颜色越浅。看清石墨薄片大约要放大一千倍（电子显微镜），看见碳原子要放大一千万倍左右。画面里的碳原子是卡通形象，这一页先不画手，第一部分开头它再伸出手；它们的排法和数量也不是真实的。
+【老师心里有数】很久以前，人们以为石墨是一种铅，把它叫“黑铅”，“铅笔”的名字就是这样来的。黏土越多，笔芯越硬，颜色越浅。看清石墨薄片大约要放大一千倍（电子显微镜），看见碳原子要放大一千万倍左右。画面里的碳原子是卡通形象，这一页先不画手，第一部分开头它再伸出手；它们的排法和数量（约 30 个）也不是真实的。
 【易错与准备】只说“普通铅笔芯里没有金属铅”，不延伸成“所有文具都安全”。先不说六边形。</aside></section>
 
 <!-- ================= 第一部分 石墨 ================= -->
@@ -60,21 +61,21 @@
 【老师心里有数】“4 只手”指碳原子最外层的 4 个电子，可以和别的原子各合用一对，形成 4 个化学键。在石墨里，3 个电子在层内成键，第 4 个电子不和某一个邻居成键，而是在整层里大家共用（所以石墨能导电、看起来是黑的）；在金刚石里，4 个电子都和邻居成键。
 【易错与准备】碳原子是卡通形象，原子并没有真的手和脸。</aside></section>
 
-<section class="slide dark" data-title="第 1 步：伸出 3 只手" data-sec="石墨" data-minutes="5" hidden>
+<section class="slide dark" data-title="第 1 步：伸出 3 只手" data-sec="石墨" data-minutes="4.5" hidden>
 <h2>第 1 步：伸出 3 只手</h2>
 <img class="art side-atom" src="a/atom.webp" alt="碳原子卡通形象" style="left:80px;top:250px;width:330px;height:315px">
 <div class="zome-host" data-model="hand3" data-step="0" style="left:430px;top:130px;width:1090px;height:620px" role="img" aria-label="Zometool 拼搭，拖动旋转"></div>
 <p class="caption step-cap"></p>
 <div class="controls"><button class="action i-next" data-hand-next aria-label="下一步"></button><button class="action i-reset" data-replay aria-label="重来"></button><button class="action i-home" data-home aria-label="回正面"></button></div>
-<aside class="notes">【节奏】4 分钟。孩子边看边搭。
+<aside class="notes">【节奏】4.5 分钟。孩子边看边搭。
 【讲解】在石墨里，每个碳原子只用 3 只手去拉别的碳原子，第 4 只手举起来，不拉别人。3 只手谁也不想挨着谁，离得越远越好，所以平平地分开，每两只手之间一样宽，都是 120°。
-【互动】先问：3 只手都想离得越远越好，它们会怎么伸？请孩子用手比一比。然后点右下角“下一步”：① 一个白球，三角孔朝上；② ③ ④ 隔一个孔插一根蓝短棍，一共 3 根，末端各接一个白球，三根棍之间亮出 3 个一样大的橙色角；⑤ 朝上的三角孔空着，出现橙色箭头：这就是举起来的第 4 只手。
+【互动】先问：3 只手都想离得越远越好，它们会怎么伸？请孩子用手比一比。然后点右下角“下一步”：① 一个白球，三角孔朝上；② ③ ④ 隔一个孔插一根蓝短棍，一共 3 根，末端各接一个白球，三根棍之间亮出 3 个一样大的橙色角，每个角上标着 120°；⑤ 朝上的三角孔空着，出现橙色箭头：这就是举起来的第 4 只手。
 【易错与准备】零件：白球 4、蓝短棍 3。白球朝上的那个三角孔，腰上一圈有 6 个长方形孔，隔一个插一根，3 根正好平平地分开；放在桌上不晃，说明插对了。拿球时一直保持三角孔朝上。
 【可旋转 3D】可以拖动旋转、滚轮放大，右下角按钮回正面。
-【老师心里有数】3 根蓝棍两两成 120°，和石墨里碳原子 3 个化学键的夹角一样。朝上的三角孔方向，正好垂直于这一层。第 4 只手不用黄棍表示：第 4 步两层之间的黄棍只是支架，如果这里也插黄棍，孩子会以为第 4 只手拉住了上一层。到金刚石时，同一个方向插上黄棍，正好讲“这只手这回也拉人了”。</aside></section>
+【老师心里有数】3 根蓝棍两两成 120°，和石墨里碳原子 3 个化学键的夹角一样。朝上的三角孔方向，正好垂直于这一层。第 4 只手不用黄棍表示：第 5 步两层之间的黄棍只是支架，如果这里也插黄棍，孩子会以为第 4 只手拉住了上一层。到金刚石时，同一个方向插上黄棍，正好讲“这只手这回也拉人了”。</aside></section>
 
-<section class="slide dark" data-title="第 2 步：跟着规矩连，会连成什么？" data-sec="石墨" data-minutes="4.5" hidden>
-<h2>第 2 步：跟着规矩连，会连成什么？</h2>
+<section class="slide dark" data-title="第 2 步：按照规律手拉手" data-sec="石墨" data-minutes="4.5" hidden>
+<h2>第 2 步：按照规律手拉手</h2>
 <div class="zome-host" data-model="ring" data-step="0" style="left:130px;top:130px;width:1340px;height:620px" role="img" aria-label="Zometool 拼搭，拖动旋转"></div>
 <output class="big-count" style="left:1260px;top:190px"></output>
 <p class="caption done-cap" hidden>6 个碳，正好连成一圈！</p>
@@ -98,28 +99,40 @@
 【易错与准备】孩子拼搭时最常见的错是把五边形孔朝上，隔一个插蓝棍就会拼成五边形。看到五边形，就把球翻过来，换成三角孔朝上。
 【老师心里有数】石墨的 120° 来自 3 个化学键在平面里均匀分开（sp² 杂化）。足球烯 C₆₀ 里既有六边形也有五边形，五边形让网弯起来，包成一个球。</aside></section>
 
-<section class="slide dark" data-title="第 3 步：长成一张网" data-sec="石墨" data-minutes="4.5" hidden>
+<section class="slide dark" data-title="第 3 步：长成一张网" data-sec="石墨" data-minutes="4" hidden>
 <h2>第 3 步：长成一张网</h2>
 <div class="zome-host" data-model="net" data-step="0" style="left:130px;top:120px;width:1340px;height:640px" role="img" aria-label="Zometool 拼搭，拖动旋转"></div>
 <div class="controls"><button class="action i-plus" data-net-next aria-label="再长一圈"></button><button class="action i-reset" data-replay aria-label="重来"></button><button class="action i-home" data-home aria-label="回正面"></button></div>
-<aside class="notes">【节奏】4.5 分钟，动手时间最长的一页之一。
+<aside class="notes">【节奏】4 分钟，动手时间最长的一页之一。
 【互动】点“＋”，一个新的六边形借用旁边的边长出来。一共点 4 次，中间的六边形周围长满一圈，一共 7 个六边形，撒花。
 【讲解】每个新来的碳，还是守同一个规矩：3 只手平平分开。所以六边形挨着六边形，一直往外长，长成一张平平的网。
 【易错与准备】零件：做到 7 个六边形，一共白球 24、蓝短棍 30（课前试搭核对）。新六边形要借用旁边那条边，不要另起炉灶；整张网要一直平平地贴在桌上。零件不够的孩子做到 3 个六边形就可以。
 【可旋转 3D】可以拖动旋转、滚轮放大，右下角按钮回正面。</aside></section>
 
-<section class="slide dark" data-title="第 4 步：一层叠一层" data-sec="石墨" data-minutes="4.5" hidden>
+<section class="slide dark" data-title="第 4 步：一层叠一层" data-sec="石墨" data-minutes="4" hidden>
 <h2>第 4 步：一层叠一层</h2>
 <div class="zome-host" data-model="layers" data-step="0" style="left:70px;top:120px;width:960px;height:640px" role="img" aria-label="两层碳原子网，拖动旋转"></div>
 <div class="side-view" hidden><div class="row top"></div><div class="gap-line"></div><div class="row bottom"></div><p>第 4 只手，不拉上一层</p></div>
 <p class="caption slide-cap" hidden>层和层拉得松，一推就滑开</p>
 <div class="controls"><button class="action i-next" data-layer-next aria-label="叠一层"></button><button class="action i-hand" data-layer-push aria-label="推一推"></button><button class="action i-eye" data-layer-why aria-label="为什么"></button><button class="action i-reset" data-replay aria-label="重来"></button><button class="action i-home" data-home aria-label="回正面"></button></div>
-<aside class="notes">【节奏】4.5 分钟。
+<aside class="notes">【节奏】4 分钟。
 【互动】① 点“叠一层”：第二层网从上面落下来，叠在第一层上方。② 点“推一推”：上面一层左右滑来滑去。③ 点“为什么”：右边出现从侧面看的两排碳原子。
 【讲解】石墨就是一层一层的碳原子网叠起来的。每一层里，碳原子 3 只手拉得紧紧的；可是第 4 只手只是举着，不去拉上面那一层。所以层和层之间拉得很松，一推就滑开。写字的时候，笔芯在纸上一蹭，一层层小薄片就滑下来，留在纸上——这就是笔迹！
 【预期回答·不要提前说】回到开场：铅笔为什么能写字？因为石墨一层一层的，层和层拉得松，一蹭就掉下来留在纸上。
-【易错与准备】零件：第二层再要白球 24、蓝短棍 30（课前试搭核对）。层和层之间没有棍子：孩子把第二张网直接叠放在第一张上面，用手推一推上面那张，看它怎么滑。零件或时间不够时，第二层只搭一个六边形。
-【老师心里有数】层内是很强的化学键，层和层之间只有很弱的吸引（范德华力）。真实的层间距（0.335 纳米）约是层内碳碳距离（0.142 纳米）的 2.4 倍，模型里的黄棍短一些，只表示“上下对齐”。侧面图里的碳原子是卡通形象：第 4 个电子在整层里共用，不和上一层成键，这里简化成“举起来的手不拉上一层”。
+【易错与准备】这一页孩子先看屏幕：层和层之间没有棍子，上层一推就滑。可以请孩子把自己拼好的网放在桌上，用手推一推，感受“滑”。下一页再动手拼第二层。
+【老师心里有数】层内是很强的化学键，层和层之间只有很弱的吸引（范德华力）。真实的层间距（0.335 纳米）约是层内碳碳距离（0.142 纳米）的 2.4 倍，下一页模型里的黄棍短一些，只表示“上下对齐”。侧面图里的碳原子是卡通形象：第 4 个电子在整层里共用，不和上一层成键，这里简化成“举起来的手不拉上一层”。
+【可旋转 3D】可以拖动旋转、滚轮放大，右下角按钮回正面。</aside></section>
+<section class="slide dark" data-title="第 5 步：再拼一层，连起来" data-sec="石墨" data-minutes="3" hidden>
+<h2>第 5 步：再拼一层，连起来</h2>
+<div class="zome-host" data-model="stack" data-step="0" style="left:130px;top:120px;width:1340px;height:640px" role="img" aria-label="两层碳原子网，拖动旋转"></div>
+<p class="caption step-cap"></p>
+<div class="controls"><button class="action i-next" data-stack-next aria-label="下一步"></button><button class="action i-reset" data-replay aria-label="重来"></button><button class="action i-home" data-home aria-label="回正面"></button></div>
+<aside class="notes">【节奏】3 分钟，孩子动手。
+【互动】点右下角 ▶：① 第二层网落到第一层正上方；② 4 根黄短棍长出来，把两层连在一起。可以拖动转一转，从侧面看两层。
+【讲解】我们把刚才的网再拼一张，叠在上面。为了让模型立得住，用几根黄短棍把两层连起来。真正的石墨里，层和层之间没有棍子，只是轻轻挨着，所以一推就滑开；黄棍只是我们为了让模型立住加的“支架”。
+【预期回答·不要提前说】有孩子会问“黄棍是不是碳的第 4 只手？”——不是，真正的石墨层和层之间没有拉手，这就是石墨软、能在纸上留下笔迹的原因。
+【易错与准备】课前按屏幕上的模型试搭一遍，核对零件：上层白球 24、蓝短棍 30，连接用黄短棍 4。黄棍插在下层白球朝上的三角孔里，竖直向上，正好对准上层白球朝下的三角孔。先插好下层的黄棍，再把整张上层网对准扣上去。零件不够时，上层只拼一个六边形。
+【老师心里有数】真实石墨层间距约 0.335 纳米，是层内碳碳距离（0.142 纳米）的 2.4 倍；模型里黄棍只表示“上下对齐”，不表示化学键。
 【可旋转 3D】可以拖动旋转、滚轮放大，右下角按钮回正面。</aside></section>
 
 <!-- ================= 第二部分 金刚石 ================= -->
@@ -138,10 +151,11 @@
  <button class="choice" data-choice="no"><span class="ph"><img src="a/opt_plate.webp" alt=""></span><b>瓷盘子</b><i class="opt">C</i><i class="mark"></i></button>
  <button class="choice" data-choice="no"><span class="ph"><img src="a/opt_salt.webp" alt=""></span><b>盐粒</b><i class="opt">D</i><i class="mark"></i></button>
 </div>
+<p class="caption choice-tip" hidden>钻石就是金刚石，几乎全是碳！</p>
 <div class="controls"><button class="action i-reset" data-replay aria-label="重来"></button></div>
 <aside class="notes">【节奏】1.5 分钟。
-【互动】请孩子在评论区打 A、B、C 或 D，再请一位孩子说说理由，老师点他选的卡片。点错的卡片会摇头，出现红叉；点对的出现绿勾，撒花，其他卡片变暗。
-【讲解】答案是 B，钻石！钻石就是切磨过的金刚石，它和铅笔里的石墨一样，全是碳原子。
+【互动】请孩子在评论区打 A、B、C 或 D，再请一位孩子说说理由，老师点他选的卡片。点错的卡片会摇头，出现红叉；点对的出现绿勾，撒花，其他卡片变暗，下方出现提示“钻石就是金刚石，几乎全是碳！”。
+【讲解】答案是 B，钻石！钻石就是切磨过的金刚石，它和铅笔里的石墨一样，几乎全是碳原子（只混有极少量别的元素）。
 【预期回答·不要提前说】钻石。水是氢和氧，盐是钠和氯，瓷盘子主要是黏土烧成的，它们都不是碳做的。
 【老师心里有数】很多东西里都有碳（糖、塑料、木头、我们的身体），所以选项里特意避开了它们。照片来自维基共享资源，仅供学习：Glass-of-water.jpg（公有领域）、Round Brilliant Cut Diamond.jpg（CC BY-SA 4.0）、Empty table setting plate fork knife（CC BY 2.0）、Table salt large grain V1.jpg（CC BY-SA 4.0）。</aside></section>
 
@@ -153,10 +167,12 @@
 <p class="photo-label" style="left:140px;width:560px;top:680px">石墨：一蹭就掉</p>
 <p class="photo-label" style="left:900px;width:560px;top:680px">金刚石：能划玻璃</p>
 <span class="vs-q show">?</span>
+<p class="caption ans-cap" hidden>碳（C）原子拉手的方式不同</p>
+<div class="controls"><button class="action i-next" data-ans aria-label="揭示答案"></button><button class="action i-reset" data-replay aria-label="重来"></button></div>
 <aside class="notes">【节奏】1.5 分钟，提出这一部分的问题。
-【互动】请孩子说说：你摸过、见过的石墨（铅笔芯）和钻石，有什么不一样？
+【互动】先请孩子猜一猜，再点右下角 ▶ 揭示答案：“碳（C）原子拉手的方式不同”。请孩子说说：你摸过、见过的石墨（铅笔芯）和钻石，有什么不一样？
 【讲解】都是碳原子，石墨软软的，在纸上一蹭就掉下一层；金刚石却硬得能在玻璃上划出痕迹，是最硬的天然材料之一。同样是碳，差别怎么这么大？秘密还是在“手拉手”里。
-【老师心里有数】金刚石的摩氏硬度是 10，石墨只有 1～2。答案在第 18 页“推一推”揭晓。
+【老师心里有数】金刚石的摩氏硬度是 10，石墨只有 1～2。这里只先给方向，具体怎么不同，接下来拼金刚石时一步步看，到“推一推金刚石”再收回来。
 【易错与准备】不要让孩子用钻石或玻璃做实验。</aside></section>
 
 <section class="slide dark" data-title="4 只手全用上，会怎样伸？" data-sec="金刚石" data-minutes="3" hidden>
@@ -201,7 +217,7 @@
 <p class="caption chair-cap" hidden>是一个皱皱的六边形，像一把椅子</p>
 <div class="controls"><button class="action i-eye" data-chair aria-label="找一找"></button><button class="action i-side" data-chair-side aria-label="侧面看"></button><button class="action i-home" data-home aria-label="回正面"></button></div>
 <aside class="notes">【节奏】2 分钟。
-【互动】先请孩子在模型里找：有没有 6 个碳连成的一圈？点“找一找”，一圈 6 个碳变成橙色。再点“侧面看”：从侧面看，这一圈一高一低，不是平的。
+【互动】先请孩子在模型里找：有没有 6 个碳连成的一圈？点眼睛按钮：一圈 6 个碳变成橙色，其他变透明，像透视一样；再点一次恢复原样。点“侧面看”：转到侧面，这一圈一高一低，不是平的；再点一次转回正面。
 【讲解】金刚石里也有 6 个碳连成的圈！可它不是平平的，而是一高一低、皱皱的，像一把椅子。因为每个碳的 4 只手伸向立体的三角锥，连起来的圈就弯起来了。
 【老师心里有数】这叫“椅式”六元环，金刚石里每个碳都在好几个这样的环上。平的六边形（石墨）和皱的六边形（金刚石），差别就来自“3 只手平平分开”还是“4 只手立体分开”。</aside></section>
 
@@ -209,13 +225,14 @@
 <h2>推一推金刚石</h2>
 <div class="zome-host" data-model="diamond" data-step="2" style="left:230px;top:120px;width:1140px;height:600px" role="img" aria-label="金刚石，拖动旋转"></div>
 <p class="caption push-cap" hidden>往哪边推，都推不动！</p>
+<span class="keyword" hidden>很坚固</span>
 <div class="controls"><button class="action i-hand" data-push aria-label="推一推"></button><button class="action i-reset" data-replay aria-label="重来"></button></div>
 <aside class="notes">【节奏】2.5 分钟。
-【互动】点“推一推”：金刚石只轻轻晃一下，推不动。可以再请孩子回忆：刚才推石墨的上面一层，会怎样？（一推就滑开。）
+【互动】点“推一推”：金刚石只轻轻晃一下，推不动，出现“往哪边推，都推不动！”，接着弹出关键词“很坚固”。请孩子一起大声说：很坚固！可以再请孩子回忆：刚才推石墨的上面一层，会怎样？（一推就滑开。）
 【讲解】石墨的层和层拉得松，一推就滑开，所以又软又滑，能写字。金刚石里每个碳都用 4 只手往四面八方拉住邻居，哪个方向都拉得紧紧的，没有一条能滑开的缝，所以特别硬。
-【预期回答·不要提前说】回到第 13 页的问题：石墨这么软，金刚石为什么这么硬？因为手拉手的方式不一样：石墨一层一层，层和层拉得松；金刚石往四面八方都拉紧了。
+【预期回答·不要提前说】回到第 14 页的问题：石墨这么软，金刚石为什么这么硬？因为手拉手的方式不一样：石墨一层一层，层和层拉得松；金刚石往四面八方都拉紧了。
 【老师心里有数】孩子如果问颜色：石墨里第 4 个电子在整层里跑来跑去，什么颜色的光都能吸收，所以是黑的，还能导电；金刚石里的电子都被牢牢拉在化学键里，光能穿过去，所以是透明的，切磨后闪闪发光。</aside></section>
-<section class="slide dark" data-title="金刚石的运用" data-sec="金刚石" data-minutes="2" hidden>
+<section class="slide dark" data-title="金刚石的运用" data-sec="金刚石" data-minutes="1.5" hidden>
 <h2>金刚石的运用</h2>
 <div class="use-row">
  <figure class="use show"><div class="ph"><img src="a/use_ring.webp" alt="钻石戒指"></div><figcaption><b>钻石首饰</b><span>切磨后闪闪发光</span></figcaption></figure>
@@ -223,7 +240,7 @@
  <figure class="use show"><div class="ph"><img src="a/use_blade.webp" alt="金刚石锯片"></div><figcaption><b>金刚石锯片</b><span>切开石头和瓷砖</span></figcaption></figure>
  <figure class="use show"><div class="ph"><img src="a/use_window.webp" alt="人造金刚石片"></div><figcaption><b>光学窗口</b><span>给激光器做“窗户”</span></figcaption></figure>
 </div>
-<aside class="notes">【节奏】2 分钟。
+<aside class="notes">【节奏】1.5 分钟。
 【互动】先问孩子：金刚石这么硬、这么亮，你觉得人们会用它来做什么？再一张一张指着讲。
 【讲解】① 钻石首饰：金刚石切磨以后，能把光折来折去，闪闪发光。② 金刚石钻头：钻头上嵌着金刚石颗粒，能钻穿最硬的岩石，挖隧道、找石油都要用。③ 金刚石锯片：锯片边上嵌着金刚石颗粒，能切开石头、瓷砖和水泥。④ 光学窗口：金刚石又硬又透光，还特别耐热，科学家把人造金刚石做成薄片，给大功率激光器、探测器当“窗户”。
 【预期回答·不要提前说】孩子可能会说“做戒指”“切玻璃”。都表扬：后三种用的都是“硬”，第一种用的是“亮”。
@@ -240,7 +257,7 @@
 【讲解】今天的大发现：同样的碳原子，手拉手的方式不一样，本领就完全不一样。石墨：3 只手平平地拉成六边形的网，一层叠一层，层和层拉得松；金刚石：4 只手立体地拉住 4 个邻居，往四面八方连成一整块。
 【易错与准备】请孩子指着自己的模型说一说。</aside></section>
 
-<section class="slide dark" data-title="碳家族，还有谁？" data-sec="收尾" data-minutes="1.5" hidden>
+<section class="slide dark" data-title="碳家族，还有谁？" data-sec="收尾" data-minutes="1" hidden>
 <h2>碳家族，还有谁？</h2>
 <div class="fam-grid">
  <figure class="fam show keep"><img src="a/fam_graphite.webp" alt=""><figcaption>石墨</figcaption></figure>
@@ -251,7 +268,7 @@
  <figure class="fam"><img src="a/fam_mwnt.webp" alt=""><figcaption>多层碳纳米管</figcaption></figure>
 </div>
 <div class="controls"><button class="action i-next" data-fam-next aria-label="下一位"></button><button class="action i-reset" data-replay aria-label="重来"></button></div>
-<aside class="notes">【节奏】1.5 分钟，轻松收尾。
+<aside class="notes">【节奏】1 分钟，轻松收尾。
 【互动】一进页就有今天认识的金刚石和石墨。点“下一位”，其他碳家族成员一个一个出场。
 【讲解】同样是碳原子，换一种手拉手的方式，就变成了不同的东西：金刚石、石墨、只有一层的石墨烯、像足球一样的足球烯、卷成小管子的碳纳米管……这就是“碳的变身术”。
 【老师心里有数】它们都叫碳的“同素异形体”：同一种元素组成、原子排法不同的物质。足球烯 C₆₀ 由 60 个碳原子组成，有 12 个五边形和 20 个六边形；碳纳米管是石墨烯卷成的管子。图片是结构示意图，不是照片。</aside></section>
@@ -272,4 +289,4 @@
 
 <canvas id="confetti" width="1600" height="900" aria-hidden="true"></canvas><div id="notes" hidden></div><div id="overview" hidden></div></main></div>
 <nav id="rail" aria-label="翻页和工具"><button id="prev">← 上一页</button><span id="count"></span><button id="next">下一页 →</button><div id="progress"><i></i></div><button id="btnGrid" aria-pressed="false">目录</button><button id="btnNotes" aria-pressed="false">讲师备注</button><button id="btnSound" aria-pressed="true">声音：开</button><button id="btnFull">全屏</button><span class="keys">← → 翻页 · N 备注 · G 目录 · M 声音 · F 全屏</span></nav></div>
-<script src="vendor/three.min.js"></script><script src="vendor/OrbitControls.js"></script><script src="vendor/zomeparts.js"></script><script src="carbon-models.js?v=2"></script><script src="carbon-view.js?v=3"></script><script src="lesson.js?v=9"></script></body></html>
+<script src="vendor/three.min.js"></script><script src="vendor/OrbitControls.js"></script><script src="vendor/zomeparts.js"></script><script src="carbon-models.js?v=2"></script><script src="carbon-view.js?v=4"></script><script src="lesson.js?v=9"></script></body></html>
