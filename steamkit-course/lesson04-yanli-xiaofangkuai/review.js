@@ -19,13 +19,13 @@ const axes=[0,2,1];
 const axisLine=a=>choose(grid,p=>p.every((v,k)=>k===axes[a]||Math.abs(v)<EPS));
 const bottomCenter=choose(grid,p=>p[1]<-EPS&&Math.abs(p[0])+Math.abs(p[2])<EPS);
 const layerStages=[bottomCenter,choose(grid,p=>p[1]<-EPS&&Math.abs(p[2])<EPS),choose(grid,p=>p[1]<-EPS&&p[2]<EPS),layer];
-const maxSteps={...BATCH_MAX,...NEW_MAX,52:0,59:0,60:0,61:4,62:3,63:4,39:3,57:0,64:0,2:1,4:1,6:1,8:2,9:3,10:3,11:2,14:3,15:2,16:1,19:3,21:3};
+const maxSteps={...BATCH_MAX,...NEW_MAX,52:0,59:0,60:0,61:4,62:2,63:4,39:3,57:0,64:0,2:1,4:1,6:1,8:2,9:3,10:3,11:2,14:3,15:2,16:1,19:3,21:3};
 const state={page:1,step:0,guess:null,axis:0,notes:false,toc:false,sound:true,record:false,rowError:false,recordValues:{}};
 let deck,controllers=new Map(),pour=null,scope=0,storingFailed=false;
 try{state.recordValues=JSON.parse(localStorage.getItem('salt-review-record')||'{}');if(!state.recordValues||typeof state.recordValues!=='object')state.recordValues={};}catch{state.recordValues={};}
 const sound=window.createCourseSound(window.AudioContext||window.webkitAudioContext);
 const specs=new Map();
-const INTRO={nacl1:'spin','nacl-row':'zoom',cross3:'tilt',cube:'spin','grow-build':'zoom','clear-lattice':'tilt','octa-growing':'swing','na-center':'rise','cl-center':'rise','fav-a':'spin','fav-b':'spin',cscl:'tilt',caf2:'tilt','caf2-grow':'zoom'};
+const INTRO={nacl1:'spin','nacl-row':'zoom',cube:'spin','grow-build':'zoom','clear-lattice':'tilt','octa-growing':'swing','na-center':'rise','cl-center':'rise','fav-a':'spin','fav-b':'spin',cscl:'tilt',caf2:'tilt','caf2-grow':'zoom'};
 function host(key,spec,style=''){
  if(spec.intro===undefined&&INTRO[key])spec={...spec,intro:INTRO[key]};
  specs.set(key,spec);
@@ -68,9 +68,13 @@ function content(){
   return title('第 2 步：搭更多氯化钠')+host('nacl-row',{id:'row-six',balls:stages[s],height:16,yaw:0,pitch:.2,labels:lab},'left:60px;top:200px;width:1480px;height:600px')+plusButton('再接一颗')+(s===4?`<button class="label-toggle${state.labels?' on':''}" data-action="labels">${state.labels?'隐藏':'标出'} <b class="ionf">Na⁺</b> / <b class="ionf">Cl⁻</b></button>`:'');
  }
  if(p===62){
-  const stages=[[0],[0,1,2],[0,1,2,3,4],[0,1,2,3,4,5,6]];
-  return title('第 3 步：一个钠，周围有几个氯？')+host('cross3',{id:'cross-3d',balls:stages[s],height:17},'left:150px;top:200px;width:820px;height:620px')+
-   `<div class="neighbor-tally">${s===0?'':['左右：2 个','上下：2 个','前后：2 个'].slice(0,s).map((t,i)=>`<p class="${i===s-1?'pop':''}">${t}</p>`).join('')}${s===3?'<p class="tally-total pop">一共 6 个邻居！</p>':''}</div>`+plusButton('再接一对');
+  // Continues from page 9: same framing of the six-ball row, glide in onto the middle sodium,
+  // keep it and its left/right chlorines, then add up/down and front/back.
+  const stages=[[1,2,3],[1,2,3,6,7],[1,2,3,6,7,8,9]];
+  const spec={id:'row-cross',balls:stages[s],height:[7.5,15,15][s],yaw:.5,pitch:.28,shift:[-2.618+3*Math.cos(.5),0,-3*Math.sin(.5)],intro:false};
+  if(s===0)spec.fly={startBalls:[0,1,2,3,4,5],from:{yaw:0,pitch:.2,height:16,sx:0,sy:0,sz:0},focus:[1,2,3],delay:600,dur:2000};
+  return title('第 3 步：一个钠，周围有几个氯？')+host('cross3',spec,'left:60px;top:200px;width:1480px;height:600px')+
+   `<div class="neighbor-tally">${['左右：2 个','上下：2 个','前后：2 个'].slice(0,s+1).map((t,i)=>`<p class="${i===s?'pop':''}">${t}</p>`).join('')}${s===2?'<p class="tally-total pop">一共 6 个邻居！</p>':''}</div>`+plusButton('再接一对');
  }
  if(p===39){
   const m=models['lattice-5'],o=m.balls[62],sp=5.23606797749979;

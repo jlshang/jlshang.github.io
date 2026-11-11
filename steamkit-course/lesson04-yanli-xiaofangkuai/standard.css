@@ -273,3 +273,6 @@
 /* v12: soft light behind each 3D model so black balls stand out on the dark page */
 .model-host::before{content:"";position:absolute;left:50%;top:50%;width:min(92%,900px);aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(closest-side,rgba(78,102,148,.55),rgba(58,78,118,.28) 55%,rgba(31,42,68,0));pointer-events:none;z-index:0}
 .model-host canvas{position:relative;z-index:1}
+/* v13: page 10 tally waits for the camera glide from page 9 */
+.scene-62.step-0 .neighbor-tally{opacity:0;animation:tallyIn .5s 2.7s forwards}
+@keyframes tallyIn{to{opacity:1}}

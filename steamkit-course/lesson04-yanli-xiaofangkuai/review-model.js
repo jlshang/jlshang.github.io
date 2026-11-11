@@ -13,13 +13,13 @@ export function mountModel(host,spec){
  canvas.width=1100;canvas.height=Math.round(1100*parseFloat(host.style.height||555)/parseFloat(host.style.width||1000));
  const interactive=spec.interactive!==false;host.dataset.interactive=String(interactive);
  if(!interactive){canvas.tabIndex=-1;canvas.setAttribute('aria-label','固定视角的Zometool模型，不可旋转或缩放');host.querySelector('.model-reset').hidden=true;}
- const base={yaw:spec.yaw??.56,pitch:spec.pitch??.30,height:spec.height??21,orthographic:true};
+ const base={yaw:spec.yaw??.56,pitch:spec.pitch??.30,height:spec.height??21,sx:spec.shift?.[0]??0,sy:spec.shift?.[1]??0,sz:spec.shift?.[2]??0,orthographic:true};
  let view={...base},current={visibleBalls:[],visibleStruts:[],ballOffsets:{},strutOffsets:{}},frame=0,disposed=false,target=[],targetRods=[],focus=null;
  const pointers=new Map();let pinch=0;
  function draw(){
   if(disposed||!host.isConnected)return;
   try{
-   renderModel(canvas,spec.id,{...view,...current,focusBalls:focus,highlight:spec.highlight||[],ghostOpacity:spec.ghostOpacity??.12,labels:spec.labels||null});
+   renderModel(canvas,spec.id,{...view,shift:[view.sx||0,view.sy||0,view.sz||0],...current,focusBalls:focus,highlight:spec.highlight||[],ghostOpacity:spec.ghostOpacity??.12,labels:spec.labels||null});
    host.dataset.focus=JSON.stringify(focus);host.dataset.highlight=JSON.stringify(spec.highlight||[]);host.dataset.ghostOpacity=spec.ghostOpacity??.12;host.dataset.ready='true';host.dataset.yaw=view.yaw;host.dataset.height=view.height;
   }catch(e){host.dataset.ready='error';host.querySelector('.model-status').textContent='三维显示失败，请刷新重试';console.error(e);}
  }
@@ -81,14 +81,22 @@ export function mountModel(host,spec){
   cancelAnimationFrame(introFrame);let t0=0,n=0;
   const step=now=>{if(disposed)return;if(n++<2){t0=now;introFrame=requestAnimationFrame(step);return;}
    const t=Math.min(1,(now-t0)/dur),e=t>=1?1:ease==='wobble'?1-Math.pow(1-t,2)*Math.cos(2.2*Math.PI*t):1-Math.pow(1-t,3);
-   view={...view,yaw:from.yaw+(to.yaw-from.yaw)*e,pitch:from.pitch+(to.pitch-from.pitch)*e,height:from.height+(to.height-from.height)*e};draw();
+   const L=k=>(from[k]??0)+((to[k]??0)-(from[k]??0))*e;
+   view={...view,yaw:L('yaw'),pitch:L('pitch'),height:L('height'),sx:L('sx'),sy:L('sy'),sz:L('sz')};draw();
    if(t<1)introFrame=requestAnimationFrame(step);else{host.dataset.intro='done';done&&done();}};
   introFrame=requestAnimationFrame(step);
  }
  host.querySelector('.model-reset').onclick=()=>{tweenView({...view},{...base},1200,share);};
- update(spec,false);
+ if(spec.fly&&!reduced()){
+  // Camera move carried over from the previous page: start on its framing, glide in onto the focus,
+  // fade the other parts, then settle on the final part list.
+  const f=spec.fly,finalBalls=spec.balls;update({...spec,balls:f.startBalls},false);
+  view={...base,...f.from};draw();host.dataset.intro='running';
+  setTimeout(()=>{if(disposed)return;focus=f.focus;draw();
+   tweenView({...view},{...base},f.dur||1800,()=>{update({balls:finalBalls},false);host.dataset.intro='done';});},f.delay??500);
+ }else update(spec,false);
  // Gentle entrance: fade in while turning half a turn and settling slightly closer; ease-out cubic over 2.4s.
- if(spec.intro!==false&&!reduced()){
+ if(spec.intro!==false&&!spec.fly&&!reduced()){
   // Entrance styles differ by page: spin (half turn), zoom (comes in from far), tilt (drops from a top view),
   // swing (small side-to-side settle), rise (slides up while fading in).
   const kind=typeof spec.intro==='string'?spec.intro:'spin';

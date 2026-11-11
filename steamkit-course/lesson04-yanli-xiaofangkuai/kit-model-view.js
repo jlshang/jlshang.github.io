@@ -88,8 +88,10 @@ function focusLattice(axis){
   mesh.material=(on?materials:ghostMaterials)[material];mesh.castShadow=on;mesh.renderOrder=on?1:0;mesh.userData.active=!!axis&&on;
  }
 }
-export function renderModel(canvas,id,{yaw=.545,pitch=.274,height=17,orthographic=false,axis=0,visibleBalls=null,visibleStruts=null,ballOffsets={},strutOffsets={},highlight=[],focusBalls=null,ghostOpacity=.12,labels=null}={}){
+export function renderModel(canvas,id,{yaw=.545,pitch=.274,height=17,orthographic=false,axis=0,visibleBalls=null,visibleStruts=null,ballOffsets={},strutOffsets={},highlight=[],focusBalls=null,ghostOpacity=.12,labels=null,shift=null}={}){
  const {scene,lights,group,model}=buildScene(id),r=getRenderer(),w=canvas.width,h=canvas.height;
+ if(!group.userData.base)group.userData.base=group.position.clone();
+ group.position.copy(group.userData.base);if(shift)group.position.sub(new T.Vector3(...shift));
  if(id==='lattice-5')focusLattice(axis);
  for(const material of Object.values(ghostMaterials))material.opacity=ghostOpacity;
  const visible=visibleBalls===null?null:new Set(visibleBalls);
