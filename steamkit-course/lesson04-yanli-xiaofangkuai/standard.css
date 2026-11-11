@@ -278,3 +278,13 @@
 @keyframes tallyIn{to{opacity:1}}
 /* v14: no focus frame on models or after mouse clicks */
 .model-host canvas:focus,.model-host canvas:focus-visible{outline:none!important}
+/* v15 */
+.vote-n{float:right;min-width:64px;height:64px;margin-top:28px;border-radius:32px;background:#e9e3d6;color:#9a8f7e;font:40px/64px var(--display);text-align:center;opacity:.0;transition:opacity .2s}
+.vote-n.on{opacity:1;background:var(--orange);color:#fff}
+.vote-n.bump{animation:votebump .35s cubic-bezier(.3,1.8,.5,1)}
+@keyframes votebump{40%{transform:scale(1.35)}}
+.why-guesses.big button{display:block;line-height:120px}
+.chem{font-family:"Times New Roman",serif;font-style:italic;font-weight:700;color:#f5c542;margin-left:4px}
+.chem sup{font-size:.62em;margin-left:1px;font-style:normal}
+
+.salt-name{font-size:64px}

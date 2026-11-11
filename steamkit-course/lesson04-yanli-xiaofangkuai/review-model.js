@@ -26,7 +26,9 @@ export function mountModel(host,spec){
  function share(){if(!spec.syncView)return;for(const peer of syncGroups.get(spec.syncView)||[])if(peer!==receiver)peer({...view});}
  const receiver=next=>{view={...next};draw();};
  if(spec.syncView){if(!syncGroups.has(spec.syncView))syncGroups.set(spec.syncView,new Set());syncGroups.get(spec.syncView).add(receiver);}
+ let flyFinal=null;
  function update(next,animate=true){
+  if(flyFinal&&next.balls&&!next.__fly)flyFinal=next.balls;
   cancelAnimationFrame(frame);focus=next.focus??null;spec={...spec,...next};
   if(next.height&&next.height!==base.height){base.height=next.height;tweenView({...view},{...view,height:next.height},900);}
   const balls=next.balls??model.balls.map((_,i)=>i),set=new Set(balls);
@@ -84,10 +86,10 @@ export function mountModel(host,spec){
  if(spec.fly&&!reduced()){
   // Camera move carried over from the previous page: start on its framing, glide in onto the focus,
   // fade the other parts, then settle on the final part list.
-  const f=spec.fly,finalBalls=spec.balls;update({...spec,balls:f.startBalls},false);
+  const f=spec.fly;flyFinal=spec.balls;update({...spec,balls:f.startBalls,__fly:1},false);
   view={...base,...f.from};draw();host.dataset.intro='running';
   setTimeout(()=>{if(disposed)return;focus=f.focus;draw();
-   tweenView({...view},{...base},f.dur||1800,()=>{update({balls:finalBalls},false);host.dataset.intro='done';});},f.delay??500);
+   tweenView({...view},{...base},f.dur||1800,()=>{const fb=flyFinal;flyFinal=null;update({balls:fb},false);host.dataset.intro='done';});},f.delay??500);
  }else update(spec,false);
  // Gentle entrance: fade in while turning half a turn and settling slightly closer; ease-out cubic over 2.4s.
  if(spec.intro!==false&&!spec.fly&&!reduced()){

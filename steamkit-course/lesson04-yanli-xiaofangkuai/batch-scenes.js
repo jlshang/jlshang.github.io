@@ -57,7 +57,7 @@ export function batchContent(c){
  if(p===38){
   const m=models['lattice-5'],origin=m.balls[62],axis=[null,0,2,1][state.axis];
   const highlight=state.axis?m.balls.flatMap((p,i)=>p.every((v,k)=>k===axis||Math.abs(v-origin[k])<.01)?[i]:[]):[];
-  return title('搭成更大的盐粒，规则还在吗？')+host('clear-lattice',{id:'lattice-5',height:34,yaw:.32,pitch:.18,focus:state.axis?highlight:null,ghostOpacity:.09},'left:90px;top:215px;width:970px;height:580px')+`<section class="lattice-guide"><h2>相邻的球，<br>颜色怎样排？</h2><div class="lattice-axis-row">${['左右','前后','上下'].map((t,i)=>`<button data-axis="${i+1}" aria-pressed="${state.axis===i+1}">${t}</button>`).join('')}</div></section>`;
+  return title('搭成更大的盐粒，规则还在吗？')+host('clear-lattice',{id:'lattice-5',height:34,yaw:.32,pitch:.18,focus:state.axis?highlight:null,ghostOpacity:.09},'left:90px;top:215px;width:970px;height:580px')+`<section class="lattice-guide"><h2>相邻的球，<br>颜色怎样排？</h2><div class="lattice-axis-row">${['左右','前后','上下'].map((t,i)=>`<button data-axis="${i+1}" aria-pressed="${state.axis===i+1}">${t}</button>`).join('')}</div></section>`+(state.axis?'<button class="review-next-step round" data-action="latticeall" aria-label="回到整颗盐粒"><span aria-hidden="true">↺</span></button>':'');
  }
  if(p===39){
   const initial=stageInfo(19,0),full=stageInfo(19,6),spec=s?full:initial;

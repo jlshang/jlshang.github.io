@@ -84,18 +84,18 @@ function content(){
  }
  if(p===57||p===64){
   const cap=(name,f,rows)=>`<div class="ch-card"><h3>${name}<b class="ionf">${f}</b></h3>${rows.map(([c,t])=>`<p><span class="dot ${c}"></span>${t}</p>`).join('')}</div>`;
-  const fl=cap('萤石 ','CaF₂',[['black','黑球 = 钙 Ca²⁺'],['white','白球 = 氟 F⁻'],['rod','蓝短棍：连成小方块'],['rod y','黄短棍：氟连到 4 个钙']]);
+  const fl=cap('萤石 ','CaF₂',[['black','黑球 = 钙 <span class="chem">Ca<sup>2+</sup></span>'],['white','白球 = 氟 <span class="chem">F<sup>−</sup></span>'],['rod','蓝短棍：连成小方块'],['rod y','黄短棍：氟连到 4 个钙']]);
   if(p===57)return title('课后挑战1：盐的亲戚——氯化铯和萤石')+
    host('cscl',{id:'cscl',height:14,yaw:.5,pitch:.32},'left:110px;top:150px;width:620px;height:480px')+
    host('caf2',{id:'caf2-big',balls:CAF2_STAGES[0],height:23,yaw:.5,pitch:.32},'left:870px;top:150px;width:620px;height:480px')+
-   `<div class="ch-col" style="left:70px">${cap('氯化铯 ','CsCl',[['black','黑球 = 铯 Cs⁺'],['white','白球 = 氯 Cl⁻'],['rod','蓝短棍：连成方块'],['rod y','黄短棍：铯连到 8 个角']])}</div>`+
+   `<div class="ch-col" style="left:70px">${cap('氯化铯 ','CsCl',[['black','黑球 = 铯 <span class="chem">Cs<sup>+</sup></span>'],['white','白球 = 氯 <span class="chem">Cl<sup>−</sup></span>'],['rod','蓝短棍：连成方块'],['rod y','黄短棍：铯连到 8 个角']])}</div>`+
    `<div class="ch-col" style="left:830px">${fl}</div>`;
-  const k=state.caf??1;
+  const k=state.caf??3;
   return title('课后挑战2：搭一块大萤石')+
-   host('caf2-grow',{id:'caf2-big',balls:CAF2_STAGES[k],height:[23,28,30,35][k],yaw:.5,pitch:.32},'left:70px;top:150px;width:960px;height:690px')+
+   host('caf2-grow',{id:'caf2-big',balls:CAF2_STAGES[k],height:[23,28,30,35][k],yaw:.5,pitch:.32},'left:70px;top:170px;width:960px;height:680px')+
    `<div class="ch-col side">${fl}<p class="grow-note">点 <b>＋</b> 拼大，点 <b>－</b> 拆小</p></div>`+
-   (k<3?`<button class="review-next-step round plus" data-action="cafplus" aria-label="萤石再拼一块"><span aria-hidden="true">＋</span></button>`:'')+
-   (k>0?`<button class="review-next-step round minus" style="${k<3?'':'right:132px'}" data-action="cafminus" aria-label="萤石拆小一点"><span aria-hidden="true">－</span></button>`:'');}
+   `<button class="review-next-step round plus${k<3?'':' at-end'}" data-action="cafplus" aria-label="萤石再拼一块"><span aria-hidden="true">＋</span></button>`+
+   `<button class="review-next-step round minus${k>0?'':' at-end'}" data-action="cafminus" aria-label="萤石拆小一点"><span aria-hidden="true">－</span></button>`;}
  if(p===65)return title('拓展挑战：养一颗大盐粒')+
   `<ol class="grow-steps"><li>请大人帮忙，配一杯很浓的盐水</li><li>倒进浅盘，放在安静的地方</li><li>每天同一时间，拍一张照片</li><li>记一记：盐粒多大？什么形状？</li></ol>`+
   `<div class="grow-photos"><img src="assets/p26-shape6.png" alt="手指捏着一颗方方的大盐粒（实拍）"><img src="assets/p27-shape5.png" alt="两颗透明的大盐粒（实拍）"></div>`+
@@ -103,7 +103,8 @@ function content(){
  if(p===56)return title('拼搭你喜欢的盐粒')+host('fav-a',{id:'twin-octa',height:19,yaw:.5,pitch:.28},'left:60px;top:170px;width:730px;height:640px')+host('fav-b',{id:'cube-octa',height:28,yaw:.55,pitch:.32},'left:810px;top:170px;width:730px;height:640px');
  if(p===63){
   const stages=['cross-3d','grid-1','grid-2','grid-3','grid-4'].map(id=>choose(grid,(q,i)=>models[id].balls.some(b=>b.every((v,k)=>Math.abs(v-q[k])<1e-6))));
-  return title('第 4 步：把十字变成小方块')+host('cube',{id:'grid-4',balls:stages[s],height:21},'left:300px;top:190px;width:1000px;height:640px')+stepButtons('接着搭');
+  // Starts exactly where page 10 ended (same framing and angle), then the cross keeps reaching out into a cube.
+  return title('第 4 步：把十字变成小方块')+host('cube',{id:'grid-4',balls:stages[s],height:[15,17,19,21,22][s],yaw:.5,pitch:.28,shift:[3*Math.cos(.5),0,-3*Math.sin(.5)],intro:false},'left:60px;top:200px;width:1480px;height:600px')+stepButtons('接着搭');
  }
  if(p===51)return s===0?micro(state,title,window.originalRevisions.photos(deck.slides[5])):why(state,title);
  if(p===59)return ions({...state,step:0},title);
@@ -251,7 +252,7 @@ function render(animate=false){
  $('#progress').value=visiblePage();$('#prev').disabled=state.page===1;$('#next').disabled=visiblePage()===LESSON.length;
  updatePanels();resize();
 }
-function goReset(){state.methods=new Set();state.labels=false;state.saltShown=false;state.ionReset=false;state.caf=1;}
+function goReset(){state.methods=new Set();state.labels=false;state.saltShown=false;state.ionReset=false;state.caf=3;state.votes=[0,0,0];}
 const MODEL_PAGES=new Set([60,61,62,63,38,39,42,44,56,57,58,64]);
 function navCue(n){return n===1?'cover':[5,41].includes(n)?'chapter':n===65?'finish':MODEL_PAGES.has(n)?'model':'page';}
 function go(n){
@@ -277,7 +278,7 @@ document.addEventListener('click',e=>{
  if(e.target.closest('.kitchen-art')&&state.page===50&&!state.saltShown){state.saltShown=true;render();if(state.sound)sound.play('pin');return;}
  const b=e.target.closest('button');if(!b)return;
  if(b.dataset.go){go(+b.dataset.go);return;}
- if(b.dataset.guess!==undefined){state.guess=+b.dataset.guess;render();if(state.sound)sound.play('select');return;}
+ if(b.dataset.guess!==undefined){const v=state.votes=state.votes||[0,0,0];v[+b.dataset.guess]++;const n=b.querySelector('.vote-n');if(n){n.textContent=v[+b.dataset.guess];n.classList.add('on');n.classList.remove('bump');void n.offsetWidth;n.classList.add('bump');b.classList.add('selected');}if(!document.querySelector('[data-action=votereset]'))render();if(state.sound)sound.play('tick');return;}
  if(b.dataset.row){
   if(state.step>=2)return;
   if(b.dataset.row===(state.step===0?'white':'black')){state.step++;state.rowError=false;render(true);if(state.sound)sound.play('step');}
@@ -292,7 +293,9 @@ document.addEventListener('click',e=>{
  if(a==='toc'){state.toc=!state.toc;state.notes=false;updatePanels();}
  if(a==='record'){state.record=!state.record;render();if(state.record)$('[data-record]')?.focus();}
  if(a==='download')downloadRecord();
- if(a==='cafplus'||a==='cafminus'){state.caf=Math.max(0,Math.min(3,(state.caf??1)+(a==='cafplus'?1:-1)));render(true);if(state.sound)sound.play(a==='cafplus'?'plus':'reset');}
+ if(a==='cafplus'||a==='cafminus'){const k0=state.caf??3,k1=Math.max(0,Math.min(3,k0+(a==='cafplus'?1:-1)));if(k1===k0){if(state.sound)sound.play('wrong');}else{state.caf=k1;render(true);if(state.sound)sound.play(a==='cafplus'?'plus':'reset');}}
+ if(a==='votereset'){state.votes=[0,0,0];render();if(state.sound)sound.play('reset');}
+ if(a==='latticeall'){state.axis=0;render();if(state.sound)sound.play('reset');}
  if(a==='ionreset'){state.ionReset=true;render();if(state.sound)sound.play('reset');}
  if(a==='labels'){state.labels=!state.labels;render();if(state.sound)sound.play('pin');}
 });

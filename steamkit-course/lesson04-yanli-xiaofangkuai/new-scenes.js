@@ -6,7 +6,7 @@ const ICON_IMG={'闻一闻':'media/ico_smell.png','尝一尝':'media/ico_taste.p
 const wallState=new Map();
 
 export function kitchen(state,title,stepBtn){
- const art=`<img class="kitchen-art" src="media/salt_shaker.png" alt="卡通调料罐和倒出来的一堆白色颗粒（卡通形象）" draggable="false">`+(state.saltShown?'<p class="salt-name">盐</p>':'');
+ const art=`<img class="kitchen-art" src="media/salt_shaker.png" alt="卡通调料罐和倒出来的一堆白色颗粒（卡通形象）" draggable="false">`+(state.saltShown?'<p class="salt-name">盐？糖？</p>':'');
  if(state.step===0)return title('厨房里的白色调料，你猜是什么？')+art+stepBtn;
  return title('厨房里的白色调料，你猜是什么？')+art+
   `<p class="kitchen-ask">有什么办法知道？</p>`+
@@ -73,7 +73,7 @@ function bindMicro(sound){
 
 export function why(state,title){
  const guesses=['工厂把盐切成了小方块','盐里面的小粒子，排得整整齐齐','我有别的猜想'];
- return `<img class="why-art slide-in" src="assets/p06-shape5.jpeg" alt="显微镜下的盐粒" draggable="false"><div class="why-guesses big"><p class="why-ask">盐粒为什么是小方块？</p>${guesses.map((t,i)=>`<button data-guess="${i}" class="${state.guess===i?'selected':''}" aria-pressed="${state.guess===i}" style="--i:${i}"><b>${'ABC'[i]}</b>${t}</button>`).join('')}</div>`;
+ return `<img class="why-art slide-in" src="assets/p06-shape5.jpeg" alt="显微镜下的盐粒" draggable="false"><div class="why-guesses big"><p class="why-ask">为什么小方块的是盐？</p>${guesses.map((t,i)=>{const n=(state.votes||[])[i]||0;return `<button data-guess="${i}" class="${n?'selected':''}" style="--i:${i}"><b>${'ABC'[i]}</b>${t}<span class="vote-n${n?' on':''}">${n}</span></button>`;}).join('')}</div>`+((state.votes||[]).some(Boolean)?'<button class="review-next-step round" data-action="votereset" aria-label="清零"><span aria-hidden="true">↺</span></button>':'');
 }
 
 // ---------- Page 52: one grain zooms into ions; drag to build Na-Cl chain ----------
