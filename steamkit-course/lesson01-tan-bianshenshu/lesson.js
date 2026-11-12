@@ -30,7 +30,7 @@ const sub=(m,nb,ns)=>({b:m.b.slice(0,nb),s:m.s.slice(0,ns)});
 const add=(p,q,k=1)=>p.map((x,i)=>x+k*q[i]);
 const L0=C.layers.layer;
 const SUP={nb:true,b:[],s:[]};C.layers.supports.forEach(i=>{const p=L0.b[i];SUP.b.push(p,add(p,LIFT));SUP.s.push([SUP.b.length-2,SUP.b.length-1,'yellow'])});
-const D2=C.diamond[2],UNIT=C.unit[4];
+const D2=C.dtet[4],UNIT=C.unit[4];
 const SPEC={
  hand3:{up:N,elev:38,yaw:12,fit:.78,frame:C.hand3,steps:[sub(C.hand3,1,0),sub(C.hand3,2,1),sub(C.hand3,3,2),C.hand3,C.hand3]},
  ring:{up:N,elev:48,yaw:12,fit:.78,frame:C.ring[4],steps:C.ring},
@@ -41,8 +41,8 @@ const SPEC={
  stack:{up:N,elev:16,yaw:12,fit:.8,frame:{b:L0.b.concat(L0.b.map(p=>add(p,LIFT)))}},
  layers2:{up:N,elev:20,yaw:12,fit:.78,frame:{b:L0.b.concat(L0.b.map(p=>add(p,LIFT)))}},
  unit:{up:NEG,elev:16,yaw:20,fit:.72,frame:UNIT,steps:C.unit},
- diamond:{up:NEG,elev:16,yaw:20,fit:.82,frame:D2,steps:C.diamond},
- dia4:{up:NEG,elev:16,yaw:20,fit:.86,frame:C.dia4,steps:[C.dia4]},
+ diamond:{up:C.dtetUp,elev:16,yaw:0,fit:.98,box:1,frame:D2,steps:C.dtet},
+ dia4:{up:C.dtetUp,elev:16,yaw:0,fit:1,box:1,frame:C.dia4,steps:[C.dia4]},
  c60:{up:[0,0,1],elev:10,yaw:0,fit:.86,frame:C.c60,steps:[C.c60]},
  tet:{up:[1,1,1],elev:14,yaw:0,fit:.72,frame:C.tetM,steps:[C.tetM]},
 };
@@ -53,12 +53,13 @@ function mountZome(h){
  else if(name==='layers2')groups=[{model:L0},{model:L0,offset:LIFT}];
  else if(name==='stack')groups=[{model:L0},{model:L0,offset:LIFT},{model:{nb:true,b:[],s:[]}}];
  else groups=[{model:sp.steps[Math.min(st,sp.steps.length-1)]}];
- const frame=h.dataset.step!==undefined&&name==='diamond'?sp.steps[st]:sp.frame;
- const v=CV.mount(h,{groups,up:sp.up,elev:sp.elev,yaw:sp.yaw,fit:sp.fit*(h.classList.contains('mini')?1.1:1),frame,center:centroid(sp.frame||groups[0].model)});
+ const frame=sp.frame;
+ const v=CV.mount(h,{groups,up:sp.up,elev:sp.elev,yaw:sp.yaw,fit:sp.fit*(h.classList.contains('mini')?1.1:1),frame,center:sp.box?boxc(sp.frame,sp.up):centroid(sp.frame||groups[0].model)});
  if(name==='layers'||name==='stack'){v.showGroup(1,false)}
  h._v=v;h._step=st;views.push(v);
  if(!reduce&&h.dataset.still===undefined)v.intro(name==='layers'||name==='layers2'||name==='stack'?'drop':name==='unit'?'swing':name.startsWith('diam')?'zoom':name==='net'||name==='ring'?'rise':'spin');
  return v}
+function boxc(m,u){const c=centroid(m),n=Math.hypot(...u),e=u.map(x=>x/n),h=m.b.map(p=>p[0]*e[0]+p[1]*e[1]+p[2]*e[2]),hc=h.reduce((a,b)=>a+b)/h.length,d=(Math.min(...h)+Math.max(...h))/2-hc;return c.map((x,i)=>x+d*e[i])}
 function centroid(m){const c=[0,0,0];m.b.forEach(p=>{c[0]+=p[0];c[1]+=p[1];c[2]+=p[2]});return c.map(x=>x/m.b.length)}
 const host=s=>$('.zome-host',s);
 function stepTo(s,h,k,captions){const sp=SPEC[h.dataset.model];h._step=k;h._v.setModel(sp.steps[Math.min(k,sp.steps.length-1)],true);const cap=$('.step-cap',s);if(cap&&captions){cap.textContent=captions[k]||'';pop(cap)}}
@@ -124,12 +125,13 @@ const UNIT_CAP=['找一个三角孔','插一根黄短棍，再翻过来','围着
 $$('[data-unit-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=host(s),k=h._step+1;if(k>4)return;h._v.setMarker(null,null,false);stepTo(s,h,k,UNIT_CAP);cue('fly');
  if(k===4){b.disabled=true;later(()=>{h._v.setMarker(UNIT.b[0],NEG,true);cue('select')},1300);later(()=>{const nb=UNIT.b.slice(1),pairs=[];for(let i=0;i<4;i++)for(let j=i+1;j<4;j++)pairs.push([nb[i],nb[j]]);h._v.setMarker(null,null,false);h._v.setDashes(pairs);const cap=$('.step-cap',s);cap.textContent='4 个邻居，站成一个三角锥';pop(cap);celebrate(s)},3600)}});
 // p17 diamond
-$$('[data-dia-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=host(s),k=h._step+1;if(k>2)return;h._step=k;h._v.setModel(C.diamond[k],true);h._v.refit(C.diamond[k],1400);cue('fly');if(k===2){b.disabled=true;later(()=>celebrate(s),1800)}});
+const DIA_CAP=['倒过来：1 只手朝上，3 只手朝下','下面 3 个碳，各往下伸 1 只手','每个再往下伸 3 只手，拉住新邻居','6 个碳，各往下伸 1 只手','再往下伸 3 只手，拼好最下面一层'];
+$$('[data-dia-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=host(s),k=h._step+1;if(k>4)return;h._step=k;h._v.setModel(C.dtet[k],true);cue('fly');const cap=$('.step-cap',s);cap.textContent=DIA_CAP[k];pop(cap);if(k===4){b.disabled=true;later(()=>celebrate(s),1800)}});
 // p18 chair
-const CHAIR=C.chair.map(i=>D2.b[i]),CHAIR_S=CHAIR.map((p,i)=>[p,CHAIR[(i+1)%6]]);
+const CHAIR=C.dchair.map(i=>D2.b[i]),CHAIR_S=CHAIR.map((p,i)=>[p,CHAIR[(i+1)%6]]);
 $$('[data-chair]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),v=host(s)._v;if(s._chair){v.highlight(0,[],[],false);s._chair=0;setPressed(b,false);cue('tick');return}v.highlight(0,CHAIR,CHAIR_S,true);cue('correct');s._chair=1;setPressed(b,true)});
 $$('[data-chair-side]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),v=host(s)._v;if(s._side){s._side=0;v.home();setPressed(b,false);$('.chair-cap',s).hidden=true;cue('tick');return}s._side=1;setPressed(b,true);if(!s._chair){v.highlight(0,CHAIR,CHAIR_S,true);s._chair=1;setPressed($('[data-chair]',s),true)}
- const c=centroid({b:CHAIR}),a=CHAIR[0].map((x,i)=>x-CHAIR[3][i]),n=cross(CHAIR[0].map((x,i)=>x-c[i]),CHAIR[2].map((x,i)=>x-c[i])),side=cross(n,a);v.lookFrom(side,1500,.85);later(()=>{pop($('.chair-cap',s));cue('correct')},1500)});
+ const c=centroid({b:CHAIR}),a=CHAIR[0].map((x,i)=>x-CHAIR[3][i]),n=cross(CHAIR[0].map((x,i)=>x-c[i]),CHAIR[2].map((x,i)=>x-c[i])),side=cross(n,a);v.lookFrom(side,1500,.72);later(()=>{pop($('.chair-cap',s));cue('correct')},1500)});
 function cross(a,b){return[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]]}
 // p19 push
 $$('[data-push]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),d=host(s);d._v.shakeGroup(0,.5,900);cue('wrong');later(()=>pop($('.push-cap',s)),600);later(()=>{const k=$('.keyword',s);if(k){pop(k);cue('correct');celebrate(s)}},1500);b.disabled=true});
@@ -152,7 +154,7 @@ function enter(s){
  if($('.zoomer',s))zoomReset(s);s.classList.remove('handed','paired','revealed');
  $$('.model-name.later').forEach(x=>x.classList.remove('show'));
  $$('.ang-n,.push-res',s).forEach(x=>x.classList.remove('show','pop'));
- $$('.caption.step-cap',s).forEach(c=>{c.textContent=s.querySelector('[data-hand-next]')?HAND_CAP[0]:s.querySelector('[data-unit-next]')?UNIT_CAP[0]:'';c.hidden=false});
+ $$('.caption.step-cap',s).forEach(c=>{c.textContent=s.querySelector('[data-hand-next]')?HAND_CAP[0]:s.querySelector('[data-unit-next]')?UNIT_CAP[0]:s.querySelector('[data-dia-next]')?DIA_CAP[0]:'';c.hidden=false});
  $$('.done-cap,.slide-cap,.reveal-cap,.chair-cap,.name-tag,.side-view,.arc-cap,.push-cap,.vote-cap,.choice-tip,.ans-cap,.keyword',s).forEach(x=>x.hidden=true);
  $$('[data-cap]',s).forEach(x=>x.hidden=true);
  $$('.big-count',s).forEach(x=>x.textContent='');
