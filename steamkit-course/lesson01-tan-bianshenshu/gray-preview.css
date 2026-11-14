@@ -1,0 +1,76 @@
+/* Isolated background study. Page 19 additionally trials a satin finish. */
+.slide.gray-preview {
+  background: #adb2b8;
+}
+.gray-preview h2,
+.gray-preview .model-name,
+.gray-preview .goal {
+  color: #1e2a44;
+}
+.gray-preview .caption {
+  color: #71350e;
+}
+.gray-preview .big-count {
+  color: #a4440d;
+  text-shadow: none;
+}
+.gray-preview .zome-host,
+.gray-preview .zome-host[data-ball-finish="satin"] {
+  background: transparent;
+  border-radius: 0;
+}
+.gray-preview .zome-host::after {
+  display: none;
+}
+
+/* Challenge copy needs explicit overrides: lesson.css sets paragraph/bold colors. */
+.challenge-preview .goal p {
+  color: #233249;
+}
+.challenge-preview .goal-n,
+.challenge-preview .goal p b {
+  color: #71350e;
+}
+
+/* Page 19 only: restrained silver-grey depth, without a separate model card. */
+.slide.gray-preview.refined-preview {
+  background: radial-gradient(ellipse at 48% 38%, #bec5cc 0%, #adb5be 58%, #9ba6b2 100%);
+}
+.refined-preview h2 {
+  top: 60px;
+  font-size: 52px;
+  letter-spacing: 1px;
+  color: #233249;
+}
+.refined-preview .controls {
+  gap: 14px;
+}
+.refined-preview .controls .action {
+  width: 62px;
+  height: 62px;
+  border: 1.5px solid rgba(255, 255, 255, .7);
+  background: rgba(249, 250, 252, .94);
+  box-shadow: 0 3px 8px rgba(35, 50, 73, .09), inset 0 1px 0 #fff;
+}
+.refined-preview .controls .action::before {
+  left: 15.5px;
+  top: 15.5px;
+  background: #bd5c23;
+}
+.refined-preview .controls .action:hover {
+  background: #fff;
+  border-color: #d9a17b;
+}
+.refined-preview .caption {
+  color: #314158;
+}
+.refined-preview .keyword {
+  top: 190px;
+  right: 130px;
+  padding: 16px 34px;
+  border-radius: 20px;
+  background: #b85b29;
+  font-size: 64px;
+  transform: none;
+  box-shadow: 0 6px 18px rgba(35, 50, 73, .14);
+}

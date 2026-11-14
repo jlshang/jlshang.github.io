@@ -54,7 +54,7 @@ function mountZome(h){
  else if(name==='stack')groups=[{model:L0},{model:L0,offset:LIFT},{model:{nb:true,b:[],s:[]}}];
  else groups=[{model:sp.steps[Math.min(st,sp.steps.length-1)]}];
  const frame=sp.frame;
- const v=CV.mount(h,{groups,up:sp.up,elev:sp.elev,yaw:sp.yaw,fit:sp.fit*(h.classList.contains('mini')?1.1:1),frame,center:sp.box?boxc(sp.frame,sp.up):centroid(sp.frame||groups[0].model)});
+ const v=CV.mount(h,{groups,blackBalls:name!=='c60'||h.dataset.ballColor==='black',ballFinish:h.dataset.ballFinish,up:sp.up,elev:sp.elev,yaw:sp.yaw,fit:sp.fit*(h.classList.contains('mini')?1.1:1),frame,center:sp.box?boxc(sp.frame,sp.up):centroid(sp.frame||groups[0].model)});
  if(name==='layers'||name==='stack'){v.showGroup(1,false)}
  h._v=v;h._step=st;views.push(v);
  if(!reduce&&h.dataset.still===undefined)v.intro(name==='layers'||name==='layers2'||name==='stack'?'drop':name==='unit'?'swing':name.startsWith('diam')?'zoom':name==='net'||name==='ring'?'rise':'spin');
@@ -90,7 +90,7 @@ $$('[data-hands]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),bs=$$('
 $$('[data-hands-reset]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');s._h=0;s.classList.remove('handed');$$('.hand-badge',s).forEach(x=>x.classList.remove('show'));$('.big-count',s).textContent='';$('[data-hands]',s).disabled=false;cue('tick')});
 $$('[data-release]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=$('.zome-host.later',s);b.disabled=true;$('[data-guess="tet"]',s).classList.add('right');$('[data-guess="flat"]',s).classList.add('dim');cue('correct');s.classList.add('revealed');later(()=>{h.classList.add('show');if(!h._v)mountZome(h);h._v.spin(.004);cue('fly');celebrate(s)},650)});
 // p8 three hands
-const HAND_CAP=['白球的三角孔朝上','隔一个孔，插一根蓝短棍','再隔一个孔，插第 2 根','3 只手，离得一样远','朝上的孔空着：第 4 只手'];
+const HAND_CAP=['黑球的三角孔朝上','隔一个孔，插一根蓝短棍','再隔一个孔，插第 2 根','3 只手，离得一样远','朝上的孔空着：第 4 只手'];
 $$('[data-hand-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=host(s),k=h._step+1;if(k>4)return;if(k<=3){stepTo(s,h,k,HAND_CAP);cue('fly');if(k===3)later(()=>{const P=C.hand3.b;[[1,2],[2,3],[3,1]].forEach(([i,j],n)=>later(()=>{h._v.addArc(P[0],P[i],P[j],3.1,1.1,'120°');cue('tick')},n*300))},1300)}else{h._step=4;h._v.setMarker(C.hand3.b[0],N,true);const cap=$('.step-cap',s);cap.textContent=HAND_CAP[4];pop(cap);cue('correct');later(()=>celebrate(s),500);b.disabled=true}});
 // p9 ring
 $$('[data-ring-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=host(s),k=h._step+1;if(k>4)return;h._step=k;cue('fly');

@@ -45,9 +45,31 @@
     return { geo: n, q: q.clone().invert() };
   }
   const lin = (c) => new THREE.Color(c).convertSRGBToLinear();
-  function mats() {
+  function mats(blackBalls, satin) {
     const M = (c, r = .35) => new THREE.MeshStandardMaterial({ color: lin(c), roughness: r, metalness: .04, side: THREE.DoubleSide });
-    return { white: M(0xdde1e7, .42), blue: M(0x2a86c4), yellow: M(0xf2b200, .3), orange: M(0xff8a2a, .4), hot: M(0xff7a1a, .35), ghost: new THREE.MeshStandardMaterial({ color: lin(0xdde1e7), roughness: .5, transparent: true, opacity: .25 }) };
+    // Charcoal rather than pure black: soft highlights retain the socket edges.
+    const ball = blackBalls ? new THREE.MeshPhysicalMaterial({
+      color: lin(satin ? 0x282c31 : 0x35383e), roughness: satin ? .48 : .28, metalness: satin ? 0 : .04,
+      clearcoat: satin ? .06 : .32, clearcoatRoughness: satin ? .5 : .24, side: THREE.DoubleSide,
+    }) : M(0xdde1e7, .42);
+    return { ball, blue: M(0x2a86c4), yellow: M(0xf2b200, .3), orange: M(0xff8a2a, .4), hot: M(0xff7a1a, .35), ghost: new THREE.MeshStandardMaterial({ color: lin(blackBalls ? 0x69727d : 0xdde1e7), roughness: .5, transparent: true, opacity: .25 }) };
+  }
+  function ballEnvironment(renderer) {
+    // Local softbox reflections affect only the ball material, never the struts.
+    const canvas = document.createElement('canvas'); canvas.width = 512; canvas.height = 256;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#30343e'; ctx.fillRect(0, 0, 512, 256);
+    [[135, 65, 95, '#ffffff'], [390, 100, 85, '#e1e9f5']].forEach(([x, y, r, color]) => {
+      const glow = ctx.createRadialGradient(x, y, 0, x, y, r);
+      glow.addColorStop(0, color); glow.addColorStop(.45, color); glow.addColorStop(1, '#30343e');
+      ctx.fillStyle = glow; ctx.fillRect(x - r, y - r, r * 2, r * 2);
+    });
+    const source = new THREE.CanvasTexture(canvas); source.encoding = THREE.sRGBEncoding;
+    source.mapping = THREE.EquirectangularReflectionMapping;
+    const generator = new THREE.PMREMGenerator(renderer);
+    const environment = generator.fromEquirectangular(source);
+    source.dispose(); generator.dispose();
+    return environment;
   }
   const key3 = (v) => v.map((x) => x.toFixed(2)).join();
 
@@ -66,7 +88,13 @@
     const up = vec(opts.up || [0, 1, 0]).normalize();
     const qUp = new THREE.Quaternion().setFromUnitVectors(up, V(0, 1, 0));
     root.quaternion.copy(new THREE.Quaternion().setFromAxisAngle(V(0, 1, 0), ((opts.yaw || 0) * Math.PI) / 180).multiply(qUp));
-    const mat = mats();
+    const satin = opts.ballFinish === 'satin';
+    const mat = mats(opts.blackBalls, satin);
+    const ballEnv = opts.blackBalls ? ballEnvironment(renderer) : null;
+    if (ballEnv) {
+      mat.ball.envMap = ballEnv.texture;
+      mat.ball.envMapIntensity = satin ? .45 : .85;
+    }
     const groups = []; let center = V(0, 0, 0);
     const extra = new THREE.Group(); root.add(extra);
 
@@ -81,7 +109,7 @@
       pts.forEach((p, i) => {
         if (m.nb) return;
         const k = key3(m.b[i]); want.add(k); if (g.balls.has(k)) return;
-        const mesh = new THREE.Mesh(ballGeometry(), mat.white); mesh.position.copy(p.clone().sub(center)); g.obj.add(mesh); g.balls.set(k, mesh); mesh.userData.p = p;
+        const mesh = new THREE.Mesh(ballGeometry(), mat.ball); mesh.position.copy(p.clone().sub(center)); g.obj.add(mesh); g.balls.set(k, mesh); mesh.userData.p = p;
         if (animate) { mesh.scale.setScalar(.001); popping.push({ mesh, delay: 0 }); }
       });
       m.s.forEach(([a, b, kind]) => {
@@ -158,7 +186,7 @@
     mat.ghost.depthWrite = false;
     function highlight(gi, ballPts, strutPairs, dim) {
       const g = groups[gi || 0];
-      for (const m of g.balls.values()) m.material = dim ? mat.ghost : mat.white;
+      for (const m of g.balls.values()) m.material = dim ? mat.ghost : mat.ball;
       for (const m of g.struts.values()) m.material = dim ? ghostY : (mat[m.userData.kind] || mat.yellow);
       (ballPts || []).forEach((p) => { const m = g.balls.get(key3(p)); if (m) m.material = mat.hot; });
       (strutPairs || []).forEach(([a, b]) => { const ka = key3(a), kb = key3(b), k = ka < kb ? ka + "|" + kb : kb + "|" + ka; const m = g.struts.get(k); if (m) m.material = mat.hot; });
@@ -227,12 +255,12 @@
       morphTo(A, B, dur = 1800, done) {
         const g = groups[0]; g.obj.visible = false; const tmp = new THREE.Group(); root.add(tmp);
         const c0 = vec(A.b[0]).sub(center), arms = [];
-        const centreBall = new THREE.Mesh(ballGeometry(), mat.white); centreBall.position.copy(c0); tmp.add(centreBall);
+        const centreBall = new THREE.Mesh(ballGeometry(), mat.ball); centreBall.position.copy(c0); tmp.add(centreBall);
         A.s.forEach(([a, b, kA], k) => {
           const dA = vec(A.b[b]).sub(vec(A.b[a])), dB = vec(B.b[B.s[k][1]]).sub(vec(B.b[B.s[k][0]])), kB = B.s[k][2];
           const gA = strutAlongY(dA, dA.length(), kA), gB = strutAlongY(dB, dB.length(), kB);
           const m = new THREE.Mesh(gA.geo, mat[kA].clone()); m.position.copy(c0); m.quaternion.copy(gA.q); tmp.add(m);
-          const ball = new THREE.Mesh(ballGeometry(), mat.white); tmp.add(ball);
+          const ball = new THREE.Mesh(ballGeometry(), mat.ball); tmp.add(ball);
           arms.push({ m, ball, dA: dA.clone().normalize(), dB: dB.clone().normalize(), LA: dA.length(), LB: dB.length(), gA, gB, cA: new THREE.Color().copy(mat[kA].color), cB: new THREE.Color().copy(mat[kB].color), swapped: false });
         });
         const place = (e) => arms.forEach((r) => {
@@ -262,7 +290,7 @@
         anim = (now) => { const t = Math.max(0, Math.min(1, (now - t0) / dur)), e = 1 - Math.pow(1 - t, 3); f(e); if (t >= 1) { anim = null; controls.enabled = true; controls.update(); } };
         f(0);
       },
-      dispose() { alive = false; cancelAnimationFrame(raf); controls.dispose(); scene.traverse((o) => { if (o.geometry && o.geometry !== BALL) o.geometry.dispose(); }); renderer.dispose(); renderer.forceContextLoss && renderer.forceContextLoss(); renderer.domElement.remove(); },
+      dispose() { alive = false; cancelAnimationFrame(raf); controls.dispose(); scene.traverse((o) => { if (o.geometry && o.geometry !== BALL) o.geometry.dispose(); }); if (ballEnv) ballEnv.dispose(); Object.values(mat).forEach(m => m.dispose()); ghostY.dispose(); renderer.dispose(); renderer.forceContextLoss && renderer.forceContextLoss(); renderer.domElement.remove(); },
     };
     return api;
   }
