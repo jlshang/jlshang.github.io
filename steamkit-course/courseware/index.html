@@ -35,7 +35,9 @@
   .card:hover .thumb img{transform:scale(1.04)}
   .no{position:absolute;left:14px;top:14px;background:var(--orange);color:#fff;font-family:var(--display);font-size:20px;padding:4px 14px;border-radius:12px;box-shadow:0 4px 0 var(--orange-d)}
   .body{padding:18px 24px;display:flex;flex-direction:column;align-items:flex-start;text-align:left;justify-content:center;gap:8px;flex:1;min-width:0}
+  .title-line{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
   .title{font-family:var(--display);font-size:28px;line-height:1.2}
+  .lesson-type{display:inline-flex;align-items:center;border-radius:999px;padding:3px 10px;background:#e8edf5;color:#405474;font-size:13px;font-weight:700;line-height:1.4;white-space:nowrap}
   .q{margin:0;color:#3D4A66;font-size:15px}
   .go{margin-top:0;padding-top:4px;width:100%;display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:13.5px}
   .go b{color:var(--orange);font-size:15px}
@@ -51,7 +53,7 @@
   .card.soon .go b{color:var(--muted)}
   footer{margin-top:36px;padding-top:18px;border-top:1px solid rgba(255,255,255,.12);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:#AEB7CC;font-size:13.5px}
   footer a{color:var(--sun)}
-  @media (max-width:520px){header{padding-top:22px}.card{border-radius:14px}.thumb{width:110px;min-width:110px;aspect-ratio:auto}.thumb img{width:90%;height:auto;margin-top:10px}.no{left:6px;top:6px;padding:2px 7px;font-size:13px;border-radius:7px}.body{padding:12px;gap:5px}.title{font-size:20px}.q{font-size:13px}.go{font-size:12px}.go b{font-size:13px}.soon-mark{font-size:16px}}
+  @media (max-width:520px){header{padding-top:22px}.card{border-radius:14px}.thumb{width:110px;min-width:110px;aspect-ratio:auto}.thumb img{width:90%;height:auto;margin-top:10px}.no{left:6px;top:6px;padding:2px 7px;font-size:13px;border-radius:7px}.body{padding:12px;gap:5px}.title{font-size:20px}.title-line{gap:5px}.lesson-type{font-size:11px;padding:2px 7px}.q{font-size:13px}.go{font-size:12px}.go b{font-size:13px}.soon-mark{font-size:16px}}
   @media (prefers-reduced-motion:reduce){.card,.thumb img{transition:none}}
 </style>
 </head>
@@ -72,18 +74,18 @@
 <script>
 // 课程按确认后的顺序排列；新课上线时补充 href、img 和 pages。
 const LESSONS = [
-  { no: 1, unit: 0, title: "碳的变身术", q: "同样是碳，铅笔芯为什么软、钻石为什么硬？", href: "../lesson01-tan-bianshenshu/", img: "img/l01.webp?v=1", pages: 21 },
-  { no: 2, unit: 0, title: "六瓣的奇迹", q: "雪花为什么都是六个瓣？", href: "../lesson03-liuban-qiji/", img: "img/l03.webp?v=2", pages: 27 },
-  { no: 3, unit: 0, title: "空间大力士", q: "大桥为什么都是三角形？", href: "../lesson05-kongjian-dalishi/", img: "img/l05.webp", pages: 28 },
-  { no: 4, unit: 0, title: "转不倒的陀螺", q: "怎样的陀螺转得最久？" },
-  { no: 5, unit: 1, title: "盐粒的形状", q: "厨房里的盐，为什么都是小方块？", href: "../lesson04-yanli-xiaofangkuai/", img: "img/l04.webp", pages: 20 },
-  { no: 6, unit: 1, title: "吹出方形泡泡", q: "立方体框里，会出现什么形状的泡泡？" },
-  { no: 7, unit: 1, title: "生命的螺旋楼梯", q: "DNA 的双螺旋里，藏着什么秘密？", href: "../lesson02-dna/", img: "img/l08.webp", pages: 19 },
-  { no: 8, unit: 1, title: "影子里的四维", q: "手电筒照出的「方块套方块」，是谁的影子？" },
-  { no: 9, unit: 2, title: "病毒的盔甲", q: "放大上万倍，病毒为什么像一颗多面骰子？", href: "../lesson07-shijunti/", img: "img/l07.webp?v=2", pages: 16 },
-  { no: 10, unit: 2, title: "球馆屋顶的秘密", q: "体育馆的大圆顶，是用什么拼的？" },
-  { no: 11, unit: 2, locked: true, title: "世界的五张王牌", q: "为什么正多面体只有五种？", href: "../lesson10-bolatu-duomianti/", img: "img/l10.webp?v=6", pages: 17 },
-  { no: 12, unit: 2, locked: true, title: "开普勒的宇宙世界", q: "五位伙伴套起来，谁在最里面？", href: "../lesson11-kaipule-yuzhou/", img: "img/l11.webp?v=3", pages: 20 },
+  { no: 1, unit: 0, title: "碳的变身术", type: "化学", q: "同样是碳，铅笔芯为什么软、钻石为什么硬？", href: "../lesson01-tan-bianshenshu/", img: "img/l01.webp?v=1", pages: 21 },
+  { no: 2, unit: 0, title: "六瓣的奇迹", type: "自然", q: "雪花为什么都是六个瓣？", href: "../lesson03-liuban-qiji/", img: "img/l03.webp?v=2", pages: 27 },
+  { no: 3, unit: 0, title: "空间大力士", type: "工程", q: "大桥为什么都是三角形？", href: "../lesson05-kongjian-dalishi/", img: "img/l05.webp", pages: 28 },
+  { no: 4, unit: 0, title: "转不倒的陀螺", type: "运动与实验", q: "怎样的陀螺转得最久？" },
+  { no: 5, unit: 1, title: "盐粒的形状", type: "化学", q: "厨房里的盐，为什么都是小方块？", href: "../lesson04-yanli-xiaofangkuai/", img: "img/l04.webp", pages: 20 },
+  { no: 6, unit: 1, title: "吹出方形泡泡", type: "科学实验", q: "立方体框里，会出现什么形状的泡泡？" },
+  { no: 7, unit: 1, title: "生命的螺旋楼梯", type: "生物 · 微观结构", q: "DNA 的双螺旋里，藏着什么秘密？", href: "../lesson02-dna/", img: "img/l08.webp", pages: 19 },
+  { no: 8, unit: 1, title: "影子里的四维", type: "空间与几何", q: "手电筒照出的「方块套方块」，是谁的影子？" },
+  { no: 9, unit: 2, title: "病毒的盔甲", type: "生物", q: "放大上万倍，病毒为什么像一颗多面骰子？", href: "../lesson07-shijunti/", img: "img/l07.webp?v=2", pages: 16 },
+  { no: 10, unit: 2, title: "球馆屋顶的秘密", type: "工程与建筑", q: "体育馆的大圆顶，是用什么拼的？" },
+  { no: 11, unit: 2, locked: true, title: "世界的五张王牌", type: "几何", q: "为什么正多面体只有五种？", href: "../lesson10-bolatu-duomianti/", img: "img/l10.webp?v=6", pages: 17 },
+  { no: 12, unit: 2, locked: true, title: "开普勒的宇宙世界", type: "几何与宇宙", q: "五位伙伴套起来，谁在最里面？", href: "../lesson11-kaipule-yuzhou/", img: "img/l11.webp?v=3", pages: 20 },
 ];
 const list = document.getElementById("list");
 const grid = document.createElement("div");
@@ -96,7 +98,7 @@ LESSONS.sort((a, b) => a.no - b.no).forEach((l) => {
   const thumb = l.img ? `<img src="${l.img}" alt="${l.title} 封面" loading="lazy">` : `<span class="soon-mark">制作中</span>`;
   const status = l.locked ? "暂不开放" : "即将上线";
   c.innerHTML = `<div class="thumb">${thumb}<div class="no">第 ${l.no} 节</div></div>
-    <div class="body"><div class="title">${l.title}</div><p class="q">${l.q}</p>
+    <div class="body"><div class="title-line"><div class="title">${l.title}</div><span class="lesson-type">${l.type}</span></div><p class="q">${l.q}</p>
     <div class="go"><span>${ready ? l.pages + " 页" : ""}</span><b>${ready ? "开始上课 →" : status}</b></div></div>`;
   grid.appendChild(c);
 });
