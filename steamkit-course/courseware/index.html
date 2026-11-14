@@ -70,27 +70,25 @@
   </footer>
 </div>
 <script>
-// 课次顺序按 11.10 课程大纲（12 节 · 5 个单元）。新课上线：给对应一行补上 href、img、pages。
+// 课程按确认后的顺序排列；新课上线时补充 href、img 和 pages。
 const UNITS = [
-  { no: "一", name: "看不见的排列", tag: "化学 · 自然" },
-  { no: "二", name: "结构与运动", tag: "物理 · 工程" },
-  { no: "三", name: "生命的几何", tag: "生物" },
-  { no: "四", name: "泡泡与高维", tag: "物理 · 艺术" },
-  { no: "五", name: "完美形状与宇宙", tag: "几何 · 天文" },
+  { no: "一", name: "第一阶段", tag: "第 1—4 节" },
+  { no: "二", name: "第二阶段", tag: "第 5—8 节" },
+  { no: "三", name: "第三阶段", tag: "第 9—12 节" },
 ];
 const LESSONS = [
   { no: 1, unit: 0, title: "碳的变身术", q: "同样是碳，铅笔芯为什么软、钻石为什么硬？", href: "../lesson01-tan-bianshenshu/", img: "img/l01.webp?v=1", pages: 21 },
-  { no: 2, unit: 0, title: "盐粒的形状", q: "厨房里的盐，为什么都是小方块？", href: "../lesson04-yanli-xiaofangkuai/", img: "img/l04.webp", pages: 20 },
-  { no: 3, unit: 0, title: "六瓣的奇迹", q: "雪花为什么都是六个瓣？", href: "../lesson03-liuban-qiji/", img: "img/l03.webp?v=2", pages: 27 },
-  { no: 4, unit: 1, title: "转不倒的陀螺", q: "怎样的陀螺转得最久？" },
-  { no: 5, unit: 1, title: "空间大力士", q: "大桥为什么都是三角形？", href: "../lesson05-kongjian-dalishi/", img: "img/l05.webp", pages: 28 },
-  { no: 6, unit: 1, title: "球馆屋顶的秘密", q: "体育馆的大圆顶，是用什么拼的？" },
-  { no: 7, unit: 2, title: "病毒的盔甲", q: "放大上万倍，病毒为什么像一颗多面骰子？", href: "../lesson07-shijunti/", img: "img/l07.webp?v=2", pages: 16 },
-  { no: 8, unit: 2, title: "生命的螺旋楼梯", q: "DNA 的双螺旋里，藏着什么秘密？", href: "../lesson02-dna/", img: "img/l08.webp", pages: 19 },
-  { no: 9, unit: 3, title: "吹出方形泡泡", q: "立方体框里，会出现什么形状的泡泡？" },
-  { no: 10, unit: 3, title: "影子里的四维", q: "手电筒照出的「方块套方块」，是谁的影子？" },
-  { no: 11, unit: 4, title: "世界的五张王牌", q: "为什么正多面体只有五种？", href: "../lesson10-bolatu-duomianti/", img: "img/l10.webp?v=6", pages: 17 },
-  { no: 12, unit: 4, title: "开普勒的宇宙世界", q: "五位伙伴套起来，谁在最里面？", href: "../lesson11-kaipule-yuzhou/", img: "img/l11.webp?v=3", pages: 20 },
+  { no: 2, unit: 0, title: "六瓣的奇迹", q: "雪花为什么都是六个瓣？", href: "../lesson03-liuban-qiji/", img: "img/l03.webp?v=2", pages: 27 },
+  { no: 3, unit: 0, title: "空间大力士", q: "大桥为什么都是三角形？", href: "../lesson05-kongjian-dalishi/", img: "img/l05.webp", pages: 28 },
+  { no: 4, unit: 0, title: "转不倒的陀螺", q: "怎样的陀螺转得最久？" },
+  { no: 5, unit: 1, title: "盐粒的形状", q: "厨房里的盐，为什么都是小方块？", href: "../lesson04-yanli-xiaofangkuai/", img: "img/l04.webp", pages: 20 },
+  { no: 6, unit: 1, title: "吹出方形泡泡", q: "立方体框里，会出现什么形状的泡泡？" },
+  { no: 7, unit: 1, title: "生命的螺旋楼梯", q: "DNA 的双螺旋里，藏着什么秘密？", href: "../lesson02-dna/", img: "img/l08.webp", pages: 19 },
+  { no: 8, unit: 1, title: "影子里的四维", q: "手电筒照出的「方块套方块」，是谁的影子？" },
+  { no: 9, unit: 2, title: "病毒的盔甲", q: "放大上万倍，病毒为什么像一颗多面骰子？", href: "../lesson07-shijunti/", img: "img/l07.webp?v=2", pages: 16 },
+  { no: 10, unit: 2, title: "球馆屋顶的秘密", q: "体育馆的大圆顶，是用什么拼的？" },
+  { no: 11, unit: 2, title: "世界的五张王牌", q: "为什么正多面体只有五种？", href: "../lesson10-bolatu-duomianti/", img: "img/l10.webp?v=6", pages: 17 },
+  { no: 12, unit: 2, title: "开普勒的宇宙世界", q: "五位伙伴套起来，谁在最里面？", href: "../lesson11-kaipule-yuzhou/", img: "img/l11.webp?v=3", pages: 20 },
 ];
 const list = document.getElementById("list");
 UNITS.forEach((u, ui) => {
