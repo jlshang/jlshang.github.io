@@ -238,3 +238,7 @@ h2{position:absolute;left:90px;right:90px;top:58px;margin:0;font:56px/1.2 var(--
 .zome-host.later:not(.show){pointer-events:none}
 .guess-card.big{cursor:pointer}
 .keyword{position:absolute;right:150px;top:190px;padding:18px 46px;border-radius:999px;background:#e8742a;color:#fff;font:84px var(--display);box-shadow:0 10px 0 #0004,0 0 40px #ff9a3c88;transform:rotate(-4deg)}
+
+/* Pencil and ink both enter the same exploration; names use the separate tag control. */
+.z0-pencil[data-dive]{pointer-events:auto;cursor:zoom-in}
+.z-tag{pointer-events:none}

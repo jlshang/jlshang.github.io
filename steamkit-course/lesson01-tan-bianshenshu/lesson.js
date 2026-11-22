@@ -72,19 +72,32 @@ $$('[data-tally-reset]').forEach(b=>b.onclick=()=>{$$('[data-tally]',b.closest('
 $$('[data-draw]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),p=$('.paper',s),sv=$('.scribble',s);p.classList.remove('drawing');sv.classList.remove('drawing');void p.offsetWidth;p.classList.add('drawing');sv.classList.add('drawing');cue('tick')});
 // p3 continuous zoom: 笔迹 → 石墨 → 碳原子 (click the object itself)
 (function(){const svg=$('.flakes-big');if(!svg)return;let h='';let seed=7;const R=()=>(seed=(seed*9301+49297)%233280)/233280;
- for(let i=0;i<46;i++){const x=R()*1500-120,y=R()*640-10,w=180+R()*260,a=(R()-.5)*22,n=3+Math.floor(R()*4);let g='';for(let j=0;j<n;j++){const c=78+Math.round(R()*40),dx=(R()-.5)*30,hh=12+R()*8;g+=`<path d="M${dx} ${j*15} l${w*.08} -${hh*.6} l${w*.9} 0 l${w*.06} ${hh*.6} l-${w*.1} ${hh*.5} l-${w*.86} 0z" fill="rgb(${c},${c+4},${c+12})" stroke="#2a2e35" stroke-width="2.5"/><path d="M${dx+w*.1} ${j*15-hh*.45} l${w*.85} 0" stroke="#ffffff60" stroke-width="3"/>`}h+=`<g class="flake" data-dive transform="translate(${x} ${y}) rotate(${a})">${g}</g>`}
+ for(let i=0;i<46;i++){const x=R()*1500-120,y=R()*640-10,w=180+R()*260,a=(R()-.5)*22,n=3+Math.floor(R()*4);let g='';for(let j=0;j<n;j++){const c=78+Math.round(R()*40),dx=(R()-.5)*30,hh=12+R()*8;g+=`<path d="M${dx} ${j*15} l${w*.08} -${hh*.6} l${w*.9} 0 l${w*.06} ${hh*.6} l-${w*.1} ${hh*.5} l-${w*.86} 0z" fill="rgb(${c},${c+4},${c+12})" stroke="#2a2e35" stroke-width="2.5"/><path d="M${dx+w*.1} ${j*15-hh*.45} l${w*.85} 0" stroke="#ffffff60" stroke-width="3"/>`}h+=`<g class="flake" data-dive role="button" tabindex="0" aria-label="继续放大观察" transform="translate(${x} ${y}) rotate(${a})">${g}</g>`}
  svg.innerHTML=h;
- const f=$('.atom-field');let k='';seed=5;const used=[];for(let i=0;i<400&&used.length<30;i++){const x=40+R()*1120,y=20+R()*420;if(used.some(([u,v])=>Math.hypot(u-x,v-y)<122))continue;used.push([x,y]);const sz=92+R()*30,r=(R()-.5)*30;k+=`<button class="c-dot" style="left:${x}px;top:${y}px;width:${sz}px;height:${sz}px;--r:${r}deg;animation-delay:${-R()*3}s" aria-label="一个碳原子"><img src="a/atom_body.webp" alt=""></button>`}f.innerHTML=k})();
-function zoomReset(s){$$('.zl',s).forEach((l,i)=>{l.getAnimations().forEach(a=>a.cancel());l.style.opacity=i?0:1;l.style.pointerEvents=i?'none':'auto';l.classList.remove('tagged')});$$('.c-dot',s).forEach(d=>d.classList.remove('picked','faded'));s._z=0;s._dive=false}
+ const f=$('.atom-field');let k='';seed=5;const used=[];for(let i=0;i<400&&used.length<30;i++){const x=40+R()*1120,y=20+R()*420;if(used.some(([u,v])=>Math.hypot(u-x,v-y)<122))continue;used.push([x,y]);const sz=92+R()*30,r=(R()-.5)*30;k+=`<button class="c-dot" style="left:${x}px;top:${y}px;width:${sz}px;height:${sz}px;--r:${r}deg;animation-delay:${-R()*3}s" aria-label="观察一个小粒子"><img src="a/atom_body.webp" alt=""></button>`}f.innerHTML=k})();
+// Names are a teacher-controlled reveal, separate from the zoom transition.
+function zoomLabels(s){
+ const k=s._z||0,b=$('[data-zoom-label]',s),L=$$('.zl',s);
+ L.forEach((l,i)=>{const active=i===k;l.inert=!active||s._dive;l.setAttribute('aria-hidden',String(!active));l.style.pointerEvents=active&&!s._dive?'auto':'none';const tag=$('.z-tag',l);if(tag)tag.hidden=!active||!l.classList.contains('tagged')});
+ if(b){b.hidden=k===0;b.disabled=!!s._dive;b.setAttribute('aria-pressed',String(k>0&&L[k].classList.contains('tagged')));b.setAttribute('aria-label',k>0&&L[k].classList.contains('tagged')?'隐藏名称':'揭晓名称')}
+}
+function zoomReset(s){$$('.zl',s).forEach((l,i)=>{l.getAnimations().forEach(a=>a.cancel());l.style.opacity=i?0:1;l.style.transformOrigin='';l.classList.remove('tagged')});$$('.c-dot',s).forEach(d=>d.classList.remove('picked','faded'));s._z=0;s._dive=false;zoomLabels(s)}
 function dive(s,ev){if(s._dive)return;const L=$$('.zl',s),k=s._z||0;if(k>=2)return;s._dive=true;
- const zr=$('.zoomer',s).getBoundingClientRect(),sc=zr.width/1380,fx=(ev.clientX-zr.left)/sc,fy=(ev.clientY-zr.top)/sc,cur=L[k],nxt=L[k+1],o=`${fx}px ${fy}px`;
- cur.style.transformOrigin=o;nxt.style.transformOrigin=o;nxt.style.pointerEvents='auto';cur.style.pointerEvents='none';
- const D=1700,E='cubic-bezier(.55,0,.25,1)';
+ const zr=$('.zoomer',s).getBoundingClientRect(),sc=zr.width/1380,fx=Number.isFinite(ev.clientX)&&ev.clientX?(ev.clientX-zr.left)/sc:690,fy=Number.isFinite(ev.clientY)&&ev.clientY?(ev.clientY-zr.top)/sc:320,cur=L[k],nxt=L[k+1],o=`${fx}px ${fy}px`;
+ L.forEach(l=>l.classList.remove('tagged'));s._z=k+1;zoomLabels(s);
+ cur.style.transformOrigin=o;nxt.style.transformOrigin=o;
+ const D=reduce?0:1700,E='cubic-bezier(.55,0,.25,1)';
  cur.animate([{transform:'scale(1)',filter:'blur(0px)',opacity:1},{transform:'scale(9)',filter:'blur(2px)',opacity:1,offset:.6},{transform:'scale(22)',filter:'blur(14px)',opacity:0}],{duration:D,easing:E,fill:'forwards'});
  nxt.animate([{transform:'scale(.12)',filter:'blur(12px)',opacity:0},{transform:'scale(.35)',filter:'blur(8px)',opacity:0,offset:.45},{transform:'scale(1)',filter:'blur(0px)',opacity:1}],{duration:D,easing:E,fill:'forwards'});
- cue('fly');s._z=k+1;later(()=>{nxt.classList.add('tagged');cue('correct');s._dive=false},D)}
-$$('.zoomer').forEach(z=>z.addEventListener('click',ev=>{const s=z.closest('.slide');if(ev.target.closest('[data-dive]'))dive(s,ev);
- const d=ev.target.closest('.c-dot');if(d&&s._z===2&&!d.classList.contains('picked')){$$('.c-dot',s).forEach(x=>x.classList.toggle('faded',x!==d));const zr=z.getBoundingClientRect(),sc=zr.width/1380;d.style.setProperty('--tx',(690-(parseFloat(d.style.left)+d.offsetWidth/2))+'px');d.style.setProperty('--ty',(270-(parseFloat(d.style.top)+d.offsetHeight/2))+'px');d.classList.add('picked');cue('select');later(()=>celebrate(s),600)}}));
+ cue('fly');later(()=>{s._dive=false;zoomLabels(s)},D)
+}
+$$('[data-zoom-label]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');if(s._dive||!s._z)return;const layer=$$('.zl',s)[s._z];layer.classList.toggle('tagged');zoomLabels(s);cue('select')});
+$$('.zoomer').forEach(z=>{
+ const advance=ev=>{const s=z.closest('.slide'),target=ev.target.closest('[data-dive]');if(target&&target.closest('.zl')===$$('.zl',s)[s._z||0])dive(s,ev)};
+ z.addEventListener('keydown',ev=>{if(ev.target.closest('[data-dive]')&&(ev.key==='Enter'||ev.key===' ')){ev.preventDefault();ev.stopPropagation();advance(ev)}});
+ z.addEventListener('click',ev=>{const s=z.closest('.slide');advance(ev);
+ const d=ev.target.closest('.c-dot');if(d&&s._z===2&&!s._dive&&!d.classList.contains('picked')){$$('.c-dot',s).forEach(x=>x.classList.toggle('faded',x!==d));d.style.setProperty('--tx',(690-(parseFloat(d.style.left)+d.offsetWidth/2))+'px');d.style.setProperty('--ty',(270-(parseFloat(d.style.top)+d.offsetHeight/2))+'px');d.classList.add('picked');cue('select');later(()=>celebrate(s),600)}})
+});
 // p5 hands
 $$('[data-hands]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),bs=$$('.hand-badge',s),k=s._h=(s._h||0)+1;if(k>4)return;if(k===1){s.classList.add('handed');cue('fly')}bs[k-1].classList.add('show');$('.big-count',s).textContent=k;cue(k===4?'correct':'tick');if(k===4){b.disabled=true;later(()=>celebrate(s),400)}});
 $$('[data-hands-reset]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');s._h=0;s.classList.remove('handed');$$('.hand-badge',s).forEach(x=>x.classList.remove('show'));$('.big-count',s).textContent='';$('[data-hands]',s).disabled=false;cue('tick')});
@@ -166,6 +179,7 @@ function enter(s){
  $$('.paper,.scribble:not(.on)',s).forEach(x=>x.classList.remove('drawing'));
  $$('.controls .action',s).forEach(b=>{b.disabled=false;b.classList.remove('nudge');b.removeAttribute('aria-pressed')});
  s._h=s._a=s._f=s._layer=s._chair=s._side=s._done=0;
+ if($('.zoomer',s))zoomLabels(s);
  // p16: point at the first hole
  const u=$('[data-model="unit"]',s);if(u&&u._v)later(()=>u._v.setMarker(UNIT.b[0],N,true),900);
 }
