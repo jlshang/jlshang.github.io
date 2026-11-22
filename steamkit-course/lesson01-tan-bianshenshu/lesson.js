@@ -104,7 +104,7 @@ $$('[data-hands-reset]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide');s
 $$('[data-release]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=$('.zome-host.later',s);b.disabled=true;$('[data-guess="tet"]',s).classList.add('right');$('[data-guess="flat"]',s).classList.add('dim');cue('correct');s.classList.add('revealed');later(()=>{h.classList.add('show');if(!h._v)mountZome(h);h._v.spin(.004);cue('fly');celebrate(s)},650)});
 // p8 three hands
 const HAND_CAP=['黑球的三角孔朝上','隔一个孔，插一根蓝短棍','再隔一个孔，插第 2 根','3 只手，离得一样远','朝上的孔空着：第 4 只手'];
-$$('[data-hand-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=host(s),k=h._step+1;if(k>4)return;if(k<=3){stepTo(s,h,k,HAND_CAP);cue('fly');if(k===3)later(()=>{const P=C.hand3.b;[[1,2],[2,3],[3,1]].forEach(([i,j],n)=>later(()=>{h._v.addArc(P[0],P[i],P[j],3.1,1.1,'120°');cue('tick')},n*300))},1300)}else{h._step=4;h._v.setMarker(C.hand3.b[0],N,true);const cap=$('.step-cap',s);cap.textContent=HAND_CAP[4];pop(cap);cue('correct');later(()=>celebrate(s),500);b.disabled=true}});
+$$('[data-hand-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=host(s),k=h._step+1;if(k>4)return;if(k<=3){stepTo(s,h,k,HAND_CAP);b.classList.toggle('i-next',k===3);b.classList.toggle('i-plus',k<3);b.setAttribute('aria-label',k===3?'观察朝上的孔':'增加一根蓝棍');cue('fly');if(k===3)later(()=>{const P=C.hand3.b;[[1,2],[2,3],[3,1]].forEach(([i,j],n)=>later(()=>{h._v.addArc(P[0],P[i],P[j],3.1,1.1,'120°');cue('tick')},n*300))},1300)}else{h._step=4;h._v.setMarker(C.hand3.b[0],N,true);const cap=$('.step-cap',s);cap.textContent=HAND_CAP[4];pop(cap);cue('correct');later(()=>celebrate(s),500);b.disabled=true}});
 // p9 ring
 $$('[data-ring-next]').forEach(b=>b.onclick=()=>{const s=b.closest('.slide'),h=host(s),k=h._step+1;if(k>4)return;h._step=k;cue('fly');
  h._v.setModel(C.ring[k],true,()=>{if(k<4)return;b.disabled=true;const R=C.ring[4].b,ring=[0,1,4,5,6,3].map(i=>R[i]);let n=0;const out=$('.big-count',s);
@@ -177,6 +177,7 @@ function enter(s){
  $$('.vote-card',s).forEach(x=>x.classList.remove('right','wrong','dim'));
  $$('[data-tally]',s).forEach(c=>{c._n=0;const n=$('.tally-n',c);if(n)n.textContent=''});
  $$('.paper,.scribble:not(.on)',s).forEach(x=>x.classList.remove('drawing'));
+ $$('[data-hand-next]',s).forEach(b=>{b.classList.add('i-plus');b.classList.remove('i-next');b.setAttribute('aria-label','增加一根蓝棍')});
  $$('.controls .action',s).forEach(b=>{b.disabled=false;b.classList.remove('nudge');b.removeAttribute('aria-pressed')});
  s._h=s._a=s._f=s._layer=s._chair=s._side=s._done=0;
  if($('.zoomer',s))zoomLabels(s);

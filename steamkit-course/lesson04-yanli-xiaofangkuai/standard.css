@@ -288,3 +288,6 @@
 .chem sup{font-size:.62em;margin-left:1px;font-style:normal}
 
 .salt-name{font-size:64px}
+
+/* Completed/empty actions must not be resurrected by round-button display rules. */
+.review-next-step.round[hidden]{display:none!important}

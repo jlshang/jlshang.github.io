@@ -490,3 +490,6 @@ h2 em.hl{font-style:normal;color:var(--orange);font-size:1.18em;padding:0 6px}
 .dev-row .dv-tag.mid{color:#1E2A44 !important}
 .dev-row.on .dv-name b{color:#fff !important}
 .dev-row.on .dv-name i{color:#cfe1ff !important}
+
+/* Build adds pieces; its completed state keeps the existing replay icon. */
+[data-kgrow]:not([aria-pressed=true]){--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 4.5v15M4.5 12h15' fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E")}

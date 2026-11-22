@@ -47,6 +47,8 @@ function plusButton(label){
  return state.step<max?`<button class="review-next-step round plus" data-action="advance" aria-label="${label}"><span aria-hidden="true">＋</span></button>`:'';
 }
 function stepButtons(label='下一步'){
+ // These active scenes add physical model pieces; other steps only demonstrate.
+ if([63,42,44].includes(state.page))return plusButton(label);
  const max=maxSteps[state.page]||0;
  if([2,4,8].includes(state.page))return '';
  return state.step<max?`<button class="review-next-step round" data-action="advance" aria-label="${label}"><span aria-hidden="true">▶</span></button>`:'';
@@ -94,8 +96,8 @@ function content(){
   return title('课后挑战2：搭一块大萤石')+
    host('caf2-grow',{id:'caf2-big',balls:CAF2_STAGES[k],height:[23,28,30,35][k],yaw:.5,pitch:.32},'left:70px;top:170px;width:960px;height:680px')+
    `<div class="ch-col side">${fl}<p class="grow-note">点 <b>＋</b> 拼大，点 <b>－</b> 拆小</p></div>`+
-   `<button class="review-next-step round plus${k<3?'':' at-end'}" data-action="cafplus" aria-label="萤石再拼一块"><span aria-hidden="true">＋</span></button>`+
-   `<button class="review-next-step round minus${k>0?'':' at-end'}" data-action="cafminus" aria-label="萤石拆小一点"><span aria-hidden="true">－</span></button>`;}
+   `<button class="review-next-step round plus${k<3?'':' at-end'}" data-action="cafplus" ${k>=3?'hidden':''} aria-label="萤石再拼一块"><span aria-hidden="true">＋</span></button>`+
+   `<button class="review-next-step round minus${k>0?'':' at-end'}" data-action="cafminus" ${k<=0?'hidden':''} aria-label="萤石拆小一点"><span aria-hidden="true">－</span></button>`;}
  if(p===65)return title('拓展挑战：养一颗大盐粒')+
   `<ol class="grow-steps"><li>请大人帮忙，配一杯很浓的盐水</li><li>倒进浅盘，放在安静的地方</li><li>每天同一时间，拍一张照片</li><li>记一记：盐粒多大？什么形状？</li></ol>`+
   `<div class="grow-photos"><img src="assets/p26-shape6.png" alt="手指捏着一颗方方的大盐粒（实拍）"><img src="assets/p27-shape5.png" alt="两颗透明的大盐粒（实拍）"></div>`+

@@ -3077,7 +3077,7 @@ window.SnowFormation=(()=>{
   function stopStory(){if(storyAnimation){storyAnimation();storyAnimation=null;}}
   function storyHTML(){
     const n=state.storyStep;
-    return `<div class="formation-animation-layout"><div id="formation-drawing">${F.diagram(n)}</div></div><div class="ctl story-controls">${icon('story-prev','前一步','prev',n===0?'disabled':'')}${icon('story-next','后一步','next',n===F.steps.length-1?'disabled':'')}</div>`;
+    return `<div class="formation-animation-layout"><div id="formation-drawing">${F.diagram(n)}</div></div><div class="ctl story-controls">${n>0?icon('story-prev','前一步','prev'):''}${n<F.steps.length-1?icon('story-next','播放下一步演示','play'):''}</div>`;
   }
   function relationHTML(){
     const step=Math.max(0,Math.min(3,Number(state.notes.relationStep)||0));
