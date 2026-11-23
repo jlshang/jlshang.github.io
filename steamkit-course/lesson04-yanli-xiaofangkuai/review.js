@@ -1,7 +1,7 @@
 import {enterMicroscope,cancelMicroscopeTransition} from './microscope-transition.js';
 import {LESSON} from './lesson.js';
 import {models,mountModel} from './review-model.js';
-import {batchContent,bindBatch,cleanupBatch,BATCH_MAX} from './batch-scenes.js';
+import {batchContent,bindBatch,cleanupBatch,BATCH_MAX} from './batch-scenes.js?v=chapters20261123';
 import {CAF2_STAGES} from './caf2-stages.js';
 import {NEW_MAX,kitchen,methods,micro,why,ions,conclusion,bindNew,cleanupNew} from './new-scenes.js';
 // Stable scene ids preserve all 22 existing interactions; visible page 3 is new scene 23.

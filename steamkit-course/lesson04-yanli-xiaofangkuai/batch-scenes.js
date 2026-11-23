@@ -42,7 +42,7 @@ function octaSpec(s){
 }
 export function batchContent(c){
  const {state,title,host,modelScene,stepButtons,deck}=c,p=state.page,s=state.step;
- if(p===5)return `<span class="chapter-number">1</span><h1 class="chapter-title">盐里面，藏着什么？</h1><img class="chapter-art-std" src="media/ch1.png" alt="小兔举着放大镜看盐块，阿基米德爷爷在旁边思考（卡通形象）" draggable="false">`;
+ if(p===5)return `<span class="chapter-number">01</span><h1 class="chapter-title">盐里面，藏着什么？</h1><img class="chapter-art-std" src="media/ch1.png" alt="小兔举着放大镜看盐块，阿基米德爷爷在旁边思考（卡通形象）" draggable="false">`;
  if(p===6)return title('认识两位小伙伴')+(!s?'<img class="ions-heap" src="media/page09-salt/heap.png" alt="一小堆盐粒">':'<img class="ions-heap intro-heap" src="media/page09-salt/heap.png" alt="" aria-hidden="true">'+ionMarkup())+stepButtons('看看里面');
  if(p===31)return queue(s);
  if(p===32)return title('钠钠周围有多少个氯氯邻居？')+neighbors(deck,s)+stepButtons('继续探索');
@@ -65,7 +65,7 @@ export function batchContent(c){
   return title('小盐粒，是怎样长大的？')+`<p class="batch-caption">${s?'整个外圈一起添一层':'从一颗小盐粒开始'}</p><section class="growth-comparison" data-phase="${s?'growing':'initial'}">`+host('growth',{...sharedView,balls:spec.balls,struts:spec.struts,transition:'shell'},'left:475px;top:235px;width:650px;height:540px')+host('growth-original',{...sharedView,balls:initial.balls,struts:initial.struts},'left:100px;top:235px;width:650px;height:540px')+'<div class="comparison-label small-label">原来的小晶体</div><div class="comparison-label large-label">添一圈后的大晶体</div><svg class="comparison-arrow" viewBox="0 0 160 60" aria-label="小晶体到大晶体"><path d="M8 30H140M115 8L140 30L115 52"/></svg></section>'+stepButtons('向外添一层');
  }
  if(p===40)return photoShapeMarkup(s);
- if(p===41)return '<span class="chapter-number">2</span><h1 class="chapter-title">盐粒会变形吗？</h1><img class="chapter-art-std" src="media/ch2.png" alt="小兔托着下巴思考，爷爷举起手指，中间是一个带问号的方块（卡通形象）" draggable="false">';
+ if(p===41)return '<span class="chapter-number">02</span><h1 class="chapter-title">盐粒会变形吗？</h1><img class="chapter-art-std" src="media/ch2.png" alt="小兔托着下巴思考，爷爷举起手指，中间是一个带问号的方块（卡通形象）" draggable="false">';
  if(p===42)return title('在特殊环境（尿素、甲酰胺）里')+host('octa-growing',octaSpec(s),'left:290px;top:190px;width:1020px;height:640px')+stepButtons('继续拼搭');
  if(p===43)return title('两组邻居，可以共用粒子')+host('shared',{id:'shared-octa',height:21,highlight:SHARED_BALLS},'left:240px;top:230px;width:1120px;height:520px')+'<p class="shared-explanation">橙圈中的两颗球，两组邻居都用到了</p>';
  if(p===44)return title('换一个中心，还能找到八面体吗？')+host('na-center',coordinationStage('na',s?2:1),'left:150px;top:260px;width:600px;height:440px')+host('cl-center',coordinationStage('cl',s?2:0),'left:850px;top:260px;width:600px;height:440px')+'<p class="coord-label left"><b class="ionf">Na⁺</b> 在中心</p><p class="coord-label right"><b class="ionf">Cl⁻</b> 在中心</p>'+stepButtons('继续拼搭');

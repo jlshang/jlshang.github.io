@@ -206,12 +206,16 @@ h1>span{display:block}
 
 /* 2026-11-23: scoped longer feedback and two-line homework prompt. */
 #page[data-page-id="height-compare"] .winner-stamp{font-size:56px;white-space:nowrap;padding:12px 20px}
-#page[data-page-id="homework-tops"] h1{margin-bottom:18px;line-height:1.18}
-#page[data-page-id="homework-tops"] h1 span{display:block}
-#page[data-page-id="homework-tops"] .lesson-subtitle{font-family:ZCool,sans-serif;font-size:36px;line-height:1.3;color:#ffd0a8;margin:0}
-#page[data-page-id="homework-tops"] .comparison{height:470px;padding-top:4px;align-items:flex-start}
-#page[data-page-id="homework-tops"] .model-slot{height:405px}
-#page[data-page-id="homework-tops"] .model-name{margin-top:6px}
+#page[data-page-id^="homework-tops"] h1{margin-bottom:18px;line-height:1.18;white-space:nowrap}
+#page[data-page-id^="homework-tops"] h1 span{display:block}
+#page[data-page-id^="homework-tops"] .lesson-subtitle{font-family:ZCool,sans-serif;font-size:36px;line-height:1.3;color:#ffd0a8;margin:0}
+#page[data-page-id^="homework-tops"] .comparison{height:470px;padding-top:4px;align-items:flex-start}
+#page[data-page-id^="homework-tops"] .model-slot{height:405px}
+#page[data-page-id^="homework-tops"] .model-name{margin-top:6px}
+/* chapter-title-unification-20261123:start */
+/* 2026-11-23: chapter text only, max audited 6.2% of stage width; 99.2px/1600. */
+.chapter .section-heading h1{font-size:99.2px!important;white-space:nowrap!important;line-height:1!important;width:max-content!important;max-width:none!important}.chapter .section-heading h1 span{display:inline!important}.chapter .section-heading h1 br{display:none!important}.chapter[data-page-id="part-shape"] .chapter-image{right:50px!important;top:510px!important;width:500px!important;height:340px!important}
+/* chapter-title-unification-20261123:end */
 </style><!-- Third-party license notices:
 Sound effects from Freesound.org, all CC0 (public domain):
 page.mp3  <- freesound #397548  fs_397548_Page-Turn-01.mp3
@@ -540,6 +544,10 @@ Apache License
    limitations under the License.
 
 -->
+<style id="chapter-title-unification-20261123" data-lesson="lesson-pingheng-tiaozhan">
+/* 2026-11-23: chapter text only, max audited 6.2% of stage width; 99.2px/1600. */
+.chapter .section-heading h1{font-size:99.2px!important;white-space:nowrap!important;line-height:1!important;width:max-content!important;max-width:none!important}.chapter .section-heading h1 span{display:inline!important}.chapter .section-heading h1 br{display:none!important}.chapter[data-page-id="part-shape"] .chapter-image{right:50px!important;top:510px!important;width:500px!important;height:340px!important}
+</style>
 </head><body>
 <main id="viewport"><div id="stage"><article id="page"></article><section id="directory" aria-label="课内目录" hidden></section><div id="lightbox" hidden role="dialog" aria-modal="true" aria-label="放大图片" tabindex="0"><img alt=""></div></div></main>
 <nav id="bar" aria-label="课件播放器"><button id="previous">← 上一页</button><span id="page-count"></span><button id="next">下一页 →</button><progress id="progress"></progress><button id="directory-button" aria-pressed="false">目录</button><button id="notes-button">讲师备注</button><button id="sound-button" aria-pressed="true">声音：开</button><button id="fullscreen">全屏</button><span class="bar-shortcut">← → 翻页 · 空格推进</span></nav>
@@ -2220,7 +2228,7 @@ window.HD_SHAPES = {
     {
       "id": "homework-tops",
       "kind": "observe",
-      "title": "课后挑战：拼搭以下陀螺，试试它们转得稳不稳？",
+      "title": "课后挑战：试试转得稳不稳，动手改造更稳！",
       "section": "课后挑战",
       "models": [
         [
@@ -2233,18 +2241,13 @@ window.HD_SHAPES = {
         ]
       ],
       "defaultView": "home",
-      "notes": "课后挑战分两页，每页两个原生造型。全组依球杆总数从少到多：三翼旋风→星芒齿轮→钻晶皇冠→双环飞碟；造型下方保留四字名称。第一次进入本页采用标准1700ms半周旋转、轻微拉近后停稳；返回已看过页面不重复播放，直接打开本页也有入场。拖动、回正面、离页、目录、备注、后台或减少动态会结束入场，不妨碍操作。不作真实试转仿真，稳定性需实物试验。 本页新任务语：拼搭以下陀螺，试试它们转得稳不稳？动手改造，让它们更稳！下一页文案保持不变。",
-      "entrance": "spin",
-      "titleLines": [
-        "课后挑战：拼搭以下陀螺，",
-        "试试它们转得稳不稳？"
-      ],
-      "subtitle": "动手改造，让它们更稳！"
+      "notes": "课后挑战分两页，每页两个原生造型。全组依球杆总数从少到多：三翼旋风→星芒齿轮→钻晶皇冠→双环飞碟；造型下方保留四字名称。第一次进入本页采用标准1700ms半周旋转、轻微拉近后停稳；返回已看过页面不重复播放，直接打开本页也有入场。拖动、回正面、离页、目录、备注、后台或减少动态会结束入场，不妨碍操作。不作真实试转仿真，稳定性需实物试验。 两页使用相同单行任务标题：“课后挑战：试试转得稳不稳，动手改造更稳！”",
+      "entrance": "spin"
     },
     {
       "id": "homework-tops-2",
       "kind": "observe",
-      "title": "课后挑战：拼搭以下陀螺，试试旋转的平衡性",
+      "title": "课后挑战：试试转得稳不稳，动手改造更稳！",
       "section": "课后挑战",
       "models": [
         [
@@ -2257,7 +2260,7 @@ window.HD_SHAPES = {
         ]
       ],
       "defaultView": "home",
-      "notes": "课后挑战分两页，每页两个原生造型。全组依球杆总数从少到多：三翼旋风→星芒齿轮→钻晶皇冠→双环飞碟；造型下方保留四字名称。第一次进入本页采用标准1700ms半周旋转、轻微拉近后停稳；返回已看过页面不重复播放，直接打开本页也有入场。拖动、回正面、离页、目录、备注、后台或减少动态会结束入场，不妨碍操作。不作真实试转仿真，稳定性需实物试验。",
+      "notes": "课后挑战分两页，每页两个原生造型。全组依球杆总数从少到多：三翼旋风→星芒齿轮→钻晶皇冠→双环飞碟；造型下方保留四字名称。第一次进入本页采用标准1700ms半周旋转、轻微拉近后停稳；返回已看过页面不重复播放，直接打开本页也有入场。拖动、回正面、离页、目录、备注、后台或减少动态会结束入场，不妨碍操作。不作真实试转仿真，稳定性需实物试验。 两页使用相同单行任务标题：“课后挑战：试试转得稳不稳，动手改造更稳！”",
       "entrance": "spin"
     }
   ],
