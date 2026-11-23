@@ -1,6 +1,6 @@
 /* Isolated background study. Page 19 additionally trials a satin finish. */
 .slide.gray-preview {
-  background: #adb2b8;
+  background: #F7F3EA;
 }
 .gray-preview h2,
 .gray-preview .model-name,
@@ -34,7 +34,7 @@
 
 /* Page 19 only: restrained silver-grey depth, without a separate model card. */
 .slide.gray-preview.refined-preview {
-  background: radial-gradient(ellipse at 48% 38%, #bec5cc 0%, #adb5be 58%, #9ba6b2 100%);
+  background: #F7F3EA;
 }
 .refined-preview h2 {
   top: 60px;
