@@ -218,29 +218,38 @@ h1>span{display:block}
 /* chapter-title-unification-20261123:end */
 
 /* P12: directly sculpt one uniform sheet. */
-.clay-toy{width:100%;position:relative;touch-action:none;user-select:none}
-.clay-canvas{display:block;width:100%;height:610px;overflow:visible}
-.clay-ambient{pointer-events:none}
-.clay-body{filter:drop-shadow(0 15px 20px #09152655);pointer-events:none;transition:filter .15s,stroke .15s;stroke:#d5f5e9;stroke-width:2}
-.clay-toy.sculpting .clay-body{stroke:#f2fff7;filter:drop-shadow(0 15px 20px #09152655) drop-shadow(0 0 9px #83d9c54d)}
+.clay-toy{width:100%;position:relative;touch-action:none;user-select:none;--clay-top:#f3e3c9;--clay-mid:#ecd7b8;--clay-low:#dfc299;--clay-rim:#ffefd6;--clay-deep:#baa17f}
+.clay-canvas{display:block;width:100%;height:610px;overflow:visible;transform:scale(1.12);transform-origin:50% 49%}
+.clay-ambient{pointer-events:none;opacity:.25}
+.clay-body{filter:drop-shadow(0 3px 0 var(--clay-deep)) drop-shadow(0 12px 13px #080f2045);pointer-events:none;transition:filter .15s,stroke .15s;stroke:var(--clay-rim);stroke-width:1.1}
+.clay-toy.sculpting .clay-body{stroke:var(--clay-rim);filter:drop-shadow(0 3px 0 var(--clay-deep)) drop-shadow(0 15px 15px #080f2050)}
 .clay-edge,.clay-handle{cursor:grab;touch-action:none;outline:none}
 .clay-edge.dragging,.clay-handle.dragging{cursor:grabbing}
-.clay-grip{opacity:.85;r:6;fill:#ecfff8;stroke:#539e93;stroke-width:2;transition:opacity .12s,r .12s,fill .12s}
-.clay-halo{opacity:0;transition:opacity .12s}
+.clay-grip{opacity:.25;r:3.5;fill:var(--clay-rim);stroke:none;stroke-width:2;transition:opacity .12s,r .12s,fill .12s}
+.clay-halo{opacity:0;transition:opacity .12s;stroke:var(--clay-rim);stroke-width:1}
 .clay-handle:hover .clay-halo,.clay-handle:focus-visible .clay-halo{opacity:.85}
-.clay-handle:hover .clay-grip,.clay-handle:focus-visible .clay-grip,.clay-handle.dragging .clay-grip{opacity:1;r:9;fill:#fff7d7;stroke:#fff;stroke-width:2}
+.clay-handle:hover .clay-grip,.clay-handle:focus-visible .clay-grip,.clay-handle.dragging .clay-grip{opacity:1;r:7;fill:#fff7e7;stroke:#fff;stroke-width:1.5}
 .clay-touch-feedback{opacity:0;pointer-events:none;transition:opacity .12s}
 .clay-toy.sculpting .clay-touch-feedback{opacity:1}
 .clay-center{pointer-events:none}
-.clay-center-label{fill:#ffe8a0;stroke:#1e2a44;stroke-width:4;paint-order:stroke;font-size:29px;font-family:ZCool,sans-serif}
-.clay-insight{fill:#a9c3c7;font-size:24px}
-.clay-presets{position:absolute;left:90px;top:152px;display:flex;flex-direction:column;gap:12px;padding:12px;border:1px solid #94bdca29;border-radius:30px;background:linear-gradient(155deg,#32465b99,#1a2d4355);box-shadow:0 12px 28px #101c2b33;z-index:2}
-.clay-preset{position:relative;border:1px solid transparent;border-radius:20px;width:72px;height:72px;display:grid;place-items:center;background:transparent;color:#95bcb8;transition:background .15s,color .15s,transform .15s,box-shadow .15s}
-.clay-preset:hover{background:#91d8c91a;color:#d6f9ec;transform:translateY(-2px)}
+.clay-center-label{fill:#ffdf99;stroke:none;stroke-width:4;paint-order:stroke;font-size:29px;font-family:ZCool,sans-serif;font:500 23px 'PingFang SC','Microsoft YaHei',sans-serif;letter-spacing:1px}
+.clay-insight{fill:#adb8c8;font-size:22px;transform:translateY(-18px)}
+.clay-presets{position:absolute;left:225px;top:152px;display:flex;flex-direction:column;gap:9px;padding:9px;border:1px solid #94bdca29;border-radius:26px;background:#24324999;box-shadow:none;z-index:2;border-color:#ffffff14}
+.clay-preset{position:relative;border:1px solid transparent;border-radius:18px;width:72px;height:72px;display:grid;place-items:center;background:transparent;color:#b8c5c4;transition:background .15s,color .15s,transform .15s,box-shadow .15s}
+.clay-preset:hover{background:#ffffff0c;color:var(--clay-rim);transform:translateY(-2px)}
 .clay-preset:active{transform:scale(.96)}
-.clay-preset[aria-pressed="true"]{border-color:#c8f0df66;background:#8fd0bf24;color:#c5f2df;box-shadow:inset 0 0 18px #b6e7d609}
-.clay-preset[aria-pressed="true"]::before{content:"";position:absolute;left:-14px;top:24px;height:24px;width:3px;background:#ffe4a1;border-radius:3px}
+.clay-preset[aria-pressed="true"]{border-color:#ffffff28;background:#ffffff0c;color:var(--clay-mid);box-shadow:none}
+.clay-preset[aria-pressed="true"]::before{content:"";position:absolute;left:-11px;top:27px;height:18px;width:2px;background:var(--clay-mid);border-radius:3px}
 .clay-preset svg{width:42px;height:42px;fill:currentColor}
+#clay-fill stop:first-child{stop-color:var(--clay-top)}
+#clay-fill stop:nth-child(2){stop-color:var(--clay-mid)}
+#clay-fill stop:last-child{stop-color:var(--clay-low)}
+.clay-touch-feedback circle:first-child{fill:var(--clay-rim);stroke:var(--clay-rim);stroke-opacity:.5}
+.clay-touch-feedback circle:last-child{stroke:#fff9ed;stroke-width:2}
+.clay-marker-ring{r:15;fill:#23314a;stroke:#ffe097;stroke-width:2;filter:drop-shadow(0 2px 3px #1e2a4422)}
+.clay-marker-dot{r:5.5;fill:#ffe097}
+.clay-leader{stroke:#24334b;stroke-width:1.4;opacity:.65}
+.clay-label-pill{display:block;fill:#24334b;fill-opacity:.94}
 /* Keep titles, full rotating model envelopes, and names in separate bands. */
 #page[data-page-id^="homework-tops"] h1{position:relative;z-index:3}
 #page[data-page-id^="homework-tops"] .scene{transform:translateY(52px);isolation:isolate}
@@ -2435,10 +2444,10 @@ function balanceToy(s){
  <path class="clay-body" fill="url(#clay-fill)" stroke="#c7f4e9" stroke-width="3" stroke-linejoin="round"/>
  <path class="clay-edge" fill="none" stroke="transparent" stroke-width="42"/>
  <g class="clay-handles">${s.clayPoints.filter((_,i)=>i%5===0).map((_,i)=>'<g class="clay-handle" data-clay-handle="'+(i*5)+'" tabindex="0" role="button" aria-label="拖动第'+(i+1)+'处边缘，方向键微调"><circle r="25" fill="transparent"/><circle class="clay-halo" r="18" fill="none" stroke="#d9fff0" stroke-width="2"/><circle class="clay-grip" r="6" fill="#effff9" stroke="#317d7b" stroke-width="2"/></g>').join('')}</g>
- <g class="clay-touch-feedback" aria-hidden="true"><circle r="29" fill="#b6f4e1" fill-opacity=".12" stroke="#caffed" stroke-opacity=".6" stroke-width="2"/><circle r="12" fill="none" stroke="#f2fff7" stroke-width="3"/></g><g class="clay-center" data-clay-center=""><path class="clay-leader" fill="none" stroke="#ffe477" stroke-width="2.5"/><circle r="19" fill="#1e2a44" stroke="#ffe477" stroke-width="3.5"/><circle r="7" fill="#ffe477"/><text class="clay-center-label" x="64" y="-46" text-anchor="middle">整体重心</text></g>
+ <g class="clay-touch-feedback" aria-hidden="true"><circle r="29" fill="#b6f4e1" fill-opacity=".12" stroke="#caffed" stroke-opacity=".6" stroke-width="2"/><circle r="12" fill="none" stroke="#f2fff7" stroke-width="3"/></g><g class="clay-center" data-clay-center=""><path class="clay-leader" fill="none" stroke="#ffe477" stroke-width="2.5"/><circle class="clay-marker-ring" r="19" fill="#1e2a44" stroke="#ffe477" stroke-width="3.5"/><circle class="clay-marker-dot" r="7" fill="#ffe477"/><rect class="clay-label-pill" rx="12" width="124" height="40"/><text class="clay-center-label" x="64" y="-46" text-anchor="middle">整体重心</text></g>
  <text class="clay-insight" x="700" y="584" text-anchor="middle"></text></svg>`;
  const svg=el.querySelector('.clay-canvas'),body=el.querySelector('.clay-body'),edge=el.querySelector('.clay-edge'),center=el.querySelector('.clay-center'),label=el.querySelector('.clay-center-label'),handles=[...el.querySelectorAll('[data-clay-handle]')];
- const paint=()=>{const ps=s.clayPoints,d='M'+ps.map(p=>p.join(' ')).join('L')+'Z',c=ClayCore.mass(ps).center;body.setAttribute('d',d);edge.setAttribute('d',d);if(massDrag&&el.contains(massDrag.node))el.querySelector('.clay-touch-feedback').setAttribute('transform','translate('+ps[massDrag.index].join(' ')+')');handles.forEach(h=>h.setAttribute('transform','translate('+ps[+h.dataset.clayHandle].join(' ')+')'));center.setAttribute('transform','translate('+c.join(' ')+')');center.dataset.clayCenter=c.join(',');const lx=c[0]>1050?-90:90,ly=c[1]<175?60:-58;label.setAttribute('x',lx);label.setAttribute('y',ly);el.querySelector('.clay-leader').setAttribute('d',`M${lx*.2} ${ly*.2}L${lx*.76} ${ly*.76}`);el.querySelector('.clay-insight').textContent=ClayCore.contains(ps,c)?'同样的材质，同样的厚度':'重心也可以在物体外面';const b=page.querySelector('[data-clay-reset]');if(b)b.disabled=!s.clayChanged;};
+ const paint=()=>{const ps=s.clayPoints,d='M'+ps.map(p=>p.join(' ')).join('L')+'Z',c=ClayCore.mass(ps).center;body.setAttribute('d',d);edge.setAttribute('d',d);if(massDrag&&el.contains(massDrag.node))el.querySelector('.clay-touch-feedback').setAttribute('transform','translate('+ps[massDrag.index].join(' ')+')');handles.forEach(h=>h.setAttribute('transform','translate('+ps[+h.dataset.clayHandle].join(' ')+')'));center.setAttribute('transform','translate('+c.join(' ')+')');center.dataset.clayCenter=c.join(',');const lx=c[0]>1050?-90:90,ly=c[1]<175?60:-58;label.setAttribute('x',lx);label.setAttribute('y',ly);const pill=el.querySelector('.clay-label-pill');pill.setAttribute('x',lx-62);pill.setAttribute('y',ly-29);el.querySelector('.clay-leader').setAttribute('d',`M${lx*.2} ${ly*.2}L${lx*.76} ${ly*.76}`);el.querySelector('.clay-insight').textContent=ClayCore.contains(ps,c)?'同样的材质，同样的厚度':'重心也可以在物体外面';const b=page.querySelector('[data-clay-reset]');if(b)b.disabled=!s.clayChanged;};
  const local=e=>{const p=new DOMPoint(e.clientX,e.clientY).matrixTransform(svg.getScreenCTM().inverse());return[p.x,p.y]};
  const update=(i,x,y)=>{const p=s.clayPoints[i];s.clayPoints=ClayCore.deform(s.clayPoints,i,x-p[0],y-p[1]);s.clayChanged=true;paint()};
  const finish=()=>{$('#live-status').textContent=ClayCore.contains(s.clayPoints,ClayCore.mass(s.clayPoints).center)?'形状已改变，黄色靶标是整体重心':'形状已改变，重心在物体外面';};
