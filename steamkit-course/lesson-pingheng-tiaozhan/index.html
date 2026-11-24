@@ -333,6 +333,17 @@ h1>span{display:block}
 
 .hunt-mass-note{display:inline-block;margin-left:16px;font-size:18px;color:#a9b6ca;vertical-align:middle}
 .hunt-native-model{pointer-events:none}
+
+/* Reveal-only intersection emphasis: keep the actual point visible, labels on leaders. */
+.hunt-revealed .hunt-trace{stroke-width:7;filter:drop-shadow(0 1px 1px #18253b88)}
+.hunt-candidate-leader,.hunt-intersection{pointer-events:none}
+.hunt-intersection-glow{fill:#ffcf5c22;stroke:none;filter:drop-shadow(0 0 8px #ffd36a)}
+.hunt-intersection-ring{fill:none;stroke:#ffe29b;stroke-width:4;filter:drop-shadow(0 0 4px #e6a638)}
+.hunt-intersection-dot{fill:#fff6cf;stroke:#c27e18;stroke-width:2.5}
+.hunt-intersection-pulse{fill:none;stroke:#ffe29b;stroke-width:3;opacity:0;transform-box:fill-box;transform-origin:center}
+.hunt-intersection.is-pulsing .hunt-intersection-pulse{animation:hunt-intersection-pulse 1s ease-out 2}
+@keyframes hunt-intersection-pulse{0%{transform:scale(.85);opacity:.85}100%{transform:scale(1.65);opacity:0}}
+@media(prefers-reduced-motion:reduce){.hunt-intersection.is-pulsing .hunt-intersection-pulse{animation:none}}
 </style><!-- Third-party license notices:
 Sound effects from Freesound.org, all CC0 (public domain):
 page.mp3  <- freesound #397548  fs_397548_Page-Turn-01.mp3
@@ -1914,10 +1925,10 @@ window.CenterHuntView={mount(root,state,{celebrate,clearCelebration,beep,announc
  function el(tag,attrs={},text){const n=document.createElementNS(ns,tag);for(const[k,v]of Object.entries(attrs))n.setAttribute(k,v);if(text!==undefined)n.textContent=text;return n;}
  function hint(){if(motion)return ['第一次悬挂…','第二次悬挂…','揭晓重心…'][motion.stage];return state.revealed?'交点就是重心':state.lines.length===2?'点 ▶ 揭晓':state.lines.length===1?'点 ▶ 换个挂点':state.choice?'点 ▶ 验证':'选 A 或 B';}
  function suspension(){return state.revealed?null:motion?motion.stage:state.lines.length?state.lines.length-1:null;}
- function trace(group,id,index){const p=shape().holes[id],c=center(),len=Math.hypot(c[0]-p[0],c[1]-p[1]),dx=(c[0]-p[0])/len,dy=(c[1]-p[1])/len;group.append(el('line',{x1:p[0]-dx*800,y1:p[1]-dy*800,x2:p[0]+dx*800,y2:p[1]+dy*800,class:'hunt-trace',stroke:shape().kind==='zometool'?(index?'#ffb15d':'#78d6ef'):(index?'#cf6920':'#237f9b'),'stroke-width':5,'stroke-dasharray':index?'':'11 7'}));}
- function ui(){
+ function trace(group,id,index){const p=shape().holes[id],c=center(),len=Math.hypot(c[0]-p[0],c[1]-p[1]),dx=(c[0]-p[0])/len,dy=(c[1]-p[1])/len;group.append(el('line',{x1:p[0]-dx*800,y1:p[1]-dy*800,x2:p[0]+dx*800,y2:p[1]+dy*800,class:'hunt-trace',stroke:state.revealed?(index?'#ff962d':'#40bcdf'):shape().kind==='zometool'?(index?'#ffb15d':'#78d6ef'):(index?'#cf6920':'#237f9b'),'stroke-width':5,'stroke-dasharray':index?'':'11 7'}));}
+ function ui(pulse=false){
   if(disposed)return;const s=shape(),d=path(s.points),stage=suspension(),locked=!!motion||state.lines.length>0||state.revealed;
-  root.classList.add('hunt-ab');root.innerHTML='<svg class="hunt-svg" viewBox="0 0 1400 610" aria-label="'+s.name+'：从A、B两点中选择重心"></svg><div class="hunt-hint" aria-live="polite">'+hint()+(s.kind==='zometool'?'<small class="hunt-mass-note">理想质量示意</small>':'')+'</div><div class="hunt-controls"></div>';
+  root.classList.add('hunt-ab');root.classList.toggle('hunt-revealed',state.revealed);root.innerHTML='<svg class="hunt-svg" viewBox="0 0 1400 610" aria-label="'+s.name+'：从A、B两点中选择重心"></svg><div class="hunt-hint" aria-live="polite">'+hint()+(s.kind==='zometool'?'<small class="hunt-mass-note">理想质量示意</small>':'')+'</div><div class="hunt-controls"></div>';
   const svg=root.querySelector('.hunt-svg'),defs=el('defs'),grad=el('linearGradient',{id:'hunt-material',x1:0,y1:0,x2:1,y2:1});grad.append(el('stop',{offset:0,'stop-color':'#fff2d5'}),el('stop',{offset:'.48','stop-color':s.color}),el('stop',{offset:1,'stop-color':s.color}));const clip=el('clipPath',{id:'hunt-clip'});clip.append(el('path',{d}));defs.append(grad,clip);svg.append(defs,el('ellipse',{cx:700,cy:490,rx:210,ry:17,fill:'#111d30',opacity:.4}));
   if(stage!==null&&stage<2){const pin=el('g',{class:'hunt-pin'});pin.append(el('path',{d:'M680 45H720M700 45V75',stroke:'#a6b5c7','stroke-width':3,'stroke-linecap':'round'}),el('circle',{cx:700,cy:75,r:7,fill:'#eef3f4'}));svg.append(pin);}
   const body=el('g',{class:'hunt-body',transform:`translate(${state.pose.x} ${state.pose.y}) rotate(${state.pose.angle})`});svg.append(body);
@@ -1929,11 +1940,13 @@ window.CenterHuntView={mount(root,state,{celebrate,clearCelebration,beep,announc
   if(stage!==null)for(const i of [0,1]){if(i>stage)continue;const p=s.holes[i];body.append(el('circle',{cx:p[0],cy:p[1],r:7,fill:'#25364b',stroke:'#fff0cf','stroke-width':2,class:'hunt-pivot'}));}
   for(const candidate of C.candidates(state.shape)){
    const {label,point}=candidate,selected=state.choice===label,correct=state.revealed&&label===s.answer,wrong=state.revealed&&selected&&!correct;
-   const g=el('g',{class:'hunt-candidate'+(selected?' selected':'')+(correct?' correct':wrong?' wrong':''),transform:`translate(${point[0]} ${point[1]})`,role:'button',tabindex:locked?-1:0,'aria-label':'选择'+label+'点','aria-pressed':selected,'aria-disabled':locked,'data-candidate':label});
+   const g=el('g',{class:'hunt-candidate'+(selected?' selected':'')+(correct?' correct':wrong?' wrong':''),transform:`translate(${point[0]} ${point[1]-(state.revealed?74:0)})`,role:'button',tabindex:locked?-1:0,'aria-label':'选择'+label+'点','aria-pressed':selected,'aria-disabled':locked,'data-candidate':label});
    g.append(el('circle',{r:31,class:'hunt-candidate-hit'}),el('circle',{r:25,class:'hunt-candidate-ring'}),el('text',{'text-anchor':'middle','dominant-baseline':'central',transform:`rotate(${-state.pose.angle})`,class:'hunt-candidate-label'},label));
    if(correct||wrong){const badge=el('g',{class:'hunt-result-badge',transform:`rotate(${-state.pose.angle}) translate(24 -24)`});badge.append(el('circle',{r:12}),el('text',{'text-anchor':'middle','dominant-baseline':'central'},correct?'✓':'×'));g.append(badge);}
+   if(state.revealed){body.append(el('line',{x1:point[0],y1:point[1],x2:point[0],y2:point[1]-49,class:'hunt-candidate-leader',stroke:correct?'#ffe2a0':'#b6c3d6','stroke-width':2}));if(!correct)body.append(el('circle',{cx:point[0],cy:point[1],r:4,fill:wrong?'#e6b3b4':'#b6c3d6'}));}
    g.addEventListener('click',()=>choose(label));g.addEventListener('keydown',e=>{if(['Enter',' '].includes(e.key)){e.preventDefault();e.stopPropagation();choose(label)}});body.append(g);
   }
+  if(state.revealed){const c=center(),focus=el('g',{class:'hunt-intersection'+(pulse&&!reduced()?' is-pulsing':''),transform:`translate(${c[0]} ${c[1]})`,'aria-label':'两条验证线的交点：重心'});focus.append(el('circle',{r:28,class:'hunt-intersection-glow'}),el('circle',{r:22,class:'hunt-intersection-ring'}),el('circle',{r:26,class:'hunt-intersection-pulse'}),el('circle',{r:6,class:'hunt-intersection-dot'}));body.append(focus);}
   if(stage!==null&&stage<2){const plumb=el('g',{class:'hunt-plumb'});plumb.append(el('line',{x1:700,y1:75,x2:700,y2:520,stroke:stage?'#f2ac69':'#78d6ef','stroke-width':2,'stroke-dasharray':'4 5'}),el('path',{d:'M700 516l-10 19 10 11 10-11Z',fill:stage?'#f2ac69':'#78d6ef'}));svg.append(plumb);}
   const controls=root.querySelector('.hunt-controls');const add=(name,icon,fn,disabled=false)=>{const b=document.createElement('button');b.className='round';b.setAttribute('aria-label',name);b.title=name;b.innerHTML=icons[icon];b.disabled=disabled;b.onclick=()=>{b.blur();fn()};controls.append(b);return b;};
   const play=add('验证猜想','play',verify,!!motion||!C.canVerify(state));play.classList.add('hunt-verify');
@@ -1944,7 +1957,7 @@ window.CenterHuntView={mount(root,state,{celebrate,clearCelebration,beep,announc
  function finish(reward=false){
   if(!motion)return;cancelAnimationFrame(frame);frame=0;const {stage,target,choice}=motion;motion=null;state.pose={...target};
   if(stage<2){state.lines=Array.from({length:stage+1},(_,i)=>i);ui();announce(stage===0?'第一条线已画好，再点击三角形换个挂点。':'第二条线已画好，再点击三角形揭晓。');return;}
-  state.verifiedChoice=choice;state.revealed=true;state.solved=choice===shape().answer;ui();announce((state.solved?'猜对了！':'再看一看，')+'重心在'+shape().answer+'点。');if(reward){if(state.solved)celebrate();else beep('reveal');}
+  state.verifiedChoice=choice;state.revealed=true;state.solved=choice===shape().answer;ui(reward);announce((state.solved?'猜对了！':'再看一看，')+'重心在'+shape().answer+'点。');if(reward){if(state.solved)celebrate();else beep('reveal');}
  }
  function moveAround(from,to,hole,v){const ease=1-(1-v)**3,p=shape().holes[hole],a=C.world(p,from),b=C.world(p,to),delta=((to.angle-from.angle+540)%360)-180,angle=from.angle+delta*ease,rot=C.world(p,{x:0,y:0,angle});return{x:a[0]+(b[0]-a[0])*ease-rot[0],y:a[1]+(b[1]-a[1])*ease-rot[1],angle};}
  function verify(){
@@ -1957,7 +1970,7 @@ window.CenterHuntView={mount(root,state,{celebrate,clearCelebration,beep,announc
   };frame=requestAnimationFrame(tick);
  }
  function restart(index){clearCelebration();cancelAnimationFrame(frame);frame=0;motion=null;Object.assign(state,C.initial(index));beep('undo');ui();}
- const stop=()=>finish(false);window.addEventListener('blur',stop);ui();return{stop,destroy(){stop();disposed=true;cancelAnimationFrame(frame);window.removeEventListener('blur',stop);},debug(){return{...JSON.parse(JSON.stringify(state)),phase:C.phase(state),animating:!!motion,verificationStep:suspension(),center:center(),holes:shape().holes.map(p=>C.world(p,state.pose)),worldCenter:C.world(center(),state.pose)};}};
+ const stop=()=>{finish(false);root.querySelector('.hunt-intersection')?.classList.remove('is-pulsing');};window.addEventListener('blur',stop);ui();return{stop,destroy(){stop();disposed=true;cancelAnimationFrame(frame);window.removeEventListener('blur',stop);},debug(){return{...JSON.parse(JSON.stringify(state)),phase:C.phase(state),animating:!!motion,verificationStep:suspension(),center:center(),holes:shape().holes.map(p=>C.world(p,state.pose)),worldCenter:C.world(center(),state.pose)};}};
 }};
 </script><script>window.COURSE={
   "id": "top-lesson1-20261121",
@@ -2216,7 +2229,7 @@ window.CenterHuntView={mount(root,state,{celebrate,clearCelebration,beep,announc
       "kind": "center-hunt",
       "title": "重心在哪里？",
       "section": "02 稳稳转的秘密",
-      "notes": "每个造型只标A、B两个候选点。先请孩子选择一个点，选中只高亮，不立即判对错；再点击右下▶验证。验证分三次点击：第一次悬挂并画蓝色虚线后停住；第二次换挂点并画橙色实线后停住；第三次恢复正向画面并揭晓重心。每步结束都等待再次点击，不自动继续。两条线的交点就是实际重心。正确候选点显示绿色与✓；选错的点显示柔和红色与×，同时指出正确答案。只有真实选对时才撒花；不显示右侧反馈卡片，保留候选点上的对错标记。\n【造型与答案】前两个是均匀拼板：小鱼的B、小靴子的A为实际面积重心。第三个是为本页新拼搭的Zometool小钥匙平面造型（center-hunt-key.vZome）：12球12根短蓝杆，不复用后面陀螺造型；B为理想质量假设下的球杆重心，A为钥匙方框中心的干扰点。两个候选点初态外观相同，不默认选择。右下交叉箭头换造型，↺重新猜当前造型。没有手动挂孔或自由点击找交点步骤。\n【科学边界】前两个图形假设材质均匀、厚度相同，重心依据可见多边形的面积积分计算；悬挂孔、标签、图案质量忽略，厚边仅用于视觉。第三个造型使用原生球杆网格正投影，不将轮廓视为实心板；球质量=1，杆质量=原生坐标长度×0.10，杆质量置于端点中点；这是理想质量示意，未称量、未实搭验证。悬挂点取真实连接球位置；证据线穿过空隙，不是画在实体板上，重心可以位于球杆之间的空处。稳定时重心在挂点竖直下方，两次铅垂线在板上相交于重心。动画为定位示意，不用于测周期。\n【状态】首次验证前可更换A/B；开始后锁定选择，动画中忽略重复点击；第三步前不显示正确/错误状态。离页、目录、备注、后台时只完成当前一步，不跳过后续步骤或补放庆祝；返回保留当前步、选项和结果，刷新恢复初始。验证中重置或换造型会取消本轮，不泄露答案。减少动态效果模式跳过单步动画，仍需逐次点击完成三个步骤。Tab选择A/B，Enter确认；再Tab到验证按钮按Enter。"
+      "notes": "每个造型只标A、B两个候选点。先请孩子选择一个点，选中只高亮，不立即判对错；再点击右下▶验证。验证分三次点击：第一次悬挂并画蓝色虚线后停住；第二次换挂点并画橙色实线后停住；第三次恢复正向画面并揭晓重心。每步结束都等待再次点击，不自动继续。两条线的交点就是实际重心。正确候选点显示绿色与✓；选错的点显示柔和红色与×，同时指出正确答案。只有真实选对时才撒花；不显示右侧反馈卡片，保留候选点上的对错标记。第三次点击揭晓时，两条证据线加粗提亮，实际交点显示金色靶标，光圈轻闪两次后保持静态高亮；A/B标签上移并用引线指回原位置，绝不移动重心或干扰点。前两步不提前显示交点高亮；减少动态效果及回翻只显示静态靶标。\n【造型与答案】前两个是均匀拼板：小鱼的B、小靴子的A为实际面积重心。第三个是为本页新拼搭的Zometool小钥匙平面造型（center-hunt-key.vZome）：12球12根短蓝杆，不复用后面陀螺造型；B为理想质量假设下的球杆重心，A为钥匙方框中心的干扰点。两个候选点初态外观相同，不默认选择。右下交叉箭头换造型，↺重新猜当前造型。没有手动挂孔或自由点击找交点步骤。\n【科学边界】前两个图形假设材质均匀、厚度相同，重心依据可见多边形的面积积分计算；悬挂孔、标签、图案质量忽略，厚边仅用于视觉。第三个造型使用原生球杆网格正投影，不将轮廓视为实心板；球质量=1，杆质量=原生坐标长度×0.10，杆质量置于端点中点；这是理想质量示意，未称量、未实搭验证。悬挂点取真实连接球位置；证据线穿过空隙，不是画在实体板上，重心可以位于球杆之间的空处。稳定时重心在挂点竖直下方，两次铅垂线在板上相交于重心。动画为定位示意，不用于测周期。\n【状态】首次验证前可更换A/B；开始后锁定选择，动画中忽略重复点击；第三步前不显示正确/错误状态。离页、目录、备注、后台时只完成当前一步，不跳过后续步骤或补放庆祝；返回保留当前步、选项和结果，刷新恢复初始。验证中重置或换造型会取消本轮，不泄露答案。减少动态效果模式跳过单步动画，仍需逐次点击完成三个步骤。Tab选择A/B，Enter确认；再Tab到验证按钮按Enter。"
     },
     {
       "id": "center-point",
